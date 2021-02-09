@@ -272,10 +272,10 @@ public class GeneratorImpl implements Generator {
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
     Account account = accountService.getAccount(generatorId, height - Constants.BURST_COMMITMENT_WAIT_TIME);
     if (account != null) {
-        committedBalance = account.getBalanceNQT();
+        committedBalance = account.getUnconfirmedBalanceNQT();
         Account accountNow = accountService.getAccount(generatorId, height);
-        if(accountNow.getBalanceNQT() < committedBalance)
-          committedBalance = accountNow.getBalanceNQT();
+        if(accountNow.getUnconfirmedBalanceNQT() < committedBalance)
+          committedBalance = accountNow.getUnconfirmedBalanceNQT();
 
         if(committedBalance > 0) {
           // First we try to estimate the capacity using more recent blocks only
