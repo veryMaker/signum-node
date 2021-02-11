@@ -37,9 +37,8 @@ canvas{
     object-fit: contain;
 }
 
-.logo > .version {
+.logo > #version {
     position: absolute;
-    bottom: 0;
     right: 12px;
 }
 
