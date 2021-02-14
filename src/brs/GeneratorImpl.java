@@ -8,6 +8,7 @@ import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.TimeService;
 import brs.util.Convert;
+import brs.util.DownloadCacheImpl;
 import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
@@ -34,6 +35,7 @@ public class GeneratorImpl implements Generator {
   private final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
   private final BurstCrypto burstCrypto = BurstCrypto.getInstance();
   private final Blockchain blockchain;
+  private final DownloadCacheImpl downloadCache;
   private final AccountService accountService;
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
@@ -41,8 +43,9 @@ public class GeneratorImpl implements Generator {
   private static final double LN_SCALE = ((double) Constants.BURST_BLOCK_TIME) / Math.log((double) Constants.BURST_BLOCK_TIME);
   // private static final double LN_SCALE = 49d; // value that would keep the legacy network size estimation close to real capacity
 
-  public GeneratorImpl(Blockchain blockchain, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
+  public GeneratorImpl(Blockchain blockchain, DownloadCacheImpl downloadCache, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
+    this.downloadCache = downloadCache;
     this.accountService = accountService;
     this.timeService = timeService;
     this.fluxCapacitor = fluxCapacitor;
@@ -244,7 +247,7 @@ public class GeneratorImpl implements Generator {
   public static class MockGenerator extends GeneratorImpl {
     private final PropertyService propertyService;
     public MockGenerator(PropertyService propertyService, Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
-      super(blockchain, null, timeService, fluxCapacitor);
+      super(blockchain, null, null, timeService, fluxCapacitor);
       this.propertyService = propertyService;
     }
 
@@ -268,8 +271,23 @@ public class GeneratorImpl implements Generator {
   public long calculateCommitment(long generatorId, long capacityBaseTarget, int height) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
     int nBlocksMined = 1;
+    int nBlocksMinedOnCache = 0;
     long committedBalance = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
+    
+    // Check if there are mined blocks on the download cache
+    Block lastStoredBlock = blockchain.getLastBlock();
+    Block blockIt = null;
+    if(downloadCache != null) {
+      blockIt = downloadCache.getLastBlock();
+    }
+    while(blockIt != null && blockIt.getHeight() > lastStoredBlock.getHeight()) {
+      if(blockIt.getGeneratorId() == generatorId)
+        nBlocksMinedOnCache++;
+
+      blockIt = downloadCache.getBlock(blockIt.getPreviousBlockId());
+    }
+    
     Account account = accountService.getAccount(generatorId, height - Constants.BURST_COMMITMENT_WAIT_TIME);
     if (account != null) {
         committedBalance = account.getUnconfirmedBalanceNQT();
@@ -288,6 +306,7 @@ public class GeneratorImpl implements Generator {
           }
         }
     }
+    nBlocksMined += nBlocksMinedOnCache;
     
     long genesisTarget = Constants.INITIAL_BASE_TARGET;
     if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {

@@ -44,9 +44,9 @@ public class GeneratorImplTest {
         FluxCapacitor fluxCapacitorLnTime = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.SODIUM);
         FluxCapacitor fluxCapacitorNextFork = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.NEXT_FORK);
 
-        generator = new GeneratorImpl(blockchain, null, timeService, fluxCapacitor);
-        generatorLnTime = new GeneratorImpl(blockchain, null, timeService, fluxCapacitorLnTime);
-        generatorNextFork = new GeneratorImpl(blockchain, null, timeService, fluxCapacitorNextFork);
+        generator = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitor);
+        generatorLnTime = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitorLnTime);
+        generatorNextFork = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitorNextFork);
     }
 
     @Test
