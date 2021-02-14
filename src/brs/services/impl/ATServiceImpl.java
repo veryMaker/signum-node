@@ -32,7 +32,7 @@ public class ATServiceImpl implements ATService {
 
   @Override
   public AT getAT(Long id) {
-    return atStore.getAT(id, -1);
+    return atStore.getAT(id);
   }
 
 }
