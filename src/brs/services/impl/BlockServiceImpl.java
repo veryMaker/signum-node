@@ -317,7 +317,7 @@ public class BlockServiceImpl implements BlockService {
       }
 
       block.setBaseTarget(newBaseTarget);
-      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(newBaseTarget))));
+      BigInteger difficulty = Convert.two64.divide(BigInteger.valueOf(newBaseTarget));
       
       if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
         block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), previousBlock.getCapacityBaseTarget(), previousBlock.getHeight()));
@@ -329,7 +329,20 @@ public class BlockServiceImpl implements BlockService {
         // assuming a minimum value of 1 BURST
         newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
-      }
+        
+        Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MIN_MAX_ROLLBACK);
+        
+        long pastAverageCommitment = pastBlock.getAverageCommitment();
+        double commitmentFactor = ((double)newAvgCommitment)/pastAverageCommitment;
+        commitmentFactor = Math.pow(commitmentFactor, 0.2);
+        commitmentFactor = Math.min(4.0, commitmentFactor);
+        commitmentFactor = Math.max(0.25, commitmentFactor);
+        long commitmentFactorPercent = (long)(100*commitmentFactor);
+        
+        difficulty = difficulty.multiply(BigInteger.valueOf(commitmentFactorPercent)).divide(BigInteger.valueOf(100L));
+      }      
+      
+      block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(difficulty));
     }
   }
 
