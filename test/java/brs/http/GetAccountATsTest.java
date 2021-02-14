@@ -13,6 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -67,6 +68,7 @@ public class GetAccountATsTest {
 
     when(mockATService.getATsIssuedBy(eq(mockAccountId))).thenReturn(Arrays.asList(mockATId));
     when(mockATService.getAT(eq(mockATId))).thenReturn(mockAT);
+    when(mockATService.getAT(eq(mockATId), ArgumentMatchers.anyInt())).thenReturn(mockAT);
 
     JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
