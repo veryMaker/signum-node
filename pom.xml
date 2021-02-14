@@ -49,7 +49,6 @@
     <jacoco.version>0.8.4</jacoco.version>
     <jiconfont.version>1.0.0</jiconfont.version>
     <font_awesome.version>4.7.0.1</font_awesome.version>
-    <darklaf.version>2.5.5</darklaf.version>
     
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -307,12 +306,6 @@
       <version>${font_awesome.version}</version>
     </dependency>
     
-	<dependency>
-		<groupId>com.github.weisj</groupId>
-		<artifactId>darklaf-core</artifactId>
-		<version>${darklaf.version}</version>
-	</dependency>
-
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>

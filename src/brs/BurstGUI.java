@@ -35,14 +35,13 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -79,8 +78,26 @@ public class BurstGUI extends JFrame {
     public BurstGUI() {
         System.setSecurityManager(new BurstGUISecurityManager());
         setTitle("Burst Reference Software version " + Burst.VERSION);
-        
-        LafManager.install(new DarculaTheme());
+
+        Class<?> lafc = null;
+        try {
+          lafc = Class.forName("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+        }
+        catch (Exception e) {}
+        if(lafc==null) {
+          try {
+            lafc =  Class.forName("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+          }
+          catch (Exception e) {}
+        }
+        if(lafc!=null) {
+          try {
+            LookAndFeel laf = (LookAndFeel) lafc.getConstructor().newInstance();
+            UIManager.setLookAndFeel(laf);                          
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
 		IconFontSwing.register(FontAwesome.getIconFont());
 
         JTextArea textArea = new JTextArea() {
