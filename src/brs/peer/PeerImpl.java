@@ -217,8 +217,7 @@ final class PeerImpl implements Peer {
 
   @Override
   public boolean isBlacklisted() {
-    return blacklistingTime.get() > 0 || isOldVersion.get() || Peers.knownBlacklistedPeers.contains(peerAddress) ||
-        Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION).isGreaterThan(this.version.get());
+    return blacklistingTime.get() > 0 || isOldVersion.get() || Peers.knownBlacklistedPeers.contains(peerAddress);
   }
 
   @Override
