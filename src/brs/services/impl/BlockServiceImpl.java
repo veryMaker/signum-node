@@ -334,9 +334,8 @@ public class BlockServiceImpl implements BlockService {
         
         long pastAverageCommitment = pastBlock.getAverageCommitment();
         double commitmentFactor = generator.getCommitmentFactor(newAvgCommitment, pastAverageCommitment, block.getHeight());
-        long commitmentFactorPercent = (long)(100*commitmentFactor);
         
-        difficulty = difficulty.multiply(BigInteger.valueOf(commitmentFactorPercent)).divide(BigInteger.valueOf(100L));
+        difficulty = BigInteger.valueOf((long)(difficulty.doubleValue()*commitmentFactor));
       }      
       
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(difficulty));
