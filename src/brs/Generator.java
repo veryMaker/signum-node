@@ -36,6 +36,8 @@ public interface Generator {
 
   long calculateCommitment(long generatorId, long capacityBaseTarget, int height);
   
+  double getCommitmentFactor(long commitment, long averageCommitment, int blockHeight);
+  
   interface GeneratorState {
     byte[] getPublicKey();
 

@@ -144,15 +144,25 @@ public class GeneratorImpl implements Generator {
   public BigInteger calculateHit(byte[] genSig, byte[] scoopData) {
     return burstCrypto.calculateHit(genSig, scoopData);
   }
+  
+  @Override
+  public double getCommitmentFactor(long commitment, long averageCommitment, int blockHeight) {
+    if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, blockHeight)) {
+      double commitmentFactor = ((double)commitment)/averageCommitment;
+      commitmentFactor = Math.pow(commitmentFactor, 0.4515449935);
+      commitmentFactor = Math.min(8.0, commitmentFactor);
+      commitmentFactor = Math.max(0.125, commitmentFactor);
+
+      return commitmentFactor;
+    }
+    return 1.0;
+  }
 
   @Override
   public BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight) {
     BigInteger deadline = hit.divide(BigInteger.valueOf(capacityBaseTarget));
     if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, blockHeight)) {
-      double commitmentFactor = ((double)commitment)/averageCommitment;
-      commitmentFactor = Math.pow(commitmentFactor, 0.2);
-      commitmentFactor = Math.min(4.0, commitmentFactor);
-      commitmentFactor = Math.max(0.25, commitmentFactor);
+      double commitmentFactor = getCommitmentFactor(commitment, averageCommitment, blockHeight);
       
       double nextDeadline = deadline.doubleValue()/commitmentFactor;
       if(nextDeadline > 0) {
@@ -290,21 +300,21 @@ public class GeneratorImpl implements Generator {
     
     Account account = accountService.getAccount(generatorId, height - Constants.BURST_COMMITMENT_WAIT_TIME);
     if (account != null) {
-        committedBalance = account.getUnconfirmedBalanceNQT();
-        Account accountNow = accountService.getAccount(generatorId, height);
-        if(accountNow.getUnconfirmedBalanceNQT() < committedBalance)
-          committedBalance = accountNow.getUnconfirmedBalanceNQT();
+      committedBalance = account.getUnconfirmedBalanceNQT();
+      Account accountNow = accountService.getAccount(generatorId, height);
+      if(accountNow.getUnconfirmedBalanceNQT() < committedBalance)
+        committedBalance = accountNow.getUnconfirmedBalanceNQT();
 
-        if(committedBalance > 0) {
-          // First we try to estimate the capacity using more recent blocks only
-          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, height);
-          if(nBlocksMined < 3) {
-            // Use more blocks in the past to make the estimation if that is necessary
-            capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-            nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-                height);
-          }
+      if(committedBalance > 0) {
+        // First we try to estimate the capacity using more recent blocks only
+        nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, height);
+        if(nBlocksMined + nBlocksMinedOnCache < 3) {
+          // Use more blocks in the past to make the estimation if that is necessary
+          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
+          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+              height);
         }
+      }
     }
     nBlocksMined += nBlocksMinedOnCache;
     
