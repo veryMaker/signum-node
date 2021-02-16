@@ -49,6 +49,8 @@ public class Props {
   public static final Prop<Integer> DEV_CHECKPOINT_HEIGHT = new Prop<>("DEV.checkPointHeight", 249_000);
   public static final Prop<String> DEV_CHECKPOINT_HASH = new Prop<>("DEV.checkPointPrevHash", "41e28a9068369bd528f7da97951b07e42d64c263e8b190dd56287ad2b0c63a38");
 
+  public static final Prop<Boolean> BRS_COMMITMENT_LOCK = new Prop<>("brs.commitmentLock", false);
+
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);
   public static final Prop<Boolean> GPU_AUTODETECT       = new Prop<>("GPU.AutoDetect", true);

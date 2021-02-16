@@ -11,6 +11,7 @@ import brs.at.AtController;
 import brs.at.AtException;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
@@ -222,10 +223,10 @@ public abstract class TransactionType {
     if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
-    if (fluxCapacitor.getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
+    if (Burst.getPropertyService().getBoolean(Props.BRS_COMMITMENT_LOCK) && fluxCapacitor.getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
       int blocksMined = blockchain.getBlocksCount(senderAccount, transaction.getHeight()-Constants.BURST_COMMITMENT_WAIT_TIME, transaction.getHeight());
       if (blocksMined > 0) {
-        // Block forger can only move funds after 2 days
+        // Block forger can only move funds after the waiting period
         logger.info("block forger {} trying to make transactions too soon", Convert.toUnsignedLong(senderAccount.getId()));
         return false;
       }

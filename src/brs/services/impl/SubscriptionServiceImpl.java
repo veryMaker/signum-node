@@ -8,6 +8,7 @@ import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.db.store.SubscriptionStore;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.AliasService;
 import brs.services.SubscriptionService;
@@ -157,7 +158,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
-    if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
+    if (Burst.getPropertyService().getBoolean(Props.BRS_COMMITMENT_LOCK) && Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
       int blocksMined = blockchain.getBlocksCount(sender, height-Constants.BURST_COMMITMENT_WAIT_TIME, height);
       if (blocksMined > 0) {
         // Block forger can only move funds after the wait time, subscription will be cancelled
