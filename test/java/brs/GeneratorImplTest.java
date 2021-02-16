@@ -72,8 +72,8 @@ public class GeneratorImplTest {
     @Test
     public void testGeneratorCalculateNextDeadline() {
         BigInteger hit = generatorNextFork.calculateHit(TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, 0, exampleGenSig, generator.calculateScoop(exampleGenSig, exampleHeight), exampleHeight);
-        BigInteger deadline = generatorNextFork.calculateDeadline(hit, exampleBaseTarget, 1000*exampleAverageCommitment, exampleAverageCommitment, exampleHeight);
-        assertEquals(BigInteger.valueOf(1235L), deadline);
+        BigInteger deadline = generatorNextFork.calculateDeadline(hit, exampleBaseTarget, 100*exampleAverageCommitment, exampleAverageCommitment, exampleHeight);
+        assertEquals(BigInteger.valueOf(1205L), deadline);
     }
 
     @Test
