@@ -2047,8 +2047,12 @@ public abstract class TransactionType {
         long totalAmountNQT = commitmentRemove.getAmountNQT();
         
         blockchain = Burst.getBlockchain();
-        long amountCommited = blockchain.getCommittedAmount(senderAccount, blockchain.getLastBlock().getHeight());
-
+        int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MIN_MAX_ROLLBACK, blockchain.getHeight());
+        if(nBlocksMined > 0) {
+          // need to wait since the last block mined to remove any commitment
+          return false;
+        }
+        long amountCommited = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight());
         if (amountCommited >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
