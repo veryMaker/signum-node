@@ -2,6 +2,8 @@ package brs;
 
 import brs.Attachment.AbstractAttachment;
 import brs.Attachment.AutomatedTransactionsCreation;
+import brs.Attachment.CommitmentAdd;
+import brs.Attachment.CommitmentRemove;
 import brs.BurstException.NotValidException;
 import brs.BurstException.ValidationException;
 import brs.assetexchange.AssetExchange;
@@ -11,7 +13,6 @@ import brs.at.AtController;
 import brs.at.AtException;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
-import brs.props.Props;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
@@ -34,54 +35,56 @@ public abstract class TransactionType {
 
   private static final Map<Byte, Map<Byte, TransactionType>> TRANSACTION_TYPES = new HashMap<>();
 
-  private static final byte TYPE_PAYMENT = 0;
-  private static final byte TYPE_MESSAGING = 1;
-  private static final byte TYPE_COLORED_COINS = 2;
-  private static final byte TYPE_DIGITAL_GOODS = 3;
-  private static final byte TYPE_ACCOUNT_CONTROL = 4;
-  private static final byte TYPE_BURST_MINING = 20; // jump some for easier nxt updating
-  private static final byte TYPE_ADVANCED_PAYMENT = 21;
-  private static final byte TYPE_AUTOMATED_TRANSACTIONS = 22;
+  public static final byte TYPE_PAYMENT = 0;
+  public static final byte TYPE_MESSAGING = 1;
+  public static final byte TYPE_COLORED_COINS = 2;
+  public static final byte TYPE_DIGITAL_GOODS = 3;
+  public static final byte TYPE_ACCOUNT_CONTROL = 4;
+  public static final byte TYPE_BURST_MINING = 20; // jump some for easier nxt updating
+  public static final byte TYPE_ADVANCED_PAYMENT = 21;
+  public static final byte TYPE_AUTOMATED_TRANSACTIONS = 22;
 
-  private static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT = 0;
-  private static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_OUT = 1;
-  private static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_SAME_OUT = 2;
+  public static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT = 0;
+  public static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_OUT = 1;
+  public static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_SAME_OUT = 2;
 
-  private static final byte SUBTYPE_MESSAGING_ARBITRARY_MESSAGE = 0;
-  private static final byte SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT = 1;
-  private static final byte SUBTYPE_MESSAGING_ACCOUNT_INFO = 5;
-  private static final byte SUBTYPE_MESSAGING_ALIAS_SELL = 6;
-  private static final byte SUBTYPE_MESSAGING_ALIAS_BUY = 7;
+  public static final byte SUBTYPE_MESSAGING_ARBITRARY_MESSAGE = 0;
+  public static final byte SUBTYPE_MESSAGING_ALIAS_ASSIGNMENT = 1;
+  public static final byte SUBTYPE_MESSAGING_ACCOUNT_INFO = 5;
+  public static final byte SUBTYPE_MESSAGING_ALIAS_SELL = 6;
+  public static final byte SUBTYPE_MESSAGING_ALIAS_BUY = 7;
 
-  private static final byte SUBTYPE_COLORED_COINS_ASSET_ISSUANCE = 0;
-  private static final byte SUBTYPE_COLORED_COINS_ASSET_TRANSFER = 1;
-  private static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT = 2;
-  private static final byte SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT = 3;
-  private static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
-  private static final byte SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_ISSUANCE = 0;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_TRANSFER = 1;
+  public static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT = 2;
+  public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT = 3;
+  public static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
+  public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
 
-  private static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
-  private static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
-  private static final byte SUBTYPE_DIGITAL_GOODS_PRICE_CHANGE = 2;
-  private static final byte SUBTYPE_DIGITAL_GOODS_QUANTITY_CHANGE = 3;
-  private static final byte SUBTYPE_DIGITAL_GOODS_PURCHASE = 4;
-  private static final byte SUBTYPE_DIGITAL_GOODS_DELIVERY = 5;
-  private static final byte SUBTYPE_DIGITAL_GOODS_FEEDBACK = 6;
-  private static final byte SUBTYPE_DIGITAL_GOODS_REFUND = 7;
+  public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
+  public static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
+  public static final byte SUBTYPE_DIGITAL_GOODS_PRICE_CHANGE = 2;
+  public static final byte SUBTYPE_DIGITAL_GOODS_QUANTITY_CHANGE = 3;
+  public static final byte SUBTYPE_DIGITAL_GOODS_PURCHASE = 4;
+  public static final byte SUBTYPE_DIGITAL_GOODS_DELIVERY = 5;
+  public static final byte SUBTYPE_DIGITAL_GOODS_FEEDBACK = 6;
+  public static final byte SUBTYPE_DIGITAL_GOODS_REFUND = 7;
 
-  private static final byte SUBTYPE_AT_CREATION = 0;
-  private static final byte SUBTYPE_AT_NXT_PAYMENT = 1;
+  public static final byte SUBTYPE_AT_CREATION = 0;
+  public static final byte SUBTYPE_AT_NXT_PAYMENT = 1;
 
-  private static final byte SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING = 0;
+  public static final byte SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING = 0;
 
-  private static final byte SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT = 0;
+  public static final byte SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT = 0;
+  public static final byte SUBTYPE_BURST_MINING_COMMITMENT_ADD = 1;
+  public static final byte SUBTYPE_BURST_MINING_COMMITMENT_REMOVE = 2;
 
-  private static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION = 0;
-  private static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_SIGN = 1;
-  private static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_RESULT = 2;
-  private static final byte SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_SUBSCRIBE = 3;
-  private static final byte SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_CANCEL = 4;
-  private static final byte SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT = 5;
+  public static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION = 0;
+  public static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_SIGN = 1;
+  public static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_RESULT = 2;
+  public static final byte SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_SUBSCRIBE = 3;
+  public static final byte SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_CANCEL = 4;
+  public static final byte SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT = 5;
 
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
@@ -148,6 +151,8 @@ public abstract class TransactionType {
 
     Map<Byte, TransactionType> burstMiningTypes = new HashMap<>();
     burstMiningTypes.put(SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT, BurstMining.REWARD_RECIPIENT_ASSIGNMENT);
+    burstMiningTypes.put(SUBTYPE_BURST_MINING_COMMITMENT_ADD, BurstMining.COMMITMENT_ADD);
+    burstMiningTypes.put(SUBTYPE_BURST_MINING_COMMITMENT_REMOVE, BurstMining.COMMITMENT_REMOVE);
 
     Map<Byte, TransactionType> advancedPaymentTypes = new HashMap<>();
     advancedPaymentTypes.put(SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION, AdvancedPayment.ESCROW_CREATION);
@@ -222,14 +227,6 @@ public abstract class TransactionType {
     }
     if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
-    }
-    if (Burst.getPropertyService().getBoolean(Props.BRS_COMMITMENT_LOCK) && fluxCapacitor.getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
-      int blocksMined = blockchain.getBlocksCount(senderAccount, transaction.getHeight()-Constants.BURST_COMMITMENT_WAIT_TIME, transaction.getHeight());
-      if (blocksMined > 0) {
-        // Block forger can only move funds after the waiting period
-        logger.info("block forger {} trying to make transactions too soon", Convert.toUnsignedLong(senderAccount.getId()));
-        return false;
-      }
     }
     accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
     if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
@@ -1864,15 +1861,15 @@ public abstract class TransactionType {
       return TransactionType.TYPE_BURST_MINING;
     }
 
-    @Override
-    final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-      return true;
-    }
-
-    @Override
-    final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {}
-
     public static final TransactionType REWARD_RECIPIENT_ASSIGNMENT = new BurstMining() {
+      
+      @Override
+      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        return true;
+      }
+
+      @Override
+      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {}
 
       @Override
       public final byte getSubtype() {
@@ -1947,6 +1944,156 @@ public abstract class TransactionType {
         return true;
       }
     };
+    
+    public static final TransactionType COMMITMENT_ADD = new BurstMining() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Add Commitment";
+      }
+
+      @Override
+      public Attachment.CommitmentAdd
+      parseAttachment(ByteBuffer buffer, byte transactionVersion) {
+        return new Attachment.CommitmentAdd(buffer, transactionVersion);
+      }
+
+      @Override
+      Attachment.CommitmentAdd parseAttachment(JsonObject attachmentData) {
+        return new Attachment.CommitmentAdd(attachmentData);
+      }
+      
+      @Override
+      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        logger.trace("TransactionType COMMITMENT_ADD");
+        CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
+        Long totalAmountNQT = commitmentAdd.getAmountNQT();
+        if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
+          accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+          return true;
+        }
+        return false;
+      }
+
+      @Override
+      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // Nothing to apply
+      }
+
+      @Override
+      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
+        Long totalAmountNQT = commitmentAdd.getAmountNQT();
+        accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
+      }
+
+      @Override
+      public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
+        return new TransactionDuplicationKey(BurstMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()));
+      }
+
+      @Override
+      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        int height = blockchain.getLastBlock().getHeight() + 1;
+        Account sender = accountService.getAccount(transaction.getSenderId());
+
+        if (sender == null) {
+          throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
+        }
+
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
+          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.NEXT_FORK));
+        }
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return false;
+      }
+    };    
+
+    public static final TransactionType COMMITMENT_REMOVE = new BurstMining() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Remove Commitment";
+      }
+
+      @Override
+      public Attachment.CommitmentRemove
+      parseAttachment(ByteBuffer buffer, byte transactionVersion) {
+        return new Attachment.CommitmentRemove(buffer, transactionVersion);
+      }
+
+      @Override
+      Attachment.CommitmentRemove parseAttachment(JsonObject attachmentData) {
+        return new Attachment.CommitmentRemove(attachmentData);
+      }
+      
+      @Override
+      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        logger.trace("TransactionType COMMITMENT_REMOVE");
+        CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
+        long totalAmountNQT = commitmentRemove.getAmountNQT();
+        
+        blockchain = Burst.getBlockchain();
+        long amountCommited = blockchain.getCommittedAmount(senderAccount, blockchain.getLastBlock().getHeight());
+
+        if (amountCommited >= totalAmountNQT ) {
+          accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+          return true;
+        }
+        return false;
+      }
+
+      @Override
+      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // Nothing to apply
+      }
+
+      @Override
+      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
+        long totalAmountNQT = commitmentRemove.getAmountNQT();
+
+        accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
+      }
+
+      @Override
+      public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
+        return new TransactionDuplicationKey(BurstMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()));
+      }
+
+      @Override
+      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        int height = blockchain.getLastBlock().getHeight() + 1;
+        Account sender = accountService.getAccount(transaction.getSenderId());
+
+        if (sender == null) {
+          throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
+        }
+
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
+          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.NEXT_FORK));
+        }
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return false;
+      }
+    };    
+
   }
 
   public abstract static class AdvancedPayment extends TransactionType {

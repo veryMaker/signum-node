@@ -213,7 +213,7 @@ public class GeneratorImpl implements Generator {
       hit = calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1);
       long commitmment = 0L;
       if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, lastBlock.getHeight() + 1)) {
-        commitmment = calculateCommitment(accountId, baseTarget, lastBlock.getHeight());
+        commitmment = calculateCommitment(accountId, lastBlock);
       }
       
       deadline = calculateDeadline(hit, baseTarget, commitmment, lastBlock.getAverageCommitment(), lastBlock.getHeight() + 1);
@@ -278,41 +278,41 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public long calculateCommitment(long generatorId, long capacityBaseTarget, int height) {
+  public long calculateCommitment(long generatorId, Block previousBlock) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
     int nBlocksMined = 1;
     int nBlocksMinedOnCache = 0;
-    long committedBalance = 0;
+    long committedAmount = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
+    long capacityBaseTarget = previousBlock.getCapacityBaseTarget();
+    int height = previousBlock.getHeight();
+    int endHeight = height;
     
     // Check if there are mined blocks on the download cache
-    Block lastStoredBlock = blockchain.getLastBlock();
     Block blockIt = null;
     if(downloadCache != null) {
-      blockIt = downloadCache.getLastBlock();
+      blockIt = downloadCache.getBlock(previousBlock.getId());
     }
-    while(blockIt != null && blockIt.getHeight() > lastStoredBlock.getHeight()) {
-      if(blockIt.getGeneratorId() == generatorId)
+    while(blockIt != null && !blockchain.hasBlock(blockIt.getId())) {
+      if(blockIt.getGeneratorId() == generatorId) {
         nBlocksMinedOnCache++;
+      }
 
+      endHeight = blockIt.getHeight();
       blockIt = downloadCache.getBlock(blockIt.getPreviousBlockId());
     }
     
-    Account account = accountService.getAccount(generatorId, height - Constants.BURST_COMMITMENT_WAIT_TIME);
+    Account account = accountService.getAccount(generatorId);
     if (account != null) {
-      committedBalance = account.getUnconfirmedBalanceNQT();
-      Account accountNow = accountService.getAccount(generatorId, height);
-      if(accountNow.getUnconfirmedBalanceNQT() < committedBalance)
-        committedBalance = accountNow.getUnconfirmedBalanceNQT();
-
-      if(committedBalance > 0) {
+      committedAmount = blockchain.getCommittedAmount(account, height);
+      if(committedAmount > 0) {
         // First we try to estimate the capacity using more recent blocks only
-        nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, height);
+        nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, endHeight);
         if(nBlocksMined + nBlocksMinedOnCache < 3) {
           // Use more blocks in the past to make the estimation if that is necessary
           capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
           nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-              height);
+              endHeight);
         }
       }
     }
@@ -327,7 +327,7 @@ public class GeneratorImpl implements Generator {
       estimatedCapacityGb = 1000L;
     }
     // Commitment being the committed balance per TiB
-    long commitment = (committedBalance/estimatedCapacityGb) * 1000L;
+    long commitment = (committedAmount/estimatedCapacityGb) * 1000L;
     
     logger.info("Block {}, Network {} TiB, miner {}, forged {}/{} blocks, {} TiB, commitment {}/TiB",
         height,

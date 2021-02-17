@@ -1997,8 +1997,139 @@ public interface Attachment extends Appendix {
               .setVersion(getVersion())
               .build());
     }
+    
   }
+  
 
+  abstract class CommitmentAttachment extends AbstractAttachment {
+
+    private final long amountNQT;
+
+    private CommitmentAttachment(ByteBuffer buffer, byte transactionVersion) {
+      super(buffer, transactionVersion);
+      this.amountNQT = buffer.getLong();
+    }
+
+    private CommitmentAttachment(JsonObject attachmentData) {
+      super(attachmentData);
+      this.amountNQT = JSON.getAsLong(attachmentData.get(AMOUNT_NQT_PARAMETER));
+    }
+
+    private CommitmentAttachment(long amountNQT, int blockchainHeight) {
+      super(blockchainHeight);
+      this.amountNQT = amountNQT;
+    }
+
+    CommitmentAttachment(BrsApi.CommitmentAttachment attachment) {
+      super((byte) attachment.getVersion());
+      this.amountNQT = attachment.getAmount();
+      attachment.getType();
+    }
+    
+    public long getAmountNQT() {
+      return amountNQT;
+    }
+
+    @Override
+    int getMySize() {
+      return 8;
+    }
+
+    @Override
+    void putMyBytes(ByteBuffer buffer) {
+      buffer.putLong(amountNQT);
+    }
+
+    @Override
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(AMOUNT_NQT_RESPONSE, amountNQT);
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.CommitmentAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setAmount(amountNQT)
+              .setType(getType())
+              .build());
+    }
+
+    protected abstract BrsApi.CommitmentType getType();
+  }
+  
+  final class CommitmentAdd extends CommitmentAttachment {
+
+    CommitmentAdd(ByteBuffer buffer, byte transactionVersion) {
+      super(buffer, transactionVersion);
+    }
+
+    CommitmentAdd(JsonObject attachmentData) {
+      super(attachmentData);
+    }
+
+    public CommitmentAdd(long amountNQT, int blockchainHeight) {
+      super(amountNQT, blockchainHeight);
+    }
+
+    CommitmentAdd(BrsApi.CommitmentAttachment attachment) {
+      super(attachment);
+      if (attachment.getType() != getType()) throw new IllegalArgumentException("Type does not match");
+    }
+
+    @Override
+    protected BrsApi.CommitmentType getType() {
+      return BrsApi.CommitmentType.ADD;
+    }
+
+    @Override
+    String getAppendixName() {
+      return "CommitmentAdd";
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.BurstMining.COMMITMENT_ADD;
+    }
+
+  }
+  
+  final class CommitmentRemove extends CommitmentAttachment {
+
+    CommitmentRemove(ByteBuffer buffer, byte transactionVersion) {
+      super(buffer, transactionVersion);
+    }
+
+    CommitmentRemove(JsonObject attachmentData) {
+      super(attachmentData);
+    }
+
+    public CommitmentRemove(long amountNQT, int blockchainHeight) {
+      super(amountNQT, blockchainHeight);
+    }
+
+    CommitmentRemove(BrsApi.CommitmentAttachment attachment) {
+      super(attachment);
+      if (attachment.getType() != getType()) throw new IllegalArgumentException("Type does not match");
+    }
+
+    @Override
+    protected BrsApi.CommitmentType getType() {
+      return BrsApi.CommitmentType.REMOVE;
+    }
+
+    @Override
+    String getAppendixName() {
+      return "CommitmentRemove";
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.BurstMining.COMMITMENT_REMOVE;
+    }
+    
+  }
+  
+  
   final class AdvancedPaymentEscrowCreation extends AbstractAttachment {
 
     private final Long amountNQT;

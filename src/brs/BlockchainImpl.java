@@ -185,4 +185,9 @@ public class BlockchainImpl implements Blockchain {
                                                  int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
     return blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming);
   }
+  
+  @Override
+  public long getCommittedAmount(Account account, int height) {
+    return blockchainStore.getCommittedAmount(account, height);
+  }
 }

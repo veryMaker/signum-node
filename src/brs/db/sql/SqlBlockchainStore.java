@@ -2,7 +2,10 @@ package brs.db.sql;
 
 import brs.*;
 import brs.Block;
+import brs.Constants;
 import brs.Transaction;
+import brs.Attachment.CommitmentAdd;
+import brs.Attachment.CommitmentRemove;
 import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
@@ -133,7 +136,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       return ctx.select(DSL.sum(TRANSACTION.AMOUNT)).from(TRANSACTION)
           .where(TRANSACTION.RECIPIENT_ID.isNull())
           .and(TRANSACTION.AMOUNT.gt(0L))
-          .and(TRANSACTION.TYPE.equal((byte)22))
+          .and(TRANSACTION.TYPE.equal(TransactionType.TYPE_AUTOMATED_TRANSACTIONS))
           .fetchOneInto(long.class);
     });
   }
@@ -216,5 +219,35 @@ public class SqlBlockchainStore implements BlockchainStore {
                       .orderBy(BLOCK.HEIGHT.asc())
                       .fetch());
     });
+  }
+  
+  @Override
+  public long getCommittedAmount(Account account, int height) {
+    long amountCommited = 0L;
+    
+    Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
+      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+          .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
+          .and(TRANSACTION.HEIGHT.le(height - Constants.MIN_MAX_ROLLBACK))
+          .and(TRANSACTION.SENDER_ID.equal(account.getId()));
+      return getTransactions(ctx, select.fetch());
+    });
+    Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
+      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+          .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
+          .and(TRANSACTION.HEIGHT.le(height - Constants.MIN_MAX_ROLLBACK))
+          .and(TRANSACTION.SENDER_ID.equal(account.getId()));
+      return getTransactions(ctx, select.fetch());
+    });
+    
+    for(Transaction tx : commitmmentAddTransactions) {
+      CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
+      amountCommited += txAttachment.getAmountNQT();
+    }
+    for(Transaction tx : commitmmentRemoveTransactions) {
+      CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
+      amountCommited -= txAttachment.getAmountNQT();
+    }
+    return amountCommited;
   }
 }

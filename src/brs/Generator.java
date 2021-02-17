@@ -34,7 +34,7 @@ public interface Generator {
 
   BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight);
 
-  long calculateCommitment(long generatorId, long capacityBaseTarget, int height);
+  long calculateCommitment(long generatorId, Block prevBlock);
   
   double getCommitmentFactor(long commitment, long averageCommitment, int blockHeight);
   
