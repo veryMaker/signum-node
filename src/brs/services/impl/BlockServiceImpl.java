@@ -326,6 +326,14 @@ public class BlockServiceImpl implements BlockService {
         long curCommitment = previousBlock.getAverageCommitment();
         
         long newAvgCommitment = (curCommitment*23L + block.getCommitment())/24L;
+        // avoid changing more than 20% in a single block
+        if (newAvgCommitment < curCommitment * 8 / 10) {
+          newAvgCommitment = curCommitment * 8 / 10;
+        }
+        if (newAvgCommitment > curCommitment * 12 / 10) {
+          newAvgCommitment = curCommitment * 12 / 10;
+        }
+        
         // assuming a minimum value of 1 BURST
         newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
