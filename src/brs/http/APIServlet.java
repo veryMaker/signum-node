@@ -70,7 +70,6 @@ public final class APIServlet extends HttpServlet {
     map.put("getAccountPublicKey", new GetAccountPublicKey(parameterService));
     map.put("getAccountTransactionIds", new GetAccountTransactionIds(parameterService, blockchain));
     map.put("getAccountTransactions", new GetAccountTransactions(parameterService, blockchain));
-    map.put("getAccountLessors", new GetAccountLessors(parameterService, blockchain));
     map.put("getAccountAssets", new GetAccountAssets(parameterService, accountService));
     map.put("sellAlias", new SellAlias(parameterService, blockchain, apiTransactionManager));
     map.put("buyAlias", new BuyAlias(parameterService, blockchain, aliasService, apiTransactionManager));
