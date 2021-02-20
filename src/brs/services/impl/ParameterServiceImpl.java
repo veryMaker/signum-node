@@ -10,12 +10,15 @@ import brs.http.common.Parameters;
 import brs.services.*;
 import brs.util.Convert;
 import brs.util.JSON;
+import burst.kit.entity.BurstAddress;
+
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static brs.http.JSONResponses.*;
@@ -56,23 +59,37 @@ public class ParameterServiceImpl implements ParameterService {
     if (accountId == null) {
       throw new ParameterException(MISSING_ACCOUNT);
     }
-    try {
-      Account account = null;
-      if (heightValue != null) {
-    	try {
-    	  int height = Integer.parseInt(heightValue);
-    	  if (height < 0 || height > blockchain.getHeight())
-    		throw new ParameterException(INCORRECT_HEIGHT);
-      	  account = accountService.getAccount(Convert.parseAccountId(accountId), height);
-    	} catch (RuntimeException e) {
-    	  throw new ParameterException(INCORRECT_HEIGHT);
-    	}
+    int height = -1;
+    if (heightValue != null) {
+      try {
+        height = Integer.parseInt(heightValue);
+        if (height < 0 || height > blockchain.getHeight())
+          throw new ParameterException(INCORRECT_HEIGHT);
+      } catch (RuntimeException e) {
+        throw new ParameterException(INCORRECT_HEIGHT);
       }
-      else
-        account = accountService.getAccount(Convert.parseAccountId(accountId));
-      if (account == null) {
+    }
+    
+    try {
+      BurstAddress accountAddress = Convert.parseAddress(accountId);
+      Account account = height >= 0 ? accountService.getAccount(accountAddress.getSignedLongId(), height)
+          : accountService.getAccount(accountAddress.getSignedLongId());
+      
+      if(account == null && accountAddress.getPublicKey() == null) {
         throw new ParameterException(UNKNOWN_ACCOUNT);
       }
+      if(account == null) {
+        account = new Account(accountAddress.getSignedLongId());
+        account.setPublicKey(accountAddress.getPublicKey());
+      }
+      if(account.getPublicKey() == null && accountAddress.getPublicKey() != null) {
+        account.setPublicKey(accountAddress.getPublicKey());
+      }
+      
+      if(accountAddress.getPublicKey() != null && account.getPublicKey() != null && !Arrays.equals(account.getPublicKey(), accountAddress.getPublicKey())) {
+        throw new ParameterException(INCORRECT_ACCOUNT);
+      }
+      
       return account;
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ACCOUNT);
