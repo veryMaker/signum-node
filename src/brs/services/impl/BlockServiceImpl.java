@@ -338,7 +338,7 @@ public class BlockServiceImpl implements BlockService {
         newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
         
-        Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MIN_MAX_ROLLBACK);
+        Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
         
         long pastAverageCommitment = pastBlock.getAverageCommitment();
         double commitmentFactor = generator.getCommitmentFactor(newAvgCommitment, pastAverageCommitment, block.getHeight());

@@ -226,7 +226,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public long getCommittedAmount(Account account, int height) {
     int commitmentHeight = height -
-        (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 4 : Constants.MIN_MAX_ROLLBACK);
+        (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 4 : Constants.MAX_ROLLBACK);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
       SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))

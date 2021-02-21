@@ -2047,7 +2047,7 @@ public abstract class TransactionType {
         long totalAmountNQT = commitmentRemove.getAmountNQT();
         
         blockchain = Burst.getBlockchain();
-        int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MIN_MAX_ROLLBACK, blockchain.getHeight());
+        int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
         if(nBlocksMined > 0) {
           // need to wait since the last block mined to remove any commitment
           return false;

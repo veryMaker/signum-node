@@ -73,7 +73,6 @@ public class Props {
   public static final Prop<Integer> DB_LOCK_TIMEOUT = new Prop<>("DB.LockTimeout", 60);
 
   public static final Prop<Boolean> DB_TRIM_DERIVED_TABLES = new Prop<>("DB.trimDerivedTables", true);
-  public static final Prop<Integer> DB_MAX_ROLLBACK        = new Prop<>("DB.maxRollback", 1440);
 
   public static final Prop<Boolean> BRS_TEST_UNCONFIRMED_TRANSACTIONS = new Prop<>("brs.testUnconfirmedTransactions", false);
 
