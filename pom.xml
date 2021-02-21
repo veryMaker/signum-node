@@ -21,7 +21,7 @@
   <properties>
     <versionQualifier>-alpha4</versionQualifier>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
-    <burstkit4j.version>0.16.0</burstkit4j.version>
+    <burstkit4j.version>e432bb89f3</burstkit4j.version>
     <rxjava.version>2.2.12</rxjava.version>
     <ehcache.version>3.8.0</ehcache.version>
     <flywaydb.version>7.3.2</flywaydb.version>
