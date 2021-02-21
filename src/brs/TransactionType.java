@@ -2006,8 +2006,8 @@ public abstract class TransactionType {
           throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
         }
 
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
-          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.NEXT_FORK));
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, height)) {
+          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.PRE_POC_PLUS));
         }
       }
 
@@ -2087,8 +2087,8 @@ public abstract class TransactionType {
           throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
         }
 
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height)) {
-          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.NEXT_FORK));
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, height)) {
+          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.PRE_POC_PLUS));
         }
       }
 

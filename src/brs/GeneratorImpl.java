@@ -147,7 +147,7 @@ public class GeneratorImpl implements Generator {
   
   @Override
   public double getCommitmentFactor(long commitment, long averageCommitment, int blockHeight) {
-    if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, blockHeight)) {
+    if(fluxCapacitor.getValue(FluxValues.POC_PLUS, blockHeight)) {
       double commitmentFactor = ((double)commitment)/averageCommitment;
       commitmentFactor = Math.pow(commitmentFactor, 0.4515449935);
       commitmentFactor = Math.min(8.0, commitmentFactor);
@@ -161,7 +161,7 @@ public class GeneratorImpl implements Generator {
   @Override
   public BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight) {
     BigInteger deadline = hit.divide(BigInteger.valueOf(capacityBaseTarget));
-    if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, blockHeight)) {
+    if(fluxCapacitor.getValue(FluxValues.POC_PLUS, blockHeight)) {
       double commitmentFactor = getCommitmentFactor(commitment, averageCommitment, blockHeight);
       
       double nextDeadline = deadline.doubleValue()/commitmentFactor;
@@ -212,7 +212,7 @@ public class GeneratorImpl implements Generator {
       baseTarget = lastBlock.getCapacityBaseTarget();
       hit = calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1);
       long commitmment = 0L;
-      if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, lastBlock.getHeight() + 1)) {
+      if(fluxCapacitor.getValue(FluxValues.POC_PLUS, lastBlock.getHeight() + 1)) {
         commitmment = calculateCommitment(accountId, lastBlock);
       }
       

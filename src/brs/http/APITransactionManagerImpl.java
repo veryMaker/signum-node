@@ -116,13 +116,6 @@ public class APITransactionManagerImpl implements APITransactionManager {
       if (Convert.safeAdd(amountNQT, feeNQT) > senderAccount.getUnconfirmedBalanceNQT()) {
         return NOT_ENOUGH_FUNDS;
       }
-      if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockchainHeight)) {
-        int blocksMined = blockchain.getBlocksCount(senderAccount, blockchainHeight-Constants.MIN_MAX_ROLLBACK/2, blockchainHeight);
-        if (blocksMined > 0) {
-          // Block forger can only move funds after 2 days
-          return ERROR_NOT_ALLOWED;
-        }
-      }
     } catch (ArithmeticException e) {
       return NOT_ENOUGH_FUNDS;
     }

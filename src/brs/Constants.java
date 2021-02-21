@@ -13,8 +13,6 @@ public final class Constants {
 
   public static final long BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME = 4;
 
-  public static final int BURST_COMMITMENT_WAIT_TIME = 60;
-
   // not sure when these were enabled, but they each do an alias lookup every block if greater than the current height
   public static final long BURST_ESCROW_START_BLOCK = 0;
   public static final long BURST_SUBSCRIPTION_START_BLOCK = 0;

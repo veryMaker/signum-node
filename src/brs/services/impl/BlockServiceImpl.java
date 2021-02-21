@@ -319,7 +319,7 @@ public class BlockServiceImpl implements BlockService {
       block.setBaseTarget(newBaseTarget);
       BigInteger difficulty = Convert.two64.divide(BigInteger.valueOf(newBaseTarget));
       
-      if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
+      if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, block.getHeight())) {
         block.setCommitment(generator.calculateCommitment(block.getGeneratorId(), previousBlock));
 
         // update the average commitment based on a moving average filter

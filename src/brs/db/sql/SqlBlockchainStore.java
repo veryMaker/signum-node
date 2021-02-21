@@ -10,11 +10,13 @@ import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
 import brs.db.store.IndirectIncomingStore;
+import brs.props.Props;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -223,31 +225,33 @@ public class SqlBlockchainStore implements BlockchainStore {
   
   @Override
   public long getCommittedAmount(Account account, int height) {
-    long amountCommited = 0L;
+    int commitmentHeight = height -
+        (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 20 : Constants.MIN_MAX_ROLLBACK);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
       SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
-          .and(TRANSACTION.HEIGHT.le(height - Constants.MIN_MAX_ROLLBACK))
+          .and(TRANSACTION.HEIGHT.le(commitmentHeight))
           .and(TRANSACTION.SENDER_ID.equal(account.getId()));
       return getTransactions(ctx, select.fetch());
     });
     Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
       SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
-          .and(TRANSACTION.HEIGHT.le(height - Constants.MIN_MAX_ROLLBACK))
+          .and(TRANSACTION.HEIGHT.le(commitmentHeight))
           .and(TRANSACTION.SENDER_ID.equal(account.getId()));
       return getTransactions(ctx, select.fetch());
     });
     
+    BigInteger amountCommited = BigInteger.ZERO;
     for(Transaction tx : commitmmentAddTransactions) {
       CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
-      amountCommited += txAttachment.getAmountNQT();
+      amountCommited = amountCommited.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
     }
     for(Transaction tx : commitmmentRemoveTransactions) {
       CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
-      amountCommited -= txAttachment.getAmountNQT();
+      amountCommited = amountCommited.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
     }
-    return amountCommited;
+    return amountCommited.longValue();
   }
 }
