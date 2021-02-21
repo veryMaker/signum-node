@@ -305,15 +305,18 @@ public class GeneratorImpl implements Generator {
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
       committedAmount = blockchain.getCommittedAmount(account, height);
-      if(committedAmount > 0) {
-        // First we try to estimate the capacity using more recent blocks only
-        nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, endHeight);
-        if(nBlocksMined + nBlocksMinedOnCache < 3) {
-          // Use more blocks in the past to make the estimation if that is necessary
-          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-              endHeight);
-        }
+      if(committedAmount == 0L) {
+        logger.info("Block {}, miner {}, no commitment", height, BurstID.fromLong(generatorId).getID());
+        return 0L;
+      }
+      
+      // First we try to estimate the capacity using more recent blocks only
+      nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, endHeight);
+      if(nBlocksMined + nBlocksMinedOnCache < 3) {
+        // Use more blocks in the past to make the estimation if that is necessary
+        capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
+        nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+            endHeight);
       }
     }
     nBlocksMined += nBlocksMinedOnCache;
