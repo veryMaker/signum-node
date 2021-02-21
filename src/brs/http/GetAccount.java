@@ -56,7 +56,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     if(parameterService.getCalculateCommitment(req)) {
       Block block = blockchain.getBlockAtHeight(height);
       long commitment = generator.calculateCommitment(account.getId(), block);
-      response.addProperty(COMMITMENT_RESPONSE, commitment);
+      response.addProperty(COMMITMENT_NQT_RESPONSE, commitment);
     }
 
     return response;
