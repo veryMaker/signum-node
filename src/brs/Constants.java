@@ -71,6 +71,10 @@ public final class Constants {
   public static final int MAX_AUTOMATED_TRANSACTION_NAME_LENGTH = 30;
   public static final int MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000;
 
+
+  public static final int PEER_DEFAULT_PORT = 8123;
+  public static final int PEER_TESTNET_PORT = 7123;
+
   /**
    * Must be >= 1.
    */
