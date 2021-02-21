@@ -226,32 +226,34 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public long getCommittedAmount(Account account, int height) {
     int commitmentHeight = height -
-        (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 20 : Constants.MIN_MAX_ROLLBACK);
+        (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 4 : Constants.MIN_MAX_ROLLBACK);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
-      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
-          .and(TRANSACTION.HEIGHT.le(commitmentHeight))
-          .and(TRANSACTION.SENDER_ID.equal(account.getId()));
+          .and(TRANSACTION.HEIGHT.le(commitmentHeight));
+      if(account != null)
+        select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
       return getTransactions(ctx, select.fetch());
     });
     Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
-      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
-          .and(TRANSACTION.HEIGHT.le(commitmentHeight))
-          .and(TRANSACTION.SENDER_ID.equal(account.getId()));
+          .and(TRANSACTION.HEIGHT.le(commitmentHeight));
+      if(account != null)
+        select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
       return getTransactions(ctx, select.fetch());
     });
     
-    BigInteger amountCommited = BigInteger.ZERO;
+    BigInteger amountCommitted = BigInteger.ZERO;
     for(Transaction tx : commitmmentAddTransactions) {
       CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
-      amountCommited = amountCommited.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
+      amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
     }
     for(Transaction tx : commitmmentRemoveTransactions) {
       CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
-      amountCommited = amountCommited.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
+      amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
     }
-    return amountCommited.longValue();
+    return amountCommitted.longValue();
   }
 }

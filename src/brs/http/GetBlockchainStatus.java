@@ -35,6 +35,7 @@ final class GetBlockchainStatus extends APIServlet.JsonRequestHandler {
     Block lastBlock = blockchain.getLastBlock();
     response.addProperty("lastBlock", lastBlock.getStringId());
     response.addProperty("cumulativeDifficulty", lastBlock.getCumulativeDifficulty().toString());
+    response.addProperty("averageCommitment", lastBlock.getAverageCommitment());
     response.addProperty("numberOfBlocks", lastBlock.getHeight() + 1);
     Peer lastBlockchainFeeder = blockchainProcessor.getLastBlockchainFeeder();
     response.addProperty("lastBlockchainFeeder", lastBlockchainFeeder == null ? null : lastBlockchainFeeder.getAnnouncedAddress());
