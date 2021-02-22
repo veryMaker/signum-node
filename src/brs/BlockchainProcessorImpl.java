@@ -505,7 +505,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   try {
                     blockService.preVerify(block, blockchain.getLastBlock());
                     
-                    logger.info("Pushing block {} generator {} sig {}", block.getHeight(), block.getGeneratorId(),
+                    logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
                     
                     pushBlock(block);
