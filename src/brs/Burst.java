@@ -273,7 +273,7 @@ public final class Burst {
       logger.info("BRS {} started successfully.", VERSION);
 
       if (propertyService.getBoolean(Props.DEV_TESTNET)) {
-        logger.info("RUNNING ON TESTNET - DO NOT USE REAL ACCOUNTS!");
+        logger.info("RUNNING ON TESTNET!");
       }
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
