@@ -10,7 +10,6 @@ import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
 import brs.db.store.IndirectIncomingStore;
-import brs.props.Props;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
 import org.jooq.*;
@@ -225,8 +224,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   
   @Override
   public long getCommittedAmount(Account account, int height) {
-    int commitmentHeight = height -
-        (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 4 : Constants.MAX_ROLLBACK);
+    int commitmentHeight = height - Constants.MAX_ROLLBACK;
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
       SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
