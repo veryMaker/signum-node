@@ -92,6 +92,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final AtomicBoolean getMoreBlocks = new AtomicBoolean(true);
 
   private final AtomicBoolean isScanning = new AtomicBoolean(false);
+  
+  private final AtomicBoolean isConsistent = new AtomicBoolean(false);
 
   private final boolean autoPopOffEnabled;
   private int autoPopOffLastStuckHeight = 0;
@@ -750,7 +752,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     Block newBlock = Block.parseBlock(request, blockchain.getHeight());
      //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
     Block chainblock = downloadCache.getLastBlock();
-    if (chainblock.getId() == newBlock.getPreviousBlockId()) {
+    if (chainblock != null && chainblock.getId() == newBlock.getPreviousBlockId()) {
       newBlock.setHeight(chainblock.getHeight() + 1);
       newBlock.setByteLength(newBlock.toString().length());
       blockService.calculateBaseTarget(newBlock, chainblock);
@@ -827,6 +829,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     if(totalEffectiveBalance != totalMined) {
       logger.warn("Block {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);      
     }
+    
+    isConsistent.set(totalMined == totalEffectiveBalance);
     return Long.compare(totalMined, totalEffectiveBalance);
   }
 
@@ -1013,7 +1017,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           else {
             lastTrimHeight.set(0);
             logger.error("Balance mismatch on the database, please try popping off to block {}", getMinRollbackHeight());
-            System.exit(-1);
           }
         }
       } catch (BlockNotAcceptedException | ArithmeticException e) {
@@ -1156,6 +1159,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   @Override
   public void generateBlock(String secretPhrase, byte[] publicKey, Long nonce) throws BlockNotAcceptedException {
     synchronized (downloadCache) {
+      if(!isConsistent.get()) {
+        throw new BlockNotAcceptedException("block generation is not allowed with an inconsistent database");
+      }
       downloadCache.lockCache(); //stop all incoming blocks.
       UnconfirmedTransactionStore unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
       SortedSet<Transaction> orderedBlockTransactions = new TreeSet<>();
