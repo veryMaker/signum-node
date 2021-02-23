@@ -887,7 +887,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             || block.getTimestamp() <= previousLastBlock.getTimestamp()) {
           throw new BlockOutOfOrderException("Invalid timestamp: " + block.getTimestamp()
               + " current time is " + curTime
-              + ", previous block timestamp is " + previousLastBlock.getTimestamp());
+              + ", previous block timestamp is " + previousLastBlock.getTimestamp() + ", peer is " + block.getPeer().getAnnouncedAddress());
         }
         if (block.getId() == 0L || blockDb.hasBlock(block.getId())) {
           throw new BlockNotAcceptedException("Duplicate block or invalid id for block " + block.getHeight());
