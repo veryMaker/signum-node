@@ -160,7 +160,7 @@ public final class APIServlet extends HttpServlet {
     map.put("generateDeeplink", GenerateDeeplink.instance);
     map.put("generateDeeplinkQRCode", GenerateDeeplinkQR.instance);
 
-    if (propertyService.getBoolean(Props.API_DEBUG)) {
+    if (propertyService.getBoolean(Props.API_DEBUG) || propertyService.getBoolean(Props.DEV_TESTNET)) {
       map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
       map.put("fullReset", new FullReset(blockchainProcessor));
       map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));
