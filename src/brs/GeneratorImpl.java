@@ -306,7 +306,7 @@ public class GeneratorImpl implements Generator {
     if (account != null) {
       committedAmount = blockchain.getCommittedAmount(account, height);
       if(committedAmount == 0L) {
-        logger.info("Block {}, miner {}, no commitment", height, BurstID.fromLong(generatorId).getID());
+        logger.info("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
         return 0L;
       }
       
@@ -332,7 +332,7 @@ public class GeneratorImpl implements Generator {
     // Commitment being the committed balance per TiB
     long commitment = (committedAmount/estimatedCapacityGb) * 1000L;
     
-    logger.info("Block {}, Network {} TiB, miner {}, forged {}/{} blocks, {} TiB, commitment {}/TiB",
+    logger.info("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, commitment {}/TiB",
         height,
         (double)genesisTarget/capacityBaseTarget,
         BurstID.fromLong(generatorId).getID(),
