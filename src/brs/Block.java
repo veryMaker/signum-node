@@ -206,7 +206,7 @@ public class Block {
       float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget) >> 32));
       return (long)commitmentBaseTargetFloat;
     }
-    return Constants.ONE_BURST;
+    return Constants.INITIAL_COMMITMENT;
   }
   
   public void setBaseTarget(long baseTargetCapacity, long averageCommitment) {
