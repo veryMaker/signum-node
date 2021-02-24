@@ -77,7 +77,7 @@ public class BurstGUI extends JFrame {
 
     public BurstGUI() {
         System.setSecurityManager(new BurstGUISecurityManager());
-        setTitle("Burst Reference Software version " + Burst.VERSION);
+        setTitle("BRS " + Burst.VERSION);
 
         Class<?> lafc = null;
         try {
