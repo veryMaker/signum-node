@@ -253,7 +253,7 @@ public class BurstGUI extends JFrame {
     		SystemTray systemTray = SystemTray.getSystemTray();
     		systemTray.add(newTrayIcon);
     		
-    		newTrayIcon.displayMessage("BRS Running", "BRS is running on backgroud, use this icon to interact with it.", MessageType.INFO);
+    		newTrayIcon.displayMessage("BRS Running", "BRS is running on background, use this icon to interact with it.", MessageType.INFO);
     		
     		return newTrayIcon;
     	} catch (Exception e) {
