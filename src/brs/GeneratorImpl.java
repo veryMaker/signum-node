@@ -1,5 +1,6 @@
 package brs;
 
+import brs.Attachment.CommitmentAdd;
 import brs.Attachment.CommitmentRemove;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxCapacitor;
@@ -284,7 +285,7 @@ public class GeneratorImpl implements Generator {
     int nBlocksMined = 1;
     int nBlocksMinedOnCache = 0;
     long committedAmount = 0;
-    long committedRemovedOnCache = 0;
+    long committedAmountOnCache = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
     long capacityBaseTarget = previousBlock.getCapacityBaseTarget();
     int height = previousBlock.getHeight();
@@ -300,9 +301,15 @@ public class GeneratorImpl implements Generator {
         nBlocksMinedOnCache++;
       }
       for(Transaction tx : blockIt.getTransactions()) {
-        if(tx.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE && tx.getSenderId() == generatorId) {
-          CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
-          committedRemovedOnCache += txAttachment.getAmountNQT();
+        if(tx.getSenderId() == generatorId) {
+          if(blockIt.getHeight() <= height - Constants.COMMITMENT_WAIT && tx.getType() == TransactionType.BurstMining.COMMITMENT_ADD) {
+            CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
+            committedAmountOnCache += txAttachment.getAmountNQT();
+          }
+          if(tx.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE) {
+            CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
+            committedAmountOnCache -= txAttachment.getAmountNQT();
+          }
         }
       }
 
@@ -313,7 +320,7 @@ public class GeneratorImpl implements Generator {
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
       committedAmount = blockchain.getCommittedAmount(account, height);
-      committedAmount -= committedRemovedOnCache;
+      committedAmount += committedAmountOnCache;
       if(committedAmount <= 0L) {
         logger.info("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
         return 0L;
