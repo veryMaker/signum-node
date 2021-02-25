@@ -7,6 +7,8 @@ import brs.BurstException;
 import brs.Generator;
 import brs.services.ParameterService;
 import brs.util.Convert;
+import burst.kit.crypto.BurstCrypto;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -39,6 +41,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId());
 
     if (account.getPublicKey() != null) {
+      response.addProperty(ACCOUNT_RESPONSE + "RSExtended", BurstCrypto.getInstance().getBurstAddressFromPublic(account.getPublicKey()).getExtendedAddress());
       response.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(account.getPublicKey()));
     }
     if (account.getName() != null) {
