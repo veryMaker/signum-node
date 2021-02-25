@@ -237,7 +237,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
       SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
-          .and(TRANSACTION.HEIGHT.le(commitmentHeight));
+          .and(TRANSACTION.HEIGHT.le(height));
       if(account != null)
         select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
       return getTransactions(ctx, select.fetch());
@@ -251,6 +251,10 @@ public class SqlBlockchainStore implements BlockchainStore {
     for(Transaction tx : commitmmentRemoveTransactions) {
       CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
       amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
+    }
+    if(amountCommitted.compareTo(BigInteger.ZERO) < 0) {
+      // should never happen
+      amountCommitted = BigInteger.ZERO;
     }
     return amountCommitted.longValue();
   }
