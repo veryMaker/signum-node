@@ -43,14 +43,12 @@ public final class JSONData {
     if (account == null) {
       json.addProperty(BALANCE_NQT_RESPONSE,             "0");
       json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, "0");
-      json.addProperty(EFFECTIVE_BALANCE_NQT_RESPONSE,   "0");
       json.addProperty(FORGED_BALANCE_NQT_RESPONSE,      "0");
       json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE,  "0");
     }
     else {
       json.addProperty(BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
       json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, String.valueOf(account.getUnconfirmedBalanceNQT()));
-      json.addProperty(EFFECTIVE_BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
       json.addProperty(FORGED_BALANCE_NQT_RESPONSE, String.valueOf(account.getForgedBalanceNQT()));
       json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
     }
