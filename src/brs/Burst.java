@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.0.0-alpha6");
+  public static final Version VERSION = Version.parse("v3.0.0-alpha7");
 
   public static final String APPLICATION = "BRS";
 
