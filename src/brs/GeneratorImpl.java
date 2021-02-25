@@ -1,5 +1,6 @@
 package brs;
 
+import brs.Attachment.CommitmentRemove;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
@@ -283,12 +284,13 @@ public class GeneratorImpl implements Generator {
     int nBlocksMined = 1;
     int nBlocksMinedOnCache = 0;
     long committedAmount = 0;
+    long committedRemovedOnCache = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
     long capacityBaseTarget = previousBlock.getCapacityBaseTarget();
     int height = previousBlock.getHeight();
     int endHeight = height;
     
-    // Check if there are mined blocks on the download cache
+    // Check if there are mined blocks on the download cache or commitment removals
     Block blockIt = null;
     if(downloadCache != null) {
       blockIt = downloadCache.getBlock(previousBlock.getId());
@@ -296,6 +298,12 @@ public class GeneratorImpl implements Generator {
     while(blockIt != null && !blockchain.hasBlock(blockIt.getId())) {
       if(blockIt.getGeneratorId() == generatorId) {
         nBlocksMinedOnCache++;
+      }
+      for(Transaction tx : blockIt.getTransactions()) {
+        if(tx.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE && tx.getSenderId() == generatorId) {
+          CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
+          committedRemovedOnCache += txAttachment.getAmountNQT();
+        }
       }
 
       endHeight = blockIt.getHeight();
@@ -305,7 +313,8 @@ public class GeneratorImpl implements Generator {
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
       committedAmount = blockchain.getCommittedAmount(account, height);
-      if(committedAmount == 0L) {
+      committedAmount -= committedRemovedOnCache;
+      if(committedAmount <= 0L) {
         logger.info("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
         return 0L;
       }
