@@ -65,6 +65,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final EscrowService escrowService;
   private final TimeService timeService;
   private final TransactionService transactionService;
+  private final PropertyService propertyService;
   private final TransactionProcessorImpl transactionProcessor;
   private final EconomicClustering economicClustering;
   private final BlockchainStore blockchainStore;
@@ -132,6 +133,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     this.dbCacheManager = dbCacheManager;
     this.accountService = accountService;
     this.indirectIncomingService = indirectIncomingService;
+    this.propertyService = propertyService;
 
     autoPopOffEnabled = propertyService.getBoolean(Props.AUTO_POP_OFF_ENABLED);
 
@@ -765,7 +767,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   @Override
   public List<Block> popOffTo(int height) {
-    return popOffTo(blockchain.getBlockAtHeight(height), null);
+    List<Block> blocks = popOffTo(blockchain.getBlockAtHeight(height), null);
+    if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK)) && checkDatabaseState() != 0) {
+      logger.warn("Database is inconsistent, try to pop off to block height {} or sync from empty.", getMinRollbackHeight());
+    }
+    return blocks;
   }
 
   @Override
@@ -1053,10 +1059,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long calculatedRemainingFee = 0;
     // ATs
     AtBlock atBlock;
-    AT.clearPendingFees();
-    AT.clearPendingTransactions();
+    AT.clearPendingFees(block.getHeight(), block.getGeneratorId());
+    AT.clearPendingTransactions(block.getHeight(), block.getGeneratorId());
     try {
-      atBlock = AtController.validateATs(block.getBlockATs(), blockchain.getHeight());
+      atBlock = AtController.validateATs(block.getBlockATs(), blockchain.getHeight(),block.getGeneratorId());
     } catch (AtException e) {
       throw new BlockNotAcceptedException("ats are not matching at block height " + blockchain.getHeight() + " (" + e + ")");
     }
@@ -1322,9 +1328,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       }
 
       // ATs for block
-      AT.clearPendingFees();
-      AT.clearPendingTransactions();
-      AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, previousBlock.getHeight() + 1);
+      long generatorId = Account.getId(publicKey);
+      int blockHeight = previousBlock.getHeight() + 1;
+      AT.clearPendingFees(blockHeight, generatorId);
+      AT.clearPendingTransactions(blockHeight, generatorId);
+      AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, blockHeight, generatorId);
       byte[] byteATs = atBlock.getBytesForBlock();
 
       // digesting AT Bytes

@@ -42,7 +42,7 @@ public class GetAccountATsTest {
     mockATService = mock(ATService.class);
     mockAccountService = mock(AccountService.class);
 
-    t = new GetAccountATs(mockParameterService, mockATService, mockAccountService);
+    t = new GetAccountATs(mockParameterService, mockATService);
   }
 
   @Test

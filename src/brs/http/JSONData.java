@@ -7,7 +7,6 @@ import brs.at.AtApiHelper;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
 import brs.peer.Peer;
-import brs.services.AccountService;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -393,8 +392,7 @@ public final class JSONData {
     json.addProperty(name + "RS", Convert.rsAccount(accountId));
   }
 
-  //TODO refactor the accountservice out of this :-)
-  static JsonObject at(AT at, AccountService accountService) {
+  static JsonObject at(AT at) {
     JsonObject json = new JsonObject();
     ByteBuffer bf = ByteBuffer.allocate( 8 );
     bf.order( ByteOrder.LITTLE_ENDIAN );
@@ -414,7 +412,7 @@ public final class JSONData {
     json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
     json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
     json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
-    json.addProperty("balanceNQT", Convert.toUnsignedLong(accountService.getAccount(id).getBalanceNQT()));
+    json.addProperty("balanceNQT", Convert.toUnsignedLong(at.getgBalance()));
     json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()));
     json.addProperty("nextBlock", at.nextHeight());
     json.addProperty("frozen", at.freezeOnSameBalance());
