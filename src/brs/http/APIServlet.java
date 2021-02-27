@@ -134,7 +134,7 @@ public final class APIServlet extends HttpServlet {
     map.put("setAlias", new SetAlias(parameterService, blockchain, aliasService, apiTransactionManager));
     map.put("signTransaction", new SignTransaction(parameterService, transactionService));
     map.put("transferAsset", new TransferAsset(parameterService, blockchain, apiTransactionManager, accountService));
-    map.put("getMiningInfo", new GetMiningInfo(blockchain, generator));
+    map.put("getMiningInfo", new GetMiningInfo(blockchain, blockService, generator));
     map.put("submitNonce", new SubmitNonce(propertyService, accountService, blockchain, generator));
     map.put("getRewardRecipient", new GetRewardRecipient(parameterService, blockchain, accountService));
     map.put("setRewardRecipient", new SetRewardRecipient(parameterService, blockchain, accountService, apiTransactionManager));
@@ -151,11 +151,11 @@ public final class APIServlet extends HttpServlet {
     map.put("getAccountSubscriptions", new GetAccountSubscriptions(parameterService, subscriptionService));
     map.put("getSubscriptionsToAccount", new GetSubscriptionsToAccount(parameterService, subscriptionService));
     map.put("createATProgram", new CreateATProgram(parameterService, blockchain, apiTransactionManager));
-    map.put("getAT", new GetAT(parameterService, accountService));
-    map.put("getATDetails", new GetATDetails(parameterService, accountService));
+    map.put("getAT", new GetAT(parameterService));
+    map.put("getATDetails", new GetATDetails(parameterService));
     map.put("getATIds", new GetATIds(atService));
     map.put("getATLong", GetATLong.instance);
-    map.put("getAccountATs", new GetAccountATs(parameterService, atService, accountService));
+    map.put("getAccountATs", new GetAccountATs(parameterService, atService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
     map.put("generateDeeplink", GenerateDeeplink.instance);
     map.put("generateDeeplinkQRCode", GenerateDeeplinkQR.instance);
