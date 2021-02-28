@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Constants {
-	
+
   public static final long BURST_BLOCK_TIME = 240L;
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
@@ -22,7 +22,7 @@ public final class Constants {
   public static final int BLOCK_HEADER_LENGTH = 232;
 
   public static final long MAX_BALANCE_BURST = 2158812800L;
-  
+
   public static final long FEE_QUANT =    735000;
   public static final long ONE_BURST = 100000000;
   public static final long INITIAL_COMMITMENT = 1000 * ONE_BURST;
@@ -53,11 +53,6 @@ public final class Constants {
   public static final int MAX_ASSET_NAME_LENGTH = 10;
   public static final int MAX_ASSET_DESCRIPTION_LENGTH = 1000;
   public static final int MAX_ASSET_TRANSFER_COMMENT_LENGTH = 1000;
-
-  public static final int MAX_POLL_NAME_LENGTH = 100;
-  public static final int MAX_POLL_DESCRIPTION_LENGTH = 1000;
-  public static final int MAX_POLL_OPTION_LENGTH = 100;
-  public static final int MAX_POLL_OPTION_COUNT = 100;
 
   public static final int MAX_DGS_LISTING_QUANTITY = 1000000000;
   public static final int MAX_DGS_LISTING_NAME_LENGTH = 100;
