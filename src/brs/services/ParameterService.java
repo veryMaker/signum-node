@@ -40,5 +40,5 @@ public interface ParameterService {
 
   boolean getIncludeIndirect(HttpServletRequest req);
   
-  boolean getCalculateCommitment(HttpServletRequest req);
+  boolean getEstimateCommitment(HttpServletRequest req);
 }

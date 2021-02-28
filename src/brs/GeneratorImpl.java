@@ -215,7 +215,7 @@ public class GeneratorImpl implements Generator {
       hit = calculateHit(accountId, nonce, newGenSig, scoopNum, lastBlock.getHeight() + 1);
       long commitmment = 0L;
       if(fluxCapacitor.getValue(FluxValues.POC_PLUS, lastBlock.getHeight() + 1)) {
-        commitmment = calculateCommitment(accountId, lastBlock);
+        commitmment = estimateCommitment(accountId, lastBlock);
       }
       
       deadline = calculateDeadline(hit, baseTarget, commitmment, lastBlock.getAverageCommitment(), lastBlock.getHeight() + 1);
@@ -280,7 +280,7 @@ public class GeneratorImpl implements Generator {
   }
 
   @Override
-  public long calculateCommitment(long generatorId, Block previousBlock) {
+  public long estimateCommitment(long generatorId, Block previousBlock) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
     int nBlocksMined = 1;
     int nBlocksMinedOnCache = 0;

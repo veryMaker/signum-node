@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.Parameters.CALCULATE_COMMITMENT_PARAMETER;
+import static brs.http.common.Parameters.ESTIMATE_COMMITMENT_PARAMETER;
 import static brs.http.common.ResultFields.*;
 
 public final class GetAccount extends APIServlet.JsonRequestHandler {
@@ -26,7 +26,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
   private final Generator generator;
 
   GetAccount(ParameterService parameterService, Blockchain blockchain, Generator generator) {
-    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, HEIGHT_PARAMETER, CALCULATE_COMMITMENT_PARAMETER);
+    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, HEIGHT_PARAMETER, ESTIMATE_COMMITMENT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
     this.generator = generator;
@@ -56,9 +56,9 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
       height = blockchain.getHeight();
     }
     
-    if(parameterService.getCalculateCommitment(req)) {
+    if(parameterService.getEstimateCommitment(req)) {
       Block block = blockchain.getBlockAtHeight(height);
-      long commitment = generator.calculateCommitment(account.getId(), block);
+      long commitment = generator.estimateCommitment(account.getId(), block);
       response.addProperty(COMMITMENT_NQT_RESPONSE, commitment);
     }
 
