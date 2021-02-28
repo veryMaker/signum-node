@@ -3,7 +3,10 @@
 
 name: Build BRS
 
-on: push
+on:
+  push:
+    tags-ignore:
+      - 'v*'
 
 jobs:
   build:
