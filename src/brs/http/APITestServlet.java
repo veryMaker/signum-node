@@ -192,7 +192,7 @@ public class APITestServlet extends HttpServlet {
         if (requestTag.equals(apiTag.name())) {
           buf.append(" class=\"active\"");
         }
-        buf.append("><a href=\"/test?requestTag=").append(apiTag.name()).append("\">");
+        buf.append("><a href=\"" + API.API_TEST_PATH + "?requestTag=").append(apiTag.name()).append("\">");
         buf.append(apiTag.getDisplayName()).append("</a></li>").append(" ");
       }
     }
