@@ -166,7 +166,7 @@ The update process is semi-automated, i.e. one needs to trigger the update scrip
 
 # Developers
 
-Main Developer: [Harry1453](https://github.com/harry1453). Donation address: [BURST-W5YR-ZZQC-KUBJ-G78KB](https://explore.burstcoin.network/?action=account&account=16484518239061020631)
+Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [BURST-JJQS-MMA4-GHB4-4ZNZU](https://explore.burstcoin.network/?action=account&account=3278233074628313816)
 
 For more information, see [Credits](doc/Credits.md)
 
