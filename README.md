@@ -163,6 +163,15 @@ The update process is semi-automated, i.e. one needs to trigger the update scrip
 
 > This script requires NodeJS V14+ runtime environment installed on your machine. The bash script is tested on Linux only, and may not work on other OSes.
 
+# Releasing
+
+To cut a new (pre)-release just create a tag of the following format `vD.D.D[-suffix]`. Githubs actions automatically creates
+a pre-release with entirely build executable as zip.
+
+```bash
+git tag v3.0.1-beta
+git push --tags
+```
 
 # Developers
 
