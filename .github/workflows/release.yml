@@ -43,5 +43,5 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           body: |
-          "Write some release text here"
+            "Write some release text here"
           prerelease: true
