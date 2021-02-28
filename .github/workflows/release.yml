@@ -46,6 +46,6 @@ jobs:
           body: |
             This is BRS version ${{github.ref}}
 
-            SHA-256: `${{hashFiles(dist/*.zip)}}`
+            SHA-256: `${{hashFiles('dist/*.zip')}}`
 
             New features: <Add here>
