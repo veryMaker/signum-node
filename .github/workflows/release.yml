@@ -5,8 +5,6 @@ name: Release BRS
 
 on:
   push:
-    branches:
-      - '**'
     tags:
       - 'v*'
 
