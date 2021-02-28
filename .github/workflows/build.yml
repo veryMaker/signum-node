@@ -10,15 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # TODO: remove the phoenix stuff - only for release
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Update Phoenix Wallet
-        run: |
-          cd ./ci
-          ./updatePhoenix.sh
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
