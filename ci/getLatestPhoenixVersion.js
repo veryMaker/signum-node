@@ -3,7 +3,7 @@
  *
  * As it uses async/await at least NodeJS 12 is needed
  *
- * @author ohager, Burstcoin, 2020
+ * @author ohager, Burstcoin, 2021
  */
 const http = require('https')
 
