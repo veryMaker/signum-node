@@ -77,7 +77,7 @@ public class APITestServlet extends HttpServlet {
       + "<div class=\"navbar navbar-default\" role=\"navigation\">"
       + "   <div class=\"container\" style=\"min-width: 90%;\">"
       + "       <div class=\"navbar-header\">"
-      + "           <a class=\"navbar-brand\" href=\"/test\">Burst http API</a>"
+      + "           <a class=\"navbar-brand\" href=\"" + API.API_TEST_PATH + "\">Burst http API</a>"
       + "       </div>"
       + "       <div class=\"navbar-collapse collapse\">"
       + "           <ul class=\"nav navbar-nav navbar-right\">"
@@ -185,7 +185,7 @@ public class APITestServlet extends HttpServlet {
     if (requestTag.equals("")) {
       buf.append(" class=\"active\"");
     }
-    buf.append("><a href=\"/test\">All</a></li>");
+    buf.append("><a href=\"" + API.API_TEST_PATH + "\">All</a></li>");
     for (APITag apiTag : APITag.values()) {
       if (requestTags.get(apiTag.name()) != null) {
         buf.append("<li");
@@ -259,7 +259,7 @@ public class APITestServlet extends HttpServlet {
     buf.append("</a>");
     buf.append("<span style=\"float:right;font-weight:normal;font-size:14px;\">");
     if (!singleView) {
-      buf.append("<a href=\"/test?requestType=").append(requestType);
+      buf.append("<a href=\"" + API.API_TEST_PATH + "?requestType=").append(requestType);
       buf.append("\" target=\"_blank\" style=\"font-weight:normal;font-size:14px;color:#777;\"><span class=\"glyphicon glyphicon-new-window\"></span></a>");
       buf.append(" &nbsp;&nbsp;");
     }
