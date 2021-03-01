@@ -116,7 +116,7 @@ public final class JSONData {
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
     json.addProperty(VERSION_RESPONSE, block.getVersion());
     json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.getCapacityBaseTarget()));
-    json.addProperty(AVERAGE_COMMITMENT_RESPONSE, Convert.toUnsignedLong(block.getAverageCommitment()));
+    json.addProperty(AVERAGE_COMMITMENT_NQT_RESPONSE, Convert.toUnsignedLong(block.getAverageCommitment()));
 
     if (block.getPreviousBlockId() != 0) {
       json.addProperty(PREVIOUS_BLOCK_RESPONSE, Convert.toUnsignedLong(block.getPreviousBlockId()));

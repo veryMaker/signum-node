@@ -37,7 +37,7 @@ final class GetMiningInfo extends APIServlet.JsonRequestHandler {
 		
     response.addProperty(ResultFields.GENERATION_SIGNATURE_RESPONSE, Convert.toHexString(newGenSig));
     response.addProperty(ResultFields.BASE_TARGET_RESPONSE, Long.toString(lastBlock.getCapacityBaseTarget()));
-    response.addProperty(ResultFields.AVERAGE_COMMITMENT_RESPONSE, Long.toString(lastBlock.getAverageCommitment()));
+    response.addProperty(ResultFields.AVERAGE_COMMITMENT_NQT_RESPONSE, Long.toString(lastBlock.getAverageCommitment()));
     response.addProperty(ResultFields.LAST_BLOCK_REWARD_RESPONSE, Long.toString(blockService.getBlockReward(lastBlock)/Constants.ONE_BURST));
 		
     return response;
