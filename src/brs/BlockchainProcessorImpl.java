@@ -212,7 +212,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 lastBlockchainFeeder.set(peer);
                 lastBlockchainFeederHeight.set(JSON.getAsInt(response.get("blockchainHeight")));
               } else {
-                logger.debug("Peer has no chainheight");
+                logger.debug("Peer {} has no chainheight", peer.getAnnouncedAddress());
                 return;
               }
 
