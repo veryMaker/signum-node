@@ -57,7 +57,7 @@ public class Block {
   Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT,
       int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature,
       byte[] blockSignature, byte[] previousBlockHash, List<Transaction> transactions,
-      long nonce, byte[] blockATs, int height) throws BurstException.ValidationException {
+      long nonce, byte[] blockATs, int height, long baseTarget) throws BurstException.ValidationException {
 
     if (payloadLength > Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
       throw new BurstException.NotValidException(
@@ -92,12 +92,13 @@ public class Block {
     }
     this.nonce = nonce;
     this.blockATs = blockATs;
+    this.baseTarget = baseTarget;
   }
 
   public Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT, int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature, byte[] blockSignature, byte[] previousBlockHash, BigInteger cumulativeDifficulty, long baseTarget,
       long nextBlockId, int height, Long id, long nonce, byte[] blockATs) throws BurstException.ValidationException {
 
-    this(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height);
+    this(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height, 0L);
 
     this.cumulativeDifficulty = cumulativeDifficulty == null ? BigInteger.ZERO : cumulativeDifficulty;
     this.baseTarget = baseTarget;
@@ -291,6 +292,7 @@ public class Block {
     getTransactions().forEach(transaction -> transactionsData.add(transaction.getJsonObject()));
     json.add("transactions", transactionsData);
     json.addProperty("nonce", Convert.toUnsignedLong(nonce));
+    json.addProperty("baseTarget", Convert.toUnsignedLong(nonce));
     json.addProperty("blockATs", Convert.toHexString(blockATs));
     return json;
   }
@@ -309,6 +311,7 @@ public class Block {
       byte[] blockSignature = Convert.parseHexString(JSON.getAsString(blockData.get("blockSignature")));
       byte[] previousBlockHash = version == 1 ? null : Convert.parseHexString(JSON.getAsString(blockData.get("previousBlockHash")));
       long nonce = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")));
+      long baseTarget = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("baseTarget")));
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
       JsonArray transactionsData = JSON.getAsJsonArray(blockData.get("transactions"));
@@ -323,7 +326,7 @@ public class Block {
       byte[] blockATs = Convert.parseHexString(JSON.getAsString(blockData.get("blockATs")));
       return new Block(version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
           payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
-          previousBlockHash, new ArrayList<>(blockTransactions.values()), nonce, blockATs, height);
+          previousBlockHash, new ArrayList<>(blockTransactions.values()), nonce, blockATs, height, baseTarget);
     } catch (BurstException.ValidationException | RuntimeException e) {
       if (logger.isDebugEnabled()) {
         logger.debug("Failed to parse block: {}", JSON.toJsonString(blockData));
