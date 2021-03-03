@@ -312,6 +312,8 @@ public class Block {
       byte[] previousBlockHash = version == 1 ? null : Convert.parseHexString(JSON.getAsString(blockData.get("previousBlockHash")));
       long nonce = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")));
       long baseTarget = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("baseTarget")));
+      
+      // FIXME: after we update, validate that baseTarget cannot be 0L after poc+ fork
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
       JsonArray transactionsData = JSON.getAsJsonArray(blockData.get("transactions"));

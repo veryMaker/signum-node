@@ -318,7 +318,8 @@ public class BlockServiceImpl implements BlockService {
       if (newBaseTarget > curBaseTarget * 12 / 10) {
         newBaseTarget = curBaseTarget * 12 / 10;
       }
-
+      
+      long peerBaseTarget = block.getBaseTarget();
       block.setBaseTarget(newBaseTarget);
       BigInteger difficulty = Convert.two64.divide(BigInteger.valueOf(newBaseTarget));
       
@@ -340,6 +341,11 @@ public class BlockServiceImpl implements BlockService {
         // assuming a minimum value of 1 BURST
         newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
+        
+        if(peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
+          // peer sent the base target and we do not agree with it
+          throw new BlockOutOfOrderException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget());
+        }
         
         Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
         
