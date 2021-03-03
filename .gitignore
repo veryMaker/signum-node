@@ -8,6 +8,7 @@ brs.log.*
 /conf/brs.properties
 _config.yml
 /html/ui/doc/*
+/html/ui/phoenix/*
 target
 *.prefs
 .project
