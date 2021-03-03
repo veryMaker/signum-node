@@ -205,8 +205,12 @@ public class BlockServiceImpl implements BlockService {
   }
 
   public static long getBlockReward(int height) {
-	if (height == 0 || height >= 1944000) {
+	if (height == 0) {
 	  return 0;
+	}
+	if (height >= 972_000) {
+	  // Tail emission, lower than 0.6 % per year
+	  return 100 * Constants.ONE_BURST;
 	}
 	int month = height / 10800;
 	return BigInteger.valueOf(10000).multiply(BigInteger.valueOf(95).pow(month))
