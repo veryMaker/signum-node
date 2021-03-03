@@ -5,7 +5,7 @@ set -e
 echo "======================================="
 echo "🛰 Fetching latest Phoenix Release..."
 echo "---------------------------------------"
-RELEASE=$(node getLatestPhoenixVersion.js) 
+RELEASE=$(node getLatestPhoenixVersion.js)
 echo $RELEASE
 
 # prepare tmp folder
@@ -14,7 +14,7 @@ if [[ -e $TMPDIR ]]; then
 	rm -rf $TMPDIR
 fi
 mkdir $TMPDIR
-pushd $TMPDIR > /dev/null 
+pushd $TMPDIR > /dev/null
 
 # download
 echo
@@ -33,9 +33,9 @@ echo
 echo "======================================="
 echo "🏗 Updating..."
 echo "---------------------------------------"
-pushd ./dist > /dev/null 
+pushd ./dist > /dev/null
 # set new base ref in index.html
-sed -i 's;<base href="/">;<base href="./phoenix/">;g' index.html
+sed -i 's;<base href="/">;<base href="/phoenix/">;g' index.html
 echo "✅ Written base href"
 
 # cleanup old version
@@ -44,10 +44,10 @@ cp -R * ../../../html/ui/phoenix
 echo "✅ Copied wallet sources"
 
 #./dist
-popd > /dev/null 
+popd > /dev/null
 
 #./tmp
-popd > /dev/null 
+popd > /dev/null
 echo
 echo "======================================="
 echo "🛀 Cleaning up..."
