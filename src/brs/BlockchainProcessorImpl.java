@@ -845,7 +845,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       logger.info("Genesis block already in database");
       Block lastBlock = blockDb.findLastBlock();
       blockchain.setLastBlock(lastBlock);
-      logger.info("Last block height: {}", lastBlock.getHeight());
+      logger.info("Last block height: {}, baseTarget: {}, commitmentNQT {}", lastBlock.getHeight(),
+          lastBlock.getCapacityBaseTarget(), lastBlock.getAverageCommitment());
       return;
     }
     logger.info("Genesis block not in database, starting from scratch");
@@ -1012,10 +1013,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
         addBlock(block);
-        downloadCache.removeBlock(block); // We make sure downloadCache do not have this block anymore.
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
+        // We make sure downloadCache do not have this block anymore, but only after all DBs have it
+        downloadCache.removeBlock(block);
         if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK == 0) {
           if(checkDatabaseState()==0) {
             // Only trim a consistent database, otherwise it would be impossible to fix it by roll back

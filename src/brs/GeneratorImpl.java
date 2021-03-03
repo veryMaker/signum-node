@@ -16,7 +16,6 @@ import brs.util.Listeners;
 import brs.util.ThreadPool;
 import burst.kit.crypto.BurstCrypto;
 import burst.kit.entity.BurstID;
-import burst.kit.entity.BurstValue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -282,7 +281,8 @@ public class GeneratorImpl implements Generator {
   @Override
   public long estimateCommitment(long generatorId, Block previousBlock) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
-    int nBlocksMined = 1;
+    int nBlocksMined = 0;
+    // FIXME: start with 1 block in cache (this block being mined)
     int nBlocksMinedOnCache = 0;
     long committedAmount = 0;
     long committedAmountOnCache = 0;
@@ -296,7 +296,8 @@ public class GeneratorImpl implements Generator {
     if(downloadCache != null) {
       blockIt = downloadCache.getBlock(previousBlock.getId());
     }
-    while(blockIt != null && !blockchain.hasBlock(blockIt.getId())) {
+    // Get some pending from cache and later from DB directly
+    while(blockIt != null && endHeight >= blockchain.getHeight()) {
       if(blockIt.getGeneratorId() == generatorId) {
         nBlocksMinedOnCache++;
       }
@@ -313,12 +314,13 @@ public class GeneratorImpl implements Generator {
         }
       }
 
-      endHeight = blockIt.getHeight();
+      endHeight--;
       blockIt = downloadCache.getBlock(blockIt.getPreviousBlockId());
     }
     
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
+      // FIXME: also use the endHeight variable here
       committedAmount = blockchain.getCommittedAmount(account, height);
       committedAmount += committedAmountOnCache;
       if(committedAmount <= 0L) {
@@ -348,12 +350,12 @@ public class GeneratorImpl implements Generator {
     // Commitment being the committed balance per TiB
     long commitment = (committedAmount/estimatedCapacityGb) * 1000L;
     
-    logger.info("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, commitment {}/TiB",
+    logger.info("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, commitmentNQT {}",
         height,
         (double)genesisTarget/capacityBaseTarget,
         BurstID.fromLong(generatorId).getID(),
         nBlocksMined, capacityEstimationBlocks, estimatedCapacityGb/1000D,
-        BurstValue.fromPlanck(commitment).toFormattedString());
+        commitment);
     
     return commitment;
   }
