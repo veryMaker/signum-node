@@ -177,7 +177,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       if (includeIndirectIncoming) {
         select = select.unionAll(ctx.selectFrom(TRANSACTION)
                 .where(conditions)
-                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), from, to))));
+                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), -1, -1))));
       }
 
       SelectQuery<TransactionRecord> selectQuery = select
