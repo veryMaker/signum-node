@@ -1,7 +1,7 @@
 <img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/burst-apps-team/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
 
 # Burstcoin Reference Software (Burstcoin Wallet)
-[![Build Status](https://travis-ci.com/burst-apps-team/burstcoin.svg?branch=v2.5)](https://travis-ci.com/burst-apps-team/burstcoin)
+[![example workflow](https://github.com/github/docs/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
@@ -163,6 +163,15 @@ The update process is semi-automated, i.e. one needs to trigger the update scrip
 
 > This script requires NodeJS V14+ runtime environment installed on your machine. The bash script is tested on Linux only, and may not work on other OSes.
 
+# Releasing
+
+To cut a new (pre)-release just create a tag of the following format `vD.D.D[-suffix]`. Githubs actions automatically creates
+a pre-release with entirely build executable as zip.
+
+```bash
+git tag v3.0.1-beta
+git push --tags
+```
 
 # Developers
 
