@@ -12,3 +12,5 @@ target
 *.prefs
 .project
 .classpath
+/burst_db/*
+/conf-tests/
