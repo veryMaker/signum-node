@@ -313,7 +313,9 @@ public class Block {
       long nonce = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")));
       long baseTarget = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("baseTarget")));
       
-      // FIXME: after we update, validate that baseTarget cannot be 0L after poc+ fork
+      if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && baseTarget == 0L) {
+        throw new BurstException.NotValidException("Missing baseTarget");
+      }
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
       JsonArray transactionsData = JSON.getAsJsonArray(blockData.get("transactions"));
