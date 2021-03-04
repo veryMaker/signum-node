@@ -348,7 +348,8 @@ public class BlockServiceImpl implements BlockService {
         
         if(peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
           // peer sent the base target and we do not agree with it
-          throw new BlockOutOfOrderException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget());
+          throw new BlockOutOfOrderException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget() + ", peer " +
+              (block.getPeer() != null ? block.getPeer().getAnnouncedAddress() : " null") );
         }
         
         Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);

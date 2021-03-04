@@ -292,7 +292,7 @@ public class Block {
     getTransactions().forEach(transaction -> transactionsData.add(transaction.getJsonObject()));
     json.add("transactions", transactionsData);
     json.addProperty("nonce", Convert.toUnsignedLong(nonce));
-    json.addProperty("baseTarget", Convert.toUnsignedLong(nonce));
+    json.addProperty("baseTarget", Convert.toUnsignedLong(baseTarget));
     json.addProperty("blockATs", Convert.toHexString(blockATs));
     return json;
   }
