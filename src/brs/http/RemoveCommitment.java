@@ -37,7 +37,7 @@ public final class RemoveCommitment extends CreateTransaction {
       return ERROR_NOT_ALLOWED;
     }
     
-    long committedAmountNQT = blockchain.getCommittedAmount(account, blockchain.getHeight());
+    long committedAmountNQT = blockchain.getCommittedAmount(account, blockchain.getHeight(), blockchain.getHeight());
     if (committedAmountNQT < amountNQT) {
       return NOT_ENOUGH_FUNDS;
     }

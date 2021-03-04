@@ -44,5 +44,5 @@ public interface BlockchainStore {
 
   Collection<Block> getLatestBlocks(int amountBlocks);
 
-  long getCommittedAmount(Account account, int height);
+  long getCommittedAmount(Account account, int height, int endHeight);
 }

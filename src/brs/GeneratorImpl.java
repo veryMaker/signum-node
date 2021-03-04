@@ -282,8 +282,7 @@ public class GeneratorImpl implements Generator {
   public long estimateCommitment(long generatorId, Block previousBlock) {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
     int nBlocksMined = 0;
-    // FIXME: start with 1 block in cache (this block being mined)
-    int nBlocksMinedOnCache = 0;
+    int nBlocksMinedOnCache = 1; // the present block being mined
     long committedAmount = 0;
     long committedAmountOnCache = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
@@ -321,7 +320,7 @@ public class GeneratorImpl implements Generator {
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
       // FIXME: also use the endHeight variable here
-      committedAmount = blockchain.getCommittedAmount(account, height);
+      committedAmount = blockchain.getCommittedAmount(account, height, endHeight);
       committedAmount += committedAmountOnCache;
       if(committedAmount <= 0L) {
         logger.info("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
@@ -340,9 +339,7 @@ public class GeneratorImpl implements Generator {
     nBlocksMined += nBlocksMinedOnCache;
     
     long genesisTarget = Constants.INITIAL_BASE_TARGET;
-    if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
-      genesisTarget = (long)(genesisTarget / 1.83d);
-    }
+    genesisTarget = (long)(genesisTarget / 1.83d); // account for Sodium deadlines
     long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L/(capacityBaseTarget * capacityEstimationBlocks);
     if(estimatedCapacityGb < 1000L) {
       estimatedCapacityGb = 1000L;

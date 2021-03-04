@@ -1970,7 +1970,7 @@ public abstract class TransactionType {
           // need to wait since the last block mined to remove any commitment
           return false;
         }
-        long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight());
+        long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight());
         if (amountCommitted >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
