@@ -845,8 +845,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       logger.info("Genesis block already in database");
       Block lastBlock = blockDb.findLastBlock();
       blockchain.setLastBlock(lastBlock);
-      logger.info("Last block height: {}, baseTarget: {}, commitmentNQT {}", lastBlock.getHeight(),
-          lastBlock.getCapacityBaseTarget(), lastBlock.getAverageCommitment());
+      logger.info("Last block height: {}, baseTarget: {}{}", lastBlock.getHeight(),
+          lastBlock.getCapacityBaseTarget(), Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS) ?
+              ", averageCommitmentNQT " + lastBlock.getAverageCommitment() : "");
       return;
     }
     logger.info("Genesis block not in database, starting from scratch");
