@@ -314,7 +314,7 @@ public class Block {
       long baseTarget = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("baseTarget")));
       
       if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && baseTarget == 0L) {
-        throw new BurstException.NotValidException("Missing baseTarget");
+        throw new BurstException.NotValidException("Block received without a baseTarget");
       }
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
