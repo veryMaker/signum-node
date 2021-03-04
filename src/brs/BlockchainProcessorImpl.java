@@ -859,7 +859,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       byte[] byteATs = bf.array();
       Block genesisBlock = new Block(-1, 0, 0, 0, 0, transactions.size() * 128,
           digest.digest(), Genesis.getCreatorPublicKey(), new byte[32],
-          Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, 0L);
+          Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, Constants.INITIAL_BASE_TARGET);
       blockService.setPrevious(genesisBlock, null);
       addBlock(genesisBlock);
     } catch (BurstException.ValidationException e) {
@@ -1358,7 +1358,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         block = new Block(getBlockVersion(), blockTimestamp,
             previousBlock.getId(), totalAmountNQT, totalFeeNQT, Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
-            byteATs, previousBlock.getHeight(), 0L);
+            byteATs, previousBlock.getHeight(), Constants.INITIAL_BASE_TARGET);
       } catch (BurstException.ValidationException e) {
         // shouldn't happen because all transactions are already validated
         logger.info("Error generating block", e);
