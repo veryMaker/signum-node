@@ -342,10 +342,10 @@ public class BlockServiceImpl implements BlockService {
         newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
         
-        if(peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
+        if(block.getPeer()!=null && peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
           // peer sent the base target and we do not agree with it
           throw new RuntimeException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget() + ", peer " +
-              (block.getPeer() != null ? block.getPeer().getAnnouncedAddress() : " null") );
+              block.getPeer().getAnnouncedAddress());
         }
         
         Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
