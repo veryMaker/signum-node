@@ -44,15 +44,15 @@ public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
     Block mockBlock1 = mock(Block.class);
     when(mockBlock1.getTransactions()).thenReturn(new ArrayList<>());
 
-    when(unconfirmedTransactionStoreMock.getFreeSlot(eq(20))).thenReturn(1L);
+    when(unconfirmedTransactionStoreMock.getFreeSlot(eq(15))).thenReturn(1L);
     when(unconfirmedTransactionStoreMock.getFreeSlot(eq(3))).thenReturn(2L);
-    when(unconfirmedTransactionStoreMock.getFreeSlot(eq(0))).thenReturn(10L);
+    when(unconfirmedTransactionStoreMock.getFreeSlot(eq(1))).thenReturn(10L);
 
     listenerArgumentCaptor.getValue().notify(mockBlock1);
 
     FeeSuggestion feeSuggestionOne = t.giveFeeSuggestion();
     assertEquals(1 * FEE_QUANT, feeSuggestionOne.getCheapFee());
     assertEquals(2 * FEE_QUANT, feeSuggestionOne.getStandardFee());
-    assertEquals(10 * FEE_QUANT, feeSuggestionOne.getPriorityFee());
+    assertEquals(12 * FEE_QUANT, feeSuggestionOne.getPriorityFee());
   }
 }

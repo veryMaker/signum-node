@@ -24,10 +24,12 @@ public class FeeSuggestionCalculator {
     long cheap = 1;
     long standard = 1;
     long priority = 3;
-    Block lastBlock = Burst.getBlockchain().getLastBlock();
-    if(lastBlock != null) {
-      standard = Math.max(1, lastBlock.getTransactions().size()-2);
-      priority = lastBlock.getTransactions().size()+2;
+    if(Burst.getBlockchain() != null) {
+      Block lastBlock = Burst.getBlockchain().getLastBlock();
+      if(lastBlock != null) {
+        standard = Math.max(1, lastBlock.getTransactions().size()-2);
+        priority = lastBlock.getTransactions().size()+2;
+      }
     }
     
     feeSuggestion.set(new FeeSuggestion(cheap * FEE_QUANT, standard * FEE_QUANT, priority * FEE_QUANT));
