@@ -2,6 +2,7 @@ package brs.feesuggestions;
 
 import brs.Block;
 import brs.BlockchainProcessor;
+import brs.Burst;
 import brs.BlockchainProcessor.Event;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 
@@ -13,11 +14,23 @@ public class FeeSuggestionCalculator {
 
   private final UnconfirmedTransactionStore unconfirmedTransactionStore;
 
-  private AtomicReference<FeeSuggestion> feeSuggestion = new AtomicReference<>(new FeeSuggestion(FEE_QUANT, FEE_QUANT, FEE_QUANT));
+  private AtomicReference<FeeSuggestion> feeSuggestion = new AtomicReference<>();
 
   public FeeSuggestionCalculator(BlockchainProcessor blockchainProcessor, UnconfirmedTransactionStore unconfirmedTransactionStore) {
     this.unconfirmedTransactionStore = unconfirmedTransactionStore;
     blockchainProcessor.addListener(this::newBlockApplied, Event.AFTER_BLOCK_APPLY);
+    
+    // Just an initial guess until we have the unconfirmed transactions information
+    long cheap = 1;
+    long standard = 1;
+    long priority = 3;
+    Block lastBlock = Burst.getBlockchain().getLastBlock();
+    if(lastBlock != null) {
+      standard = Math.max(1, lastBlock.getTransactions().size()-2);
+      priority = lastBlock.getTransactions().size()+2;
+    }
+    
+    feeSuggestion.set(new FeeSuggestion(cheap * FEE_QUANT, standard * FEE_QUANT, priority * FEE_QUANT));
   }
 
   public FeeSuggestion giveFeeSuggestion() {
