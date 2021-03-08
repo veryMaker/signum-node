@@ -228,7 +228,7 @@ public final class Burst {
           blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
           dbCacheManager, accountService, indirectIncomingService);
 
-      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, blockchainStore, 10);
+      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
 
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
 
