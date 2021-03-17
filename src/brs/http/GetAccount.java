@@ -3,7 +3,9 @@ package brs.http;
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
+import brs.Burst;
 import brs.BurstException;
+import brs.Constants;
 import brs.Generator;
 import brs.services.ParameterService;
 import brs.util.Convert;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 import static brs.http.common.Parameters.HEIGHT_PARAMETER;
 import static brs.http.common.Parameters.ESTIMATE_COMMITMENT_PARAMETER;
+import static brs.http.common.Parameters.GET_COMMITTED_AMOUNT_PARAMETER;
 import static brs.http.common.ResultFields.*;
 
 public final class GetAccount extends APIServlet.JsonRequestHandler {
@@ -26,7 +29,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
   private final Generator generator;
 
   GetAccount(ParameterService parameterService, Blockchain blockchain, Generator generator) {
-    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, HEIGHT_PARAMETER, ESTIMATE_COMMITMENT_PARAMETER);
+    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, HEIGHT_PARAMETER, GET_COMMITTED_AMOUNT_PARAMETER, ESTIMATE_COMMITMENT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
     this.generator = generator;
@@ -38,6 +41,23 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     Account account = parameterService.getAccount(req);
 
     JsonObject response = JSONData.accountBalance(account);
+    
+    int height = parameterService.getHeight(req);
+    if(height < 0) {
+      height = blockchain.getHeight();
+    }
+    
+    if(parameterService.getAmountCommitted(req)) {
+      long committedAmount = Burst.getBlockchain().getCommittedAmount(account, height+Constants.COMMITMENT_WAIT, height);
+      response.addProperty(COMMITTED_NQT_RESPONSE, Convert.toUnsignedLong(committedAmount));
+    }
+    
+    if(parameterService.getEstimateCommitment(req)) {
+      Block block = blockchain.getBlockAtHeight(height);
+      long commitment = generator.estimateCommitment(account.getId(), block);
+      response.addProperty(COMMITMENT_NQT_RESPONSE, Convert.toUnsignedLong(commitment));
+    }
+    
     JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId());
 
     if (account.getPublicKey() != null) {
@@ -50,18 +70,6 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     if (account.getDescription() != null) {
       response.addProperty(DESCRIPTION_RESPONSE, account.getDescription());
     }
-    
-    int height = parameterService.getHeight(req);
-    if(height < 0) {
-      height = blockchain.getHeight();
-    }
-    
-    if(parameterService.getEstimateCommitment(req)) {
-      Block block = blockchain.getBlockAtHeight(height);
-      long commitment = generator.estimateCommitment(account.getId(), block);
-      response.addProperty(COMMITMENT_NQT_RESPONSE, Convert.toUnsignedLong(commitment));
-    }
-
     return response;
   }
 

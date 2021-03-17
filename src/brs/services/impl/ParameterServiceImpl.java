@@ -390,6 +390,11 @@ public class ParameterServiceImpl implements ParameterService {
   }
   
   @Override
+  public boolean getAmountCommitted(HttpServletRequest req) {
+    return Boolean.parseBoolean(req.getParameter(GET_COMMITTED_AMOUNT_PARAMETER));
+  }
+  
+  @Override
   public boolean getEstimateCommitment(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(ESTIMATE_COMMITMENT_PARAMETER));
   }

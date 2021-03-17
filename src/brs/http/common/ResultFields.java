@@ -35,6 +35,7 @@ public class ResultFields {
   public static final String NAME_RESPONSE = "name";
   public static final String DESCRIPTION_RESPONSE = "description";
   public static final String COMMITMENT_NQT_RESPONSE = "commitmentNQT";
+  public static final String COMMITTED_NQT_RESPONSE = "committedBalanceNQT";
   public static final String ASSET_RESPONSE = "asset";
   public static final String ASSET_BALANCES_RESPONSE = "assetBalances";
   public static final String UNCONFIRMED_ASSET_BALANCES_RESPONSE = "unconfirmedAssetBalances";
