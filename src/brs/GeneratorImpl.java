@@ -323,11 +323,12 @@ public class GeneratorImpl implements Generator {
     
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
-      // FIXME: also use the endHeight variable here
       committedAmount = blockchain.getCommittedAmount(account, height, endHeight);
       committedAmount += committedAmountOnCache;
       if(committedAmount <= 0L) {
-        logger.info("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
+        if(logger.isDebugEnabled()) {
+          logger.debug("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
+        }
         return 0L;
       }
       

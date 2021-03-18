@@ -290,7 +290,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 blockData = JSON.getAsJsonObject(o);
                 try {
                   if(height - blockchain.getHeight() > Constants.MAX_ROLLBACK) {
-                    // we don't want to be that far ahead on this thread
+                    logger.debug("GetMoreBlocks, wait for other threads to catch up");
                     break;
                   }
                   block = Block.parseBlock(blockData, height);
