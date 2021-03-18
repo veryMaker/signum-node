@@ -1891,6 +1891,9 @@ public abstract class TransactionType {
         logger.trace("TransactionType COMMITMENT_ADD");
         CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
         Long totalAmountNQT = commitmentAdd.getAmountNQT();
+        if(totalAmountNQT < 0L)
+          return false;
+        
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
@@ -1963,6 +1966,8 @@ public abstract class TransactionType {
         logger.trace("TransactionType COMMITMENT_REMOVE");
         CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
         long totalAmountNQT = commitmentRemove.getAmountNQT();
+        if(totalAmountNQT < 0L)
+          return false;
 
         blockchain = Burst.getBlockchain();
         int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
@@ -1972,7 +1977,7 @@ public abstract class TransactionType {
         }
         long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight());
         if (amountCommitted >= totalAmountNQT ) {
-          accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
+          accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
           return true;
         }
         return false;
