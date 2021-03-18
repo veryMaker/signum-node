@@ -283,6 +283,7 @@ public class GeneratorImpl implements Generator {
     // Check on the number of blocks mined to estimate the capacity and also the committed balance
     int nBlocksMined = 0;
     int nBlocksMinedOnCache = 1; // the present block being mined
+    int nBlocksMinedOnCacheMax = 0;
     long committedAmount = 0;
     long committedAmountOnCache = 0;
     int capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS;
@@ -298,7 +299,10 @@ public class GeneratorImpl implements Generator {
     // Get some pending from cache and later from DB directly
     while(blockIt != null && endHeight >= blockchain.getHeight()) {
       if(blockIt.getGeneratorId() == generatorId) {
-        nBlocksMinedOnCache++;
+        if(height - endHeight <= Constants.CAPACITY_ESTIMATION_BLOCKS)
+          nBlocksMinedOnCache++;
+        else
+          nBlocksMinedOnCacheMax++;
       }
       for(Transaction tx : blockIt.getTransactions()) {
         if(tx.getSenderId() == generatorId) {
@@ -333,7 +337,7 @@ public class GeneratorImpl implements Generator {
         // Use more blocks in the past to make the estimation if that is necessary
         capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
         nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-            endHeight);
+            endHeight) + nBlocksMinedOnCacheMax;
       }
     }
     nBlocksMined += nBlocksMinedOnCache;
@@ -347,12 +351,14 @@ public class GeneratorImpl implements Generator {
     // Commitment being the committed balance per TiB
     long commitment = (committedAmount/estimatedCapacityGb) * 1000L;
     
-    logger.info("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, commitmentNQT {}",
-        height,
-        (double)genesisTarget/capacityBaseTarget,
-        BurstID.fromLong(generatorId).getID(),
-        nBlocksMined, capacityEstimationBlocks, estimatedCapacityGb/1000D,
-        commitment);
+    if(logger.isDebugEnabled()) {
+      logger.debug("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, commitmentNQT {}",
+          height,
+          (double)genesisTarget/capacityBaseTarget,
+          BurstID.fromLong(generatorId).getID(),
+          nBlocksMined, capacityEstimationBlocks, estimatedCapacityGb/1000D,
+          commitment);
+    }
     
     return commitment;
   }

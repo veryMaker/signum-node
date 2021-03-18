@@ -62,6 +62,9 @@ public class SqlBlockchainStore implements BlockchainStore {
   
   @Override
   public int getBlocksCount(Account account, int from, int to) {
+    if(from >  to) {
+      return 0;
+    }
     return Db.useDSLContext(ctx -> {
       SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()))
     		  .and(BLOCK.HEIGHT.between(from).and(to));
