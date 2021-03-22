@@ -208,26 +208,27 @@ public class BurstGUI extends JFrame {
     private TrayIcon createTrayIcon() {
     	PopupMenu popupMenu = new PopupMenu();
     	
-    	MenuItem openWebUiItem = new MenuItem("Open Wallet"); // TODO: will be the legacy wallet after Phoenix is available
+        MenuItem openPheonixWalletItem = new MenuItem("Open Phoenix Wallet");
+        MenuItem openClassicWalletItem = new MenuItem("Open Classic Wallet");
     	MenuItem showItem = new MenuItem("Show BRS output");
     	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
-    	// TODO: add support for the Phoenix Wallet
-//    	JButton openPhoenixButton = new JButton("Open Phoenix Wallet", IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
-    	JButton openWebUiButton = new JButton(openWebUiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
+    	JButton openPhoenixButton = new JButton(openPheonixWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
+    	JButton openClassicButton = new JButton(openClassicWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
         JButton popOff10Button = new JButton("Pop off 10 blocks", IconFontSwing.buildIcon(FontAwesome.STEP_BACKWARD, 18, iconColor));
         JButton popOff100Button = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
         JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
     	
-    	openWebUiButton.addActionListener(e -> openWebUi());
+        openPhoenixButton.addActionListener(e -> openWebUi(false));
+        openClassicButton.addActionListener(e -> openWebUi(true));
     	editConfButton.addActionListener(e -> editConf());
         popOff10Button.addActionListener(e -> popOff(10));
         popOff100Button.addActionListener(e -> popOff(100));
         popOffMaxButton.addActionListener(e -> popOff(0));
  
-//    	toolBar.add(openPhoenixButton);
-    	toolBar.add(openWebUiButton);
+    	toolBar.add(openPhoenixButton);
+    	toolBar.add(openClassicButton);
     	toolBar.add(editConfButton);
     	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG) || Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
           toolBar.add(popOff10Button);
@@ -235,11 +236,12 @@ public class BurstGUI extends JFrame {
           toolBar.add(popOffMaxButton);
     	}
 
-    	openWebUiItem.addActionListener(e -> openWebUi());
+    	openPheonixWalletItem.addActionListener(e -> openWebUi(false));
+        openClassicWalletItem.addActionListener(e -> openWebUi(true));
     	showItem.addActionListener(e -> showWindow());
     	shutdownItem.addActionListener(e -> shutdown());
 
-    	popupMenu.add(openWebUiItem);
+    	popupMenu.add(openClassicWalletItem);
     	popupMenu.add(showItem);
     	popupMenu.add(shutdownItem);
     	
@@ -248,7 +250,7 @@ public class BurstGUI extends JFrame {
     	try {
     		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu);
     		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
-    		newTrayIcon.addActionListener(e -> openWebUi());
+    		newTrayIcon.addActionListener(e -> openWebUi(false));
 
     		SystemTray systemTray = SystemTray.getSystemTray();
     		systemTray.add(newTrayIcon);
@@ -292,12 +294,12 @@ public class BurstGUI extends JFrame {
 		}
     }
 
-    private void openWebUi() {
+    private void openWebUi(boolean classic) {
         try {
             PropertyService propertyService = Burst.getPropertyService();
             int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_PORT) : propertyService.getInt(Props.API_PORT);
             String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
-            String address = httpPrefix + "localhost:" + port;
+            String address = httpPrefix + "localhost:" + port + (classic ? "/classic" : "/phoenix");
             try {
                 Desktop.getDesktop().browse(new URI(address));
             } catch (Exception e) { // Catches parse exception or exception when opening browser
