@@ -1999,8 +1999,8 @@ public abstract class TransactionType {
 
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
-        CommitmentRemove attachment = (CommitmentRemove) transaction.getAttachment();
-        return new TransactionDuplicationKey(BurstMining.COMMITMENT_REMOVE, Convert.toUnsignedLong(transaction.getSenderId()) + ":" + attachment.getAmountNQT());
+        // All commitment remove transactions from the same account are considered duplicates, so just the one with highest fee is kept
+        return new TransactionDuplicationKey(BurstMining.COMMITMENT_REMOVE, Convert.toUnsignedLong(transaction.getSenderId()));
       }
 
       @Override
