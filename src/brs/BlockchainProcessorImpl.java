@@ -1056,6 +1056,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private void accept(Block block, Long remainingAmount, Long remainingFee)
       throws BlockNotAcceptedException {
     subscriptionService.clearRemovals();
+    transactionService.startNewBlock();
     for (Transaction transaction : block.getTransactions()) {
       if (!transactionService.applyUnconfirmed(transaction)) {
         throw new TransactionNotAcceptedException(
@@ -1288,6 +1289,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           transactionsToBeIncluded = transactionsOrderedBySlot;
         }
 
+        transactionService.startNewBlock();
         for (Map.Entry<Long, Transaction> entry : transactionsToBeIncluded.entrySet()) {
           long slot = entry.getKey();
           Transaction transaction = entry.getValue();

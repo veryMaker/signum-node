@@ -226,7 +226,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
   
   @Override
-  public long getCommittedAmount(Account account, int height, int endHeight) {
+  public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
     int commitmentHeight = Math.min(height - Constants.COMMITMENT_WAIT, endHeight);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
@@ -252,6 +252,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
     }
     for(Transaction tx : commitmmentRemoveTransactions) {
+      if(skipTransaction !=null && skipTransaction.getId() == tx.getId())
+        continue;
       CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
       amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
     }

@@ -1915,7 +1915,8 @@ public abstract class TransactionType {
 
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
-        return new TransactionDuplicationKey(BurstMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()));
+        CommitmentAdd attachment = (CommitmentAdd) transaction.getAttachment();
+        return new TransactionDuplicationKey(BurstMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()) + ":" + attachment.getAmountNQT());
       }
 
       @Override
@@ -1975,7 +1976,7 @@ public abstract class TransactionType {
           // need to wait since the last block mined to remove any commitment
           return false;
         }
-        long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight());
+        long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight(), transaction);
         if (amountCommitted >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
           return true;
@@ -1993,12 +1994,13 @@ public abstract class TransactionType {
         CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
         long totalAmountNQT = commitmentRemove.getAmountNQT();
 
-        accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
+        accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
       }
 
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
-        return new TransactionDuplicationKey(BurstMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()));
+        CommitmentRemove attachment = (CommitmentRemove) transaction.getAttachment();
+        return new TransactionDuplicationKey(BurstMining.COMMITMENT_REMOVE, Convert.toUnsignedLong(transaction.getSenderId()) + ":" + attachment.getAmountNQT());
       }
 
       @Override

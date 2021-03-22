@@ -187,7 +187,7 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
-  public long getCommittedAmount(Account account, int height, int endHeight) {
-    return blockchainStore.getCommittedAmount(account, height, endHeight);
+  public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
+    return blockchainStore.getCommittedAmount(account, height, endHeight, skipTransaction);
   }
 }

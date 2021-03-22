@@ -323,7 +323,7 @@ public class GeneratorImpl implements Generator {
     
     Account account = accountService.getAccount(generatorId);
     if (account != null) {
-      committedAmount = blockchain.getCommittedAmount(account, height, endHeight);
+      committedAmount = blockchain.getCommittedAmount(account, height, endHeight, null);
       committedAmount += committedAmountOnCache;
       if(committedAmount <= 0L) {
         if(logger.isDebugEnabled()) {
