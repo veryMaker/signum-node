@@ -218,14 +218,15 @@ public class BurstGUI extends JFrame {
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
         JButton popOff10Button = new JButton("Pop off 10 blocks", IconFontSwing.buildIcon(FontAwesome.STEP_BACKWARD, 18, iconColor));
         JButton popOff100Button = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
-        JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
+        // TODO: find a way to actually store permanently the max block available to pop-off, otherwise we can break it
+        // JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
     	
         openPhoenixButton.addActionListener(e -> openWebUi(false));
         openClassicButton.addActionListener(e -> openWebUi(true));
     	editConfButton.addActionListener(e -> editConf());
         popOff10Button.addActionListener(e -> popOff(10));
         popOff100Button.addActionListener(e -> popOff(100));
-        popOffMaxButton.addActionListener(e -> popOff(0));
+        //popOffMaxButton.addActionListener(e -> popOff(0));
  
     	toolBar.add(openPhoenixButton);
     	toolBar.add(openClassicButton);
@@ -233,7 +234,7 @@ public class BurstGUI extends JFrame {
     	if(Burst.getPropertyService().getBoolean(Props.API_DEBUG) || Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
           toolBar.add(popOff10Button);
           toolBar.add(popOff100Button);
-          toolBar.add(popOffMaxButton);
+//          toolBar.add(popOffMaxButton);
     	}
 
     	openPheonixWalletItem.addActionListener(e -> openWebUi(false));
