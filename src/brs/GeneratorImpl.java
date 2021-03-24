@@ -296,8 +296,9 @@ public class GeneratorImpl implements Generator {
     if(downloadCache != null) {
       blockIt = downloadCache.getBlock(previousBlock.getId());
     }
-    // Get some pending from cache and later from DB directly
-    while(blockIt != null && endHeight >= blockchain.getHeight()) {
+    // Get some pending from cache and later from DB directly when available
+    while(blockIt != null && (blockchain.getHeight() < blockIt.getHeight() ||
+        blockchain.getBlockIdAtHeight(blockIt.getHeight()) != blockIt.getId()) ) {
       if(blockIt.getGeneratorId() == generatorId) {
         if(height - endHeight <= Constants.CAPACITY_ESTIMATION_BLOCKS)
           nBlocksMinedOnCache++;
