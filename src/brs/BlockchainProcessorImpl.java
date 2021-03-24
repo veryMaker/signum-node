@@ -941,12 +941,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 "Transaction " + transaction.getStringId() + " is already in the blockchain",
                 transaction);
           }
-            if (transaction.getReferencedTransactionFullHash() != null && ((previousLastBlock.getHeight() < Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK
-                    && !transactionDb.hasTransaction(
+            if (transaction.getReferencedTransactionFullHash() != null && ((!transactionDb.hasTransaction(
                     Convert.fullHashToId(transaction.getReferencedTransactionFullHash())))
-                    || (previousLastBlock
-                    .getHeight() >= Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK
-                    && !hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)))) {
+                    || (!hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)))) {
                 throw new TransactionNotAcceptedException("Missing or invalid referenced transaction "
                         + transaction.getReferencedTransactionFullHash() + " for transaction "
                         + transaction.getStringId(), transaction);

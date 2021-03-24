@@ -236,10 +236,6 @@ public abstract class TransactionType {
 
   private Long calculateTransactionAmountNQT(Transaction transaction) {
     long totalAmountNQT = Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT());
-    if (transaction.getReferencedTransactionFullHash() != null
-            && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
-      totalAmountNQT = Convert.safeAdd(totalAmountNQT, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
-    }
     return totalAmountNQT;
   }
 
@@ -251,10 +247,6 @@ public abstract class TransactionType {
 
   final void apply(Transaction transaction, Account senderAccount, Account recipientAccount) {
     accountService.addToBalanceNQT(senderAccount, - (Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT())));
-    if (transaction.getReferencedTransactionFullHash() != null
-            && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
-      accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
-    }
     if (recipientAccount != null) {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }
@@ -295,10 +287,6 @@ public abstract class TransactionType {
   public final void undoUnconfirmed(Transaction transaction, Account senderAccount) {
     undoAttachmentUnconfirmed(transaction, senderAccount);
     accountService.addToUnconfirmedBalanceNQT(senderAccount, Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT()));
-    if (transaction.getReferencedTransactionFullHash() != null
-            && transaction.getTimestamp() > Constants.REFERENCED_TRANSACTION_FULL_HASH_BLOCK_TIMESTAMP) {
-      accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
-    }
   }
 
   abstract void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
