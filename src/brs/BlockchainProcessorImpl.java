@@ -1164,10 +1164,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private boolean preCheckUnconfirmedTransaction(TransactionDuplicatesCheckerImpl transactionDuplicatesChecker, UnconfirmedTransactionStore unconfirmedTransactionStore, Transaction transaction) {
-    boolean ok = hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0)
-            && !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
+    boolean ok = !transactionDuplicatesChecker.hasAnyDuplicate(transaction)
             && !transactionDb.hasTransaction(transaction.getId());
-    if (!ok) unconfirmedTransactionStore.remove(transaction);
+    if (!ok) {
+      unconfirmedTransactionStore.remove(transaction);
+    }
+    else {
+      ok = hasAllReferencedTransactions(transaction, transaction.getTimestamp(), 0);
+    }
     return ok;
   }
 
