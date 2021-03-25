@@ -236,6 +236,10 @@ public abstract class TransactionType {
 
   private Long calculateTransactionAmountNQT(Transaction transaction) {
     long totalAmountNQT = Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT());
+    if (transaction.getReferencedTransactionFullHash() != null &&
+        !Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, transaction.getHeight()) ) {
+      totalAmountNQT = Convert.safeAdd(totalAmountNQT, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
+    }
     return totalAmountNQT;
   }
 
@@ -247,6 +251,10 @@ public abstract class TransactionType {
 
   final void apply(Transaction transaction, Account senderAccount, Account recipientAccount) {
     accountService.addToBalanceNQT(senderAccount, - (Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT())));
+    if (transaction.getReferencedTransactionFullHash() != null &&
+        !Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, transaction.getHeight())) {
+      accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
+    }
     if (recipientAccount != null) {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }

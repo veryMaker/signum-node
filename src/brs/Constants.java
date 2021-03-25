@@ -1,5 +1,7 @@
 package brs;
 
+import brs.props.Props;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -73,6 +75,9 @@ public final class Constants {
   public static final int MAX_API_RETURNED_ITEMS = 500;
 
   public static final String HTTP = "http://";
+
+  // TODO check if we can remove this after the next fork
+  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;
