@@ -5,12 +5,12 @@ $(function() {
     $theme = $('body').data('brs.theme');
   });
   var mythemes = [
+    'theme-dark',
     'theme-blue',
     'theme-red',
     'theme-yellow',
     'theme-purple',
-    'theme-green',
-    'theme-dark'
+    'theme-green'
   ];
   /**
    * get stored setting
@@ -46,6 +46,8 @@ $(function() {
     var tmp = get('theme');
     if (tmp && $.inArray(tmp, mythemes))
       changetheme(tmp);
+    else
+      changetheme('theme-dark');
     // Add the change theme listener
     $('[data-theme]').on('click', function(e) {
       if ($(this).hasClass('knob'))
