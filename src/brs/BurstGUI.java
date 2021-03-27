@@ -300,7 +300,7 @@ public class BurstGUI extends JFrame {
             PropertyService propertyService = Burst.getPropertyService();
             int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_PORT) : propertyService.getInt(Props.API_PORT);
             String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
-            String address = httpPrefix + "localhost:" + port + (classic ? "/classic" : "/phoenix");
+            String address = httpPrefix + "localhost:" + port + (classic ? "/" : "/phoenix");
             try {
                 Desktop.getDesktop().browse(new URI(address));
             } catch (Exception e) { // Catches parse exception or exception when opening browser
