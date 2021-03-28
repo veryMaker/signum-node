@@ -635,6 +635,16 @@ var BRS = (function(BRS, $, undefined) {
                 }
             }
         }
+        else if (transaction.type === 20){
+          if(transaction.subtype === 1){
+            receiving = false;
+            amount = transaction.attachment.amountNQT.toString();
+          }
+          else if (transaction.subtype === 2){
+            receiving = true;
+            amount = transaction.attachment.amountNQT.toString();            
+          }
+        }
         var account = (receiving ? "sender" : "recipient");
 
         if (transaction.amountNQT) {
