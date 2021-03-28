@@ -567,6 +567,12 @@ var BRS = (function(BRS, $, undefined) {
             case 0:
                 transactionType = "Reward Recipient Assignment";
                 break;
+            case 1:
+                transactionType = "Add Commitment";
+                break;
+            case 2:
+                transactionType = "Remove Commitment";
+                break;
             }
         }
         else if (transaction.type == 21) {
