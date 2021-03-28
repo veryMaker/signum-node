@@ -788,6 +788,8 @@ var BRS = (function(BRS, $, undefined) {
             case "account_id":
                 return BRS.account;
             case "account_rs":
+                if(BRS.accountInfo.errorCode)
+                  return BRS.accountRSExtended;
                 return BRS.accountRS;
             case "message_link":
                 return document.URL.replace(/#.*$/, "") + "#message:" + BRS.account;
