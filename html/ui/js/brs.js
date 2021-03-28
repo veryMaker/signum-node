@@ -552,7 +552,8 @@ var BRS = (function(BRS, $, undefined) {
 
     BRS.getAccountInfo = function(firstRun, callback) {
         BRS.sendRequest("getAccount", {
-            "account": BRS.account
+            "account": BRS.account,
+            "getCommittedAmount": "true"
         }, function(response) {
             var previousAccountInfo = BRS.accountInfo;
 
@@ -663,7 +664,8 @@ var BRS = (function(BRS, $, undefined) {
                     }
                 }
 
-                $("#account_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.unconfirmedBalanceNQT));
+                $("#account_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.unconfirmedBalanceNQT) + " BURST");                
+                $("#account_committed_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.committedBalanceNQT) + " BURST");
                 $("#account_forged_balance").html(BRS.formatStyledAmount(response.forgedBalanceNQT));
 
                 var nr_assets = 0;
