@@ -47,15 +47,17 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public Collection<Block> getBlocks(Account account, int timestamp, int from, int to) {
     return Db.useDSLContext(ctx -> {
-      int blockchainHeight = Burst.getBlockchain().getHeight();
       
       SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()));
       if (timestamp > 0) {
         query.and(BLOCK.TIMESTAMP.ge(timestamp));
       }
-      if(from > 0 || to > 0) {
-    	query.and(BLOCK.HEIGHT.between(to > 0 ? blockchainHeight - to : 0).and(blockchainHeight - Math.max(from, 0)));
-      }
+      // TODO: this filter is not working.
+      // Additionally, if we filter the blocks foget counting becomes wrong. 
+//      if(from > 0 || to > 0) {
+//        int blockchainHeight = Burst.getBlockchain().getHeight();
+//        query.and(BLOCK.HEIGHT.between(to > 0 ? blockchainHeight - to : 0).and(blockchainHeight - Math.max(from, 0)));
+//      }
       return getBlocks(query.orderBy(BLOCK.HEIGHT.desc()).fetch());
     });
   }
