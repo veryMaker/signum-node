@@ -664,9 +664,9 @@ var BRS = (function(BRS, $, undefined) {
                     }
                 }
 
-                $("#account_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.unconfirmedBalanceNQT) + " BURST");                
-                $("#account_balance_locked, #account_balance_sendmoney").html(BRS.formatStyledAmount((new BigInteger(response.balanceNQT) - new BigInteger(response.unconfirmedBalanceNQT)).toString()) + " BURST");
-                $("#account_committed_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.committedBalanceNQT) + " BURST");
+                $("#account_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.unconfirmedBalanceNQT));                
+                $("#account_balance_locked, #account_balance_sendmoney").html(BRS.formatStyledAmount((new BigInteger(response.balanceNQT) - new BigInteger(response.unconfirmedBalanceNQT)).toString()));
+                $("#account_committed_balance, #account_balance_sendmoney").html(BRS.formatStyledAmount(response.committedBalanceNQT));
                 $("#account_forged_balance").html(BRS.formatStyledAmount(response.forgedBalanceNQT));
 
                 var nr_assets = 0;
