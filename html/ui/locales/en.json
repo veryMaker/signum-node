@@ -809,7 +809,7 @@
     "success_update_contact": "The contact has been updated successfully!",
     "success_valid_token": "The token is valid and belongs to account __account_link__. It was generated on __timestamp__.",
     "suggested_fee": "Suggested fee:",
-    "suggested_fee_help": "<strong>Standard fee:</strong> 50% chance transaction will make it in the next block.<br /><strong>Cheap fee:</strong> 50% chance transaction will make it in one of the next ten blocks.<br /><strong>Priority fee:</strong> 90% chance transaction will make it in the next block and 99% to make within next two blocks.",
+    "suggested_fee_help": "<strong>Standard fee:</strong> likely to confirm in about 15 min.<br /><strong>Budget fee:</strong> likely to confirm in about 1 hour.<br /><strong>Priority fee:</strong> likely to confirm in the next block.",
     "tags": "Tags",
     "tags_categories": "Tags (categories)",
     "tentative": "Tentative",
