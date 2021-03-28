@@ -88,7 +88,7 @@ public class AtConstants {
     }
 
     public long maxSteps(int height) {
-        if(Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, height)) {
+        if(Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, height)) {
             return 1_000_000L;
         }
         return MAX_STEPS.get(atVersion(height));

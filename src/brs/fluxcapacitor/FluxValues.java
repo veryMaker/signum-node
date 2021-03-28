@@ -15,7 +15,7 @@ public class FluxValues {
     public static final FluxEnable PRE_POC2 = new FluxEnable(HistoricalMoments.PRE_POC2);
     public static final FluxEnable POC2 = new FluxEnable(HistoricalMoments.POC2);
     public static final FluxEnable SODIUM = new FluxEnable(HistoricalMoments.SODIUM);
-    public static final FluxEnable PRE_POC_PLUS = new FluxEnable(HistoricalMoments.PRE_POC_PLUS);
+    public static final FluxEnable SIGNUM = new FluxEnable(HistoricalMoments.SIGNUM);
     public static final FluxEnable POC_PLUS = new FluxEnable(HistoricalMoments.POC_PLUS);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
@@ -25,6 +25,6 @@ public class FluxValues {
     public static final FluxValue<Integer> MAX_PAYLOAD_LENGTH = new FluxValue<>(255 * 176, new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 1020 * 176));
     
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(Version.parse("2.5.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC_PLUS, Version.parse("2.9.9"))
+        new FluxValue.ValueChange<>(HistoricalMoments.SIGNUM, Version.parse("2.9.9"))
         );
 }

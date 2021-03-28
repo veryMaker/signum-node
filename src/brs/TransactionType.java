@@ -237,7 +237,7 @@ public abstract class TransactionType {
   private Long calculateTransactionAmountNQT(Transaction transaction) {
     long totalAmountNQT = Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT());
     if (transaction.getReferencedTransactionFullHash() != null &&
-        !Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, transaction.getHeight()) ) {
+        !Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, transaction.getHeight()) ) {
       totalAmountNQT = Convert.safeAdd(totalAmountNQT, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
     }
     return totalAmountNQT;
@@ -252,7 +252,7 @@ public abstract class TransactionType {
   final void apply(Transaction transaction, Account senderAccount, Account recipientAccount) {
     accountService.addToBalanceNQT(senderAccount, - (Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT())));
     if (transaction.getReferencedTransactionFullHash() != null &&
-        !Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, transaction.getHeight())) {
+        !Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, transaction.getHeight())) {
       accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
     }
     if (recipientAccount != null) {
@@ -1924,8 +1924,8 @@ public abstract class TransactionType {
           throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
         }
 
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, height)) {
-          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.PRE_POC_PLUS));
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, height)) {
+          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.SIGNUM));
         }
       }
 
@@ -2008,8 +2008,8 @@ public abstract class TransactionType {
           throw new BurstException.NotCurrentlyValidException("Sender not yet known ?!");
         }
 
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC_PLUS, height)) {
-          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.PRE_POC_PLUS));
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, height)) {
+          throw new BurstException.NotCurrentlyValidException("Add commitment not allowed before block " + Burst.getFluxCapacitor().getStartingHeight(FluxValues.SIGNUM));
         }
       }
 
