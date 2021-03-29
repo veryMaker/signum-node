@@ -61,6 +61,21 @@ class AtMachineProcessor {
         return 0;
     }
 
+    private int get3Addrs() {
+        if (machineData.getMachineState().pc + 4 + 4 +4 >= machineData.getcSize()) {
+            return -1;
+        }
+
+        fun.addr1 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1);
+        fun.addr2 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1 + 4);
+        fun.addr3 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1 + 4 + 4);
+        if (!validAddr(fun.addr1, false) || !validAddr(fun.addr2, false) || !validAddr(fun.addr3, false)) {
+            return -1;
+        }
+
+        return 0;
+    }
+
     private int getAddrOff() {
         if (machineData.getMachineState().pc + 5 >= machineData.getcSize()) {
             return -1;
@@ -374,32 +389,20 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_SET_IDX) {
-            int addr1 = fun.addr1;
-            int addr2 = fun.addr2;
-            int size = 8;
-
-            rc = getAddrs();
-
+            rc = get3Addrs();
             if (rc == 0 || disassemble) {
-                (machineData.getApCode()).position(size);
-                rc = getAddr(false);
-                (machineData.getApCode()).position((machineData.getApCode()).position() - size);
-
-                if (rc == 0 || disassemble) {
-                    rc = 13;
-                    long base = machineData.getApData().getLong(addr2 * 8);
-                    long offs = machineData.getApData().getLong(fun.addr1 * 8);
-
-                    long addr = base + offs;
-
-                    logger.debug("addr1: {}", fun.addr1);
-                    if (!validAddr((int) addr, false)) {
-                        rc = -1;
-                    } else {
+                rc = 13;
+                if (disassemble) {
+                    if (!determineJumps && logger.isDebugEnabled())
+                        logger.debug("SET @{} $(${}+${})", String.format("%8s", fun.addr1).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr2).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr3).replace(' ', '0'));
+                } else {
+                        int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
+                                         + machineData.getApData().getLong(fun.addr3 * 8) );
+                        machineData.getApData().putLong(fun.addr1 * 8, machineData.getApData().getLong(addr * 8));
                         machineData.getMachineState().pc += rc;
-                        machineData.getApData().putLong(addr1 * 8, machineData.getApData().getLong((int) addr * 8));
                         machineData.getApData().clear();
-                    }
                 }
             }
         } else if (op == OpCode.E_OP_CODE_PSH_DAT || op == OpCode.E_OP_CODE_POP_DAT) {
@@ -503,34 +506,20 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_IDX_DAT) {
-            int addr1 = fun.addr1;
-            int addr2 = fun.addr2;
-            int size = 8;
-
-            rc = getAddrs();
-
+            rc = get3Addrs();
             if (rc == 0 || disassemble) {
-                (machineData.getApCode()).position(size);
-                rc = getAddr(false);
-                (machineData.getApCode()).position((machineData.getApCode()).position() - size);
-
-                if (rc == 0 || disassemble) {
-                    rc = 13;
-                    if (disassemble) {
-                        if (!determineJumps && logger.isDebugEnabled())
-                            logger.debug("SET @{} {}", String.format("($%8s+$%8s)", addr1, addr2).replace(' ', '0'), String.format("$%8s", fun.addr1).replace(' ', '0'));
-                    } else {
-                        long addr = machineData.getApData().getLong(addr1 * 8)
-                                + machineData.getApData().getLong(addr2 * 8);
-
-                        if (!validAddr((int) addr, false))
-                            rc = -1;
-                        else {
-                            machineData.getMachineState().pc += rc;
-                            machineData.getApData().putLong((int) addr * 8, machineData.getApData().getLong(fun.addr1 * 8));
-                            machineData.getApData().clear();
-                        }
-                    }
+                rc=13;
+                if (disassemble) {
+                    if (!determineJumps && logger.isDebugEnabled())
+                        logger.debug("SET @(${}+${}) ${}", String.format("%8s", fun.addr1).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr2).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr3).replace(' ', '0'));
+                } else {
+                        int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
+                                        + machineData.getApData().getLong(fun.addr2 * 8));
+                        machineData.getApData().putLong(addr * 8, machineData.getApData().getLong( fun.addr3 * 8));
+                        machineData.getMachineState().pc += rc;
+                        machineData.getApData().clear();
                 }
             }
         } else if (op == OpCode.E_OP_CODE_MOD_DAT) {
