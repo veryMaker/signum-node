@@ -392,7 +392,7 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_SET_IDX) {
-          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM)) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
             rc = get3Addrs();
             if (rc == 0 || disassemble) {
                 rc = 13;
@@ -541,7 +541,7 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_IDX_DAT) {
-          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM)) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
             rc = get3Addrs();
             if (rc == 0 || disassemble) {
                 rc=13;
