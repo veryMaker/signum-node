@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
+import brs.Burst;
+import brs.fluxcapacitor.FluxValues;
+
 class AtMachineProcessor {
 
     private final Logger logger;
@@ -389,6 +392,7 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_SET_IDX) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM)) {
             rc = get3Addrs();
             if (rc == 0 || disassemble) {
                 rc = 13;
@@ -405,6 +409,37 @@ class AtMachineProcessor {
                         machineData.getApData().clear();
                 }
             }
+          }
+          else {
+            int addr1 = fun.addr1;
+            int addr2 = fun.addr2;
+            int size = 8;
+
+            rc = getAddrs();
+
+            if (rc == 0 || disassemble) {
+                (machineData.getApCode()).position(size);
+                rc = getAddr(false);
+                (machineData.getApCode()).position((machineData.getApCode()).position() - size);
+
+                if (rc == 0 || disassemble) {
+                    rc = 13;
+                    long base = machineData.getApData().getLong(addr2 * 8);
+                    long offs = machineData.getApData().getLong(fun.addr1 * 8);
+
+                    long addr = base + offs;
+
+                    logger.debug("addr1: {}", fun.addr1);
+                    if (!validAddr((int) addr, false)) {
+                        rc = -1;
+                    } else {
+                        machineData.getMachineState().pc += rc;
+                        machineData.getApData().putLong(addr1 * 8, machineData.getApData().getLong((int) addr * 8));
+                        machineData.getApData().clear();
+                    }
+                }
+            }
+          }
         } else if (op == OpCode.E_OP_CODE_PSH_DAT || op == OpCode.E_OP_CODE_POP_DAT) {
             rc = getAddr(false);
             if (rc == 0 || disassemble) {
@@ -506,6 +541,7 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_IDX_DAT) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM)) {
             rc = get3Addrs();
             if (rc == 0 || disassemble) {
                 rc=13;
@@ -522,6 +558,39 @@ class AtMachineProcessor {
                         machineData.getApData().clear();
                 }
             }
+          }
+          else {
+            int addr1 = fun.addr1;
+            int addr2 = fun.addr2;
+            int size = 8;
+
+            rc = getAddrs();
+
+            if (rc == 0 || disassemble) {
+                (machineData.getApCode()).position(size);
+                rc = getAddr(false);
+                (machineData.getApCode()).position((machineData.getApCode()).position() - size);
+
+                if (rc == 0 || disassemble) {
+                    rc = 13;
+                    if (disassemble) {
+                        if (!determineJumps && logger.isDebugEnabled())
+                            logger.debug("SET @{} {}", String.format("($%8s+$%8s)", addr1, addr2).replace(' ', '0'), String.format("$%8s", fun.addr1).replace(' ', '0'));
+                    } else {
+                        long addr = machineData.getApData().getLong(addr1 * 8)
+                                + machineData.getApData().getLong(addr2 * 8);
+
+                        if (!validAddr((int) addr, false))
+                            rc = -1;
+                        else {
+                            machineData.getMachineState().pc += rc;
+                            machineData.getApData().putLong((int) addr * 8, machineData.getApData().getLong(fun.addr1 * 8));
+                            machineData.getApData().clear();
+                        }
+                    }
+                }
+            }
+          }
         } else if (op == OpCode.E_OP_CODE_MOD_DAT) {
             rc = getAddrs();
 
