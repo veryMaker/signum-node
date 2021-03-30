@@ -414,6 +414,7 @@
     "feedback_note": "Feedback Note",
     "feedback_note_nonce": "Feedback Note Nonce",
     "find_asset_id_help": "Find the ID on the issuer's website or announcement page.",
+    "committed_balance": "Committed Balance",
     "forged_balance": "Forged Balance",
     "forged_by_you": "Forged By You",
     "forged_fees_total": "Forged Fees Total",
