@@ -39,6 +39,7 @@ public abstract class TransactionType {
   public static final byte TYPE_MESSAGING = 1;
   public static final byte TYPE_COLORED_COINS = 2;
   public static final byte TYPE_DIGITAL_GOODS = 3;
+  public static final byte TYPE_ACCOUNT_CONTROL = 4;
   public static final byte TYPE_BURST_MINING = 20; // jump some for easier nxt updating
   public static final byte TYPE_ADVANCED_PAYMENT = 21;
   public static final byte TYPE_AUTOMATED_TRANSACTIONS = 22;
@@ -71,6 +72,8 @@ public abstract class TransactionType {
 
   public static final byte SUBTYPE_AT_CREATION = 0;
   public static final byte SUBTYPE_AT_NXT_PAYMENT = 1;
+
+  public static final byte SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING = 0;
 
   public static final byte SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT = 0;
   public static final byte SUBTYPE_BURST_MINING_COMMITMENT_ADD = 1;
@@ -143,6 +146,9 @@ public abstract class TransactionType {
     atTypes.put(SUBTYPE_AT_CREATION, AutomatedTransactions.AUTOMATED_TRANSACTION_CREATION);
     atTypes.put(SUBTYPE_AT_NXT_PAYMENT, AutomatedTransactions.AT_PAYMENT);
 
+    Map<Byte, TransactionType> accountControlTypes = new HashMap<>();
+    accountControlTypes.put(SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING, AccountControl.EFFECTIVE_BALANCE_LEASING);
+
     Map<Byte, TransactionType> burstMiningTypes = new HashMap<>();
     burstMiningTypes.put(SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT, BurstMining.REWARD_RECIPIENT_ASSIGNMENT);
     burstMiningTypes.put(SUBTYPE_BURST_MINING_COMMITMENT_ADD, BurstMining.COMMITMENT_ADD);
@@ -160,6 +166,7 @@ public abstract class TransactionType {
     TRANSACTION_TYPES.put(TYPE_MESSAGING, Collections.unmodifiableMap(messagingTypes));
     TRANSACTION_TYPES.put(TYPE_COLORED_COINS, Collections.unmodifiableMap(coloredCoinsTypes));
     TRANSACTION_TYPES.put(TYPE_DIGITAL_GOODS, Collections.unmodifiableMap(digitalGoodsTypes));
+    TRANSACTION_TYPES.put(TYPE_ACCOUNT_CONTROL, Collections.unmodifiableMap(accountControlTypes));
     TRANSACTION_TYPES.put(TYPE_BURST_MINING, Collections.unmodifiableMap(burstMiningTypes));
     TRANSACTION_TYPES.put(TYPE_ADVANCED_PAYMENT, Collections.unmodifiableMap(advancedPaymentTypes));
     TRANSACTION_TYPES.put(TYPE_AUTOMATED_TRANSACTIONS, Collections.unmodifiableMap(atTypes));
@@ -180,6 +187,8 @@ public abstract class TransactionType {
         return "Colored coins";
       case TYPE_DIGITAL_GOODS:
         return "Digital Goods";
+      case TYPE_ACCOUNT_CONTROL:
+        return "Account Control";
       case TYPE_BURST_MINING:
         return "Burst Mining";
       case TYPE_ADVANCED_PAYMENT:
@@ -1755,6 +1764,79 @@ public abstract class TransactionType {
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         Attachment.DigitalGoodsRefund attachment = (Attachment.DigitalGoodsRefund) transaction.getAttachment();
         return new TransactionDuplicationKey(DigitalGoods.REFUND, Convert.toUnsignedLong(attachment.getPurchaseId()));
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return true;
+      }
+
+    };
+
+  }
+
+  public abstract static class AccountControl extends TransactionType {
+
+    private AccountControl() {
+    }
+
+    @Override
+    public final byte getType() {
+      return TransactionType.TYPE_ACCOUNT_CONTROL;
+    }
+
+    @Override
+    final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      return true;
+    }
+
+    @Override
+    final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    }
+
+    public static final TransactionType EFFECTIVE_BALANCE_LEASING = new AccountControl() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Effective Balance Leasing";
+      }
+
+      @Override
+      public Attachment.AccountControlEffectiveBalanceLeasing parseAttachment(ByteBuffer buffer, byte transactionVersion) {
+        return new Attachment.AccountControlEffectiveBalanceLeasing(buffer, transactionVersion);
+      }
+
+      @Override
+      Attachment.AccountControlEffectiveBalanceLeasing parseAttachment(JsonObject attachmentData) {
+        return new Attachment.AccountControlEffectiveBalanceLeasing(attachmentData);
+      }
+
+      @Override
+      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // This tx type is actually used before block 10k on mainnet, so we cannot actually remove it
+      }
+
+      @Override
+      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) throw new BurstException.NotCurrentlyValidException("Effective Balance Leasing disabled after Sodium HF");
+
+        Attachment.AccountControlEffectiveBalanceLeasing attachment = (Attachment.AccountControlEffectiveBalanceLeasing)transaction.getAttachment();
+        Account recipientAccount = accountService.getAccount(transaction.getRecipientId());
+        if (transaction.getSenderId() == transaction.getRecipientId()
+                || transaction.getAmountNQT() != 0
+                || attachment.getPeriod() < 1440) {
+          throw new BurstException.NotValidException("Invalid effective balance leasing: " + JSON.toJsonString(transaction.getJsonObject()) + " transaction " + transaction.getStringId());
+        }
+        if (recipientAccount == null
+                || (recipientAccount.getPublicKey() == null && ! transaction.getStringId().equals("5081403377391821646"))) {
+          throw new BurstException.NotCurrentlyValidException("Invalid effective balance leasing: "
+                  + " recipient account " + transaction.getRecipientId() + " not found or no public key published");
+        }
       }
 
       @Override

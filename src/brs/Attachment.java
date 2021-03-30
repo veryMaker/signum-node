@@ -108,6 +108,8 @@ public interface Attachment extends Appendix {
         return new DigitalGoodsFeedback(attachment.unpack(BrsApi.DigitalGoodsFeedbackAttachment.class));
       } else if (attachment.is(BrsApi.DigitalGoodsRefundAttachment.class)) {
         return new DigitalGoodsRefund(attachment.unpack(BrsApi.DigitalGoodsRefundAttachment.class));
+      } else if (attachment.is(BrsApi.EffectiveBalanceLeasingAttachment.class)) {
+        return new AccountControlEffectiveBalanceLeasing(attachment.unpack(BrsApi.EffectiveBalanceLeasingAttachment.class));
       } else if (attachment.is(BrsApi.RewardRecipientAssignmentAttachment.class)) {
         return new BurstMiningRewardRecipientAssignment(attachment.unpack(BrsApi.RewardRecipientAssignmentAttachment.class));
       } else if (attachment.is(BrsApi.EscrowCreationAttachment.class)) {
@@ -1884,6 +1886,68 @@ public interface Attachment extends Appendix {
     }
   }
 
+  final class AccountControlEffectiveBalanceLeasing extends AbstractAttachment {
+
+    private final short period;
+
+    AccountControlEffectiveBalanceLeasing(ByteBuffer buffer, byte transactionVersion) {
+      super(buffer, transactionVersion);
+      this.period = buffer.getShort();
+    }
+
+    AccountControlEffectiveBalanceLeasing(JsonObject attachmentData) {
+      super(attachmentData);
+      this.period = JSON.getAsShort(attachmentData.get(PERIOD_PARAMETER));
+    }
+
+    public AccountControlEffectiveBalanceLeasing(short period, int blockchainHeight) {
+      super(blockchainHeight);
+      this.period = period;
+    }
+
+    AccountControlEffectiveBalanceLeasing(BrsApi.EffectiveBalanceLeasingAttachment attachment) {
+      super((byte) attachment.getVersion());
+      this.period = (short) attachment.getPeriod();
+    }
+
+    @Override
+    String getAppendixName() {
+      return "EffectiveBalanceLeasing";
+    }
+
+    @Override
+    int getMySize() {
+      return 2;
+    }
+
+    @Override
+    void putMyBytes(ByteBuffer buffer) {
+      buffer.putShort(period);
+    }
+
+    @Override
+    void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(PERIOD_RESPONSE, period);
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.AccountControl.EFFECTIVE_BALANCE_LEASING;
+    }
+
+    public short getPeriod() {
+      return period;
+    }
+
+    @Override
+    public Any getProtobufMessage() {
+      return Any.pack(BrsApi.EffectiveBalanceLeasingAttachment.newBuilder()
+              .setVersion(getVersion())
+              .setPeriod(period)
+              .build());
+    }
+  }
+
   final class BurstMiningRewardRecipientAssignment extends AbstractAttachment {
 
     BurstMiningRewardRecipientAssignment(ByteBuffer buffer, byte transactionVersion) {
@@ -1933,9 +1997,9 @@ public interface Attachment extends Appendix {
               .setVersion(getVersion())
               .build());
     }
-
+    
   }
-
+  
 
   abstract class CommitmentAttachment extends AbstractAttachment {
 
@@ -1961,7 +2025,7 @@ public interface Attachment extends Appendix {
       this.amountNQT = attachment.getAmount();
       attachment.getType();
     }
-
+    
     public long getAmountNQT() {
       return amountNQT;
     }
@@ -1992,7 +2056,7 @@ public interface Attachment extends Appendix {
 
     protected abstract BrsApi.CommitmentType getType();
   }
-
+  
   final class CommitmentAdd extends CommitmentAttachment {
 
     CommitmentAdd(ByteBuffer buffer, byte transactionVersion) {
@@ -2028,7 +2092,7 @@ public interface Attachment extends Appendix {
     }
 
   }
-
+  
   final class CommitmentRemove extends CommitmentAttachment {
 
     CommitmentRemove(ByteBuffer buffer, byte transactionVersion) {
@@ -2062,10 +2126,10 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.BurstMining.COMMITMENT_REMOVE;
     }
-
+    
   }
-
-
+  
+  
   final class AdvancedPaymentEscrowCreation extends AbstractAttachment {
 
     private final Long amountNQT;
