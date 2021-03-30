@@ -78,6 +78,12 @@ var BRS = (function(BRS, $, undefined) {
                         }
                     }
                 }
+                else if (transaction.type === 20){
+                  if(transaction.subtype === 2)
+                    receiving = true;
+                  if(transaction.subtype === 1 || transaction.subtype === 2)
+                    amount = transaction.attachment.amountNQT.toString();
+                }
                 var account = (receiving ? "sender" : "recipient");
 
                 if (transaction.amountNQT) {
