@@ -46,8 +46,8 @@ public class Props {
   public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("brs.ShutdownTimeout", 180);
 
   // Checkpoint block for faster sync from empty database
-  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("brs.checkPointHeight", 834_000);
-  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("brs.checkPointPrevHash", "1fab995caf67530a90b69df0b512e0e434bd7f2f1b0fe1caae2414688c2d8f16");
+  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("brs.checkPointHeight", 866_300);
+  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("brs.checkPointPrevHash", "9823ef410a5b3fa33d199631d31bfa814d3811ec7e01f68131497a1e7d6651e2");
   public static final Prop<Integer> DEV_CHECKPOINT_HEIGHT = new Prop<>("DEV.checkPointHeight", 249_000);
   public static final Prop<String> DEV_CHECKPOINT_HASH = new Prop<>("DEV.checkPointPrevHash", "41e28a9068369bd528f7da97951b07e42d64c263e8b190dd56287ad2b0c63a38");
 
