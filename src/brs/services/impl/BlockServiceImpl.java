@@ -101,6 +101,9 @@ public class BlockServiceImpl implements BlockService {
   
   private Account getRewardAccount(Block block) {
 	Account rewardAccount = accountService.getAccount(block.getGeneratorPublicKey());
+	if(rewardAccount.getPublicKey() == null) {
+	  rewardAccount.setPublicKey(block.getGeneratorPublicKey());
+	}
     Account.RewardRecipientAssignment rewardAssignment = accountService.getRewardRecipientAssignment(rewardAccount);
     if (rewardAssignment != null) {
       if (block.getHeight() >= rewardAssignment.getFromHeight()) {
