@@ -796,7 +796,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
   
   private int checkDatabaseState() {
-    logger.trace("Checking database state...");
+    logger.debug("Checking database state...");
     long totalMined = 0;
     
     for (int i=0; i <= blockchain.getHeight(); i++) {
@@ -1020,7 +1020,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         stores.commitTransaction();
         // We make sure downloadCache do not have this block anymore, but only after all DBs have it
         downloadCache.removeBlock(block);
-        if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK == 0) {
+        int checkPointHeight = Burst.getPropertyService().getInt(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
+                    Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+        // If loading from empty do less trims and checks to speed up
+        if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK * (block.getHeight() < checkPointHeight ? 20 : 1) == 0) {
           if(checkDatabaseState()==0) {
             // Only trim a consistent database, otherwise it would be impossible to fix it by roll back
             lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
