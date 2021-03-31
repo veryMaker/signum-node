@@ -823,6 +823,7 @@
     "to": "To",
     "toggle_navigation": "Toggle navigation",
     "token": "Token",
+	"token_id": "Token ID",
     "total": "Total",
     "total_amount": "Total Amount",
     "total_available": "Total Available",
