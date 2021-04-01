@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
+import brs.Burst;
+import brs.fluxcapacitor.FluxValues;
+
 class AtMachineProcessor {
 
     private final Logger logger;
@@ -55,6 +58,21 @@ class AtMachineProcessor {
         fun.addr1 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1);
         fun.addr2 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1 + 4);
         if (!validAddr(fun.addr1, false) || !validAddr(fun.addr2, false)) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    private int get3Addrs() {
+        if (machineData.getMachineState().pc + 4 + 4 +4 >= machineData.getcSize()) {
+            return -1;
+        }
+
+        fun.addr1 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1);
+        fun.addr2 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1 + 4);
+        fun.addr3 = (machineData.getApCode()).getInt(machineData.getMachineState().pc + 1 + 4 + 4);
+        if (!validAddr(fun.addr1, false) || !validAddr(fun.addr2, false) || !validAddr(fun.addr3, false)) {
             return -1;
         }
 
@@ -374,6 +392,25 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_SET_IDX) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
+            rc = get3Addrs();
+            if (rc == 0 || disassemble) {
+                rc = 13;
+                if (disassemble) {
+                    if (!determineJumps && logger.isDebugEnabled())
+                        logger.debug("SET @{} $(${}+${})", String.format("%8s", fun.addr1).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr2).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr3).replace(' ', '0'));
+                } else {
+                        int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
+                                         + machineData.getApData().getLong(fun.addr3 * 8) );
+                        machineData.getApData().putLong(fun.addr1 * 8, machineData.getApData().getLong(addr * 8));
+                        machineData.getMachineState().pc += rc;
+                        machineData.getApData().clear();
+                }
+            }
+          }
+          else {
             int addr1 = fun.addr1;
             int addr2 = fun.addr2;
             int size = 8;
@@ -402,6 +439,7 @@ class AtMachineProcessor {
                     }
                 }
             }
+          }
         } else if (op == OpCode.E_OP_CODE_PSH_DAT || op == OpCode.E_OP_CODE_POP_DAT) {
             rc = getAddr(false);
             if (rc == 0 || disassemble) {
@@ -503,6 +541,25 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_IDX_DAT) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
+            rc = get3Addrs();
+            if (rc == 0 || disassemble) {
+                rc=13;
+                if (disassemble) {
+                    if (!determineJumps && logger.isDebugEnabled())
+                        logger.debug("SET @(${}+${}) ${}", String.format("%8s", fun.addr1).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr2).replace(' ', '0'),
+                                                           String.format("%8s", fun.addr3).replace(' ', '0'));
+                } else {
+                        int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
+                                        + machineData.getApData().getLong(fun.addr2 * 8));
+                        machineData.getApData().putLong(addr * 8, machineData.getApData().getLong( fun.addr3 * 8));
+                        machineData.getMachineState().pc += rc;
+                        machineData.getApData().clear();
+                }
+            }
+          }
+          else {
             int addr1 = fun.addr1;
             int addr2 = fun.addr2;
             int size = 8;
@@ -533,6 +590,7 @@ class AtMachineProcessor {
                     }
                 }
             }
+          }
         } else if (op == OpCode.E_OP_CODE_MOD_DAT) {
             rc = getAddrs();
 
