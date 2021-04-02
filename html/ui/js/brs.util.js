@@ -236,7 +236,7 @@ var BRS = (function(BRS, $, undefined) {
         } while (volume > 0);
         for (i = 0; i < digits.length; i++) {
             if (i > 0 && i % 3 === 0) {
-                formattedVolume = "'" + formattedVolume;
+                formattedVolume = "," + formattedVolume;
             }
             formattedVolume = digits[i] + formattedVolume;
         }
@@ -512,7 +512,7 @@ var BRS = (function(BRS, $, undefined) {
 
         for (var i = 0; i < digits.length; i++) {
             if (i > 0 && i % 3 === 0) {
-                formattedAmount = "'" + formattedAmount;
+                formattedAmount = "," + formattedAmount;
             }
             formattedAmount = digits[i] + formattedAmount;
         }
