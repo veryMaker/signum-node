@@ -97,7 +97,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getPeer", GetPeer.instance);
     map.put("getMyPeerInfo", new GetMyPeerInfo(transactionProcessor));
     map.put("getPeers", GetPeers.instance);
-    map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, generator, propertyService));
+    map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, atService, generator, propertyService));
     map.put("getTime", new GetTime(timeService));
     map.put("getTrades", new GetTrades(parameterService, assetExchange));
     map.put("getAllTrades", new GetAllTrades(assetExchange));

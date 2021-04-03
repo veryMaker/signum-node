@@ -6,6 +6,7 @@ import brs.peer.Peer;
 import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.Props;
+import brs.services.ATService;
 import brs.services.AccountService;
 import brs.services.AliasService;
 import brs.services.EscrowService;
@@ -26,17 +27,19 @@ final class GetState extends APIServlet.JsonRequestHandler {
   private final AccountService accountService;
   private final AliasService aliasService;
   private final TimeService timeService;
+  private final ATService atService;
   private final Generator generator;
   private final PropertyService propertyService;
 
   GetState(Blockchain blockchain, AssetExchange assetExchange, AccountService accountService, EscrowService escrowService,
-           AliasService aliasService, TimeService timeService, Generator generator, PropertyService propertyService) {
+           AliasService aliasService, TimeService timeService, ATService atService, Generator generator, PropertyService propertyService) {
     super(new APITag[] {APITag.INFO}, INCLUDE_COUNTS_PARAMETER);
     this.blockchain = blockchain;
     this.assetExchange = assetExchange;
     this.accountService = accountService;
     this.aliasService = aliasService;
     this.timeService = timeService;
+    this.atService = atService;
     this.generator = generator;
     this.propertyService = propertyService;
   }
@@ -66,6 +69,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
 
     response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
     response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
+    response.addProperty("numberOfATs", atService.getAllATIds().size());
     response.addProperty("numberOfAssets", assetExchange.getAssetsCount());
     int askCount = assetExchange.getAskCount();
     int bidCount = assetExchange.getBidCount();
