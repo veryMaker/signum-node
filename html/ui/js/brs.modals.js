@@ -368,7 +368,8 @@ var BRS = (function(BRS, $, undefined) {
                     "noMask": true
                 }).removeClass("noMask");
             } else {
-                $(this).mask("BURST-****-****-****-*****");
+                // Removed due to implemetation of Signum (Quick fix)
+                //$(this).mask("BURST-****-****-****-*****");
             }
         });
 

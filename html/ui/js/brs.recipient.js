@@ -257,7 +257,8 @@ var BRS = (function(BRS, $, undefined) {
         if (/^(BURST\-)?[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+/i.test(account)) {
             var address = new NxtAddress();
 
-            if (address.set(account)) {
+            // Added usage of substr due to Signum implementation
+			if (address.set(account.substr(0, 26))) {
                 BRS.getAccountError(account, function(response) {
                     modal.find("input[name=recipientPublicKey]").val("");
                     modal.find(".recipient_public_key").hide();
