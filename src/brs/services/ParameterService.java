@@ -39,4 +39,8 @@ public interface ParameterService {
   AT getAT(HttpServletRequest req) throws ParameterException;
 
   boolean getIncludeIndirect(HttpServletRequest req);
+  
+  boolean getEstimateCommitment(HttpServletRequest req);
+
+  boolean getAmountCommitted(HttpServletRequest req);
 }

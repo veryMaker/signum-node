@@ -2,7 +2,9 @@ package brs.http;
 
 import brs.Account;
 import brs.Account.AccountAsset;
+import brs.Blockchain;
 import brs.BurstException;
+import brs.Generator;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.services.AccountService;
@@ -31,13 +33,17 @@ public class GetAccountTest extends AbstractUnitTest {
 
   private ParameterService parameterServiceMock;
   private AccountService accountServiceMock;
+  private Blockchain blockchainMock;
+  private Generator generatorMock;
 
   @Before
   public void setUp() {
     parameterServiceMock = mock(ParameterService.class);
     accountServiceMock = mock(AccountService.class);
+    blockchainMock = mock(Blockchain.class);
+    generatorMock = mock(Generator.class);
 
-    t = new GetAccount(parameterServiceMock, accountServiceMock);
+    t = new GetAccount(parameterServiceMock, accountServiceMock, blockchainMock, generatorMock);
   }
 
   @Test

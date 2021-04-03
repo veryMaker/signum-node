@@ -203,15 +203,11 @@ public final class Db {
   }
 
   public static <T> T useDSLContext(Function<DSLContext, T> function) {
-      try (DSLContext context = getDSLContext()) {
-          return function.apply(context);
-      }
+    return function.apply(getDSLContext());
   }
 
   public static void useDSLContext(Consumer<DSLContext> consumer) { // TODO RxJava
-    try (DSLContext context = getDSLContext()) {
-      consumer.accept(context);
-    }
+    consumer.accept(getDSLContext());
   }
 
   private static DSLContext getDSLContext() {
@@ -220,15 +216,11 @@ public final class Db {
     settings.setRenderSchema(Boolean.FALSE);
 
     if (con == null) {
-      try ( DSLContext ctx = DSL.using(cp, dialect, settings) ) {
-        return ctx;
-      }
+      return DSL.using(cp, dialect, settings);
     }
     else {
       settings.setStatementType(StatementType.STATIC_STATEMENT);
-      try ( DSLContext ctx = DSL.using(con, dialect, settings) ) {
-        return ctx;
-      }
+      return DSL.using(con, dialect, settings);
     }
   }
 

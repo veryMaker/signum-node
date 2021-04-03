@@ -2,7 +2,10 @@ package brs.db.sql;
 
 import brs.*;
 import brs.Block;
+import brs.Constants;
 import brs.Transaction;
+import brs.Attachment.CommitmentAdd;
+import brs.Attachment.CommitmentRemove;
 import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
@@ -12,6 +15,7 @@ import brs.schema.tables.records.TransactionRecord;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -43,11 +47,31 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public Collection<Block> getBlocks(Account account, int timestamp, int from, int to) {
     return Db.useDSLContext(ctx -> {
+      
       SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()));
       if (timestamp > 0) {
         query.and(BLOCK.TIMESTAMP.ge(timestamp));
       }
+      // TODO: this filter is not working.
+      // Additionally, if we filter the blocks foget counting becomes wrong. 
+//      if(from > 0 || to > 0) {
+//        int blockchainHeight = Burst.getBlockchain().getHeight();
+//        query.and(BLOCK.HEIGHT.between(to > 0 ? blockchainHeight - to : 0).and(blockchainHeight - Math.max(from, 0)));
+//      }
       return getBlocks(query.orderBy(BLOCK.HEIGHT.desc()).fetch());
+    });
+  }
+  
+  @Override
+  public int getBlocksCount(Account account, int from, int to) {
+    if(from >  to) {
+      return 0;
+    }
+    return Db.useDSLContext(ctx -> {
+      SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()))
+    		  .and(BLOCK.HEIGHT.between(from).and(to));
+      
+      return ctx.fetchCount(query);
     });
   }
 
@@ -118,7 +142,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       return ctx.select(DSL.sum(TRANSACTION.AMOUNT)).from(TRANSACTION)
           .where(TRANSACTION.RECIPIENT_ID.isNull())
           .and(TRANSACTION.AMOUNT.gt(0L))
-          .and(TRANSACTION.TYPE.equal((byte)22))
+          .and(TRANSACTION.TYPE.equal(TransactionType.TYPE_AUTOMATED_TRANSACTIONS))
           .fetchOneInto(long.class);
     });
   }
@@ -158,7 +182,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       if (includeIndirectIncoming) {
         select = select.unionAll(ctx.selectFrom(TRANSACTION)
                 .where(conditions)
-                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), from, to))));
+                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), -1, -1))));
       }
 
       SelectQuery<TransactionRecord> selectQuery = select
@@ -201,5 +225,44 @@ public class SqlBlockchainStore implements BlockchainStore {
                       .orderBy(BLOCK.HEIGHT.asc())
                       .fetch());
     });
+  }
+  
+  @Override
+  public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
+    int commitmentHeight = Math.min(height - Constants.COMMITMENT_WAIT, endHeight);
+    
+    Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+          .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
+          .and(TRANSACTION.HEIGHT.le(commitmentHeight));
+      if(account != null)
+        select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
+      return getTransactions(ctx, select.fetch());
+    });
+    Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+          .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
+          .and(TRANSACTION.HEIGHT.le(endHeight));
+      if(account != null)
+        select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
+      return getTransactions(ctx, select.fetch());
+    });
+    
+    BigInteger amountCommitted = BigInteger.ZERO;
+    for(Transaction tx : commitmmentAddTransactions) {
+      CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
+      amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
+    }
+    for(Transaction tx : commitmmentRemoveTransactions) {
+      if(skipTransaction !=null && skipTransaction.getId() == tx.getId())
+        continue;
+      CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
+      amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
+    }
+    if(amountCommitted.compareTo(BigInteger.ZERO) < 0) {
+      // should never happen
+      amountCommitted = BigInteger.ZERO;
+    }
+    return amountCommitted.longValue();
   }
 }
