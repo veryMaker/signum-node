@@ -20,7 +20,6 @@ import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
-import brs.services.impl.BlockServiceImpl;
 import brs.statistics.StatisticsManagerImpl;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
@@ -797,11 +796,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   
   private int checkDatabaseState() {
     logger.debug("Checking database state...");
-    long totalMined = 0;
-    
-    for (int i=0; i <= blockchain.getHeight(); i++) {
-      totalMined += BlockServiceImpl.getBlockReward(i);
-    }
+    long totalMined = blockchain.getTotalMined();
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
     // Check the amount burnt with multi-out transactions the the 0L address

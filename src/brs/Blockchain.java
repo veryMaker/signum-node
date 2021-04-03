@@ -45,6 +45,8 @@ public interface Blockchain {
   Collection<Transaction> getAllTransactions();
   
   public long getAtBurnTotal();
+  
+  public long getTotalMined();
 
   Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockImplTimestamp, boolean includeIndirectIncoming);
 

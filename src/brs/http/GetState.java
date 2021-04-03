@@ -51,20 +51,21 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());
+    response.addProperty("totalMinedNQT", blockchain.getTotalMined());
 
     if ("true".equalsIgnoreCase(req.getParameter(INCLUDE_COUNTS_PARAMETER))) {
       long totalEffectiveBalance = accountService.getAllAccountsBalance();
-      response.addProperty("totalEffectiveBalanceNXT", totalEffectiveBalance / Constants.ONE_BURST);
       response.addProperty("totalEffectiveBalance", totalEffectiveBalance / Constants.ONE_BURST);
       response.addProperty("totalEffectiveBalanceNQT", totalEffectiveBalance);
       
       long totalCommitted = blockchain.getCommittedAmount(null, blockchain.getHeight(), blockchain.getHeight(), null);
       response.addProperty("totalCommittedNQT", totalCommitted);
+      
+      response.addProperty("numberOfAccounts", accountService.getCount());
     }
 
     response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
     response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
-    response.addProperty("numberOfAccounts", accountService.getCount());
     response.addProperty("numberOfAssets", assetExchange.getAssetsCount());
     int askCount = assetExchange.getAskCount();
     int bidCount = assetExchange.getBidCount();

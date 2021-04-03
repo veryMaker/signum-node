@@ -3,6 +3,7 @@ package brs;
 import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
+import brs.services.impl.BlockServiceImpl;
 import brs.util.StampedLockUtils;
 
 import java.util.Collection;
@@ -173,6 +174,29 @@ public class BlockchainImpl implements Blockchain {
   @Override
   public long getAtBurnTotal(){
     return blockchainStore.getAtBurnTotal();
+  }
+  
+  @Override
+  public long getTotalMined() {
+    long totalMined = 0;
+    int height = getHeight();
+    long blockReward = BlockServiceImpl.getBlockReward(1);
+    int blockMonth = 0;
+    for (int i=1; i <= height; i++) {
+      if (i >= 972_000) {
+        blockReward = 100 * Constants.ONE_BURST;
+      }
+      else {
+        int month = i / 10800;
+        if(month != blockMonth) {
+          blockReward = BlockServiceImpl.getBlockReward(i);
+          blockMonth = month;
+        }
+      }
+      totalMined += blockReward;
+    }
+    
+    return totalMined;
   }
 
   @Override
