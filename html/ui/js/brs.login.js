@@ -171,7 +171,6 @@ var BRS = (function(BRS, $, undefined) {
                     BRS.account = String(response.account).escapeHTML();
                     BRS.accountRS = String(response.accountRS).escapeHTML();
                     BRS.publicKey = BRS.getPublicKey(converters.stringToHexString(password));
-                    BRS.accountRSExtended = BRS.accountRS + '-' + new BigNumber(BRS.publicKey, 16).toString(36).toUpperCase();
                 }
 
                 if (!BRS.account) {

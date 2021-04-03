@@ -34,18 +34,6 @@ var BRS = (function(BRS, $, undefined) {
 
         $(element).closest(".modal").find(".total_amount_ordinary").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " BURST");
     };
-    
-    BRS.commitmentCalculateTotal = function(element) {
-        var current_amount = parseFloat($("#commitment_amount").val(), 10);
-        var current_fee = parseFloat($("#commitment_fee").val(), 10);
-        var fee = isNaN(current_fee) ? 1 : (current_fee < 0.00735 ? 0.00735 : current_fee);
-        var amount = isNaN(current_amount) ? 0.00000001 : (current_amount < 0.00000001 ? 0.00000001 : current_amount);
-
-        $("#commitment_amount").val(amount.toFixed(8));
-        $("#commitment_fee").val(fee.toFixed(8));
-
-        $(element).closest(".modal").find(".total_amount_commitment").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " BURST");
-    };
 
     $("#send_message_modal, #send_money_modal, #add_contact_modal").on("show.bs.modal", function(e) {
         var $invoker = $(e.relatedTarget);
@@ -66,30 +54,6 @@ var BRS = (function(BRS, $, undefined) {
             $inputField.val(account).trigger("checkRecipient");
         }
         BRS.sendMoneyCalculateTotal($(this));
-    });
-    
-    $("#commitment_modal").on("show.bs.modal", function(e) {
-        var $invoker = $(e.relatedTarget);
-
-        var account = $invoker.data("account");
-
-        if (!account) {
-            account = $invoker.data("contact");
-        }
-
-        if (account) {
-            var $inputField = $(this).find("input[name=recipient], input[name=account_id]").not("[type=hidden]");
-
-            if (!/BURST\-/i.test(account)) {
-                $inputField.addClass("noMask");
-            }
-
-            $inputField.val(account).trigger("checkRecipient");
-        }
-        BRS.commitmentCalculateTotal($(this));
-    });
-    $("#commitment_amount, #commitment_fee").on("change", function(e) {
-        BRS.commitmentCalculateTotal($(this));
     });
 
     $("#send_money_amount, #send_money_fee").on("change", function(e) {

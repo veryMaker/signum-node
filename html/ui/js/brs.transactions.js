@@ -78,12 +78,6 @@ var BRS = (function(BRS, $, undefined) {
                         }
                     }
                 }
-                else if (transaction.type === 20){
-                  if(transaction.subtype === 2)
-                    receiving = true;
-                  if(transaction.subtype === 1 || transaction.subtype === 2)
-                    amount = transaction.attachment.amountNQT.toString();
-                }
                 var account = (receiving ? "sender" : "recipient");
 
                 if (transaction.amountNQT) {
@@ -573,12 +567,6 @@ var BRS = (function(BRS, $, undefined) {
             case 0:
                 transactionType = "Reward Recipient Assignment";
                 break;
-            case 1:
-                transactionType = "Add Commitment";
-                break;
-            case 2:
-                transactionType = "Remove Commitment";
-                break;
             }
         }
         else if (transaction.type == 21) {
@@ -640,16 +628,6 @@ var BRS = (function(BRS, $, undefined) {
                     }
                 }
             }
-        }
-        else if (transaction.type === 20){
-          if(transaction.subtype === 1){
-            receiving = false;
-            amount = transaction.attachment.amountNQT.toString();
-          }
-          else if (transaction.subtype === 2){
-            receiving = true;
-            amount = transaction.attachment.amountNQT.toString();            
-          }
         }
         var account = (receiving ? "sender" : "recipient");
 

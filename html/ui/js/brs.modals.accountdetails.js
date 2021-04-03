@@ -29,8 +29,8 @@ var BRS = (function(BRS, $, undefined) {
             else {
 		$("#account_balance_balance").html(BRS.formatAmount(new BigInteger(BRS.accountInfo.balanceNQT)) + " BURST");
 		$("#account_balance_unconfirmed_balance").html(BRS.formatAmount(new BigInteger(BRS.accountInfo.unconfirmedBalanceNQT)) + " BURST");
-                $("#account_locked_balance").html(BRS.formatAmount((new BigInteger(BRS.accountInfo.balanceNQT) - new BigInteger(BRS.accountInfo.unconfirmedBalanceNQT)).toLocaleString()) + " BURST");
-		$("#account_committed_balance").html(BRS.formatAmount(new BigInteger(BRS.accountInfo.committedBalanceNQT)) + " BURST");
+		$("#account_balance_effective_balance").html(BRS.formatAmount(BRS.accountInfo.effectiveBalanceBURST) + " BURST");
+		$("#account_balance_guaranteed_balance").html(BRS.formatAmount(new BigInteger(BRS.accountInfo.guaranteedBalanceNQT)) + " BURST");
 
 		$("#account_balance_public_key").html(String(BRS.accountInfo.publicKey).escapeHTML());
 		$("#account_balance_account_rs").html(String(BRS.accountInfo.accountRS).escapeHTML());

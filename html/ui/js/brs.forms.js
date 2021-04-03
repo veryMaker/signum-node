@@ -434,11 +434,6 @@ var BRS = (function(BRS, $, undefined) {
         if (data.deadline) {
             data.deadline = String(data.deadline * 60); //hours to minutes
         }
-        
-        if (data.removeCommitment) {
-            requestType = "removeCommitment";
-            delete data.removeCommitment;
-        }
 
         if (data.doNotBroadcast) {
             data.broadcast = "false";

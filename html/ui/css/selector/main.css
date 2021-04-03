@@ -14,7 +14,7 @@ canvas{
 }
 
 .bg {
-    background-image: url("../assets/blockchain.jpg");
+    background-image: url("../../img/selector/blockchain.jpg");
     background-size: cover;
     height: 100%;
     width: 100%;
