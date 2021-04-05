@@ -419,7 +419,7 @@ final class PeerImpl implements Peer {
   @Override
   public void connect(int currentTime) {
     JsonObject response = send(Peers.myPeerInfoRequest);
-    if (response != null) {
+    if (response != null && response.get("error") == null) {
       application.set(JSON.getAsString(response.get("application")));
       setVersion(JSON.getAsString(response.get("version")));
       platform.set(JSON.getAsString(response.get("platform")));
