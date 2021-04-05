@@ -237,10 +237,19 @@ var BRS = (function(BRS, $, undefined) {
 			}
 		    }
                     else if (transaction.type == 20) {
+                      if( transaction.subtype == 1 || transaction.subtype == 2){
+                        transaction.amountNQT = transaction.attachment.amountNQT.toString();
+                      }
 			switch (transaction.subtype) {
 			case 0:
 			    transactionType = "Reward Recipient Assignment";
 			    break;
+      case 1:
+          transactionType = "Add Commitment";
+          break;
+      case 2:
+          transactionType = "Remove Commitment";
+          break;
 			}
 		    }
                     else if (transaction.type == 21) {

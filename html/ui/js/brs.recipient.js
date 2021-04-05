@@ -34,6 +34,18 @@ var BRS = (function(BRS, $, undefined) {
 
         $(element).closest(".modal").find(".total_amount_ordinary").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " BURST");
     };
+    
+    BRS.commitmentCalculateTotal = function(element) {
+        var current_amount = parseFloat($("#commitment_amount").val(), 10);
+        var current_fee = parseFloat($("#commitment_fee").val(), 10);
+        var fee = isNaN(current_fee) ? 1 : (current_fee < 0.00735 ? 0.00735 : current_fee);
+        var amount = isNaN(current_amount) ? 0.00000001 : (current_amount < 0.00000001 ? 0.00000001 : current_amount);
+
+        $("#commitment_amount").val(amount.toFixed(8));
+        $("#commitment_fee").val(fee.toFixed(8));
+
+        $(element).closest(".modal").find(".total_amount_commitment").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " BURST");
+    };
 
     $("#send_message_modal, #send_money_modal, #add_contact_modal").on("show.bs.modal", function(e) {
         var $invoker = $(e.relatedTarget);
@@ -54,6 +66,30 @@ var BRS = (function(BRS, $, undefined) {
             $inputField.val(account).trigger("checkRecipient");
         }
         BRS.sendMoneyCalculateTotal($(this));
+    });
+    
+    $("#commitment_modal").on("show.bs.modal", function(e) {
+        var $invoker = $(e.relatedTarget);
+
+        var account = $invoker.data("account");
+
+        if (!account) {
+            account = $invoker.data("contact");
+        }
+
+        if (account) {
+            var $inputField = $(this).find("input[name=recipient], input[name=account_id]").not("[type=hidden]");
+
+            if (!/BURST\-/i.test(account)) {
+                $inputField.addClass("noMask");
+            }
+
+            $inputField.val(account).trigger("checkRecipient");
+        }
+        BRS.commitmentCalculateTotal($(this));
+    });
+    $("#commitment_amount, #commitment_fee").on("change", function(e) {
+        BRS.commitmentCalculateTotal($(this));
     });
 
     $("#send_money_amount, #send_money_fee").on("change", function(e) {
@@ -221,18 +257,35 @@ var BRS = (function(BRS, $, undefined) {
         if (/^(BURST\-)?[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+/i.test(account)) {
             var address = new NxtAddress();
 
-            if (address.set(account)) {
-                BRS.getAccountError(account, function(response) {
-                    modal.find("input[name=recipientPublicKey]").val("");
-                    modal.find(".recipient_public_key").hide();
-                    if (response.account && response.account.description) {
-                        checkForMerchant(response.account.description, modal);
-                    }
-
-                    var message = response.message.escapeHTML();
-
-                    callout.removeClass(classes).addClass("callout-" + response.type).html(message).show();
-                });
+            // Added usage of substr due to Signum implementation
+            var accountRS = account.substr(0, 26);
+			      if (address.set(accountRS)) {
+                if(account.length > 28){
+                  // check if there is a public key
+                  var publicKeyBase36 = account.substr(27);
+                  var publicKey = new BigNumber(publicKeyBase36, 36).toString(16);
+                  var checkRS = BRS.getAccountIdFromPublicKey(publicKey, true);
+                  
+                  if(checkRS !== accountRS){
+                    callout.removeClass(classes).addClass("callout-danger").html($.t("recipient_malformed")).show();
+                  }
+                  else {
+                    callout.removeClass(classes).addClass("callout-info").html($.t("recipient_info_extended")).show();
+                  }
+                }
+                else {
+                  BRS.getAccountError(account, function(response) {
+                      modal.find("input[name=recipientPublicKey]").val("");
+                      modal.find(".recipient_public_key").hide();
+                      if (response.account && response.account.description) {
+                          checkForMerchant(response.account.description, modal);
+                      }
+  
+                      var message = response.message.escapeHTML();
+  
+                      callout.removeClass(classes).addClass("callout-" + response.type).html(message).show();
+                  });
+                }
             } else {
                 if (address.guess.length === 1) {
                     callout.removeClass(classes).addClass("callout-danger").html($.t("recipient_malformed_suggestion", {
