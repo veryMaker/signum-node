@@ -169,7 +169,7 @@ public final class APIServlet extends HttpServlet {
     mapAdmin.put("fullReset", new FullReset(blockchainProcessor));
     mapAdmin.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));
     mapAdmin.put("backupDb", new BackupDB());
-    apiAdminRequestHandlers = Collections.unmodifiableMap(map);
+    apiAdminRequestHandlers = Collections.unmodifiableMap(mapAdmin);
 
   }
 

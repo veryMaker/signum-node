@@ -153,12 +153,13 @@ public class APITestServlet extends HttpServlet {
 
   private final Set<Subnet> allowedBotHosts;
   private final List<String> requestTypes;
-  private final Map<String, APIServlet.HttpRequestHandler> apiRequestHandlers;
+  private final Map<String, APIServlet.HttpRequestHandler> apiRequestHandlers = new HashMap<String, APIServlet.HttpRequestHandler>();
   private final SortedMap<String, SortedSet<String>> requestTags;
 
   public APITestServlet(APIServlet apiServlet, Set<Subnet> allowedBotHosts) {
     this.allowedBotHosts = allowedBotHosts;
-    apiRequestHandlers = apiServlet.apiRequestHandlers;
+    apiRequestHandlers.putAll(apiServlet.apiRequestHandlers);
+    apiRequestHandlers.putAll(apiServlet.apiAdminRequestHandlers);
     requestTags = buildRequestTags();
     requestTypes = new ArrayList<>(apiRequestHandlers.keySet());
     Collections.sort(requestTypes);
@@ -233,7 +234,8 @@ public class APITestServlet extends HttpServlet {
           Set<String> taggedTypes = requestTags.get(requestTag);
           for (String type : (taggedTypes != null ? taggedTypes : requestTypes)) {
             requestHandler = apiRequestHandlers.get(type);
-            writer.print(form(type, false, requestHandler.getClass().getName(), apiRequestHandlers.get(type).getParameters(),
+            List<String> parameters = apiRequestHandlers.get(type).getParameters();
+            writer.print(form(type, false, requestHandler.getClass().getName(), parameters,
                               apiRequestHandlers.get(type).requirePost()));
             bufJSCalls.append("apiCalls.push(\"").append(type).append("\");\n");
           }
