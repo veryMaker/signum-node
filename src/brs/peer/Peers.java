@@ -877,6 +877,13 @@ public final class Peers {
         logger.info("Finished connecting to {} well known peers.", connectWellKnownFirst);
       }
     }
+    
+    if(peers.size() == 0) {
+      // add back the well known peers in case we have been offline too long
+      for(String wellKnownPeer : wellKnownPeers) {
+        addPeer(wellKnownPeer);
+      }
+    }
 
     List<Peer> selectedPeers = new ArrayList<>();
     for (Peer peer : peers.values()) {
