@@ -674,6 +674,7 @@
     "recipient_account": "Recipient Account",
     "recipient_alias_suggestion": "If you want to type an alias, prepend it with the @ character.",
     "recipient_info": "The recipient account has a public key and a balance of __burst__ BURST.",
+    "recipient_info_extended": "Sending to a recipient with an extended address.",
     "recipient_malformed": "The recipient account is malformed, please adjust.",
     "recipient_malformed_suggestion": "The recipient address is malformed, did you mean __recipient__ ?",
     "recipient_malformed_suggestion_plural": "The recipient address is malformed, did you mean any of the following:",

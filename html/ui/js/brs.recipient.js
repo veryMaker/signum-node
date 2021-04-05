@@ -258,18 +258,34 @@ var BRS = (function(BRS, $, undefined) {
             var address = new NxtAddress();
 
             // Added usage of substr due to Signum implementation
-			if (address.set(account.substr(0, 26))) {
-                BRS.getAccountError(account, function(response) {
-                    modal.find("input[name=recipientPublicKey]").val("");
-                    modal.find(".recipient_public_key").hide();
-                    if (response.account && response.account.description) {
-                        checkForMerchant(response.account.description, modal);
-                    }
-
-                    var message = response.message.escapeHTML();
-
-                    callout.removeClass(classes).addClass("callout-" + response.type).html(message).show();
-                });
+            var accountRS = account.substr(0, 26);
+			      if (address.set(accountRS)) {
+                if(account.length > 28){
+                  // check if there is a public key
+                  var publicKeyBase36 = account.substr(27);
+                  var publicKey = new BigNumber(publicKeyBase36, 36).toString(16);
+                  var checkRS = BRS.getAccountIdFromPublicKey(publicKey, true);
+                  
+                  if(checkRS !== accountRS){
+                    callout.removeClass(classes).addClass("callout-danger").html($.t("recipient_malformed")).show();
+                  }
+                  else {
+                    callout.removeClass(classes).addClass("callout-info").html($.t("recipient_info_extended")).show();
+                  }
+                }
+                else {
+                  BRS.getAccountError(account, function(response) {
+                      modal.find("input[name=recipientPublicKey]").val("");
+                      modal.find(".recipient_public_key").hide();
+                      if (response.account && response.account.description) {
+                          checkForMerchant(response.account.description, modal);
+                      }
+  
+                      var message = response.message.escapeHTML();
+  
+                      callout.removeClass(classes).addClass("callout-" + response.type).html(message).show();
+                  });
+                }
             } else {
                 if (address.guess.length === 1) {
                     callout.removeClass(classes).addClass("callout-danger").html($.t("recipient_malformed_suggestion", {
