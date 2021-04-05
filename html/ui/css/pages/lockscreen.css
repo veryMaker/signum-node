@@ -134,7 +134,7 @@ html.lockscreen, html.lockscreen body {
 
 @keyframes blurring {
   0% {
-    opacity: 1;
+    opacity: 0.5;
     filter: blur(10px);
     transform: scale(1.0);
     transform: rotate(0deg);
@@ -142,11 +142,14 @@ html.lockscreen, html.lockscreen body {
   25% {
     transform: rotate(5deg);
   }
+  66% {
+    opacity: 0.8;    
+  }
   75% {
     transform: rotate(0deg);
   }
   100% {
-    opacity: 0.5;
+    opacity: 0.2;
     filter: blur(20px);
     transform: rotate(-5deg);
   }
