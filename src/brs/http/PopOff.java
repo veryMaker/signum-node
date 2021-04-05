@@ -23,7 +23,7 @@ final class PopOff extends APIServlet.JsonRequestHandler {
   private final BlockService blockService;
 
   PopOff(BlockchainProcessor blockchainProcessor, Blockchain blockchain, BlockService blockService) {
-    super(new APITag[] {APITag.DEBUG}, NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER);
+    super(new APITag[] {APITag.ADMIN}, NUM_BLOCKS_PARAMETER, HEIGHT_PARAMETER);
     this.blockchainProcessor = blockchainProcessor;
     this.blockchain = blockchain;
     this.blockService = blockService;

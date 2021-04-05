@@ -14,7 +14,7 @@ public final class FullReset extends APIServlet.JsonRequestHandler {
   private final BlockchainProcessor blockchainProcessor;
 
   FullReset(BlockchainProcessor blockchainProcessor) {
-    super(new APITag[]{APITag.DEBUG});
+    super(new APITag[]{APITag.ADMIN});
     this.blockchainProcessor = blockchainProcessor;
   }
 

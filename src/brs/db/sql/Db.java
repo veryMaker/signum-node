@@ -185,6 +185,23 @@ public final class Db {
       cp.close();
     }
   }
+  
+  public static void backup(String filename) {
+    if (dialect == SQLDialect.H2) {
+      try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
+        stmt.execute("BACKUP TO '" + filename + "'");
+      }
+      catch (SQLException e) {
+        logger.info(e.toString(), e);
+      }
+      finally {
+        logger.info("Database backup completed, file {}.", filename);
+      }
+    }
+    else {
+      logger.error("Backup not yet implemented for {}", dialect.toString());
+    }
+  }
 
   private static Connection getPooledConnection() throws SQLException {
       return cp.getConnection();

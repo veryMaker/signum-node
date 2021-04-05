@@ -45,6 +45,7 @@ public final class Parameters {
   public static final String SUBSCRIPTION_PARAMETER = "subscription";
   public static final String ALIAS_URI_PARAMETER = "aliasURI";
   public static final String NAME_PARAMETER = "name";
+  public static final String FILENAME_PARAMETER = "filename";
   public static final String DESCRIPTION_PARAMETER = "description";
   public static final String FREQUENCY_PARAMETER = "frequency";
   public static final String AT_PARAMETER = "at";

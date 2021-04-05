@@ -31,6 +31,7 @@ public final class APIServlet extends HttpServlet {
   private static final Logger logger = LoggerFactory.getLogger(APIServlet.class);
 
   private final Set<Subnet> allowedBotHosts;
+  private final Set<Subnet> allowedAdminHosts;
   private final boolean acceptSurplusParams;
 
   public APIServlet(TransactionProcessor transactionProcessor, Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
@@ -38,11 +39,12 @@ public final class APIServlet extends HttpServlet {
                     EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
                     SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
                     BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
-                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts) {
+                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts, Set<Subnet> allowedAdminHosts) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
     allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
     this.allowedBotHosts = allowedBotHosts;
+    this.allowedAdminHosts = allowedAdminHosts;
     this.acceptSurplusParams = propertyService.getBoolean(Props.API_ACCEPT_SURPLUS_PARAMS);
 
     final Map<String, HttpRequestHandler> map = new HashMap<>();
@@ -160,13 +162,15 @@ public final class APIServlet extends HttpServlet {
     map.put("generateDeeplink", GenerateDeeplink.instance);
     map.put("generateDeeplinkQRCode", GenerateDeeplinkQR.instance);
 
-    if (propertyService.getBoolean(Props.API_DEBUG) || propertyService.getBoolean(Props.DEV_TESTNET)) {
-      map.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
-      map.put("fullReset", new FullReset(blockchainProcessor));
-      map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));
-    }
-
     apiRequestHandlers = Collections.unmodifiableMap(map);
+    
+    final Map<String, HttpRequestHandler> mapAdmin = new HashMap<>();
+    mapAdmin.put("clearUnconfirmedTransactions", new ClearUnconfirmedTransactions(transactionProcessor));
+    mapAdmin.put("fullReset", new FullReset(blockchainProcessor));
+    mapAdmin.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService));
+    mapAdmin.put("backupDb", new BackupDB());
+    apiAdminRequestHandlers = Collections.unmodifiableMap(map);
+
   }
 
   abstract static class JsonRequestHandler extends HttpRequestHandler {
@@ -247,6 +251,7 @@ public final class APIServlet extends HttpServlet {
   private final String allowedOrigins;
 
   public final Map<String, HttpRequestHandler> apiRequestHandlers;
+  public final Map<String, HttpRequestHandler> apiAdminRequestHandlers;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -306,6 +311,27 @@ public final class APIServlet extends HttpServlet {
     }
 
     HttpRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
+    if (apiRequestHandler == null) {
+      // check for an admin command
+      apiRequestHandler = apiAdminRequestHandlers.get(requestType);
+      if(apiRequestHandler != null) {
+        boolean allowed = false;
+        if (allowedAdminHosts != null) {
+          InetAddress remoteAddress = InetAddress.getByName(req.getRemoteHost());
+          for (Subnet allowedSubnet : allowedBotHosts) {
+            if (allowedSubnet.isInNet(remoteAddress)) {
+              allowed = true;
+              break;
+            }
+          }
+        }
+        if (!allowed) {
+          resp.setStatus(HttpStatus.FORBIDDEN_403);
+          writeJsonToResponse(resp, ERROR_NOT_ALLOWED);
+          return;
+        }
+      }
+    }
     if (apiRequestHandler == null) {
       resp.setStatus(HttpStatus.NOT_FOUND_404);
       writeJsonToResponse(resp, ERROR_MISSING_REQUEST);
