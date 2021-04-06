@@ -208,8 +208,8 @@ public class BurstGUI extends JFrame {
     private TrayIcon createTrayIcon() {
     	PopupMenu popupMenu = new PopupMenu();
     	
-        MenuItem openPheonixWalletItem = new MenuItem("Open Phoenix Wallet");
-        MenuItem openClassicWalletItem = new MenuItem("Open Classic Wallet");
+        MenuItem openPheonixWalletItem = new MenuItem("Phoenix Wallet");
+        MenuItem openClassicWalletItem = new MenuItem("Classic Wallet");
     	MenuItem showItem = new MenuItem("Show BRS output");
     	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
