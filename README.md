@@ -23,8 +23,7 @@ This wallet version is developed and maintained by the Burst Apps Team (BAT). Th
 ## Network Specification
 
 - 4 minute block time
-- Total Supply: [2,138,119,200 BURST up to block 972k + 100 BURST per block after that]
-    (https://github.com/burst-apps-team/CIPs/blob/master/cip-0029.md)
+- Total Supply: [2,138,119,200 BURST up to block 972k + 100 BURST per block after that](https://github.com/burst-apps-team/CIPs/blob/master/cip-0029.md)
 - Block reward starts at 10,000/block
 - Block reward decreases at 5% each month with a minimum mining incentive of 100 BURST per block
 
