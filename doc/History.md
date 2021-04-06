@@ -1,6 +1,46 @@
 [History of Burst](https://burstwiki.org/en/history-of-burst/)
 
 ```
+2020-04-06 v3.0.0
+- Proof of Commitment (PoC+) implemented - CIP27
+- Support for extended addresses (no more *activation* for new addresses) - CIP26
+- Mininum block reward limit - CIP29
+- Increase max steps for smart contracts (ATs) - CIP28
+- Phoenix wallet included
+- Classic wallet updated
+- Suggested fees based on unconfirmed transactions and not transaction history
+- Improved GUI with new theme and buttons
+- API documentation under `/api-doc` and not `/test`
+- Difficulty given by network capacity + amount committed
+- Fixed bugs with the donwload cache
+- Fixed bugs preventing to reconnect after network outage
+- Fix bug with AT on mining nodes (making them occasionaly inconsistent)
+- New transaction types for commitment add/remove
+- Improved popoff functions
+- Faster and better DB consistency checks
+- Better DB performance with new indices added to some tables
+- Peers below v3.0 automatically disconnected after Signum fork block
+- Several debug messages added for diagnose possible future problems
+- Assets renamed to Tokens
+- Unused features were removed from the classic wallet (still available by API)
+- Peers now share their base targets so any inconsistency will be detected immediately
+- Fixed pagination for multi-out transactions
+- More AT bugs fixed with the commands SET_IDX and IDX_DAT
+- A working *reftx* implementation
+- Several libraries were updated (including jetty and other DB related)
+- More stats available on the `getState` API
+
+2020-01-07 v2.5.4
+- Faster and more precise database check based on the balance of all accounts, total burnt, and total BURST ever mined
+- Extended API to register bigger ATs (smart contracts)
+- New buttons to pop-off blocks on the GUI (when the debug flag is enabled)
+
+2020-10-06 v2.5.3
+- Nodes that experienced an unclean kill, power outage, or crash can have the database in an inconsistent state. This version contains an additional database check based on the balance of all accounts and total BURST ever mined.
+
+2020-08-29 v2.5.2
+- Fixes an issue which caused excessive CPU load when validating transactions with very high fees
+
 2020-05-31 v2.5.1
 - Docker build
 - Windows executable now refuse to run on 32 bit Java and a download link is shown to the user
