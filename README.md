@@ -1,7 +1,7 @@
 <img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/burst-apps-team/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
 
 # Burstcoin Reference Software (Burstcoin Wallet)
-[![example workflow](https://github.com/github/docs/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
+[![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
