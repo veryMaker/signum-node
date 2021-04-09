@@ -418,6 +418,7 @@ final class PeerImpl implements Peer {
 
   @Override
   public void connect(int currentTime) {
+    logger.debug("Trying to connect to {}", peerAddress);
     JsonObject response = send(Peers.myPeerInfoRequest);
     if (response != null && response.get("error") == null) {
       application.set(JSON.getAsString(response.get("application")));
@@ -438,6 +439,7 @@ final class PeerImpl implements Peer {
       setState(State.CONNECTED);
       Peers.updateAddress(this);
       lastUpdated.set(currentTime);
+      logger.debug("Connected to {}", peerAddress);
     }
     else {
       setState(State.NON_CONNECTED);

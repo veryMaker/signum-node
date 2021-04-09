@@ -208,8 +208,8 @@ public class BurstGUI extends JFrame {
     private TrayIcon createTrayIcon() {
     	PopupMenu popupMenu = new PopupMenu();
     	
-        MenuItem openPheonixWalletItem = new MenuItem("Open Phoenix Wallet");
-        MenuItem openClassicWalletItem = new MenuItem("Open Classic Wallet");
+        MenuItem openPheonixWalletItem = new MenuItem("Phoenix Wallet");
+        MenuItem openClassicWalletItem = new MenuItem("Classic Wallet");
     	MenuItem showItem = new MenuItem("Show BRS output");
     	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
 
@@ -300,7 +300,7 @@ public class BurstGUI extends JFrame {
             PropertyService propertyService = Burst.getPropertyService();
             int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_PORT) : propertyService.getInt(Props.API_PORT);
             String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
-            String address = httpPrefix + "localhost:" + port + (classic ? "/" : "/phoenix");
+            String address = httpPrefix + "localhost:" + port + (classic ? "/classic.html" : "/phoenix");
             try {
                 Desktop.getDesktop().browse(new URI(address));
             } catch (Exception e) { // Catches parse exception or exception when opening browser

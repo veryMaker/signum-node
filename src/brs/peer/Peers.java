@@ -881,6 +881,7 @@ public final class Peers {
     if(peers.size() == 0) {
       // add back the well known peers in case we have been offline too long
       for(String wellKnownPeer : wellKnownPeers) {
+        logger.debug("Adding well known peers {} back, we ended with no one", wellKnownPeer);
         addPeer(wellKnownPeer);
       }
     }

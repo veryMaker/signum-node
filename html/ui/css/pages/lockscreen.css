@@ -9,7 +9,7 @@ html.lockscreen, html.lockscreen body {
 }
 
 .lockscreen {
-  background: linear-gradient(141deg, #3dc6c2 0%, #3ca4bc 25%, #3c8dbc 50%, #3c73bc 75%, #2b50bf 100%);
+  /*background: linear-gradient(141deg, #3dc6c2 0%, #3ca4bc 25%, #3c8dbc 50%, #3c73bc 75%, #2b50bf 100%);*/
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -124,7 +124,37 @@ html.lockscreen, html.lockscreen body {
 #lockscreen {
   height: 100%;
   overflow: auto;
+  background-image: url(../../img/bg1.svg)
 }
+
+#lockscreen img.burst_logo_effect {
+  position: absolute;
+  animation: blurring 10s infinite alternate ease-in-out;
+}
+
+@keyframes blurring {
+  0% {
+    opacity: 0.5;
+    filter: blur(10px);
+    transform: scale(1.0);
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  66% {
+    opacity: 0.8;    
+  }
+  75% {
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 0.2;
+    filter: blur(20px);
+    transform: rotate(-5deg);
+  }
+}
+
 
 #testnet_login {
   display: inline-block;
