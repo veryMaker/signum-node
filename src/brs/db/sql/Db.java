@@ -188,6 +188,7 @@ public final class Db {
   
   public static void backup(String filename) {
     if (dialect == SQLDialect.H2) {
+      logger.info("Database backup to {} started, it might take a while.", filename);
       try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
         stmt.execute("BACKUP TO '" + filename + "'");
       }
