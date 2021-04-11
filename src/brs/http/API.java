@@ -9,6 +9,7 @@ import brs.props.Props;
 import brs.services.*;
 import brs.util.Subnet;
 import brs.util.ThreadPool;
+
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.rewrite.handler.Rule;
@@ -33,19 +34,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
 public final class API {
 
   private static final Logger logger = LoggerFactory.getLogger(API.class);
 
-  @SuppressWarnings("squid:S1075")
   private static final String API_PATH = "/burst";
-  @SuppressWarnings("squid:S1075")
   public static final String API_TEST_PATH = "/api-doc";
 
   private final Server apiServer;
-
+  
   public API(TransactionProcessor transactionProcessor,
       Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
       AccountService accountService, AliasService aliasService,
@@ -110,8 +112,33 @@ public final class API {
         httpsConfig.setSecurePort(port);
         httpsConfig.addCustomizer(new SecureRequestCustomizer());
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
+        
         sslContextFactory.setKeyStorePath(propertyService.getString(Props.API_SSL_KEY_STORE_PATH));
         sslContextFactory.setKeyStorePassword(propertyService.getString(Props.API_SSL_KEY_STORE_PASSWORD));
+        
+        String letsencryptPath = propertyService.getString(Props.API_SSL_LETSENCRYPT_PATH);
+        if(letsencryptPath != null && letsencryptPath.length() > 0) {
+          try {
+            letsencryptToPkcs12(letsencryptPath, propertyService.getString(Props.API_SSL_KEY_STORE_PATH), propertyService.getString(Props.API_SSL_KEY_STORE_PASSWORD));
+          }
+          catch (Exception e) {
+            logger.error(e.getMessage());
+          }
+          
+          // Reload the certificate every week, in case it was renewed
+          ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+          Runnable reloadCert = () -> {
+            try {
+              letsencryptToPkcs12(letsencryptPath, propertyService.getString(Props.API_SSL_KEY_STORE_PATH), propertyService.getString(Props.API_SSL_KEY_STORE_PASSWORD));
+              sslContextFactory.reload(consumer -> logger.info("SSL keystore from letsencrypt reloaded."));
+            }
+            catch (Exception e) {
+              logger.error(e.getMessage());
+            }
+          };
+          scheduler.scheduleWithFixedDelay(reloadCert, 7, 7, TimeUnit.DAYS);
+        }
+        
         sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA",
                                                  "SSL_DHE_RSA_WITH_DES_CBC_SHA",
                                                  "SSL_DHE_DSS_WITH_DES_CBC_SHA",
@@ -220,7 +247,17 @@ public final class API {
     }
 
   }
+  
+  private void letsencryptToPkcs12(String letsencryptPath, String p12File, String password) throws Exception {
+    // TODO: check if there is a way for us to use directly the PEM files and not need to convert this way
+    logger.info("Generating {} from {}", p12File, letsencryptPath);
+    String cmd = "openssl pkcs12 -export -in " + letsencryptPath + "/fullchain.pem "
+        + "-inkey " + letsencryptPath + "/privkey.pem -out " + p12File + " -password pass:" + password;
 
+    Process process = Runtime.getRuntime().exec(cmd);
+    process.waitFor();
+  }
+  
   private String regexpEscapeUrl(String url) {
     return url.replace("/", "\\/");
   }
