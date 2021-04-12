@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.http.common.Parameters.FILENAME_PARAMETER;
+import static brs.http.common.Parameters.API_KEY_PARAMETER;
 import static brs.http.common.ResultFields.DONE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
@@ -48,7 +48,7 @@ public class ClearUnconfirmedTransactionsTest {
   public void processRequest() {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
     
-    doReturn(KEY).when(req).getParameter(FILENAME_PARAMETER);
+    doReturn(KEY).when(req).getParameter(API_KEY_PARAMETER);
 
     final JsonObject result = ((JsonObject) t.processRequest(req));
 
@@ -59,7 +59,7 @@ public class ClearUnconfirmedTransactionsTest {
   public void processRequestNotAllowed() {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
     
-    doReturn("").when(req).getParameter(FILENAME_PARAMETER);
+    doReturn("").when(req).getParameter(API_KEY_PARAMETER);
 
     final JsonObject result = ((JsonObject) t.processRequest(req));
 
@@ -70,7 +70,7 @@ public class ClearUnconfirmedTransactionsTest {
   public void processRequest_runtimeExceptionOccurs() {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
     
-    doReturn(KEY).when(req).getParameter(FILENAME_PARAMETER);
+    doReturn(KEY).when(req).getParameter(API_KEY_PARAMETER);
 
     doThrow(new RuntimeException("errorMessage")).when(transactionProcessorMock).clearUnconfirmedTransactions();
 

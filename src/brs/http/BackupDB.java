@@ -31,7 +31,7 @@ final class BackupDB extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     String filename = req.getParameter(FILENAME_PARAMETER);
-    String apiKey = req.getParameter(FILENAME_PARAMETER);
+    String apiKey = req.getParameter(API_KEY_PARAMETER);
     
     if(!apiAdminKeyList.contains(apiKey)) {
       return ERROR_NOT_ALLOWED;

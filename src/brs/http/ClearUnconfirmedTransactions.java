@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
 import static brs.http.common.Parameters.API_KEY_PARAMETER;
-import static brs.http.common.Parameters.FILENAME_PARAMETER;
 import static brs.http.common.ResultFields.DONE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
 
@@ -32,7 +31,7 @@ public final class ClearUnconfirmedTransactions extends APIServlet.JsonRequestHa
 
   @Override
   JsonElement processRequest(HttpServletRequest req) {
-    String apiKey = req.getParameter(FILENAME_PARAMETER);
+    String apiKey = req.getParameter(API_KEY_PARAMETER);
     if(!apiAdminKeyList.contains(apiKey)) {
       return ERROR_NOT_ALLOWED;
     }

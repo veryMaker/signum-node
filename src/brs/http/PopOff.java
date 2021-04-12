@@ -15,7 +15,6 @@ import java.util.List;
 
 import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
 import static brs.http.common.Parameters.API_KEY_PARAMETER;
-import static brs.http.common.Parameters.FILENAME_PARAMETER;
 import static brs.http.common.Parameters.HEIGHT_PARAMETER;
 import static brs.http.common.Parameters.NUM_BLOCKS_PARAMETER;
 import static brs.http.common.ResultFields.BLOCKS_RESPONSE;
@@ -40,7 +39,7 @@ final class PopOff extends APIServlet.JsonRequestHandler {
   @Override
   JsonElement processRequest(HttpServletRequest req) {
     
-    String apiKey = req.getParameter(FILENAME_PARAMETER);
+    String apiKey = req.getParameter(API_KEY_PARAMETER);
     if(!apiAdminKeyList.contains(apiKey)) {
       return ERROR_NOT_ALLOWED;
     }
