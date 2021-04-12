@@ -46,5 +46,10 @@ final class BackupDB extends APIServlet.JsonRequestHandler {
     
     return response;
   }
+  
+  @Override
+  final boolean requirePost() {
+    return true;
+  }
 
 }
