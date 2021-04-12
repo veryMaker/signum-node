@@ -129,6 +129,7 @@ public final class Parameters {
   public static final String DOMAIN_PARAMETER = "domain";
   public static final String ACTION_PARAMETER = "action";
   public static final String PAYLOAD_PARAMETER = "payload";
+  public static final String API_KEY_PARAMETER = "apiKey";
 
   public static boolean isFalse(String text) {
     return "false".equalsIgnoreCase(text);

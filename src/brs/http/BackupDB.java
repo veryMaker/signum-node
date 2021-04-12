@@ -1,7 +1,11 @@
 package brs.http;
 
 import static brs.http.common.Parameters.FILENAME_PARAMETER;
+import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
+import static brs.http.common.Parameters.API_KEY_PARAMETER;
 import static brs.http.common.ResultFields.ERROR_RESPONSE;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -9,11 +13,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import brs.db.sql.Db;
+import brs.props.PropertyService;
+import brs.props.Props;
 
 final class BackupDB extends APIServlet.JsonRequestHandler {
 
-  BackupDB() {
-    super(new APITag[] {APITag.ADMIN}, FILENAME_PARAMETER);
+  private final List<String> apiAdminKeyList;
+
+  BackupDB(PropertyService propertyService) {
+    super(new APITag[] {APITag.ADMIN}, FILENAME_PARAMETER, API_KEY_PARAMETER);
+    
+    apiAdminKeyList = propertyService.getStringList(Props.API_ADMIN_KEY_LIST);
   }
 
   @Override
@@ -21,6 +31,11 @@ final class BackupDB extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     String filename = req.getParameter(FILENAME_PARAMETER);
+    String apiKey = req.getParameter(FILENAME_PARAMETER);
+    
+    if(!apiAdminKeyList.contains(apiKey)) {
+      return ERROR_NOT_ALLOWED;
+    }
 
     if(filename == null || filename.length() == 0) {
       response.addProperty(ERROR_RESPONSE, "invalid filename");

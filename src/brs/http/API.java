@@ -77,26 +77,6 @@ public final class API {
       allowedBotHosts = null;
     }
     
-    List<String> allowedAdminHostsList = propertyService.getStringList(Props.API_ALLOWED_ADMIN);
-    Set<Subnet> allowedAdminHosts;
-    if (allowedAdminHostsList != null && allowedAdminHostsList.size() > 0) {
-      // Temp hashset to store allowed subnets
-      Set<Subnet> allowedAdminSubnets = new HashSet<>();
-
-      for (String allowedHost : allowedAdminHostsList) {
-        try {
-          allowedAdminSubnets.add(Subnet.createInstance(allowedHost));
-        }
-        catch (UnknownHostException e) {
-          logger.error("Error adding allowed admin/subnet '" + allowedHost + "'", e);
-        }
-      }
-      allowedAdminHosts = Collections.unmodifiableSet(allowedAdminSubnets);
-    }
-    else {
-      allowedAdminHosts = null;
-    }
-
     boolean enableAPIServer = propertyService.getBoolean(Props.API_SERVER);
     if (enableAPIServer) {
       final String host = propertyService.getString(Props.API_LISTEN);
@@ -183,7 +163,7 @@ public final class API {
               accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
               subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService,
               apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService,
-              allowedBotHosts, allowedAdminHosts);
+              allowedBotHosts);
       ServletHolder apiServletHolder = new ServletHolder(apiServlet);
       apiHandler.addServlet(apiServletHolder, API_PATH);
       

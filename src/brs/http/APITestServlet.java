@@ -159,7 +159,6 @@ public class APITestServlet extends HttpServlet {
   public APITestServlet(APIServlet apiServlet, Set<Subnet> allowedBotHosts) {
     this.allowedBotHosts = allowedBotHosts;
     apiRequestHandlers.putAll(apiServlet.apiRequestHandlers);
-    apiRequestHandlers.putAll(apiServlet.apiAdminRequestHandlers);
     requestTags = buildRequestTags();
     requestTypes = new ArrayList<>(apiRequestHandlers.keySet());
     Collections.sort(requestTypes);

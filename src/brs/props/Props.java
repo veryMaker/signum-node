@@ -119,7 +119,7 @@ public class Props {
   public static final Prop<Boolean> API_SERVER  = new Prop<>("API.Server", true);
   public static final Prop<Boolean> API_V2_SERVER  = new Prop<>("API.V2.Server", false);
   public static final Prop<String> API_ALLOWED = new Prop<>("API.allowed", "127.0.0.1; localhost; [0:0:0:0:0:0:0:1];");
-  public static final Prop<String> API_ALLOWED_ADMIN = new Prop<>("API.allowedAdmin", "127.0.0.1; localhost; [0:0:0:0:0:0:0:1];");
+  public static final Prop<String> API_ADMIN_KEY_LIST = new Prop<>("API.adminKeyList", "");
 
   public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
 

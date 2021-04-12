@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.BlockchainProcessor;
 import brs.common.QuickMocker;
+import brs.props.PropertyService;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
 import org.junit.Before;
@@ -21,12 +22,14 @@ public class FullResetTest {
   private FullReset t;
 
   private BlockchainProcessor blockchainProcessor;
+  private PropertyService propertySevice;
 
   @Before
   public void init() {
     blockchainProcessor = mock(BlockchainProcessor.class);
+    propertySevice = mock(PropertyService.class);
 
-    this.t = new FullReset(blockchainProcessor);
+    this.t = new FullReset(blockchainProcessor, propertySevice);
   }
 
   @Test

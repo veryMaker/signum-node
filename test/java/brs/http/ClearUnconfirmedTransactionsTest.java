@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.TransactionProcessor;
 import brs.common.QuickMocker;
+import brs.props.PropertyService;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
 import org.junit.Before;
@@ -21,12 +22,14 @@ public class ClearUnconfirmedTransactionsTest {
   private ClearUnconfirmedTransactions t;
 
   private TransactionProcessor transactionProcessorMock;
+  private PropertyService propertyService;
 
   @Before
   public void init() {
     transactionProcessorMock = mock(TransactionProcessor.class);
+    propertyService = mock(PropertyService.class);
 
-    this.t = new ClearUnconfirmedTransactions(transactionProcessorMock);
+    this.t = new ClearUnconfirmedTransactions(transactionProcessorMock, propertyService);
   }
 
   @Test
