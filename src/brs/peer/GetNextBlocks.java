@@ -39,7 +39,7 @@ final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
     long blockId = Convert.parseUnsignedLong(JSON.getAsString(request.get("blockId")));
     
     while(totalLength < MAX_LENGHT && nextBlocks.size() < maxBlocks) {
-      Collection<? extends Block> blocks = blockchain.getBlocksAfter(blockId, 100);
+      Collection<? extends Block> blocks = blockchain.getBlocksAfter(blockId, Math.min(100, maxBlocks));
       if (blocks.isEmpty()) {
     	break;
       }
