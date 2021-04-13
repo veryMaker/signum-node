@@ -114,7 +114,6 @@ public class Props {
   public static final Prop<Integer> P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND = new Prop<>("P2P.maxUTRawSizeBytesToSend", 175000);
 
   // API options
-  public static final Prop<Boolean> API_DEBUG   = new Prop<>("API.Debug", false);
   public static final Prop<Boolean> API_SSL     = new Prop<>("API.SSL", false);
   public static final Prop<Boolean> API_SERVER  = new Prop<>("API.Server", true);
   public static final Prop<Boolean> API_V2_SERVER  = new Prop<>("API.V2.Server", false);
