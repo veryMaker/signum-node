@@ -3,6 +3,9 @@ package brs.peer;
 import brs.Block;
 import brs.Blockchain;
 import brs.Genesis;
+import brs.props.PropertyService;
+import brs.props.Props;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,20 +26,23 @@ import static org.mockito.Mockito.when;
 public class GetNextBlocksTest {
     private GetNextBlocks getNextBlocks;
     private Blockchain mockBlockchain;
+    private PropertyService mockPropertyService;
     private Peer mockPeer;
 
     @Before
     public void setUpGetNextBlocksTest() {
         mockBlockchain = mock(Blockchain.class);
+        mockPropertyService = mock(PropertyService.class);
         mockPeer = mock(Peer.class);
         Block mockBlock = mock(Block.class);
         when(mockBlock.getJsonObject()).thenReturn(new JsonObject());
+        when(mockPropertyService.getInt(Props.P2P_MAX_BLOCKS)).thenReturn(720);
         List<Block> blocks = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             blocks.add(mockBlock);
         }
         when(mockBlockchain.getBlocksAfter(ArgumentMatchers.eq(Genesis.GENESIS_BLOCK_ID), ArgumentMatchers.anyInt())).thenReturn(blocks);
-        getNextBlocks = new GetNextBlocks(mockBlockchain);
+        getNextBlocks = new GetNextBlocks(mockBlockchain, mockPropertyService);
     }
 
     @Test

@@ -351,7 +351,7 @@ public final class Peers {
         peerServer.addConnector(connector);
 
         ServletHolder peerServletHolder = new ServletHolder(new PeerServlet(timeService, accountService, blockchain,
-                transactionProcessor, blockchainProcessor));
+                transactionProcessor, blockchainProcessor, propertyService));
         boolean isGzipEnabled = propertyService.getBoolean(Props.JETTY_P2P_GZIP_FILTER);
         peerServletHolder.setInitParameter("isGzipEnabled", Boolean.toString(isGzipEnabled));
 

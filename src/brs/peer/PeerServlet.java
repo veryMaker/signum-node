@@ -3,6 +3,7 @@ package brs.peer;
 import brs.Blockchain;
 import brs.BlockchainProcessor;
 import brs.TransactionProcessor;
+import brs.props.PropertyService;
 import brs.services.AccountService;
 import brs.services.TimeService;
 import brs.util.CountingInputStream;
@@ -59,7 +60,8 @@ public final class PeerServlet extends HttpServlet {
   public PeerServlet(TimeService timeService, AccountService accountService,
                      Blockchain blockchain,
                      TransactionProcessor transactionProcessor,
-                     BlockchainProcessor blockchainProcessor) {
+                     BlockchainProcessor blockchainProcessor,
+                     PropertyService propertyService) {
     final Map<String,PeerRequestHandler> map = new HashMap<>();
     map.put("addPeers", AddPeers.instance);
     map.put("getCumulativeDifficulty", new GetCumulativeDifficulty(blockchain));
@@ -67,13 +69,11 @@ public final class PeerServlet extends HttpServlet {
     map.put("getMilestoneBlockIds", new GetMilestoneBlockIds(blockchain));
     map.put("getNextBlockIds", new GetNextBlockIds(blockchain));
     map.put("getBlocksFromHeight", new GetBlocksFromHeight(blockchain));
-    map.put("getNextBlocks", new GetNextBlocks(blockchain));
+    map.put("getNextBlocks", new GetNextBlocks(blockchain, propertyService));
     map.put("getPeers", GetPeers.instance);
     map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(transactionProcessor));
     map.put("processBlock", new ProcessBlock(blockchain, blockchainProcessor));
     map.put("processTransactions", new ProcessTransactions(transactionProcessor));
-    map.put("getAccountBalance", new GetAccountBalance(accountService));
-    map.put("getAccountRecentTransactions", new GetAccountRecentTransactions(accountService, blockchain));
     peerRequestHandlers = Collections.unmodifiableMap(map);
   }
 
