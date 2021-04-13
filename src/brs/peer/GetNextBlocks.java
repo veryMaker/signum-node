@@ -15,7 +15,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
+  
+  private static final Logger logger = LoggerFactory.getLogger(GetNextBlocks.class);
 
   private final Blockchain blockchain;
   private static final int MAX_LENGHT = 1048576;
@@ -25,7 +30,8 @@ final class GetNextBlocks implements PeerServlet.PeerRequestHandler {
   GetNextBlocks(Blockchain blockchain, PropertyService propertyService) {
     this.blockchain = blockchain;
     
-    this.maxBlocks = Math.min(MAX_BLOCKS, propertyService.getInt(Props.P2P_MAX_BLOCKS));
+    maxBlocks = Math.min(MAX_BLOCKS, propertyService.getInt(Props.P2P_MAX_BLOCKS));
+    logger.info("P2P max number of blocks: {}", maxBlocks);
   }
 
 

@@ -220,6 +220,7 @@ public final class Peers {
     }
 
     maxNumberOfConnectedPublicPeers = propertyService.getInt(Props.P2P_MAX_CONNECTIONS);
+    logger.info("P2P max connections: {}", maxNumberOfConnectedPublicPeers);
     connectTimeout = propertyService.getInt(Props.P2P_TIMEOUT_CONNECT_MS);
     readTimeout = propertyService.getInt(Props.P2P_TIMEOUT_READ_MS);
 
