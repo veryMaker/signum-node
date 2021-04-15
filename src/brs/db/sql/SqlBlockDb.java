@@ -9,14 +9,10 @@ import org.jooq.DSLContext;
 import org.jooq.DeleteQuery;
 import org.jooq.Record;
 import org.jooq.SelectQuery;
-import org.jooq.impl.TableImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static brs.schema.Tables.BLOCK;
@@ -181,29 +177,7 @@ public class SqlBlockDb implements BlockDb {
       return;
     }
     logger.info("Deleting blockchain...");
-    Db.useDSLContext(ctx -> {
-      List<TableImpl> tables = new ArrayList<>(Arrays.asList(brs.schema.Tables.ACCOUNT,
-              brs.schema.Tables.ACCOUNT_ASSET, brs.schema.Tables.ALIAS, brs.schema.Tables.ALIAS_OFFER,
-              brs.schema.Tables.ASK_ORDER, brs.schema.Tables.ASSET, brs.schema.Tables.ASSET_TRANSFER,
-              brs.schema.Tables.AT, brs.schema.Tables.AT_STATE, brs.schema.Tables.BID_ORDER,
-              brs.schema.Tables.BLOCK, brs.schema.Tables.ESCROW, brs.schema.Tables.ESCROW_DECISION,
-              brs.schema.Tables.GOODS, brs.schema.Tables.PEER, brs.schema.Tables.PURCHASE,
-              brs.schema.Tables.PURCHASE_FEEDBACK, brs.schema.Tables.PURCHASE_PUBLIC_FEEDBACK,
-              brs.schema.Tables.REWARD_RECIP_ASSIGN, brs.schema.Tables.SUBSCRIPTION,
-              brs.schema.Tables.TRADE, brs.schema.Tables.TRANSACTION,
-              brs.schema.Tables.UNCONFIRMED_TRANSACTION));
-      for (TableImpl<?> table : tables) {
-        try {
-          ctx.truncate(table).execute();
-        } catch (org.jooq.exception.DataAccessException e) {
-          if (force) {
-            logger.trace("exception during truncate {0}", table, e);
-          } else {
-            throw e;
-          }
-        }
-      }
-    });
+    Db.clean();
   }
 
   @Override

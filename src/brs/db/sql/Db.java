@@ -43,6 +43,8 @@ public final class Db {
 
   private static DBCacheManagerImpl dbCacheManager;
 
+  private static Flyway flyway;
+
   public static void init(PropertyService propertyService, DBCacheManagerImpl dbCacheManager) {
     Db.dbCacheManager = dbCacheManager;
 
@@ -76,13 +78,11 @@ public final class Db {
       FluentConfiguration flywayBuilder = Flyway.configure()
               .dataSource(dbUrl, dbUsername, dbPassword)
               .baselineOnMigrate(true);
-      boolean runFlyway = false;
 
       switch (dialect) {
         case MYSQL:
         case MARIADB:
           flywayBuilder.locations("classpath:/db/migration_mariadb");
-          runFlyway = true;
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "512");
@@ -120,7 +120,6 @@ public final class Db {
         case H2:
           Class.forName("org.h2.Driver");
           flywayBuilder.locations("classpath:/db/migration_h2");
-          runFlyway = true;
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -132,15 +131,22 @@ public final class Db {
           break;
       }
 
-        cp = new HikariDataSource(config);
+      cp = new HikariDataSource(config);
 
-      if (runFlyway) {
-        logger.info("Running flyway migration");
-        Flyway flyway = flywayBuilder.load();
-        flyway.migrate();
-      }
+      logger.info("Running flyway migration");
+      flyway = flywayBuilder.load();
+      flyway.migrate();
     } catch (Exception e) {
       throw new RuntimeException(e.toString(), e);
+    }
+  }
+  
+  public static void clean() {
+    try {
+      flyway.clean();
+      flyway.migrate();
+    } catch (Exception e) {
+      logger.error(e.getMessage());
     }
   }
 
