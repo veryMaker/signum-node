@@ -47,7 +47,7 @@ class ReservedBalanceCache {
       throw new BurstException.NotCurrentlyValidException("Account unknown");
     } else if ( amountNQT > senderAccount.getUnconfirmedBalanceNQT() ) {
       if (LOGGER.isInfoEnabled()) {
-        LOGGER.info(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.getId(), transaction.getSenderId(), amountNQT, senderAccount.getUnconfirmedBalanceNQT()));
+        LOGGER.debug(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.getId(), transaction.getSenderId(), amountNQT, senderAccount.getUnconfirmedBalanceNQT()));
       }
 
       throw new BurstException.NotCurrentlyValidException("Insufficient funds");
