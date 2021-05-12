@@ -30,6 +30,7 @@ import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
+import burst.kit.util.BurstKitUtils;
 import io.grpc.Server;
 
 import org.apache.commons.cli.CommandLine;
@@ -109,7 +110,7 @@ public final class Burst {
     } catch (IOException e) {
       logger.info("Custom user properties file {} not loaded", PROPERTIES_NAME);
     }
-
+    
     return new PropertyServiceImpl(properties);
   }
 
@@ -175,6 +176,9 @@ public final class Burst {
 
     try {
       long startTime = System.currentTimeMillis();
+      
+      // Additional valid prefix
+      BurstKitUtils.addAddressPrefix(propertyService.getBoolean(Props.DEV_TESTNET) ? "TS" : "S");
 
       final TimeService timeService = new TimeServiceImpl();
 
