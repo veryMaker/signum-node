@@ -45,6 +45,7 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           prerelease: true
+          draft: true
           body: |
             This is BRS version ${{github.ref}}
 
