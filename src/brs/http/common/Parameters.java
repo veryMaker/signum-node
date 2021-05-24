@@ -45,6 +45,7 @@ public final class Parameters {
   public static final String SUBSCRIPTION_PARAMETER = "subscription";
   public static final String ALIAS_URI_PARAMETER = "aliasURI";
   public static final String NAME_PARAMETER = "name";
+  public static final String FILENAME_PARAMETER = "filename";
   public static final String DESCRIPTION_PARAMETER = "description";
   public static final String FREQUENCY_PARAMETER = "frequency";
   public static final String AT_PARAMETER = "at";
@@ -128,6 +129,7 @@ public final class Parameters {
   public static final String DOMAIN_PARAMETER = "domain";
   public static final String ACTION_PARAMETER = "action";
   public static final String PAYLOAD_PARAMETER = "payload";
+  public static final String API_KEY_PARAMETER = "apiKey";
 
   public static boolean isFalse(String text) {
     return "false".equalsIgnoreCase(text);

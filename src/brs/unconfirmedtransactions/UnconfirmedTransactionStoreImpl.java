@@ -96,7 +96,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
               removeCheapestFirstToExpireTransaction();
             }
           } else {
-            logger.info("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
+            logger.debug("Transaction {}: Will not add a cheaper duplicate UT", transaction.getId());
           }
         } else {
           addTransaction(transaction, peer);

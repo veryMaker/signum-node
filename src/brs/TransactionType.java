@@ -230,8 +230,8 @@ public abstract class TransactionType {
     }
     accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
     if (!applyAttachmentUnconfirmed(transaction, senderAccount)) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("!applyAttachmentUnconfirmed({}, {})", transaction, senderAccount.getId());
+      if (logger.isDebugEnabled()) {
+        logger.debug("!applyAttachmentUnconfirmed({}, {})", transaction, senderAccount.getId());
       }
       accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
       return false;
@@ -1962,6 +1962,12 @@ public abstract class TransactionType {
       @Override
       Attachment.CommitmentAdd parseAttachment(JsonObject attachmentData) {
         return new Attachment.CommitmentAdd(attachmentData);
+      }
+      
+      protected Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
+        CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
+        Long totalAmountNQT = commitmentAdd.getAmountNQT();
+        return totalAmountNQT;
       }
 
       @Override

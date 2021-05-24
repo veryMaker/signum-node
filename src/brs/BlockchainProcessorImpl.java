@@ -779,10 +779,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   @Override
   public void fullReset() {
-    blockDb.deleteAll(false);
     dbCacheManager.flushCache();
     downloadCache.resetCache();
+    blockDb.deleteAll(false);
     addGenesisBlock();
+    dbCacheManager.flushCache();
+    downloadCache.resetCache();
   }
 
   void setGetMoreBlocks(boolean getMoreBlocks) {

@@ -18,7 +18,11 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
+import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
+import static brs.http.common.Parameters.API_KEY_PARAMETER;
 import static brs.http.common.ResultFields.TIME_RESPONSE;
+
+import java.util.List;
 
 final class GetState extends APIServlet.JsonRequestHandler {
 
@@ -30,10 +34,11 @@ final class GetState extends APIServlet.JsonRequestHandler {
   private final ATService atService;
   private final Generator generator;
   private final PropertyService propertyService;
+  private final List<String> apiAdminKeyList;
 
   GetState(Blockchain blockchain, AssetExchange assetExchange, AccountService accountService, EscrowService escrowService,
            AliasService aliasService, TimeService timeService, ATService atService, Generator generator, PropertyService propertyService) {
-    super(new APITag[] {APITag.INFO}, INCLUDE_COUNTS_PARAMETER);
+    super(new APITag[] {APITag.INFO}, INCLUDE_COUNTS_PARAMETER, API_KEY_PARAMETER);
     this.blockchain = blockchain;
     this.assetExchange = assetExchange;
     this.accountService = accountService;
@@ -42,6 +47,8 @@ final class GetState extends APIServlet.JsonRequestHandler {
     this.atService = atService;
     this.generator = generator;
     this.propertyService = propertyService;
+    
+    apiAdminKeyList = propertyService.getStringList(Props.API_ADMIN_KEY_LIST);
   }
 
   @Override
@@ -57,6 +64,11 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("totalMinedNQT", blockchain.getTotalMined());
 
     if ("true".equalsIgnoreCase(req.getParameter(INCLUDE_COUNTS_PARAMETER))) {
+      String apiKey = req.getParameter(API_KEY_PARAMETER);
+      if(!apiAdminKeyList.contains(apiKey)) {
+        return ERROR_NOT_ALLOWED;
+      }
+      
       long totalEffectiveBalance = accountService.getAllAccountsBalance();
       response.addProperty("totalEffectiveBalance", totalEffectiveBalance / Constants.ONE_BURST);
       response.addProperty("totalEffectiveBalanceNQT", totalEffectiveBalance);

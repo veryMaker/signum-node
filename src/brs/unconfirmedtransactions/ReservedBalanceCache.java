@@ -1,9 +1,14 @@
 package brs.unconfirmedtransactions;
 
 import brs.Account;
+import brs.Burst;
 import brs.BurstException;
+import brs.Constants;
 import brs.BurstException.ValidationException;
 import brs.Transaction;
+import brs.TransactionType;
+import brs.Attachment.CommitmentRemove;
+import brs.Blockchain;
 import brs.db.store.AccountStore;
 import brs.util.Convert;
 import org.slf4j.Logger;
@@ -45,12 +50,29 @@ class ReservedBalanceCache {
       }
 
       throw new BurstException.NotCurrentlyValidException("Account unknown");
-    } else if ( amountNQT > senderAccount.getUnconfirmedBalanceNQT() ) {
-      if (LOGGER.isInfoEnabled()) {
-        LOGGER.info(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.getId(), transaction.getSenderId(), amountNQT, senderAccount.getUnconfirmedBalanceNQT()));
-      }
+    }
 
+    if ( amountNQT > senderAccount.getUnconfirmedBalanceNQT() ) {
+      if (LOGGER.isInfoEnabled()) {
+        LOGGER.debug(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.getId(), transaction.getSenderId(), amountNQT, senderAccount.getUnconfirmedBalanceNQT()));
+      }
       throw new BurstException.NotCurrentlyValidException("Insufficient funds");
+    }
+
+    if(transaction.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE) {
+      CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
+      long totalAmountNQT = commitmentRemove.getAmountNQT();
+
+      Blockchain blockchain = Burst.getBlockchain();
+      int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
+      long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight(), transaction);
+      if (nBlocksMined > 0 || amountCommitted < totalAmountNQT ) {
+        if (LOGGER.isInfoEnabled()) {
+          LOGGER.debug("Transaction {}: Account {} commitment remove not allowed. Blocks mined {}, amount commitment {}, amount removing {}",
+              transaction.getId(), transaction.getSenderId(), nBlocksMined, amountCommitted, totalAmountNQT);
+        }
+        throw new BurstException.NotCurrentlyValidException("Commitment remove not allowed");        
+      }
     }
 
     reservedBalanceCache.put(transaction.getSenderId(), amountNQT);
