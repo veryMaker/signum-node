@@ -51,9 +51,9 @@ import jiconfont.swing.IconFontSwing;
 
 @SuppressWarnings("serial")
 public class BurstGUI extends JFrame {
-    private static final String ICON_LOCATION = "/images/burst_overlay_logo.png";
-    private static final String FAILED_TO_START_MESSAGE = "BurstGUI caught exception starting BRS";
-    private static final String UNEXPECTED_EXIT_MESSAGE = "BRS Quit unexpectedly! Exit code ";
+    private static final String ICON_LOCATION = "/images/signum_overlay_logo.png";
+    private static final String FAILED_TO_START_MESSAGE = "Signum caught exception while starting";
+    private static final String UNEXPECTED_EXIT_MESSAGE = "Signum Quit unexpectedly! Exit code ";
     
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss yyyy-MM-dd");
 
@@ -77,7 +77,7 @@ public class BurstGUI extends JFrame {
 
     public BurstGUI() {
         System.setSecurityManager(new BurstGUISecurityManager());
-        setTitle("BRS " + Burst.VERSION);
+        setTitle("Signum " + Burst.VERSION);
 
         Class<?> lafc = null;
         try {
@@ -164,14 +164,14 @@ public class BurstGUI extends JFrame {
         	public void windowClosing(WindowEvent e) {
         		if(trayIcon == null) {
         			if (JOptionPane.showConfirmDialog(BurstGUI.this, 
-        					"This will stop BRS. Are you sure?", "Exit and stop BRS", 
+        					"This will stop the Signum node. Are you sure?", "Exit and stop Signum", 
         					JOptionPane.YES_NO_OPTION,
         					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
         				shutdown();
         			}
         		}
         		else {
-        			trayIcon.displayMessage("BRS GUI closed", "BRS is still running", MessageType.INFO);
+        			trayIcon.displayMessage("Signum GUI closed", "Note that Signum is still running", MessageType.INFO);
         			setVisible(false);
         		}
         	}
@@ -224,8 +224,8 @@ public class BurstGUI extends JFrame {
     	
         MenuItem openPheonixWalletItem = new MenuItem("Phoenix Wallet");
         MenuItem openClassicWalletItem = new MenuItem("Classic Wallet");
-    	MenuItem showItem = new MenuItem("Show BRS output");
-    	MenuItem shutdownItem = new MenuItem("Shutdown BRS");
+    	MenuItem showItem = new MenuItem("Show Signum output");
+    	MenuItem shutdownItem = new MenuItem("Shutdown the node");
 
     	JButton openPhoenixButton = new JButton(openPheonixWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
     	JButton openClassicButton = new JButton(openClassicWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
@@ -270,7 +270,7 @@ public class BurstGUI extends JFrame {
     		SystemTray systemTray = SystemTray.getSystemTray();
     		systemTray.add(newTrayIcon);
     		
-    		newTrayIcon.displayMessage("BRS Running", "BRS is running on background, use this icon to interact with it.", MessageType.INFO);
+    		newTrayIcon.displayMessage("Signum Running", "Signum is running on background, use this icon to interact with it.", MessageType.INFO);
     		
     		return newTrayIcon;
     	} catch (Exception e) {
@@ -323,7 +323,7 @@ public class BurstGUI extends JFrame {
             }
         } catch (Exception e) { // Catches error accessing PropertyService
             LOGGER.error("Could not access PropertyService", e);
-            showMessage("Could not open web UI as could not read BRS configuration.");
+            showMessage("Could not open web UI as could not read the configuration file.");
         }
     }
 
@@ -369,7 +369,7 @@ public class BurstGUI extends JFrame {
     private void showMessage(String message) {
     	SwingUtilities.invokeLater(() -> {
             System.err.println("Showing message: " + message);
-            JOptionPane.showMessageDialog(this, message, "BRS Message", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Signum Message", JOptionPane.ERROR_MESSAGE);
         });
     }
 

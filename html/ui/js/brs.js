@@ -28,7 +28,7 @@ var BRS = (function(BRS, $, undefined) {
     BRS.state = {};
     BRS.blocks = [];
     BRS.genesis = "0";
-    BRS.genesisRS = "BURST-2222-2222-2222-22222";
+    BRS.genesisRS = "S-2222-2222-2222-22222";
 
     BRS.account = "";
     BRS.accountRS = "";

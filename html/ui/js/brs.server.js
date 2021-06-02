@@ -489,7 +489,7 @@ var BRS = (function(BRS, $, undefined) {
         if (!("recipient" in data)) {
             //recipient == genesis
             data.recipient = "0";
-            data.recipientRS = "BURST-2222-2222-2222-22222";
+            data.recipientRS = "S-2222-2222-2222-22222";
         }
 
         if (transaction.publicKey != BRS.accountInfo.publicKey) {

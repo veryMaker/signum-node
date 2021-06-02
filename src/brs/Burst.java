@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.0.1");
+  public static final Version VERSION = Version.parse("v3.1.0");
 
   public static final String APPLICATION = "BRS";
 
@@ -177,8 +177,10 @@ public final class Burst {
     try {
       long startTime = System.currentTimeMillis();
       
-      // Additional valid prefix
-      BurstKitUtils.addAddressPrefix(propertyService.getBoolean(Props.DEV_TESTNET) ? "TS" : "S");
+      // Address prefix and coin name
+      BurstKitUtils.setAddressPrefix(propertyService.getBoolean(Props.DEV_TESTNET) ? "TS" : "S");
+      BurstKitUtils.addAddressPrefix("BURST");
+      BurstKitUtils.setValueSuffix("Signa");
 
       final TimeService timeService = new TimeServiceImpl();
 

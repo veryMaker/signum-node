@@ -6,8 +6,8 @@
 
   <groupId>burstcoin</groupId>
   <artifactId>burstcoin</artifactId>
-  <version>3.0.1</version>
-  <name>Burstcoin Reference Software</name>
+  <version>3.1.0</version>
+  <name>Signum Node Software</name>
   <url>https://github.com/burst-apps-team/burstcoin</url>
 
   <scm>
@@ -422,8 +422,8 @@
                 <outfile>target/burst.exe</outfile>
                 <dontWrapJar>true</dontWrapJar>
                 <downloadUrl>https://www.java.com/en/download/manual.jsp</downloadUrl>
-                <errTitle>Burst Reference Software</errTitle>
-                <icon>resources/images/burst_overlay_logo.ico</icon>
+                <errTitle>Signum Node Software</errTitle>
+                <icon>resources/images/signum_overlay_logo.ico</icon>
                 <jar>burst.jar</jar>
                 <jre>
                   <minVersion>1.8.0</minVersion>
@@ -432,12 +432,12 @@
                 <versionInfo>
                   <fileVersion>${project.version}.0</fileVersion>
                   <txtFileVersion>${project.version}${versionQualifier}</txtFileVersion>
-                  <fileDescription>Burst Reference Software</fileDescription>
-                  <copyright>Burstcoin Apps Team</copyright>
+                  <fileDescription>Signum Node Software</fileDescription>
+                  <copyright>Signum Network</copyright>
                   <productVersion>${project.version}.0</productVersion>
                   <txtProductVersion>${project.version}${versionQualifier}</txtProductVersion>
-                  <productName>BRS</productName>
-                  <internalName>BRS</internalName>
+                  <productName>signum-node</productName>
+                  <internalName>signum-node</internalName>
                   <originalFilename>burst.exe</originalFilename>
                 </versionInfo>
               </configuration>

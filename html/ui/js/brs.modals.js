@@ -367,6 +367,9 @@ var BRS = (function(BRS, $, undefined) {
                 $(this).mask("BURST-****-****-****-*****", {
                     "noMask": true
                 }).removeClass("noMask");
+                $(this).mask("S-****-****-****-*****", {
+                    "noMask": true
+                }).removeClass("noMask");
             } else {
                 // Removed due to implemetation of Signum (Quick fix)
                 //$(this).mask("BURST-****-****-****-*****");
