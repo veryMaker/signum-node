@@ -666,7 +666,7 @@ var BRS = (function(BRS, $, undefined) {
             return;
         }
 
-        $("#my_dgs_listings_table tr[data-goods=" + String(data.goods).escapeHTML() + "]").addClass("tentative").find(".price").html(BRS.formatAmount(data.priceNQT) + " BURST");
+        $("#my_dgs_listings_table tr[data-goods=" + String(data.goods).escapeHTML() + "]").addClass("tentative").find(".price").html(BRS.formatAmount(data.priceNQT) + " Signa");
     };
 
     BRS.forms.dgsRefundComplete = function(response, data) {
@@ -960,11 +960,11 @@ var BRS = (function(BRS, $, undefined) {
                 $modal.find("input[name=recipient]").val(response.sellerRS);
 
                 $("#dgs_purchase_price").val(String(response.priceNQT).escapeHTML());
-                $("#dgs_total_purchase_price").html(BRS.formatAmount(response.priceNQT) + " BURST");
+                $("#dgs_total_purchase_price").html(BRS.formatAmount(response.priceNQT) + " Signa");
 
                 $("#dgs_purchase_quantity").on("change", function() {
                     var totalNQT = new BigInteger(response.priceNQT).multiply(new BigInteger(String($(this).val()))).toString();
-                    $("#dgs_total_purchase_price").html(BRS.formatAmount(totalNQT) + " BURST");
+                    $("#dgs_total_purchase_price").html(BRS.formatAmount(totalNQT) + " Signa");
                 });
             }
         }, false);

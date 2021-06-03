@@ -63,7 +63,7 @@ var BRS = (function(BRS, $, undefined) {
 	    $("#user_info_modal_account_balance").html("0");
 	}
         else {
-	    $("#user_info_modal_account_balance").html(BRS.formatAmount(account.unconfirmedBalanceNQT) + " BURST");
+	    $("#user_info_modal_account_balance").html(BRS.formatAmount(account.unconfirmedBalanceNQT) + " Signa");
 	}
 
 	if (account.name) {
