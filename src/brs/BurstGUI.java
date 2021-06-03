@@ -77,7 +77,7 @@ public class BurstGUI extends JFrame {
 
     public BurstGUI() {
         System.setSecurityManager(new BurstGUISecurityManager());
-        setTitle("Signum " + Burst.VERSION);
+        setTitle("Signum Node " + Burst.VERSION);
 
         Class<?> lafc = null;
         try {
