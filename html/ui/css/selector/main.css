@@ -2,7 +2,7 @@
 @import "vars.css";
 
 body {
-    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     height: 100vh;
     background-color: var(--burst-blue);
     overflow: hidden;
