@@ -20,7 +20,7 @@ var BRS = (function(BRS, $, undefined) {
         BRS.showFeeSuggestions("#commitment_fee", "#suggested_fee_response_commitment");
     });
     $('#send_money_modal').on('hide.bs.modal', function (e) {
-           $("#total_amount_multi_out").html('0.1 BURST');
+           $("#total_amount_multi_out").html('0.1 Signa');
         });
     $("#suggested_fee_ordinary").on("click", function(e) {
         e.preventDefault();
@@ -168,7 +168,7 @@ var BRS = (function(BRS, $, undefined) {
 
                 data = {
                     "type": "Multi-out Same Payment",
-                    "amount_formatted_html": BRS.formatAmount(transaction.amountNQT) + " BURST (" + BRS.formatAmount(amountEach.toString()) + " BURST for each recipient)",
+                    "amount_formatted_html": BRS.formatAmount(transaction.amountNQT) + " Signa (" + BRS.formatAmount(amountEach.toString()) + " BURST for each recipient)",
                     "fee": transaction.feeNQT,
                     "recipient_formatted_html": recipientHtml,
                     "sender": BRS.getAccountTitle(transaction, "sender")

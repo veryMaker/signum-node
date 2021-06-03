@@ -234,7 +234,7 @@ var NSV = (function(NSV, $, undefined) {
         if (BRS.accountInfo.unconfirmedBalanceNQT) {
             var balance = parseFloat(BRS.accountInfo.unconfirmedBalanceNQT);
             if (balance < len) {
-                err_message = "You don't have enough BURST in this account for this distribution. ".concat(String(len),"BURST needed.");
+                err_message = "You don't have enough Signa in this account for this distribution. ".concat(String(len),"Signa needed.");
             }
         }
         else {
@@ -296,7 +296,7 @@ var NSV = (function(NSV, $, undefined) {
             if (response.publicKey) {
                 callback({
                     "type": "info",
-                    "message": "The recipient account has a public key and a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " BURST.",
+                    "message": "The recipient account has a public key and a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " Signa.",
                     "account": response
                 });
             }
@@ -305,7 +305,7 @@ var NSV = (function(NSV, $, undefined) {
                     if (response.errorCode == 4) {
                         callback({
                             "type": "danger",
-                            "message": "The recipient account is malformed, please adjust." + (!(/^(BURST\-)/i.test(accountId)) ? " If you want to type an alias, prepend it with the @ character." : ""),
+                            "message": "The recipient account is malformed, please adjust." + (!(/^(S\-)/i.test(accountId)) ? " If you want to type an alias, prepend it with the @ character." : ""),
                             "account": null
                         });
                     }
@@ -327,7 +327,7 @@ var NSV = (function(NSV, $, undefined) {
                 else {
                     callback({
                         "type": "warning",
-                        "message": "The recipient account does not have a public key, meaning it has never had an outgoing transaction. The account has a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " BURST. Please double check your recipient address before submitting.",
+                        "message": "The recipient account does not have a public key, meaning it has never had an outgoing transaction. The account has a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " Signa. Please double check your recipient address before submitting.",
                         "account": response
                     });
                 }

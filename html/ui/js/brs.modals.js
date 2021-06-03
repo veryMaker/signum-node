@@ -208,7 +208,7 @@ var BRS = (function(BRS, $, undefined) {
 
     $(".same_out_checkbox").on("change", function(e) {
         //amount_total = 0 ///fixing incorrect Total when switch from multi same to multi and fee is changed.
-        $(".total_amount_multi_out").html("0.1 BURST");
+        $(".total_amount_multi_out").html("0.1 Signa");
         if ($(this).is(":checked")) {
             $(".multi-out-same").fadeIn();
             $(".multi-out-ordinary").hide();

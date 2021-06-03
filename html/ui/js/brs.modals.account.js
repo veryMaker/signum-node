@@ -373,7 +373,7 @@ var BRS = (function(BRS, $, undefined) {
 		    if (good.name.length > 150) {
 			good.name = good.name.substring(0, 150) + "...";
 		    }
-		    rows += "<tr><td><a href='#' data-goto-goods='" + String(good.goods).escapeHTML() + "' data-seller='" + String(BRS.userInfoModal.user).escapeHTML() + "'>" + String(good.name).escapeHTML() + "</a></td><td>" + BRS.formatAmount(good.priceNQT) + " BURST</td><td>" + BRS.format(good.quantity) + "</td></tr>";
+		    rows += "<tr><td><a href='#' data-goto-goods='" + String(good.goods).escapeHTML() + "' data-seller='" + String(BRS.userInfoModal.user).escapeHTML() + "'>" + String(good.name).escapeHTML() + "</a></td><td>" + BRS.formatAmount(good.priceNQT) + " Signa</td><td>" + BRS.format(good.quantity) + "</td></tr>";
 		}
 	    }
 
