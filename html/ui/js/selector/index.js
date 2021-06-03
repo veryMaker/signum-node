@@ -1,7 +1,7 @@
 const nodeUrl = location.origin
 const preferredWalletKey = 'preferred-wallet'
 
-async function getBRSVersion() {
+async function getNodeVersion() {
     const url = `${nodeUrl}/burst?requestType=getState`
     const res = await fetch(url)
 
@@ -21,7 +21,7 @@ function selectedWallet(name){
 }
 
 (async () => {
-    const version = await getBRSVersion()
+    const version = await getNodeVersion()
     const walletName = localStorage.getItem(preferredWalletKey)
     document.getElementById(`${walletName}-link`).click()
     document.getElementById('version').textContent = version
