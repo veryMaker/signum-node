@@ -234,7 +234,7 @@ var BRS = (function(BRS, $, undefined) {
 		    }
                     else if (extra == "decrypted") {
 			if (type == "payment") {
-			    decoded = "<strong>+" + BRS.formatAmount(messages[i].amountNQT) + " Signa</strong><br />" + decoded;
+			    decoded = "<strong>+" + BRS.formatAmount(messages[i].amountNQT) + " SIGNA</strong><br />" + decoded;
 			}
 
 			decoded = "<i class='fas fa-lock'></i> " + decoded;

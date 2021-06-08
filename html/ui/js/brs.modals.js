@@ -110,7 +110,7 @@ var BRS = (function(BRS, $, undefined) {
 
                 total_multi_out = amount_total + fee;
 
-                $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+                $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
             }
         } else {
             if (multi_out_recipients < 64) {
@@ -144,7 +144,7 @@ var BRS = (function(BRS, $, undefined) {
 
             total_multi_out = amount_total + fee;
 
-            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
         } else {
             multi_out_recipients--;
             // get amount for each recipient
@@ -162,7 +162,7 @@ var BRS = (function(BRS, $, undefined) {
             $("#multi_out_fee").val(fee.toFixed(8));
             total_multi_out = amount_total + fee;
 
-            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
         }
     });
 
@@ -182,7 +182,7 @@ var BRS = (function(BRS, $, undefined) {
         $("#multi_out_fee").val(fee.toFixed(8));
         total_multi_out = amount_total + fee;
 
-        $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+        $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
     });
 
     $("#multi-out-same-amount").on("change", function(e) {
@@ -203,7 +203,7 @@ var BRS = (function(BRS, $, undefined) {
 
         total_multi_out = amount_total + fee;
 
-        $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+        $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
     });
 
     $(".same_out_checkbox").on("change", function(e) {
@@ -224,7 +224,7 @@ var BRS = (function(BRS, $, undefined) {
             var fee = isNaN(current_fee) ? 1 : (current_fee < 0.00735 ? 0.00735 : current_fee);
             $("#multi_out_fee").val(fee.toFixed(8));
             total_multi_out = amount_total + fee;
-            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
             }
 
         } else {
@@ -243,7 +243,7 @@ var BRS = (function(BRS, $, undefined) {
             $("#multi_out_fee").val(fee.toFixed(8));
             total_multi_out = amount_total + fee;
 
-            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " Signa");
+            $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(total_multi_out)) + " SIGNA");
         }
     });
 
@@ -253,7 +253,7 @@ var BRS = (function(BRS, $, undefined) {
 
         $("#multi_out_fee").val(fee.toFixed(8));
 
-        $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(amount_total + fee)) + " Signa");
+        $(".total_amount_multi_out").html(BRS.formatAmount(BRS.convertToNQT(amount_total + fee)) + " SIGNA");
     });
 
     $("#multi-out-submit").on("click", function(e) {
@@ -490,7 +490,7 @@ var BRS = (function(BRS, $, undefined) {
                 defaultFee = 1;
             }
 
-            $(this).find(".advanced_fee").html(BRS.formatAmount(BRS.convertToNQT(defaultFee)) + " Signa");
+            $(this).find(".advanced_fee").html(BRS.formatAmount(BRS.convertToNQT(defaultFee)) + " SIGNA");
         }
 
         BRS.showedFormWarning = false;
@@ -526,7 +526,7 @@ var BRS = (function(BRS, $, undefined) {
         var $feeInfo = $modal.find(".advanced_fee");
 
         if ($feeInfo.length) {
-            $feeInfo.html(BRS.formatAmount(BRS.convertToNQT($(this).val())) + " Signa");
+            $feeInfo.html(BRS.formatAmount(BRS.convertToNQT($(this).val())) + " SIGNA");
         }
     });
 
