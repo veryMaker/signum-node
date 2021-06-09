@@ -723,7 +723,7 @@ var BRS = (function(BRS, $, undefined) {
     };
 
     BRS.convertNumericToRSAccountFormat = function(account) {
-        if (/^BURST\-/i.test(account)) {
+        if (/(^BURST|^S)\-/i.test(account)) {
             return String(account).escapeHTML();
         } else {
             var address = new NxtAddress();

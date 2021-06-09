@@ -985,7 +985,7 @@ BRS = (function (BRS, $, undefined) {
 
         if (data.type === "account") {
             if (!(/acct:(.*)@burst/.test(data.aliasURI)) && !(/nacc:(.*)/.test(data.aliasURI))) {
-                if (/^(BURST\-)/i.test(data.aliasURI)) {
+                if (/^(BURST\-)/i.test(data.aliasURI) || /^(S\-)/i.test(data.aliasURI)) {
                     var address = new NxtAddress();
 
                     if (!address.set(data.aliasURI)) {
@@ -1043,7 +1043,7 @@ BRS = (function (BRS, $, undefined) {
         else if (type === "account") {
             $("#register_alias_uri_label").html($.t("account_id"));
             $("#register_alias_uri").prop("placeholder", $.t("account_id"));
-            $("#register_alias_uri").val("").mask("BURST-****-****-****-*****");
+            $("#register_alias_uri").val("").mask("S-****-****-****-*****");
 
             if (uri) {
                 var match = uri.match(/acct:(.*)@burst/i);
@@ -1065,7 +1065,7 @@ BRS = (function (BRS, $, undefined) {
                         uri = "";
                     }
                 }
-                else if (!/^BURST\-[A-Z0-9]{4}\-[A-Z0-9]{4}\-[A-Z0-9]{4}\-[A-Z0-9]{5}/i.test(uri)) {
+                else if (!/(^BURST|^S)\-[A-Z0-9]{4}\-[A-Z0-9]{4}\-[A-Z0-9]{4}\-[A-Z0-9]{5}/i.test(uri)) {
                     uri = BRS.accountRS;
                 }
 
