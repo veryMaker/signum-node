@@ -15,7 +15,7 @@ final class SendMoney extends CreateTransaction {
   private final ParameterService parameterService;
 
   SendMoney(ParameterService parameterService, APITransactionManager apiTransactionManager) {
-    super(new APITag[]{APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER);
+    super(new APITag[]{APITag.ACCOUNTS, APITag.TRANSACTIONS, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER, AMOUNT_NQT_PARAMETER);
     this.parameterService = parameterService;
   }
 
