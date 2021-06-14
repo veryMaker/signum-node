@@ -27,7 +27,7 @@ echo
 echo "======================================="
 echo "📦 Unpacking..."
 echo "---------------------------------------"
-unzip -q web-phoenix-burst-wallet.\*.zip
+unzip -q web-phoenix-signum-wallet.\*.zip
 echo "✅ Extracted newest wallet sources successfully"
 echo
 echo "======================================="
