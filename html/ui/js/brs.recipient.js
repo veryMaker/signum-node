@@ -13,7 +13,7 @@ var BRS = (function(BRS, $, undefined) {
             var value = $(this).val();
             var modal = $(this).closest(".modal");
 
-            if (value && value != "BURST-____-____-____-_____") {
+            if (value && value != "BURST-____-____-____-_____" && value != "S-____-____-____-_____") {
                 BRS.checkRecipient(value, modal);
             } else {
                 modal.find(".account_info").hide();
@@ -32,7 +32,7 @@ var BRS = (function(BRS, $, undefined) {
         $("#send_money_amount").val(amount.toFixed(8));
         $("#send_money_fee").val(fee.toFixed(8));
 
-        $(element).closest(".modal").find(".total_amount_ordinary").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " BURST");
+        $(element).closest(".modal").find(".total_amount_ordinary").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " SIGNA");
     };
     
     BRS.commitmentCalculateTotal = function(element) {
@@ -44,7 +44,7 @@ var BRS = (function(BRS, $, undefined) {
         $("#commitment_amount").val(amount.toFixed(8));
         $("#commitment_fee").val(fee.toFixed(8));
 
-        $(element).closest(".modal").find(".total_amount_commitment").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " BURST");
+        $(element).closest(".modal").find(".total_amount_commitment").html(BRS.formatAmount(BRS.convertToNQT(amount + fee)) + " SIGNA");
     };
 
     $("#send_message_modal, #send_money_modal, #add_contact_modal").on("show.bs.modal", function(e) {
@@ -254,19 +254,25 @@ var BRS = (function(BRS, $, undefined) {
         account = $.trim(account);
 
         //solomon reed. Btw, this regex can be shortened..
-        if (/^(BURST\-)?[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+/i.test(account)) {
+        if (/^(BURST\-)?[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+/i.test(account) ||
+          /^(S\-)?[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+\-[A-Z0-9]+/i.test(account)) {
             var address = new NxtAddress();
 
-            // Added usage of substr due to Signum implementation
-            var accountRS = account.substr(0, 26);
+            // Added usage of substr due to Burst implementation
+            var accountRS = account.substr(0, 22);
+            var offset = 4;
+            if(account.toUpperCase().substring(0, 6) === "BURST-"){
+              offset = 0;
+              accountRS = account.substr(0, 26);
+            }
 			      if (address.set(accountRS)) {
-                if(account.length > 28){
+                if(account.length > 28 + offset){
                   // check if there is a public key
-                  var publicKeyBase36 = account.substr(27);
+                  var publicKeyBase36 = account.substr(27 - offset);
                   var publicKey = new BigNumber(publicKeyBase36, 36).toString(16);
                   var checkRS = BRS.getAccountIdFromPublicKey(publicKey, true);
                   
-                  if(checkRS !== accountRS){
+                  if(!checkRS.includes(accountRS.substr(6 - offset))){
                     callout.removeClass(classes).addClass("callout-danger").html($.t("recipient_malformed")).show();
                   }
                   else {

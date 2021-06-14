@@ -3,7 +3,7 @@
  *
  * As it uses async/await at least NodeJS 12 is needed
  *
- * @author ohager, Burstcoin, 2021
+ * @author ohager, Burstcoin, Signum Network, 2021
  */
 const http = require('https')
 
@@ -62,8 +62,8 @@ function getCurrentPhoenixWebWalletDownloadUrl(releases) {
     const {
         name,
         browser_download_url: downloadUrl
-    } = desktopReleases[0].assets.find(({name}) => name.startsWith('web-phoenix-burst-wallet'))
-    const version = name.replace('web-phoenix-burst-wallet.', '').replace('.zip', '')
+    } = desktopReleases[0].assets.find(({name}) => name.startsWith('web-phoenix-signum-wallet'))
+    const version = name.replace('web-phoenix-signum-wallet.', '').replace('.zip', '')
     return {
         version,
         downloadUrl

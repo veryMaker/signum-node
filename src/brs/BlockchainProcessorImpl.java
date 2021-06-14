@@ -1221,61 +1221,47 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2)) {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
-          Map<Long, Map<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
+          Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
             long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT)) / FEE_QUANT;
             slot = Math.min(Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
-            unconfirmedTransactionsOrderedBySlotThenPriority.computeIfAbsent(slot, k -> new HashMap<>());
-            unconfirmedTransactionsOrderedBySlotThenPriority.get(slot).put(priority, transaction);
+            TreeMap<Long, Transaction> utxInSlot = unconfirmedTransactionsOrderedBySlotThenPriority.get(slot);
+            if(utxInSlot == null) {
+              // Use a tree map in reverse order so we automatically get a descending priority list
+              utxInSlot = new TreeMap<>(Collections.reverseOrder());
+              unconfirmedTransactionsOrderedBySlotThenPriority.put(slot, utxInSlot);
+            }
+            // if we already have this identical priority, make sure they are unique
+            while(utxInSlot.get(priority) != null) {
+              priority--;
+            }
+            utxInSlot.put(priority, transaction);
           });
+        
+          // Fill the unconfirmed transactions to be included from top to bottom
+          Map<Long, Transaction> slotTransactionsToBeincluded = new HashMap<>();
+          int maxSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
+          for (long slot = maxSlot; slot >= 1; slot--) {
+            boolean slotFilled = false;
+            for (long slotUnconfirmed = maxSlot; slotUnconfirmed >= slot; slotUnconfirmed--) {
+              // using a tree map we already have it naturally sorted by priority
+              TreeMap<Long, Transaction> candidateTxs = unconfirmedTransactionsOrderedBySlotThenPriority.get(slotUnconfirmed);
+              if(candidateTxs != null) {
+                Iterator<Transaction> itTx = candidateTxs.values().iterator();
+                while(itTx.hasNext()) {
+                  Transaction tx = itTx.next();
 
-          // In this step we sort through each slot and find the highest priority transaction in each.
-          AtomicLong highestSlot = new AtomicLong();
-          unconfirmedTransactionsOrderedBySlotThenPriority.keySet()
-                  .forEach(slot -> {
-                    if (highestSlot.get() < slot) {
-                      highestSlot.set(slot);
-                    }
-                  });
-          List<Long> slotsWithNoTransactions = new ArrayList<>();
-          for (long slot = 1; slot <= highestSlot.get(); slot++) {
-            Map<Long, Transaction> transactions = unconfirmedTransactionsOrderedBySlotThenPriority.get(slot);
-            if (transactions == null || transactions.size() == 0) {
-              slotsWithNoTransactions.add(slot);
+                  slotTransactionsToBeincluded.put(slot, tx);
+                  itTx.remove();
+                  slotFilled = true;
+                  break;
+                }
+                if(slotFilled)
+                  break;
+              }
             }
           }
-          Map<Long, Transaction> unconfirmedTransactionsOrderedBySlot = new HashMap<>();
-          unconfirmedTransactionsOrderedBySlotThenPriority.forEach((slot, transactions) -> {
-            AtomicLong highestPriority = new AtomicLong();
-            transactions.keySet().forEach(priority -> {
-              if (highestPriority.get() < priority) {
-                highestPriority.set(priority);
-              }
-            });
-            unconfirmedTransactionsOrderedBySlot.put(slot, transactions.get(highestPriority.get()));
-            transactions.remove(highestPriority.get()); // This is to help with filling slots with no transactions
-          });
-
-          // If a slot does not have any transactions in it, the next highest priority transaction from the slot above should be used.
-          slotsWithNoTransactions.sort(Comparator.reverseOrder());
-          slotsWithNoTransactions.forEach(emptySlot -> {
-            long slotNumberToTakeFrom = emptySlot;
-            Map<Long, Transaction> slotToTakeFrom = null;
-            while (slotToTakeFrom == null || slotToTakeFrom.size() == 0) {
-              slotNumberToTakeFrom++;
-              if (slotNumberToTakeFrom > highestSlot.get()) return;
-              slotToTakeFrom = unconfirmedTransactionsOrderedBySlotThenPriority.get(slotNumberToTakeFrom);
-            }
-            AtomicLong highestPriority = new AtomicLong();
-            slotToTakeFrom.keySet().forEach(priority -> {
-              if (highestPriority.get() < priority) {
-                highestPriority.set(priority);
-              }
-            });
-            unconfirmedTransactionsOrderedBySlot.put(emptySlot, slotToTakeFrom.get(highestPriority.get()));
-            slotToTakeFrom.remove(highestPriority.get());
-          });
-          transactionsToBeIncluded = unconfirmedTransactionsOrderedBySlot;
+          transactionsToBeIncluded = slotTransactionsToBeincluded;
         } else { // Before Pre-POC2 HF, just choose highest priority
           Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();

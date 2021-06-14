@@ -1160,8 +1160,8 @@ var BRS = (function(BRS, $, undefined) {
         }
 
         $("#asset_order_description").html(description);
-        $("#asset_order_total").html(totalNXT + " BURST");
-        $("#asset_order_fee_paid").html(BRS.formatAmount(feeNQT) + " BURST");
+        $("#asset_order_total").html(totalNXT + " SIGNA");
+        $("#asset_order_fee_paid").html(BRS.formatAmount(feeNQT) + " SIGNA");
 
         if (quantity != "1") {
             $("#asset_order_total_tooltip").show();

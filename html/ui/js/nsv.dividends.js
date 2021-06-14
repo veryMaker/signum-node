@@ -234,7 +234,7 @@ var NSV = (function(NSV, $, undefined) {
         if (BRS.accountInfo.unconfirmedBalanceNQT) {
             var balance = parseFloat(BRS.accountInfo.unconfirmedBalanceNQT);
             if (balance < len) {
-                err_message = "You don't have enough BURST in this account for this distribution. ".concat(String(len),"BURST needed.");
+                err_message = "You don't have enough Signa in this account for this distribution. ".concat(String(len),"Signa needed.");
             }
         }
         else {
@@ -296,7 +296,7 @@ var NSV = (function(NSV, $, undefined) {
             if (response.publicKey) {
                 callback({
                     "type": "info",
-                    "message": "The recipient account has a public key and a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " BURST.",
+                    "message": "The recipient account has a public key and a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " Signa.",
                     "account": response
                 });
             }
@@ -305,7 +305,7 @@ var NSV = (function(NSV, $, undefined) {
                     if (response.errorCode == 4) {
                         callback({
                             "type": "danger",
-                            "message": "The recipient account is malformed, please adjust." + (!(/^(BURST\-)/i.test(accountId)) ? " If you want to type an alias, prepend it with the @ character." : ""),
+                            "message": "The recipient account is malformed, please adjust." + (!(/^(S\-)/i.test(accountId)) ? " If you want to type an alias, prepend it with the @ character." : ""),
                             "account": null
                         });
                     }
@@ -327,7 +327,7 @@ var NSV = (function(NSV, $, undefined) {
                 else {
                     callback({
                         "type": "warning",
-                        "message": "The recipient account does not have a public key, meaning it has never had an outgoing transaction. The account has a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " BURST. Please double check your recipient address before submitting.",
+                        "message": "The recipient account does not have a public key, meaning it has never had an outgoing transaction. The account has a balance of " + BRS.formatAmount(response.unconfirmedBalanceNQT, false, true) + " Signa. Please double check your recipient address before submitting.",
                         "account": response
                     });
                 }
@@ -463,7 +463,7 @@ var NSV = (function(NSV, $, undefined) {
 
                 if (outasset !== "") {
                     if (!(/^\d+$/.test(outasset))) {
-                        err_message = "Out Asset ID is invalid. Either enter a valid ID or leave blank to pay in Burst.";
+                        err_message = "Out Asset ID is invalid. Either enter a valid ID or leave blank to pay in Signa.";
 
                     }
                     else {
@@ -471,7 +471,7 @@ var NSV = (function(NSV, $, undefined) {
                             "asset": outasset
                         }, function(response) {
                             if (response.errorCode) {
-                                err_message = "Incorrect Out Asset ID. Either enter a valid ID or leave blank to pay in Burst.";
+                                err_message = "Incorrect Out Asset ID. Either enter a valid ID or leave blank to pay in Signa.";
                             }
                             else {
                                 outasset_dec1 = response.decimals;
@@ -794,7 +794,7 @@ var NSV = (function(NSV, $, undefined) {
             if (BRS.accountInfo.unconfirmedBalanceNQT) {
                 balance = parseFloat(BRS.accountInfo.unconfirmedBalanceNQT);
                 if (balance < total_cost) {
-                    err_message = "You don't have enough Burst in this account for this distribution. ".concat(String(len),"BURST needed.");
+                    err_message = "You don't have enough Burst in this account for this distribution. ".concat(String(len),"Signa needed.");
                 }
             }
             else {
@@ -874,7 +874,7 @@ var NSV = (function(NSV, $, undefined) {
             if (BRS.accountInfo.unconfirmedBalanceNQT) {
                 balance = parseFloat(BRS.accountInfo.unconfirmedBalanceNQT);
                 if (balance < (len*100000000)) {
-                    err_message = "You don't have enough Burst in this account to pay the fees for this distribution. ".concat(String(len),"BURST needed.");
+                    err_message = "You don't have enough Signa in this account to pay the fees for this distribution. ".concat(String(len),"BURST needed.");
                 }
             }
             else {
@@ -1008,7 +1008,7 @@ var NSV = (function(NSV, $, undefined) {
 
                                         if (response.senderRS == cur_account) {
                                             NSV_div_send_acc_array[cur_index].amount -= parseInt(response.attachment.quantityQNT,10);
-                                            if (response.recipientRS != "BURST-NU58-Z4QR-XXKE-94DHH") {	//genesis (86281612813136630310)
+                                            if (response.recipientRS != "S-NU58-Z4QR-XXKE-94DHH") {	//genesis (86281612813136630310)
                                                 if (NSV.div_send_check_arr(response.recipientRS) == -1) {
                                                     NSV.div_send_push_newacc(response.recipientRS);
                                                 }
