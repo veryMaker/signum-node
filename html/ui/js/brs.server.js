@@ -444,7 +444,7 @@ var BRS = (function(BRS, $, undefined) {
     };
     BRS.verifyAndSignTransactionBytes = function(transactionBytes, signature, requestType, data) {
         if (requestType == "sendMoney" || requestType == "sendMoneyMulti"
-          || requestType == "addCommitment" || requestType == "removeCommitment") {
+          || requestType == "addCommitment" || requestType == "removeCommitment" || requestType == "sendMoneySubscription") {
             // Something is broken and I hate this code and I just want it to work.
             // I can't reproduce the bug but with a multi out this will quite a lot of the
             // time fail to verify. This code will soon be replaced anyway and it horrible to maintain.
