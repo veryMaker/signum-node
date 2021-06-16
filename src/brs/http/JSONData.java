@@ -409,8 +409,6 @@ public final class JSONData {
     bf.put( at.getId() , 0 , 8 );
     long id = bf.getLong(0);
     json.addProperty("at", Convert.toUnsignedLong( id ));
-    json.addProperty("atVersion", at.getVersion());
-    json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
     json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
     json.addProperty("balanceNQT", Convert.toUnsignedLong(at.getgBalance()));
     json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()));
@@ -422,9 +420,12 @@ public final class JSONData {
     json.addProperty("dead", at.getMachineState().isDead());
     
     if(includeDetails) {
+      // These are immutable details, which we might want to avoid getting every call
+      json.addProperty("atVersion", at.getVersion());
       json.addProperty("atRS", Convert.rsAccount(id));
       json.addProperty("name", at.getName());
       json.addProperty("description", at.getDescription());
+      json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
       json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
       json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
       json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
