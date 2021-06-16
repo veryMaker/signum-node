@@ -76,7 +76,7 @@ var BRS = (function(BRS, $, undefined) {
 	    };
 	}
 
-	if (/^\d+$/.test(data.name) || /^BURST\-/i.test(data.name)) {
+	if (/^\d+$/.test(data.name) || /^(BURST|S)\-/i.test(data.name)) {
 	    return {
 		"error": $.t("error_contact_name_alpha")
 	    };
@@ -100,7 +100,7 @@ var BRS = (function(BRS, $, undefined) {
 	    }
 	}
 
-	if (/^BURST\-/i.test(data.account_id)) {
+	if (/^(BURST|S)\-/i.test(data.account_id)) {
 	    data.account_rs = data.account_id;
 
 	    var address = new NxtAddress();
@@ -208,7 +208,7 @@ var BRS = (function(BRS, $, undefined) {
 	if (!contactId && BRS.selectedContext) {
 	    var accountId = BRS.selectedContext.data("account");
 
-	    var dbKey = (/^BURST\-/i.test(accountId) ? "accountRS" : "account");
+	    var dbKey = (/^(BURST|S)\-/i.test(accountId) ? "accountRS" : "account");
 
 	    var dbQuery = {};
 	    dbQuery[dbKey] = accountId;
@@ -275,7 +275,7 @@ var BRS = (function(BRS, $, undefined) {
 	    };
 	}
 
-	if (/^BURST\-/i.test(data.account_id)) {
+	if (/^(BURST|S)\-/i.test(data.account_id)) {
 	    data.account_rs = data.account_id;
 
 	    var address = new NxtAddress();
