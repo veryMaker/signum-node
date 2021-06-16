@@ -13,9 +13,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import static brs.http.common.ResultFields.*;
 
 public final class JSONData {
@@ -399,15 +396,9 @@ public final class JSONData {
 
   static JsonObject at(AT at, boolean includeDetails) {
     JsonObject json = new JsonObject();
-    ByteBuffer bf = ByteBuffer.allocate( 8 );
-    bf.order( ByteOrder.LITTLE_ENDIAN );
-
-    bf.put( at.getCreator() );
-    bf.clear();
-    putAccount(json, "creator", bf.getLong() ); // TODO is this redundant or does this bring LE byte order?
-    bf.clear();
-    bf.put( at.getId() , 0 , 8 );
-    long id = bf.getLong(0);
+    
+    long id = AtApiHelper.getLong(at.getId());
+    
     json.addProperty("at", Convert.toUnsignedLong( id ));
     json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
     json.addProperty("balanceNQT", Convert.toUnsignedLong(at.getgBalance()));
@@ -420,7 +411,7 @@ public final class JSONData {
     json.addProperty("dead", at.getMachineState().isDead());
     
     if(includeDetails) {
-      // These are immutable details, which we might want to avoid getting every call
+      // These are immutable details, which we might want to avoid getting on every call
       json.addProperty("atVersion", at.getVersion());
       json.addProperty("atRS", Convert.rsAccount(id));
       json.addProperty("name", at.getName());
