@@ -49,6 +49,7 @@ public final class Parameters {
   public static final String DESCRIPTION_PARAMETER = "description";
   public static final String FREQUENCY_PARAMETER = "frequency";
   public static final String AT_PARAMETER = "at";
+  public static final String INCLUDE_DETAILS_PARAMETER = "includeDetails";
   public static final String CREATION_BYTES_PARAMETER = "creationBytes";
   public static final String HEX_STRING_PARAMETER = "hexString";
   public static final String TRANSACTION_BYTES_PARAMETER = "transactionBytes";
