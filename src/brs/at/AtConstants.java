@@ -23,7 +23,6 @@ public class AtConstants {
     private static final HashMap<Short, Long> MAX_MACHINE_USER_STACK_PAGES = new HashMap<>();
     private static final HashMap<Short, Long> MAX_MACHINE_CALL_STACK_PAGES = new HashMap<>();
     private static final HashMap<Short, Long> BLOCKS_FOR_RANDOM = new HashMap<>();
-    private static final HashMap<Short, Long> MAX_PAYLOAD_FOR_BLOCK = new HashMap<>();
     private static final HashMap<Short, Long> AVERAGE_BLOCK_MINUTES = new HashMap<>();
     private static final AtConstants instance = new AtConstants();
 
@@ -47,7 +46,6 @@ public class AtConstants {
         MAX_MACHINE_CALL_STACK_PAGES.put((short) 1, 10L);
 
         BLOCKS_FOR_RANDOM.put((short) 1, 15L); //for testing 2 -> normally 1440
-        MAX_PAYLOAD_FOR_BLOCK.put((short) 1, (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)) / 2L); //use at max half size of the block.
         AVERAGE_BLOCK_MINUTES.put((short) 1, 4L);
         // end of AT version 1
 
@@ -70,7 +68,6 @@ public class AtConstants {
         MAX_MACHINE_CALL_STACK_PAGES.put((short) 2, 10L);
 
         BLOCKS_FOR_RANDOM.put((short) 2, 15L); //for testing 2 -> normally 1440
-        MAX_PAYLOAD_FOR_BLOCK.put((short) 2, (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)) / 2L); //use at max half size of the block.
         AVERAGE_BLOCK_MINUTES.put((short) 2, 4L);
         // end of AT version 2
     }
@@ -132,10 +129,6 @@ public class AtConstants {
 
     public long blocksForRandom(int height) {
         return BLOCKS_FOR_RANDOM.get(atVersion(height));
-    }
-
-    public long maxPayloadForBlock(int height) {
-        return MAX_PAYLOAD_FOR_BLOCK.get(atVersion(height));
     }
 
     public long averageBlockMinutes(int height) {
