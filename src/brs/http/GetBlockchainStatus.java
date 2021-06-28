@@ -35,6 +35,7 @@ final class GetBlockchainStatus extends APIServlet.JsonRequestHandler {
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     Block lastBlock = blockchain.getLastBlock();
     response.addProperty("lastBlock", lastBlock.getStringId());
+    response.addProperty("lastBlockTimestamp", lastBlock.getTimestamp());
     response.addProperty("cumulativeDifficulty", lastBlock.getCumulativeDifficulty().toString());
     response.addProperty(ResultFields.AVERAGE_COMMITMENT_NQT_RESPONSE, lastBlock.getAverageCommitment());
     response.addProperty("numberOfBlocks", lastBlock.getHeight() + 1);
