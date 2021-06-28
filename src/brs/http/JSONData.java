@@ -13,9 +13,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import static brs.http.common.ResultFields.*;
 
 public final class JSONData {
@@ -392,26 +389,17 @@ public final class JSONData {
     json.addProperty(name, Convert.toUnsignedLong(accountId));
     json.addProperty(name + "RS", Convert.rsAccount(accountId));
   }
-
+  
   static JsonObject at(AT at) {
-    JsonObject json = new JsonObject();
-    ByteBuffer bf = ByteBuffer.allocate( 8 );
-    bf.order( ByteOrder.LITTLE_ENDIAN );
+    return at(at, true);
+  }
 
-    bf.put( at.getCreator() );
-    bf.clear();
-    putAccount(json, "creator", bf.getLong() ); // TODO is this redundant or does this bring LE byte order?
-    bf.clear();
-    bf.put( at.getId() , 0 , 8 );
-    long id = bf.getLong(0);
+  static JsonObject at(AT at, boolean includeDetails) {
+    JsonObject json = new JsonObject();
+    
+    long id = AtApiHelper.getLong(at.getId());
+    
     json.addProperty("at", Convert.toUnsignedLong( id ));
-    json.addProperty("atRS", Convert.rsAccount(id));
-    json.addProperty("atVersion", at.getVersion());
-    json.addProperty("name", at.getName());
-    json.addProperty("description", at.getDescription());
-    json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
-    json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
-    json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
     json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
     json.addProperty("balanceNQT", Convert.toUnsignedLong(at.getgBalance()));
     json.addProperty("prevBalanceNQT", Convert.toUnsignedLong(at.getpBalance()));
@@ -421,8 +409,19 @@ public final class JSONData {
     json.addProperty("stopped", at.getMachineState().isStopped());
     json.addProperty("finished", at.getMachineState().isFinished());
     json.addProperty("dead", at.getMachineState().isDead());
-    json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
-    json.addProperty("creationBlock", at.getCreationBlockHeight());
+    
+    if(includeDetails) {
+      // These are immutable details, which we might want to avoid getting on every call
+      json.addProperty("atVersion", at.getVersion());
+      json.addProperty("atRS", Convert.rsAccount(id));
+      json.addProperty("name", at.getName());
+      json.addProperty("description", at.getDescription());
+      json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
+      json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
+      json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
+      json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
+      json.addProperty("creationBlock", at.getCreationBlockHeight());
+    }
     return json;
   }
 
