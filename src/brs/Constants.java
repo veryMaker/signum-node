@@ -32,6 +32,7 @@ public final class Constants {
   public static final long INITIAL_BASE_TARGET = 18325193796L;
   public static final int CAPACITY_ESTIMATION_BLOCKS_MAX = 10800 * 3;
   public static final int CAPACITY_ESTIMATION_BLOCKS = 360;
+  public static final int CAPACITY_ESTIMATION_BLOCKS_MID = 360 * 4;
   public static final long MAX_BASE_TARGET = 18325193796L;
   public static final int MAX_ROLLBACK = 1440;
 

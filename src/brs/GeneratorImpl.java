@@ -291,6 +291,8 @@ public class GeneratorImpl implements Generator {
     int height = previousBlock.getHeight();
     int endHeight = height;
     
+    int commitmentWait = fluxCapacitor.getValue(FluxValues.COMMITMENT_WAIT, height);
+    
     // Check if there are mined blocks on the download cache or commitment removals
     Block blockIt = null;
     if(downloadCache != null) {
@@ -308,7 +310,7 @@ public class GeneratorImpl implements Generator {
       }
       for(Transaction tx : blockIt.getTransactions()) {
         if(tx.getSenderId() == generatorId) {
-          if(blockIt.getHeight() <= height - Constants.COMMITMENT_WAIT && tx.getType() == TransactionType.BurstMining.COMMITMENT_ADD) {
+          if(blockIt.getHeight() <= height - commitmentWait && tx.getType() == TransactionType.BurstMining.COMMITMENT_ADD) {
             CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
             committedAmountOnCache += txAttachment.getAmountNQT();
           }
@@ -337,10 +339,26 @@ public class GeneratorImpl implements Generator {
       // First we try to estimate the capacity using more recent blocks only
       nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, endHeight);
       if(nBlocksMined + nBlocksMinedOnCache < 3) {
-        // Use more blocks in the past to make the estimation if that is necessary
-        capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-        nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-            endHeight) + nBlocksMinedOnCacheMax;
+        
+        if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, height)) {
+          // Use more blocks in the past to make the estimation if that is necessary
+          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MID;
+          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+              endHeight) + nBlocksMinedOnCacheMax;
+          
+          if(nBlocksMined + nBlocksMinedOnCache < 2) {
+            // Use even more blocks in the past to make the estimation if that is necessary
+            capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
+            nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+                endHeight) + nBlocksMinedOnCacheMax;
+          }
+        }
+        else {
+          // Use more blocks in the past to make the estimation if that is necessary
+          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
+          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
+              endHeight) + nBlocksMinedOnCacheMax;
+        }
       }
     }
     nBlocksMined += nBlocksMinedOnCache;
@@ -348,8 +366,9 @@ public class GeneratorImpl implements Generator {
     long genesisTarget = Constants.INITIAL_BASE_TARGET;
     genesisTarget = (long)(genesisTarget / 1.83d); // account for Sodium deadlines
     long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L/(capacityBaseTarget * capacityEstimationBlocks);
-    if(estimatedCapacityGb < 1000L) {
-      estimatedCapacityGb = 1000L;
+    long minCapacity = fluxCapacitor.getValue(FluxValues.MIN_CAPACITY);
+    if(estimatedCapacityGb < minCapacity) {
+      estimatedCapacityGb = minCapacity;
     }
     // Commitment being the committed balance per TiB
     long commitment = (committedAmount/estimatedCapacityGb) * 1000L;
