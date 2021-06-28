@@ -990,7 +990,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
             if (feeArray[i] < Constants.FEE_QUANT * (i + 1)) {
