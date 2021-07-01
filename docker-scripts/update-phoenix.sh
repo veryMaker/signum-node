@@ -29,7 +29,7 @@ unzip -qq web-phoenix-signum-wallet.*.zip
 echo "🏗 Patching base href..."
 
 # Modify the base href in the index file
-sed -i 's;<base href="/">;<base href="/phoenix/";g' dist/index.html
+sed -i 's;<base href="/">;<base href="/phoenix/">;g' dist/index.html
 
 echo "📝 Copying Phoenix Wallet to node..."
 
