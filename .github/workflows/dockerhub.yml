@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: damccull/signum
+          images: signumnetwork/node
           tags: |
             type=semver,pattern={{version}}-h2
             type=raw,value=latest-h2
@@ -63,7 +63,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: damccull/signum
+          images: signumnetwork/node
           tags: |
             type=semver,pattern={{version}}-maria
             type=raw,value=latest-maria
