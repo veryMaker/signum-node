@@ -7,7 +7,7 @@ on:
 jobs:
   publish-h2-image:
     environment: dockerhub-publish
-    name: Push Docker image to Docker Hub
+    name: Push h2 db Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -35,7 +35,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   publish-maria-image:
     environment: dockerhub-publish
-    name: Push Docker image to Docker Hub
+    name: Push mariadb Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
