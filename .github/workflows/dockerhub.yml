@@ -6,6 +6,7 @@ on:
 
 jobs:
   push_to_registry:
+    environment: dockerhub-publish
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
