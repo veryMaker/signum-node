@@ -26,6 +26,9 @@ jobs:
           images: damccull/signum
           tags: |
             type=semver,pattern={{version}}-h2
+            type=raw,value=latest-h2
+          flavor: |
+            latest=false
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -56,6 +59,9 @@ jobs:
           images: damccull/signum
           tags: |
             type=semver,pattern={{version}}-maria
+            type=raw,value=latest-maria
+          flavor: |
+            latest=false
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
