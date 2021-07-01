@@ -1,6 +1,4 @@
-<img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/burst-apps-team/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
-
-# Signum Node Software (previously Burstcoin Reference Software)
+# Signum Node (previously Burstcoin Reference Software)
 [![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
@@ -131,7 +129,7 @@ Run these commands (`master` is always the latest stable release):
 
 ```bash
 git fetch --all --tags --prune
-git checkout origin/master
+git checkout origin/main
 mvn package
 ```
 
