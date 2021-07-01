@@ -1,19 +1,5 @@
-FROM alpine:latest as phoenix_updater
-WORKDIR /app
-RUN apk update && apk upgrade
-RUN apk add --no-cache bash unzip curl wget
-# Download the latest phoenix release
-RUN curl -s "https://api.github.com/repos/burst-apps-team/phoenix/releases/latest" \
-    | grep "web-phoenix-signum-wallet.*.zip" \
-    | cut -d : -f 2,3 \
-    | tr -d \" \
-    | grep "https" \
-    | wget -qi -
-# Unzip it
-RUN unzip web-phoenix-signum-wallet.*.zip
-# Modify the base href in the index file
-RUN sed -i 's;<base href="/">;<base href="/phoenix/";g' dist/index.html
-
+# This Dockerfile uses two nearly identical builder intermediate images to run the two tasks in parallel
+# and save build time. Please do not delete one thinking it is there erroneously.
 
 FROM maven:3-jdk-8-slim as builder
 WORKDIR /app
@@ -24,23 +10,29 @@ COPY pom.xml pom.xml
 RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "verify", "clean", "--fail-never"]
 COPY . .
 RUN mvn -DskipTests=true -P headless package
-RUN mkdir -p html/ui/doc && mvn javadoc:javadoc-no-fork && cp -r target/site/apidocs/* html/ui/doc
 
-# Remove the old version of phoenix
-RUN rm -rf html/ui/phoenix/*
-# Move the new version in
-COPY --from=phoenix_updater /app/dist/. /app/html/ui/phoenix/
+FROM maven:3-jdk-8-slim as docbuilder
+WORKDIR /app
+# These next two lines copy the pom.xml file only, then force maven to download the depenedencies it uses
+# This caches all the dependencies via docker layer caching and will increase subsequent docker builds
+# unless pom.xml changes
+COPY pom.xml pom.xml
+RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "verify", "clean", "--fail-never"]
+COPY . .
+RUN mkdir -p html/ui/doc && mvn javadoc:javadoc-no-fork && cp -r target/site/apidocs/* html/ui/doc
 
 
 FROM openjdk:8-jre-alpine
-RUN apk update && apk upgrade && apk add --no-cache bash
+RUN apk update && apk upgrade && apk add --no-cache bash curl wget unzip
 WORKDIR /app
 COPY --from=builder /app/dist/tmp/burst.jar .
-COPY --from=builder /app/html html
+COPY --from=docbuilder /app/html html
 VOLUME ["/conf", "/db"]
 RUN ln -s /conf /app/conf
 COPY conf/brs.properties.h2 /app/conf/brs.properties
 COPY conf/brs-default.properties /app/conf/brs-default.properties
 COPY conf/logging-default.properties /app/conf/logging-default.properties
+COPY docker-scripts/update-phoenix.sh update-phoenix.sh
+RUN chmod +x update-phoenix.sh
 EXPOSE 8125 8123 8121
-ENTRYPOINT ["java", "-classpath", "/app/burst.jar", "brs.Burst"]
+ENTRYPOINT [ "/app/update-phoenix.sh" ]
