@@ -35,6 +35,8 @@ public final class Constants {
   public static final int CAPACITY_ESTIMATION_BLOCKS_MID = 360 * 4;
   public static final long MAX_BASE_TARGET = 18325193796L;
   public static final int MAX_ROLLBACK = 1440;
+  
+  public static final int ORDINARY_TRANSACTION_BYTES = 176;
 
   public static final int MAX_ALIAS_URI_LENGTH = 1000;
   public static final int MAX_ALIAS_LENGTH = 100;

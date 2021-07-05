@@ -1203,7 +1203,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         ToLongFunction<Transaction> priorityCalculator = transaction -> {
           int age = blockTimestamp + 1 - transaction.getTimestamp();
           if (age < 0) age = 1;
-          return ((long) age) * transaction.getFeeNQT();
+          
+          long feePriority = transaction.getFeeNQT() * (transaction.getSize()/Constants.ORDINARY_TRANSACTION_BYTES);
+          // So the age has less priority (60 minutes to increase the priority to the next level)
+          // TODO: consider giving priority based on the last sent transaction and not transaction age to improve spam protection
+          long priority = (feePriority * 60) + FEE_QUANT*age;
+          
+          return priority;
         };
 
         // Map of slot number -> transaction
@@ -1262,7 +1268,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             }
           }
           transactionsToBeIncluded = slotTransactionsToBeincluded;
-        } else { // Before Pre-POC2 HF, just choose highest priority
+        } else {
+          // Just choose highest priority
           Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();
           AtomicLong currentSlot = new AtomicLong(1);
