@@ -31,7 +31,7 @@
     <cli.version>1.4</cli.version>
     <hikaricp.version>3.3.1</hikaricp.version>
     <java.version>1.8</java.version>
-    <jetty.version>9.4.38.v20210224</jetty.version>
+    <jetty.version>9.4.42.v20210604</jetty.version>
     <jocl.version>2.0.1</jocl.version>
     <jooq.version>3.14.8</jooq.version>
     <mariadb.version>2.4.3</mariadb.version>
@@ -45,7 +45,7 @@
     <junit-vintage.version>5.5.1</junit-vintage.version>
     <mockito.version>3.0.0</mockito.version>
     <powermock.version>2.0.2</powermock.version>
-    <apachehttpclient.version>4.5.9</apachehttpclient.version>
+    <apachehttpclient.version>4.5.13</apachehttpclient.version>
     <jacoco.version>0.8.4</jacoco.version>
     <jiconfont.version>1.0.0</jiconfont.version>
     <font_awesome.version>4.7.0.1</font_awesome.version>
