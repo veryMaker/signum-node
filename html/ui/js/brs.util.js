@@ -805,9 +805,7 @@ var BRS = (function(BRS, $, undefined) {
     };
 
     BRS.setupClipboardFunctionality = function() {
-        var elements = "#asset_id_dropdown .dropdown-menu a, #account_id_dropdown .sbdropdown-menu a";
-
-        var $el = $(elements);
+        var $el = $("#asset_id_dropdown .dropdown-menu a, #account_id, #account_id_sidebar li a");
 
         if (BRS.inApp) {
             $el.on("click", function() {
@@ -847,8 +845,8 @@ var BRS = (function(BRS, $, undefined) {
             });
 
             clipboard.on('error', function(e) {
-                $("#account_id_dropdown .sbdropdown-menu, #asset_id_dropdown .dropdown-menu").remove();
-                $("#account_id_dropdown, #asset_id").data("toggle", "");
+                $("#asset_id_dropdown .dropdown-menu").remove();
+                $("#asset_id").data("toggle", "");
                 $.notify($.t("error_clipboard_copy"), {
                     type: 'danger',
                     offset: {
