@@ -216,7 +216,7 @@ var BRS = (function(BRS, $, undefined) {
                         $(".hide_secret_phrase").show();
                     }
 
-                    $("#account_id").html(String(BRS.accountRS).escapeHTML()).css("font-size", "12px");
+                    $("#account_id").html(String(BRS.accountRS).escapeHTML());
 
                     var passwordNotice = "";
 
