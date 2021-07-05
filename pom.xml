@@ -4,16 +4,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>burstcoin</groupId>
-  <artifactId>burstcoin</artifactId>
-  <version>3.1.1</version>
+  <groupId>signum-node</groupId>
+  <artifactId>signum-node</artifactId>
+  <version>3.2.0</version>
   <name>Signum Node Software</name>
-  <url>https://github.com/burst-apps-team/burstcoin</url>
+  <url>https://github.com/signum-network/signum-node</url>
 
   <scm>
-    <connection>scm:git:git@github.com:burst-apps-team/burstcoin.git</connection>
-    <developerConnection>scm:git:git@github.com:burst-apps-team/burstcoin.git</developerConnection>
-    <url>https://github.com/burst-apps-team/burstcoin</url>
+    <connection>scm:git:git@github.com:signum-network/signum-node.git</connection>
+    <developerConnection>scm:git:git@github.com:signum-network/signum-node.git</developerConnection>
+    <url>https://github.com/signum-network/signum-node</url>
   </scm>
 
   <packaging>jar</packaging>
@@ -21,7 +21,7 @@
   <properties>
     <versionQualifier></versionQualifier>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
-    <burstkit4j.version>b2e653c0d9</burstkit4j.version>
+    <signumj.version>v0.20.0</signumj.version>
     <rxjava.version>2.2.12</rxjava.version>
     <ehcache.version>3.8.0</ehcache.version>
     <flywaydb.version>7.3.2</flywaydb.version>
@@ -70,9 +70,9 @@
   <dependencies>
 
     <dependency>
-      <groupId>com.github.burst-apps-team</groupId>
-      <artifactId>burstkit4j</artifactId>
-      <version>${burstkit4j.version}</version>
+      <groupId>com.github.signum-network</groupId>
+      <artifactId>signumj</artifactId>
+      <version>${signumj.version}</version>
     </dependency>
 
     <dependency>

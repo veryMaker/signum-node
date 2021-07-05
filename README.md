@@ -1,31 +1,29 @@
-<img align="right" width="120" height="120" title="Burst Logo" src="https://raw.githubusercontent.com/burst-apps-team/Marketing_Resources/master/BURST_LOGO/PNG/icon_blue.png" />
-
-# Signum Node Software (previously Burstcoin Reference Software)
+# Signum Node (previously Burstcoin Reference Software)
 [![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
-and fair Proof-of-Capacity (PoC) consensus algorithm.
+and fair Proof-of-Commitment (PoC+) consensus algorithm.
 
-This wallet version is developed and maintained by the Burst Apps Team (BAT). The two supported database backends are:
+The two supported database backends are:
 
 - H2 (embedded, recommended)
 - MariaDB (advanced users)
 
 ## Network Features
 
-- Proof of Capacity - ASIC proof / Energy efficient mining
+- Proof of Commitment - ASIC proof / Energy efficient and sustainable mining
 - No ICO/Airdrops/Premine
-- Turing-complete smart contracts, via [BlockTalk](https://github.com/burst-apps-team/blocktalk)
+- Turing-complete smart contracts, via [Signum SmartJ](https://github.com/signum-network/signum-smartj)
 - Asset Exchange; Digital Goods Store; Crowdfunds, NFTs, games, and more (via smart contracts); and Alias system
 
 ## Network Specification
 
 - 4 minute block time
-- Total Supply: [2,138,119,200 BURST up to block 972k + 100 BURST per block after that](https://github.com/burst-apps-team/CIPs/blob/master/cip-0029.md)
+- Total Supply: [2,138,119,200 BURST up to block 972k + 100 SIGNA per block after that](https://github.com/burst-apps-team/CIPs/blob/master/cip-0029.md)
 - Block reward starts at 10,000/block
-- Block reward decreases at 5% each month with a minimum mining incentive of 100 BURST per block
+- Block reward decreases at 5% each month with a minimum mining incentive of 100 SIGNA per block
 
 ## Features
 
@@ -67,7 +65,7 @@ DB.Password=YOUR_PASSWORD
 
 ## Installation
 
-Grab the latest [release](https://github.com/burst-apps-team/burstcoin/releases) (or, if you prefer, compile yourself using the instructions below)
+Grab the latest [release](https://github.com/signum-network/signum-smartj/releases) (or, if you prefer, compile yourself using the instructions below)
 
 In the `conf` directory, copy `brs-default.properties` into a new file named `brs.properties` and modify this file to suit your needs (See "Configuration" section below)
 
@@ -130,24 +128,23 @@ This will cause a block to be forged every 10 seconds. Note that P2P is disabled
 Run these commands (`master` is always the latest stable release):
 
 ```bash
-git fetch --all --tags --prune
-git checkout origin/master
+git clone https://github.com/signum-network/signum-node.git
+cd signum-node
 mvn package
 ```
 
-Your packaged release will now be available in `dist/burstcoin-3.0.0.zip`
+Your packaged release will now be available in the `dist` directory.
 
 ## Building the latest development version
 
-Run these commands:
+Clone the repository as instructed above and run these commands:
 
 ```bash
-git fetch --all --tags --prune
-git checkout origin/develop
+git switch develop
 mvn package
 ```
 
-Your packaged release will now be available in `dist/burstcoin-3.0.0.zip`.
+Your packaged release will now be available in the `dist` directory.
 
 **Please note that development builds will refuse to run outside of testnet or a private chain**
 
@@ -173,7 +170,7 @@ git push --tags
 
 # Developers
 
-Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [BURST-JJQS-MMA4-GHB4-4ZNZU](https://explore.burstcoin.network/?action=account&account=3278233074628313816)
+Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)
 
 For more information, see [Credits](doc/Credits.md)
 
