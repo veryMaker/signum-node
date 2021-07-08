@@ -121,22 +121,13 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   @Override
   public Transaction get(Long transactionId) {
     synchronized (internalStore) {
-      for (List<Transaction> amountSlot : internalStore.values()) {
-        for (Transaction t : amountSlot) {
-          if (t.getId() == transactionId) {
-            return t;
-          }
-        }
-      }
-      return null;
+      return getTransactionInChache(transactionId);
     }
   }
 
   @Override
   public boolean exists(Long transactionId) {
-    synchronized (internalStore) {
-      return get(transactionId) != null;
-    }
+    return get(transactionId) != null;
   }
 
   @Override
@@ -235,8 +226,18 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean transactionIsCurrentlyInCache(Transaction transaction) {
-    final List<Transaction> amountSlot = internalStore.get(amountSlotForTransaction(transaction));
-    return amountSlot != null && amountSlot.stream().anyMatch(t -> t.getId() == transaction.getId());
+    return getTransactionInChache(transaction.getId()) != null;
+  }
+  
+  private Transaction getTransactionInChache(Long transactionId) {
+    for (List<Transaction> amountSlot : internalStore.values()) {
+      for (Transaction t : amountSlot) {
+        if (t.getId() == transactionId) {
+          return t;
+        }
+      }
+    }
+    return null;    
   }
 
   private boolean transactionCanBeAddedToCache(Transaction transaction) {
@@ -267,7 +268,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private boolean cacheFullAndTransactionCheaperThanAllTheRest(Transaction transaction) {
-    if (totalSize == maxSize && internalStore.firstKey() > amountSlotForTransaction(transaction)) {
+    if (totalSize >= maxSize && internalStore.firstKey() > amountSlotForTransaction(transaction)) {
       logger.info("Transaction {}: Not added because cache is full and transaction is cheaper than all the rest", transaction.getId());
       return true;
     }
@@ -320,7 +321,9 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
 
   private long amountSlotForTransaction(Transaction transaction) {
-    return transaction.getFeeNQT() / Constants.FEE_QUANT;
+    long slot = transaction.getFeeNQT() / Constants.FEE_QUANT;
+    
+    return slot;
   }
 
   private void removeCheapestFirstToExpireTransaction() {
