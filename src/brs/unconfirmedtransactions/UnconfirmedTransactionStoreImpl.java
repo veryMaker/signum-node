@@ -1,10 +1,12 @@
 package brs.unconfirmedtransactions;
 
+import brs.Burst;
 import brs.BurstException.ValidationException;
 import brs.Constants;
 import brs.Transaction;
 import brs.db.TransactionDb;
 import brs.db.store.AccountStore;
+import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -30,6 +32,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private final TransactionDuplicatesCheckerImpl transactionDuplicatesChecker = new TransactionDuplicatesCheckerImpl();
 
   private final HashMap<Transaction, HashSet<Peer>> fingerPrintsOverview = new HashMap<>();
+  private final TransactionDb transactionDb;
 
   private final SortedMap<Long, List<Transaction>> internalStore;
 
@@ -38,11 +41,12 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private final int maxRawUTBytesToSend;
 
-  private int numberUnconfirmedTransactionsFullHash;
+  private List<Transaction> unconfirmedFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
 
   public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore, TransactionDb transactionDb) {
     this.timeService = timeService;
+    this.transactionDb = transactionDb;
 
     this.reservedBalanceCache = new ReservedBalanceCache(accountStore);
 
@@ -52,7 +56,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     this.maxRawUTBytesToSend = propertyService.getInt(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND);
 
     this.maxPercentageUnconfirmedTransactionsFullHash = propertyService.getInt(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE);
-    this.numberUnconfirmedTransactionsFullHash = 0;
+    this.unconfirmedFullHash = new ArrayList<Transaction>();
 
     internalStore = new TreeMap<>();
 
@@ -239,6 +243,17 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     }
     return null;    
   }
+  
+  private Transaction getTransactionInChache(String fullHash) {
+    for (List<Transaction> amountSlot : internalStore.values()) {
+      for (Transaction t : amountSlot) {
+        if (t.getFullHash().equals(fullHash)) {
+          return t;
+        }
+      }
+    }
+    return null;    
+  }
 
   private boolean transactionCanBeAddedToCache(Transaction transaction) {
     return transactionIsCurrentlyNotExpired(transaction)
@@ -249,21 +264,49 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private boolean tooManyTransactionsForSlotSize(Transaction transaction) {
     final long slotHeight = this.amountSlotForTransaction(transaction);
+    long slotUnconfirmedLimit = slotHeight * 360;
+    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, Burst.getBlockchain().getHeight())) {
+      // Use a higher limit per slot, since most transactions will be on the same slot (first)
+      slotUnconfirmedLimit = maxSize/4;
+    }
 
-    if (this.internalStore.containsKey(slotHeight) && this.internalStore.get(slotHeight).size() == slotHeight * 360) {
+    if (slotHeight <= 0) {
+      logger.info("Transaction {}: Not added, not enough fee {} for it size {}", transaction.getId(), transaction.getFeeNQT(), transaction.getSize());
+      return true;
+    }
+    if (this.internalStore.containsKey(slotHeight) && this.internalStore.get(slotHeight).size() >= slotUnconfirmedLimit) {
       logger.info("Transaction {}: Not added because slot {} is full", transaction.getId(), slotHeight);
       return true;
     }
 
     return false;
   }
+  
+  private boolean hasUnconfirmedFullHash(Transaction transaction) {
+    if (!StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
+      // When a transaction has a reference hash, assume as a regular transaction if the reference was already confirmed
+      Transaction refTx = transactionDb.findTransactionByFullHash(transaction.getReferencedTransactionFullHash());
+      if(refTx != null)
+        return false;
 
-  private boolean tooManyTransactionsWithReferencedFullHash(Transaction transaction) {
-    if (!StringUtils.isEmpty(transaction.getReferencedTransactionFullHash()) && maxPercentageUnconfirmedTransactionsFullHash <= (((numberUnconfirmedTransactionsFullHash + 1) * 100) / maxSize)) {
-      logger.info("Transaction {}: Not added because too many transactions with referenced full hash", transaction.getId());
+      // Also assume as a regular transaction if the reference transaction is already available on cache
+      // and that reference transaction does not depend on another one.
+      refTx = getTransactionInChache(transaction.getReferencedTransactionFullHash());
+      if(refTx != null && StringUtils.isEmpty(transaction.getReferencedTransactionFullHash()))
+        return false;
+
       return true;
     }
 
+    return false;    
+  }
+
+  private boolean tooManyTransactionsWithReferencedFullHash(Transaction transaction) {
+    if(hasUnconfirmedFullHash(transaction) &&
+        maxPercentageUnconfirmedTransactionsFullHash <= (((unconfirmedFullHash.size() + 1) * 100) / maxSize)) {
+        logger.info("Transaction {}: Not added because too many transactions with referenced full hash", transaction.getId());
+        return true;
+    }
     return false;
   }
 
@@ -304,8 +347,8 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       }
     }
 
-    if (!StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
-      numberUnconfirmedTransactionsFullHash++;
+    if (hasUnconfirmedFullHash(transaction)) {
+      unconfirmedFullHash.add(transaction);
     }
   }
 
@@ -322,13 +365,18 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private long amountSlotForTransaction(Transaction transaction) {
     long slot = transaction.getFeeNQT() / Constants.FEE_QUANT;
+    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+      // Using the 'slot' now as a priority measure, not exactly as before
+      long transactionSize = transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES;
+      slot /= transactionSize;
+    }
     
     return slot;
   }
 
   private void removeCheapestFirstToExpireTransaction() {
     final Optional<Transaction> cheapestFirstToExpireTransaction = this.internalStore.get(this.internalStore.firstKey()).stream()
-        .sorted(Comparator.comparingLong(Transaction::getFeeNQT).thenComparing(Transaction::getExpiration).thenComparing(Transaction::getId))
+        .sorted(Comparator.comparingLong(Transaction::getFeeNQTPerByte).thenComparing(Transaction::getExpiration).thenComparing(Transaction::getId))
         .findFirst();
 
     if (cheapestFirstToExpireTransaction.isPresent()) {
@@ -338,37 +386,44 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   }
 
   private void removeTransaction(Transaction transaction) {
-    if (transaction == null) return;
-    final long amountSlotNumber = amountSlotForTransaction(transaction);
+    if (transaction == null)
+      return;
 
-    final List<Transaction> amountSlot = internalStore.get(amountSlotNumber);
+    for(Long amountSlotNumber : internalStore.keySet()) {
+      List<Transaction> amountSlot = internalStore.get(amountSlotNumber);
+      if(amountSlot.contains(transaction)) {
+        amountSlot.remove(transaction);
+        
+        if (amountSlot.isEmpty()) {
+          this.internalStore.remove(amountSlotNumber);
+        }
+        break;
+      }
+    }
 
     fingerPrintsOverview.remove(transaction);
-    amountSlot.remove(transaction);
     totalSize--;
     transactionDuplicatesChecker.removeTransaction(transaction);
-
-    if (!StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
-      numberUnconfirmedTransactionsFullHash--;
-    }
-
-    if (amountSlot.isEmpty()) {
-      this.internalStore.remove(amountSlotNumber);
-    }
+    unconfirmedFullHash.remove(transaction);
   }
 
   @Override
   public long getFreeSlot(int numberOfBlocks) {
-    long previousSlot = 0;
     long slotsAvailable = 0;
     long freeSlot = 1;
-    for (Long currentSlot : internalStore.keySet()) {
-      List<Transaction> txInSlot = internalStore.get(currentSlot);
-      
-      slotsAvailable += numberOfBlocks*(currentSlot - previousSlot) - txInSlot.size();
-      
-      if(slotsAvailable < 0) {
-        freeSlot = currentSlot + 1;
+    
+    boolean nextForkActivated = Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+    
+    synchronized (internalStore) {
+
+      for (Long currentSlot : internalStore.keySet()) {
+        List<Transaction> txInSlot = internalStore.get(currentSlot);
+
+        slotsAvailable += numberOfBlocks*currentSlot - txInSlot.size();
+
+        if(slotsAvailable < 0) {
+          freeSlot = currentSlot + 1;
+        }
       }
     }
     return freeSlot;
