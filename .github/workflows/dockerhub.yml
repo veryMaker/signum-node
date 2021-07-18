@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: signumnetwork/node
+          images: ${{ secrets.DOCKERHUB_REPO }}
           tags: |
             type=semver,pattern={{version}}-h2
             type=raw,value=latest-h2
@@ -64,7 +64,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: signumnetwork/node
+          images: ${{ secrets.DOCKERHUB_REPO }}
           tags: |
             type=semver,pattern={{version}}-maria
             type=raw,value=latest-maria
