@@ -3,6 +3,8 @@
 # Add the dockerhub username and password in secrets named:
 #    DOCKERHUB_USERNAME
 #    DOCKERHUB_PASSWORD
+# Add the dockerhub repo path in a secret named:
+#    DOCKERHUB_REPO
 # This workflow will use them automatically.
 
 name: Publish Docker image
