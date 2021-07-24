@@ -47,7 +47,7 @@ public final class API {
   public static final String API_TEST_PATH = "/api-doc";
 
   private final Server apiServer;
-  
+
   public API(TransactionProcessor transactionProcessor,
       Blockchain blockchain, BlockchainProcessor blockchainProcessor, ParameterService parameterService,
       AccountService accountService, AliasService aliasService,
@@ -76,7 +76,7 @@ public final class API {
     else {
       allowedBotHosts = null;
     }
-    
+
     boolean enableAPIServer = propertyService.getBoolean(Props.API_SERVER);
     if (enableAPIServer) {
       final String host = propertyService.getString(Props.API_LISTEN);
@@ -92,10 +92,10 @@ public final class API {
         httpsConfig.setSecurePort(port);
         httpsConfig.addCustomizer(new SecureRequestCustomizer());
         SslContextFactory sslContextFactory = new SslContextFactory.Server();
-        
+
         sslContextFactory.setKeyStorePath(propertyService.getString(Props.API_SSL_KEY_STORE_PATH));
         sslContextFactory.setKeyStorePassword(propertyService.getString(Props.API_SSL_KEY_STORE_PASSWORD));
-        
+
         String letsencryptPath = propertyService.getString(Props.API_SSL_LETSENCRYPT_PATH);
         if(letsencryptPath != null && letsencryptPath.length() > 0) {
           try {
@@ -104,7 +104,7 @@ public final class API {
           catch (Exception e) {
             logger.error(e.getMessage());
           }
-          
+
           // Reload the certificate every week, in case it was renewed
           ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
           Runnable reloadCert = () -> {
@@ -118,7 +118,7 @@ public final class API {
           };
           scheduler.scheduleWithFixedDelay(reloadCert, 7, 7, TimeUnit.DAYS);
         }
-        
+
         sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA",
                                                  "SSL_DHE_RSA_WITH_DES_CBC_SHA",
                                                  "SSL_DHE_DSS_WITH_DES_CBC_SHA",
@@ -166,7 +166,7 @@ public final class API {
               allowedBotHosts);
       ServletHolder apiServletHolder = new ServletHolder(apiServlet);
       apiHandler.addServlet(apiServletHolder, API_PATH);
-      
+
       if (propertyService.getBoolean(Props.JETTY_API_DOS_FILTER)) {
         FilterHolder dosFilterHolder = apiHandler.addFilter(DoSFilter.class, API_PATH, null);
         dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
@@ -186,20 +186,9 @@ public final class API {
 
       apiHandler.addServlet(new ServletHolder(new APITestServlet(apiServlet, allowedBotHosts)), API_TEST_PATH);
 
-      RewriteHandler rewriteHandler = new RewriteHandler();
-      rewriteHandler.setRewriteRequestURI(true);
-      rewriteHandler.setRewritePathInfo(false);
-      rewriteHandler.setOriginalPathAttribute("requestedPath");
-      rewriteHandler.setHandler(apiHandler);
-      Rule rewriteToRoot = new RegexOrExistsRewriteRule(new File(propertyService.getString(Props.API_UI_DIR)), "^(?!"+regexpEscapeUrl(API_PATH)+"|"+regexpEscapeUrl(API_TEST_PATH)+").*$", "/index.html");
-      rewriteHandler.addRule(rewriteToRoot);
-      apiHandlers.addHandler(rewriteHandler);
-
       if (propertyService.getBoolean(Props.JETTY_API_GZIP_FILTER)) {
         GzipHandler gzipHandler = new GzipHandler();
-        gzipHandler.setIncludedPaths(API_PATH);
-        gzipHandler.setIncludedMethodList(propertyService.getString(Props.JETTY_API_GZIP_FILTER_METHODS));
-        gzipHandler.setInflateBufferSize(propertyService.getInt(Props.JETTY_API_GZIP_FILTER_BUFFER_SIZE));
+        gzipHandler.setIncludedMethodList("GET,POST");
         gzipHandler.setMinGzipSize(propertyService.getInt(Props.JETTY_API_GZIP_FILTER_MIN_GZIP_SIZE));
         gzipHandler.setHandler(apiHandler);
         apiHandlers.addHandler(gzipHandler);
@@ -227,7 +216,7 @@ public final class API {
     }
 
   }
-  
+
   private void letsencryptToPkcs12(String letsencryptPath, String p12File, String password) throws Exception {
     // TODO: check if there is a way for us to use directly the PEM files and not need to convert this way
     logger.info("Generating {} from {}", p12File, letsencryptPath);
@@ -237,7 +226,7 @@ public final class API {
     Process process = Runtime.getRuntime().exec(cmd);
     process.waitFor();
   }
-  
+
   private String regexpEscapeUrl(String url) {
     return url.replace("/", "\\/");
   }
