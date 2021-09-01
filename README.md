@@ -168,6 +168,10 @@ git tag v3.0.1-beta
 git push --tags
 ```
 
+# Docker
+
+See DOCKER.md for information on running and building docker images.
+
 # Developers
 
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)

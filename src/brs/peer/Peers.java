@@ -378,10 +378,8 @@ public final class Peers {
 
         if (isGzipEnabled) {
           GzipHandler gzipHandler = new GzipHandler();
-          gzipHandler.setIncludedMethods(propertyService.getString(Props.JETTY_P2P_GZIP_FILTER_METHODS));
-          gzipHandler.setInflateBufferSize(propertyService.getInt(Props.JETTY_P2P_GZIP_FILTER_BUFFER_SIZE));
+          gzipHandler.setIncludedMethods("GET,POST");
           gzipHandler.setMinGzipSize(propertyService.getInt(Props.JETTY_P2P_GZIP_FILTER_MIN_GZIP_SIZE));
-          gzipHandler.setIncludedMimeTypes("text/plain");
           gzipHandler.setHandler(peerHandler);
           peerServer.setHandler(gzipHandler);
         }
@@ -878,7 +876,7 @@ public final class Peers {
         logger.info("Finished connecting to {} well known peers.", connectWellKnownFirst);
       }
     }
-    
+
     if(peers.size() == 0) {
       // add back the well known peers in case we have been offline too long
       for(String wellKnownPeer : wellKnownPeers) {
