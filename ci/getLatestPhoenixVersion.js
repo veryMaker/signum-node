@@ -9,10 +9,10 @@ const http = require('https')
 
 const fetchGithubReleases = () => {
     return new Promise((resolve, reject) => {
-        http.get('https://api.github.com/repos/burst-apps-team/phoenix/releases?per_page=25&page=0', {
+        http.get('https://api.github.com/repos/signum-network/phoenix/releases?per_page=25&page=0', {
             headers: {
                 Accept: 'application/vnd.github.v3+json',
-                'User-Agent': 'burstcoin',
+                'User-Agent': 'signum',
             },
         }, (res) => {
             const {statusCode} = res;
