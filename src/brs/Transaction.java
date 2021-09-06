@@ -363,7 +363,7 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public long getId() {
-    if (id.get() == 0) {
+    if (id.get() == 0 || fullHash.get() == null) {
       if (signature.get() == null && type.isSigned()) {
         throw new IllegalStateException("Transaction is not signed yet");
       }
