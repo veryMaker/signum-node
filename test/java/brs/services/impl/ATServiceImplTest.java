@@ -44,9 +44,9 @@ public class ATServiceImplTest {
 
     final List<Long> mockATsIssuedByAccount = mock(List.class);
 
-    when(mockATStore.getATsIssuedBy(eq(accountId))).thenReturn(mockATsIssuedByAccount);
+    when(mockATStore.getATsIssuedBy(eq(accountId), null)).thenReturn(mockATsIssuedByAccount);
 
-    assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId));
+    assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId, null));
   }
 
   @Test

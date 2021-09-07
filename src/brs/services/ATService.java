@@ -9,7 +9,7 @@ public interface ATService {
 
   Collection<Long> getAllATIds(Long codeHashId);
 
-  List<Long> getATsIssuedBy(Long accountId);
+  List<Long> getATsIssuedBy(Long accountId, Long codeHashId);
 
   AT getAT(Long atId);
   
