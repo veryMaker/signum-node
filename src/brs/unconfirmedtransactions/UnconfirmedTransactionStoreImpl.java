@@ -247,7 +247,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private Transaction getTransactionInChache(String fullHash) {
     for (List<Transaction> amountSlot : internalStore.values()) {
       for (Transaction t : amountSlot) {
-        if (t.getFullHash().equals(fullHash)) {
+        if (fullHash.equals(t.getFullHash())) {
           return t;
         }
       }
