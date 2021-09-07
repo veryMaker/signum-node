@@ -2742,7 +2742,7 @@ public abstract class TransactionType {
     return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendageMultiplier, fee.getAppendagesFee()));
   }
 
-  protected Fee getBaselineFee(int height) {
+  public Fee getBaselineFee(int height) {
     if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, height))
       return new Fee(FEE_QUANT, FEE_QUANT);
     return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_BURST), 0);
@@ -2757,11 +2757,11 @@ public abstract class TransactionType {
       this.appendagesFee = appendagesFee;
     }
 
-    long getConstantFee() {
+    public long getConstantFee() {
       return constantFee;
     }
 
-    long getAppendagesFee() {
+    public long getAppendagesFee() {
       return appendagesFee;
     }
 
