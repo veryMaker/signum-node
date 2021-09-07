@@ -19,7 +19,7 @@ public interface ATStore {
 
   List<Long> getATsIssuedBy(Long accountId);
 
-  Collection<Long> getAllATIds();
+  Collection<Long> getAllATIds(Long codeHashId);
 
   BurstKey.LongKeyFactory<AT> getAtDbKeyFactory();
 

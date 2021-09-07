@@ -78,11 +78,13 @@ public final class Db {
       FluentConfiguration flywayBuilder = Flyway.configure()
               .dataSource(dbUrl, dbUsername, dbPassword)
               .baselineOnMigrate(true);
+      String locationDialect = null;
+      String location = "classpath:/brs/db/sql/migration";
 
       switch (dialect) {
         case MYSQL:
         case MARIADB:
-          flywayBuilder.locations("classpath:/db/migration_mariadb");
+          locationDialect = "classpath:/db/migration_mariadb";
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "512");
@@ -119,7 +121,7 @@ public final class Db {
           break;
         case H2:
           Class.forName("org.h2.Driver");
-          flywayBuilder.locations("classpath:/db/migration_h2");
+          locationDialect = "classpath:/db/migration_h2";
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -131,6 +133,7 @@ public final class Db {
           break;
       }
 
+      flywayBuilder.locations(location, locationDialect);
       cp = new HikariDataSource(config);
 
       logger.info("Running flyway migration");

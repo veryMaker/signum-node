@@ -4,12 +4,15 @@ import brs.Burst;
 import brs.at.AT;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
+import brs.crypto.Crypto;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AtRecord;
 import brs.schema.tables.records.AtStateRecord;
+import brs.util.Convert;
+
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 
@@ -89,17 +92,19 @@ public class SqlATStore implements ATStore {
   }
 
   private void saveAT(DSLContext ctx, brs.at.AT at) {
+    byte[] atCodeHash = Crypto.sha256().digest(at.getApCodeBytes());
+    long atCodeHashId = Convert.fullHashToId(atCodeHash);
     ctx.insertInto(
       AT,
       AT.ID, AT.CREATOR_ID, AT.NAME, AT.DESCRIPTION,
       AT.VERSION, AT.CSIZE, AT.DSIZE, AT.C_USER_STACK_BYTES,
       AT.C_CALL_STACK_BYTES, AT.CREATION_HEIGHT,
-      AT.AP_CODE, AT.HEIGHT
+      AT.AP_CODE, AT.HEIGHT, AT.AP_CODE_HASH_ID
     ).values(
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
       at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
       at.getcCallStackBytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight()
+      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight(), atCodeHashId
     ).execute();
   }
 
@@ -171,7 +176,7 @@ public class SqlATStore implements ATStore {
     return new AT(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), at.getName(), at.getDescription(), at.getVersion(),
             height,
             brs.at.AT.decompressState(atState.getState()), at.getCsize(), at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
-            atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), brs.at.AT.decompressState(at.getApCode()));
+            atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), brs.at.AT.decompressState(at.getApCode()), at.getApCodeHashId());
   }
 
   @Override
@@ -182,9 +187,12 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public Collection<Long> getAllATIds() {
+  public Collection<Long> getAllATIds(Long codeHashId) {
     return Db.useDSLContext(ctx -> {
-      return ctx.selectFrom(AT).where(AT.LATEST.isTrue()).fetch().getValues(AT.ID);
+      SelectConditionStep<AtRecord> request = ctx.selectFrom(AT).where(AT.LATEST.isTrue());
+      if(codeHashId != null)
+        request = request.and(AT.AP_CODE_HASH_ID.eq(codeHashId));
+      return request.fetch().getValues(AT.ID);
     });
   }
 

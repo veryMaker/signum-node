@@ -32,9 +32,9 @@ public class ATServiceImplTest {
   public void getAllATIds() {
     final Collection<Long> mockATCollection = mock(Collection.class);
 
-    when(mockATStore.getAllATIds()).thenReturn(mockATCollection);
+    when(mockATStore.getAllATIds(null)).thenReturn(mockATCollection);
 
-    assertEquals(mockATCollection, t.getAllATIds());
+    assertEquals(mockATCollection, t.getAllATIds(null));
   }
 
   @SuppressWarnings("unchecked")

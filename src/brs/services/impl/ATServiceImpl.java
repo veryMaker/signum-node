@@ -16,8 +16,8 @@ public class ATServiceImpl implements ATService {
   }
 
   @Override
-  public Collection<Long> getAllATIds() {
-    return atStore.getAllATIds();
+  public Collection<Long> getAllATIds(Long codeHashId) {
+    return atStore.getAllATIds(codeHashId);
   }
 
   @Override

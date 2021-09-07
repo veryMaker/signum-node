@@ -514,6 +514,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     
                     logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
+                    logger.info("Block hit {} timestamp {} base target {} difficulty {} commitment {}", block.getPocTime(), block.getTimestamp(), block.getBaseTarget(),
+                        block.getCumulativeDifficulty(), block.getCommitment());
                     
                     pushBlock(block);
                     pushedForkBlocks += 1;
@@ -1123,7 +1125,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         	  }
         	}
             logger.info("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
-            		Hex.toHexString(block.getBlockSignature()));
+                Hex.toHexString(block.getBlockSignature()));
+            logger.info("Block hit {} timestamp {} base target {} difficulty {} commitment {}", block.getPocTime(), block.getTimestamp(), block.getBaseTarget(),
+                block.getCumulativeDifficulty(), block.getCommitment());
             poppedOffBlocks.add(block);
             block = popLastBlock();
           }
