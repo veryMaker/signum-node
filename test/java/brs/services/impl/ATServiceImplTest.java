@@ -32,7 +32,7 @@ public class ATServiceImplTest {
   public void getAllATIds() {
     final Collection<Long> mockATCollection = mock(Collection.class);
 
-    when(mockATStore.getAllATIds(null)).thenReturn(mockATCollection);
+    when(mockATStore.getAllATIds(eq(null))).thenReturn(mockATCollection);
 
     assertEquals(mockATCollection, t.getAllATIds(null));
   }
@@ -44,7 +44,7 @@ public class ATServiceImplTest {
 
     final List<Long> mockATsIssuedByAccount = mock(List.class);
 
-    when(mockATStore.getATsIssuedBy(eq(accountId), null)).thenReturn(mockATsIssuedByAccount);
+    when(mockATStore.getATsIssuedBy(eq(accountId), eq(null))).thenReturn(mockATsIssuedByAccount);
 
     assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId, null));
   }
