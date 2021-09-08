@@ -412,14 +412,25 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     long slotsAvailable = 0;
     long freeSlot = 1;
     
-    boolean nextForkActivated = Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+    long txsPerSlot = 1;
+    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+      // transactions per slot, we assume transactions can occupy up to 2 times the ordinary size
+      txsPerSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, Burst.getBlockchain().getHeight())
+          /(2 * Constants.ORDINARY_TRANSACTION_BYTES);
+    }
     
     synchronized (internalStore) {
 
       for (Long currentSlot : internalStore.keySet()) {
         List<Transaction> txInSlot = internalStore.get(currentSlot);
 
-        slotsAvailable += numberOfBlocks*currentSlot - txInSlot.size();
+        if(txsPerSlot == 1) {
+          slotsAvailable += numberOfBlocks*currentSlot - txInSlot.size();
+        }
+        else {
+          // In this mode the slots are per transaction size, so they occupy more bytes and we have less per 
+          slotsAvailable += numberOfBlocks*txsPerSlot/currentSlot - txInSlot.size();
+        }
 
         if(slotsAvailable < 0) {
           freeSlot = currentSlot + 1;
