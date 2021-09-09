@@ -3,10 +3,8 @@
 set -e
 
 echo "======================================="
-echo "🛰 Fetching latest Phoenix Release..."
+echo "🛰 Updating to latest Phoenix Version..."
 echo "---------------------------------------"
-RELEASE=$(node getLatestPhoenixVersion.js)
-echo $RELEASE
 
 # prepare tmp folder
 TMPDIR=./tmp
@@ -21,13 +19,17 @@ echo
 echo "======================================="
 echo "⬇️ Downloading latest Phoenix Web Release..."
 echo "---------------------------------------"
-DOWNLOAD_URL=$(echo $RELEASE | cut -d ',' -f 2 | cut -d ':' -f 2,3)
-wget $DOWNLOAD_URL
+curl -s "https://api.github.com/repos/signum-network/phoenix/releases/latest" \
+    | grep "web-phoenix-signum-wallet.*.zip" \
+    | cut -d : -f 2,3 \
+    | tr -d \" \
+    | grep "https" \
+    | wget -i -
 echo
 echo "======================================="
 echo "📦 Unpacking..."
 echo "---------------------------------------"
-unzip -q web-phoenix-signum-wallet.\*.zip
+unzip web-phoenix-signum-wallet.*.zip
 echo "✅ Extracted newest wallet sources successfully"
 echo
 echo "======================================="
