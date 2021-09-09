@@ -600,7 +600,7 @@ public abstract class TransactionType {
       
       @Override
       public Fee getBaselineFee(int height) {
-        return fluxCapacitor.getValue(FluxValues.NEXT_FORK, height) ?
+        return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
             new Fee(FEE_QUANT * BASELINE_ALIAS_ASSIGNMENT_FACTOR, 0) :
             super.getBaselineFee(height);
       }
@@ -872,7 +872,7 @@ public abstract class TransactionType {
 
       @Override
       public Fee getBaselineFee(int height) {
-        return fluxCapacitor.getValue(FluxValues.NEXT_FORK, height) ?
+        return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
             new Fee(FEE_QUANT * BASELINE_ASSET_ISSUANCE_FACTOR, 0) :
             BASELINE_ASSET_ISSUANCE_FEE;
       }
@@ -2743,8 +2743,9 @@ public abstract class TransactionType {
   }
 
   public Fee getBaselineFee(int height) {
-    if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, height))
+    if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
       return new Fee(FEE_QUANT, FEE_QUANT);
+    }
     return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 

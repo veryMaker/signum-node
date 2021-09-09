@@ -18,6 +18,7 @@ public class FluxValues {
     public static final FluxEnable SODIUM = new FluxEnable(HistoricalMoments.SODIUM);
     public static final FluxEnable SIGNUM = new FluxEnable(HistoricalMoments.SIGNUM);
     public static final FluxEnable POC_PLUS = new FluxEnable(HistoricalMoments.POC_PLUS);
+    public static final FluxEnable SPEEDWAY = new FluxEnable(HistoricalMoments.SPEEDWAY);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
     public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1, new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2));

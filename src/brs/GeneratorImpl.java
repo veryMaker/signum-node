@@ -340,7 +340,7 @@ public class GeneratorImpl implements Generator {
       nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, endHeight);
       if(nBlocksMined + nBlocksMinedOnCache < 3) {
         
-        if(fluxCapacitor.getValue(FluxValues.NEXT_FORK, height)) {
+        if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
           // Use more blocks in the past to make the estimation if that is necessary
           capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MID;
           nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,

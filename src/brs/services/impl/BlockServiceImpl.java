@@ -360,7 +360,7 @@ public class BlockServiceImpl implements BlockService {
         Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
         
         long pastAverageCommitment = pastBlock.getAverageCommitment();
-        if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, block.getHeight())) {
+        if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY, block.getHeight())) {
           // use the average from past and now to get a smoother result
           pastAverageCommitment = (pastAverageCommitment + block.getAverageCommitment())/2;
         }

@@ -265,7 +265,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private boolean tooManyTransactionsForSlotSize(Transaction transaction) {
     final long slotHeight = this.amountSlotForTransaction(transaction);
     long slotUnconfirmedLimit = slotHeight * 360;
-    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, Burst.getBlockchain().getHeight())) {
+    if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY, Burst.getBlockchain().getHeight())) {
       // Use a higher limit per slot, since most transactions will be on the same slot (first)
       slotUnconfirmedLimit = maxSize/4;
     }
@@ -365,7 +365,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private long amountSlotForTransaction(Transaction transaction) {
     long slot = transaction.getFeeNQT() / Constants.FEE_QUANT;
-    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // Using the 'slot' now as a priority measure, not exactly as before
       long transactionSize = transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES;
       slot /= transactionSize;
@@ -413,7 +413,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     long freeSlot = 1;
     
     long txsPerSlot = 1;
-    if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // transactions per slot, we assume transactions can occupy up to 2 times the ordinary size
       txsPerSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, Burst.getBlockchain().getHeight())
           /(2 * Constants.ORDINARY_TRANSACTION_BYTES);
