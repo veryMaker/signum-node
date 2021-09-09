@@ -4,6 +4,7 @@
 name: Release BRS
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
