@@ -3,6 +3,8 @@
 # Add the dockerhub username and password in secrets named:
 #    DOCKERHUB_USERNAME
 #    DOCKERHUB_PASSWORD
+# Add the dockerhub repo path in a secret named:
+#    DOCKERHUB_REPO
 # This workflow will use them automatically.
 
 name: Publish Docker image
@@ -10,6 +12,7 @@ name: Publish Docker image
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   publish-h2-image:
@@ -30,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: signumnetwork/node
+          images: ${{ secrets.DOCKERHUB_REPO }}
           tags: |
             type=semver,pattern={{version}}-h2
             type=raw,value=latest-h2
@@ -63,7 +66,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: signumnetwork/node
+          images: ${{ secrets.DOCKERHUB_REPO }}
           tags: |
             type=semver,pattern={{version}}-maria
             type=raw,value=latest-maria

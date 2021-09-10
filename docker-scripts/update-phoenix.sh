@@ -15,7 +15,7 @@ pushd $TMPDIR > /dev/null
 echo "⬇️ Downloading latest release..."
 
 # Download the latest phoenix release
-curl -s "https://api.github.com/repos/burst-apps-team/phoenix/releases/latest" \
+curl -s "https://api.github.com/repos/signum-network/phoenix/releases/latest" \
     | grep "web-phoenix-signum-wallet.*.zip" \
     | cut -d : -f 2,3 \
     | tr -d \" \
