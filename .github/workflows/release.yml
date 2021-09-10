@@ -4,6 +4,7 @@
 name: Release BRS
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -32,10 +33,10 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml -U
       - name: Get SHA256 Hash 
-      	id: hash
-      	run: |
-      	  cd ./dist
-      	  echo "::set-output name=SHA256::$(sha256sum *.zip)"
+        id: hash
+        run: |
+          cd ./dist
+          echo "::set-output name=SHA256::$(sha256sum *.zip)"
       - name: Cut Pre-Release with Assets
         uses: svenstaro/upload-release-action@v2
         with:
