@@ -323,7 +323,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   downloadCache.resetCache();
                   return;
                 } catch (RuntimeException | BurstException.ValidationException e) {
-                  logger.info("Failed to parse block: {}" + e.toString(), e);
+                  logger.info("Failed to parse block: {}", e.getMessage());
                   logger.info("Failed to parse block trace: {}", Arrays.toString(e.getStackTrace()));
                   peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty");
                   return;
@@ -514,7 +514,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     
                     logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
-                    logger.info("Block hit {} timestamp {} base target {} difficulty {} commitment {}", block.getPocTime(), block.getTimestamp(), block.getBaseTarget(),
+                    logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                         block.getCumulativeDifficulty(), block.getCommitment());
                     
                     pushBlock(block);
@@ -1126,7 +1126,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         	}
             logger.info("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
                 Hex.toHexString(block.getBlockSignature()));
-            logger.info("Block hit {} timestamp {} base target {} difficulty {} commitment {}", block.getPocTime(), block.getTimestamp(), block.getBaseTarget(),
+            logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                 block.getCumulativeDifficulty(), block.getCommitment());
             poppedOffBlocks.add(block);
             block = popLastBlock();
