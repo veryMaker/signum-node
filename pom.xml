@@ -19,7 +19,8 @@
   <packaging>jar</packaging>
 
   <properties>
-    <versionQualifier></versionQualifier>
+    <versionQualifier>alpha1</versionQualifier>
+    <javax.version>1.3.2</javax.version>
     <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
     <signumj.version>v0.20.0</signumj.version>
     <rxjava.version>2.2.12</rxjava.version>
@@ -45,7 +46,7 @@
     <junit-vintage.version>5.5.1</junit-vintage.version>
     <mockito.version>3.0.0</mockito.version>
     <powermock.version>2.0.2</powermock.version>
-    <apachehttpclient.version>4.5.9</apachehttpclient.version>
+    <apachehttpclient.version>4.5.13</apachehttpclient.version>
     <jacoco.version>0.8.4</jacoco.version>
     <jiconfont.version>1.0.0</jiconfont.version>
     <font_awesome.version>4.7.0.1</font_awesome.version>
@@ -73,6 +74,12 @@
       <groupId>com.github.signum-network</groupId>
       <artifactId>signumj</artifactId>
       <version>${signumj.version}</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>${javax.version}</version>
     </dependency>
 
     <dependency>
@@ -419,12 +426,12 @@
               <goals><goal>launch4j</goal></goals>
               <configuration>
                 <headerType>gui</headerType>
-                <outfile>target/burst.exe</outfile>
+                <outfile>target/signum-node.exe</outfile>
                 <dontWrapJar>true</dontWrapJar>
                 <downloadUrl>https://www.java.com/en/download/manual.jsp</downloadUrl>
                 <errTitle>Signum Node Software</errTitle>
                 <icon>resources/images/signum_overlay_logo.ico</icon>
-                <jar>burst.jar</jar>
+                <jar>signum-node.jar</jar>
                 <jre>
                   <minVersion>1.8.0</minVersion>
                   <runtimeBits>64</runtimeBits>
@@ -438,7 +445,7 @@
                   <txtProductVersion>${project.version}${versionQualifier}</txtProductVersion>
                   <productName>signum-node</productName>
                   <internalName>signum-node</internalName>
-                  <originalFilename>burst.exe</originalFilename>
+                  <originalFilename>signum-node.exe</originalFilename>
                 </versionInfo>
               </configuration>
             </execution>
@@ -477,7 +484,7 @@
               <target>
                 <!-- copy jar -->
                 <copy file="${project.basedir}/target/${project.build.finalName}-jar-with-dependencies.jar"
-                  tofile="${project.basedir}/dist/tmp/burst.jar"/>
+                  tofile="${project.basedir}/dist/tmp/signum-node.jar"/>
 
                 <!-- copy html dir -->
                 <copy todir="${project.basedir}/dist/tmp/html">
@@ -494,24 +501,15 @@
                 <!-- copy remaining files from root dir -->
                 <copy todir="${project.basedir}/dist/tmp">
                   <fileset dir="${project.basedir}">
-                  <!-- TODO: deprecated files
-                    <include name="Burst_Wallet.url"/>
-                    <include name="genscoop.cl"/>
-                    <include name="init-mysql.sql"/>
-                    <include name="burst.sh"/>
-                    -->
                     <include name="LICENSE.txt"/>
                     <include name="README.md"/>
                     <include name="README_refactoring.md"/>
-                    <include name="burst.exe"/>
+                    <include name="signum-node.exe"/>
                   </fileset>
                 </copy>
 
-                <!-- workaround to keep org. burst.(sh|cmd) working, if build with compile scripts
-                <copy file="${project.basedir}/burst.sh"
-                      tofile="${project.basedir}/dist/tmp/burst.sh"/> -->
-                <copy file="${project.basedir}/target/burst.exe"
-                  tofile="${project.basedir}/dist/tmp/burst.exe"/>
+                <copy file="${project.basedir}/target/signum-node.exe"
+                  tofile="${project.basedir}/dist/tmp/signum-node.exe"/>
                 <!-- create zip file -->
                 <zip destfile="${project.basedir}/dist/${project.build.finalName}${versionQualifier}.zip"
                      basedir="${project.basedir}/dist/tmp"/>
@@ -550,15 +548,15 @@
         <configuration>
           <jdbc>
             <driver>org.mariadb.jdbc.Driver</driver>
-            <url>jdbc:mysql://localhost:3306/burstwallet</url>
+            <url>jdbc:mysql://localhost:3306/signum_jooq</url>
             <user>root</user>
-            <password />
+            <password>pass</password>
           </jdbc>
           <generator>
             <name>org.jooq.codegen.JavaGenerator</name>
             <database>
               <name>org.jooq.meta.mariadb.MariaDBDatabase</name>
-              <inputSchema>burstwallet</inputSchema>
+              <inputSchema>signum_jooq</inputSchema>
               <outputSchema>DB</outputSchema>
               <includes>.*</includes>
               <excludes />

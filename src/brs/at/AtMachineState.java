@@ -8,7 +8,9 @@
 package brs.at;
 
 import brs.Burst;
+import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
+import brs.util.Convert;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,6 +24,7 @@ public class AtMachineState {
     private final int creationBlockHeight;
     private final int sleepBetween;
     private final ByteBuffer apCode;
+    private final long apCodeHashId;
     private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
     private short version;
     private long gBalance;
@@ -43,7 +46,7 @@ public class AtMachineState {
                              int height,
                              byte[] stateBytes, int cSize, int dSize, int cUserStackBytes, int cCallStackBytes,
                              int creationBlockHeight, int sleepBetween,
-                             boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
+                             boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode, long apCodeHashId) {
         this.atID = atId;
         this.creator = creator;
         this.version = version;
@@ -63,6 +66,7 @@ public class AtMachineState {
         this.apCode.order(ByteOrder.LITTLE_ENDIAN);
         this.apCode.put(apCode);
         this.apCode.clear();
+        this.apCodeHashId = apCodeHashId;
 
         transactions = new LinkedHashMap<>();
     }
@@ -114,6 +118,8 @@ public class AtMachineState {
         this.apCode.order(ByteOrder.LITTLE_ENDIAN);
         this.apCode.put(code);
         this.apCode.clear();
+        
+        this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
 
         int dataLen;
         if (dataPages * pageSize < 257) {
@@ -234,6 +240,10 @@ public class AtMachineState {
 
     public ByteBuffer getApCode() {
         return apCode;
+    }
+    
+    public long getApCodeHashId() {
+        return apCodeHashId;
     }
 
     public ByteBuffer getApData() {

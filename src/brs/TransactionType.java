@@ -88,6 +88,9 @@ public abstract class TransactionType {
 
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
+  
+  private static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
+  private static final long BASELINE_ALIAS_ASSIGNMENT_FACTOR = 20L;
 
   private static Blockchain blockchain;
   private static FluxCapacitor fluxCapacitor;
@@ -594,6 +597,13 @@ public abstract class TransactionType {
       public String getDescription() {
         return "Alias Assignment";
       }
+      
+      @Override
+      public Fee getBaselineFee(int height) {
+        return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
+            new Fee(FEE_QUANT * BASELINE_ALIAS_ASSIGNMENT_FACTOR, 0) :
+            super.getBaselineFee(height);
+      }
 
       @Override
       public Attachment.MessagingAliasAssignment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
@@ -862,7 +872,9 @@ public abstract class TransactionType {
 
       @Override
       public Fee getBaselineFee(int height) {
-        return BASELINE_ASSET_ISSUANCE_FEE;
+        return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
+            new Fee(FEE_QUANT * BASELINE_ASSET_ISSUANCE_FACTOR, 0) :
+            BASELINE_ASSET_ISSUANCE_FEE;
       }
 
       @Override
@@ -2726,10 +2738,14 @@ public abstract class TransactionType {
       return 0; // No need to validate fees before baseline block
     }
     Fee fee = getBaselineFee(height);
-    return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendagesSize, fee.getAppendagesFee()));
+    int appendageMultiplier = appendagesSize/Constants.ORDINARY_TRANSACTION_BYTES;
+    return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendageMultiplier, fee.getAppendagesFee()));
   }
 
-  protected Fee getBaselineFee(int height) {
+  public Fee getBaselineFee(int height) {
+    if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
+      return new Fee(FEE_QUANT, FEE_QUANT);
+    }
     return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 
@@ -2742,11 +2758,11 @@ public abstract class TransactionType {
       this.appendagesFee = appendagesFee;
     }
 
-    long getConstantFee() {
+    public long getConstantFee() {
       return constantFee;
     }
 
-    long getAppendagesFee() {
+    public long getAppendagesFee() {
       return appendagesFee;
     }
 

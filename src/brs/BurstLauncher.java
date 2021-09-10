@@ -19,9 +19,9 @@ public class BurstLauncher {
 			CommandLine cmd = new DefaultParser().parse(Burst.CLI_OPTIONS, args);
 			if(cmd.hasOption("h")) {
 				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("java -jar burst.jar", "Burst Referece Software (BRS) version " + Burst.VERSION,
+				formatter.printHelp("java -jar signum-node.jar", "Signum Node version " + Burst.VERSION,
 						Burst.CLI_OPTIONS,
-						"Check for updates at https://github.com/burst-apps-team/burstcoin", true);
+						"Check for updates at https://github.com/signum-network/signum-node", true);
 				return;
 			}
 			if(cmd.hasOption("l")) {

@@ -294,6 +294,10 @@ public class Transaction implements Comparable<Transaction> {
   public long getFeeNQT() {
     return feeNQT;
   }
+  
+  public long getFeeNQTPerByte() {
+    return feeNQT/getSize();
+  }
 
   public String getReferencedTransactionFullHash() {
     return referencedTransactionFullHash;

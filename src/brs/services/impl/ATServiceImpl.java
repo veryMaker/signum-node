@@ -16,13 +16,13 @@ public class ATServiceImpl implements ATService {
   }
 
   @Override
-  public Collection<Long> getAllATIds() {
-    return atStore.getAllATIds();
+  public Collection<Long> getAllATIds(Long codeHashId) {
+    return atStore.getAllATIds(codeHashId);
   }
 
   @Override
-  public List<Long> getATsIssuedBy(Long accountId) {
-    return atStore.getATsIssuedBy(accountId);
+  public List<Long> getATsIssuedBy(Long accountId, Long codeHashId) {
+    return atStore.getATsIssuedBy(accountId, codeHashId);
   }
 
   @Override

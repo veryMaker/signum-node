@@ -409,6 +409,7 @@ public final class JSONData {
     json.addProperty("stopped", at.getMachineState().isStopped());
     json.addProperty("finished", at.getMachineState().isFinished());
     json.addProperty("dead", at.getMachineState().isDead());
+    json.addProperty("machineCodeHashId", Convert.toUnsignedLong(at.getApCodeHashId()) );
     
     if(includeDetails) {
       // These are immutable details, which we might want to avoid getting on every call

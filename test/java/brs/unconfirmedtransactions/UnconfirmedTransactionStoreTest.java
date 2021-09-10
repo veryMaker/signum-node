@@ -285,7 +285,7 @@ public class UnconfirmedTransactionStoreTest {
 
     for (int i = 1; i <= 725; i++) {
       Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 2, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
-          .id(i).senderId(123L).build();
+          .id(i+1000).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
     }

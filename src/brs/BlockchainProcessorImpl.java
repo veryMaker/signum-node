@@ -323,7 +323,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   downloadCache.resetCache();
                   return;
                 } catch (RuntimeException | BurstException.ValidationException e) {
-                  logger.info("Failed to parse block: {}" + e.toString(), e);
+                  logger.info("Failed to parse block: {}", e.getMessage());
                   logger.info("Failed to parse block trace: {}", Arrays.toString(e.getStackTrace()));
                   peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty");
                   return;
@@ -514,6 +514,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     
                     logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
+                    logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
+                        block.getCumulativeDifficulty(), block.getCommitment());
                     
                     pushBlock(block);
                     pushedForkBlocks += 1;
@@ -990,7 +992,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
             if (feeArray[i] < Constants.FEE_QUANT * (i + 1)) {
@@ -1123,7 +1125,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         	  }
         	}
             logger.info("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
-            		Hex.toHexString(block.getBlockSignature()));
+                Hex.toHexString(block.getBlockSignature()));
+            logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
+                block.getCumulativeDifficulty(), block.getCommitment());
             poppedOffBlocks.add(block);
             block = popLastBlock();
           }
@@ -1203,7 +1207,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         ToLongFunction<Transaction> priorityCalculator = transaction -> {
           int age = blockTimestamp + 1 - transaction.getTimestamp();
           if (age < 0) age = 1;
-          return ((long) age) * transaction.getFeeNQT();
+          
+          long feePriority = transaction.getFeeNQT() * (transaction.getSize()/Constants.ORDINARY_TRANSACTION_BYTES);
+          // So the age has less priority (60 minutes to increase the priority to the next level)
+          // TODO: consider giving priority based on the last sent transaction and not transaction age to improve spam protection
+          long priority = (feePriority * 60) + FEE_QUANT*age;
+          
+          return priority;
         };
 
         // Map of slot number -> transaction
@@ -1262,7 +1272,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             }
           }
           transactionsToBeIncluded = slotTransactionsToBeincluded;
-        } else { // Before Pre-POC2 HF, just choose highest priority
+        } else {
+          // Just choose highest priority
           Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();
           AtomicLong currentSlot = new AtomicLong(1);

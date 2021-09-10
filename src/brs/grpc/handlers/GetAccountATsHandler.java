@@ -21,7 +21,7 @@ public class GetAccountATsHandler implements GrpcApiHandler<BrsApi.GetAccountReq
     @Override
     public BrsApi.AccountATs handleRequest(BrsApi.GetAccountRequest getAccountRequest) throws Exception {
         return BrsApi.AccountATs.newBuilder()
-                .addAllAts(atService.getATsIssuedBy(getAccountRequest.getAccountId())
+                .addAllAts(atService.getATsIssuedBy(getAccountRequest.getAccountId(), null)
                         .stream()
                         .map(atService::getAT)
                         .map(at -> ProtoBuilder.buildAT(accountService, at))

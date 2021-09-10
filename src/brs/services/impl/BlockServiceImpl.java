@@ -336,7 +336,9 @@ public class BlockServiceImpl implements BlockService {
         // update the average commitment based on a moving average filter
         long curCommitment = previousBlock.getAverageCommitment();
         
-        long newAvgCommitment = (curCommitment*23L + block.getCommitment())/24L;
+        long avgCommitmentWindow = Burst.getFluxCapacitor().getValue(FluxValues.AVERAGE_COMMITMENT_WINDOW, block.getHeight());
+        long newAvgCommitment = (curCommitment*(avgCommitmentWindow - 1L) + block.getCommitment())/avgCommitmentWindow;
+        
         // avoid changing more than 20% in a single block
         if (newAvgCommitment < curCommitment * 8 / 10) {
           newAvgCommitment = curCommitment * 8 / 10;
@@ -358,6 +360,10 @@ public class BlockServiceImpl implements BlockService {
         Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
         
         long pastAverageCommitment = pastBlock.getAverageCommitment();
+        if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY, block.getHeight())) {
+          // use the average from past and now to get a smoother result
+          pastAverageCommitment = (pastAverageCommitment + block.getAverageCommitment())/2;
+        }
         double commitmentFactor = generator.getCommitmentFactor(newAvgCommitment, pastAverageCommitment, block.getHeight());
         
         difficulty = BigInteger.valueOf((long)(difficulty.doubleValue()*commitmentFactor));

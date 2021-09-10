@@ -4,6 +4,7 @@ import brs.Burst;
 import brs.Constants;
 import brs.Genesis;
 import brs.TransactionType;
+import brs.TransactionType.Fee;
 import brs.fluxcapacitor.FluxValues;
 import brs.util.Convert;
 import brs.util.JSON;
@@ -37,8 +38,11 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
                     transactionSubtypes.addAll(value.entrySet().stream()
                             .map(entry -> {
                                 JsonObject transactionSubtype = new JsonObject();
+                                Fee fee = entry.getValue().getBaselineFee(Burst.getBlockchain().getHeight());
                                 transactionSubtype.addProperty("value", entry.getKey());
                                 transactionSubtype.addProperty("description", entry.getValue().getDescription());
+                                transactionSubtype.addProperty("minimumFeeConstantNQT", fee.getConstantFee());
+                                transactionSubtype.addProperty("minimumFeeAppendagesNQT", fee.getAppendagesFee());
                                 return transactionSubtype;
                             })
                             .collect(JSON.jsonArrayCollector()));
