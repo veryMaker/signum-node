@@ -1273,15 +1273,18 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
           transactionsToBeIncluded = slotTransactionsToBeincluded;
         } else {
-          // Just choose highest priority
-          Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
+          // Just confirm transactions by the highest priority
+          Stream<Transaction> transactionsOrderedByPriority = inclusionCandidates.sorted(new Comparator<Transaction>() {
+            @Override
+            public int compare(Transaction t1, Transaction t2) {
+              return Long.compare(priorityCalculator.applyAsLong(t2), priorityCalculator.applyAsLong(t1));
+            }
+          });
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();
           AtomicLong currentSlot = new AtomicLong(1);
-          transactionsOrderedByPriority.keySet()
-                  .stream()
-                  .sorted(Comparator.reverseOrder())
-                  .forEach(priority -> { // This should do highest priority to lowest priority
-                    transactionsOrderedBySlot.put(currentSlot.get(), transactionsOrderedByPriority.get(priority));
+          transactionsOrderedByPriority
+                  .forEach(tx -> { // This should do highest priority to lowest priority
+                    transactionsOrderedBySlot.put(currentSlot.get(), tx);
                     currentSlot.incrementAndGet();
                   });
           transactionsToBeIncluded = transactionsOrderedBySlot;
@@ -1299,6 +1302,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
 
           long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT : ONE_BURST;
+          if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+            // we already got the list by priority, no need to check the fees again
+            slotFee = FEE_QUANT;
+          }
           if (transaction.getFeeNQT() >= slotFee) {
             if (transactionService.applyUnconfirmed(transaction)) {
               try {
