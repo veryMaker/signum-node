@@ -4,6 +4,7 @@ import brs.*;
 import brs.Alias.Offer;
 import brs.at.AT;
 import brs.at.AtApiHelper;
+import brs.at.AtMachineState;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
 import brs.peer.Peer;
@@ -391,10 +392,10 @@ public final class JSONData {
   }
   
   static JsonObject at(AT at) {
-    return at(at, true);
+    return at(at, null, true);
   }
 
-  static JsonObject at(AT at, boolean includeDetails) {
+  static JsonObject at(AT at, AtMachineState atCreation, boolean includeDetails) {
     JsonObject json = new JsonObject();
     
     long id = AtApiHelper.getLong(at.getId());
@@ -422,6 +423,9 @@ public final class JSONData {
       json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
       json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
       json.addProperty("creationBlock", at.getCreationBlockHeight());
+      if(atCreation != null) {
+        json.addProperty("creationMachineData", Convert.toHexString(atCreation.getApDataBytes()));        
+      }
     }
     return json;
   }
