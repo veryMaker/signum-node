@@ -71,7 +71,7 @@ public class AtMachineState {
         transactions = new LinkedHashMap<>();
     }
 
-    protected AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
+    public AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
         this.version = AtConstants.getInstance().atVersion(height);
         this.atID = atId;
         this.creator = creator;
