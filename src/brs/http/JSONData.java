@@ -424,7 +424,7 @@ public final class JSONData {
       json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
       json.addProperty("creationBlock", at.getCreationBlockHeight());
       if(atCreation != null) {
-        json.addProperty("creationData", Convert.toHexString(atCreation.getApDataBytes()));        
+        json.addProperty("creationMachineData", Convert.toHexString(atCreation.getApDataBytes()));        
       }
     }
     return json;
