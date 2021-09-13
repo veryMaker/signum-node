@@ -1,4 +1,4 @@
-# Signum Node (previously Burstcoin Reference Software)
+# Signum Node
 [![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
@@ -21,7 +21,7 @@ The two supported database backends are:
 ## Network Specification
 
 - 4 minute block time
-- Total Supply: [2,138,119,200 BURST up to block 972k + 100 SIGNA per block after that](https://github.com/burst-apps-team/CIPs/blob/master/cip-0029.md)
+- Total Supply: [2,138,119,200 SIGNA up to block 972k + 100 SIGNA per block after that](https://github.com/signum-network/CIPs/blob/master/cip-0029.md)
 - Block reward starts at 10,000/block
 - Block reward decreases at 5% each month with a minimum mining incentive of 100 SIGNA per block
 
