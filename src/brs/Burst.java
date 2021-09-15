@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.2.0-beta1");
+  public static final Version VERSION = Version.parse("v3.2.0");
 
   public static final String APPLICATION = "BRS";
 
@@ -152,7 +152,7 @@ public final class Burst {
   }
 
   private static boolean validateVersionNotDev(PropertyService propertyService) {
-    if(VERSION.isPrelease() && !propertyService.getBoolean(Props.DEV_TESTNET)) {
+    if(VERSION.isPrelease() && propertyService.getString(Props.NETWORK_NAME).equals("Signum")) {
       logger.error("THIS IS A DEVELOPMENT VERSION, PLEASE DO NOT USE THIS ON MAINNET");
       return false;
     }
@@ -178,9 +178,9 @@ public final class Burst {
       long startTime = System.currentTimeMillis();
       
       // Address prefix and coin name
-      BurstKitUtils.setAddressPrefix(propertyService.getBoolean(Props.DEV_TESTNET) ? "TS" : "S");
+      BurstKitUtils.setAddressPrefix(propertyService.getString(Props.ADDRESS_PREFIX));
       BurstKitUtils.addAddressPrefix("BURST");
-      BurstKitUtils.setValueSuffix("SIGNA");
+      BurstKitUtils.setValueSuffix(propertyService.getString(Props.VALUE_SUFIX));
 
       final TimeService timeService = new TimeServiceImpl();
 
@@ -255,7 +255,7 @@ public final class Burst {
           transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService);
 
       if (propertyService.getBoolean(Props.API_V2_SERVER)) {
-          int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_V2_PORT) : propertyService.getInt(Props.API_V2_PORT);
+          int port = propertyService.getInt(Props.API_V2_PORT);
           logger.info("Starting V2 API Server on port {}", port);
           String hostname = propertyService.getString(Props.API_V2_LISTEN);
           apiV2Server = new BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, digitalGoodsStoreService, propertyService).start(hostname, port);
@@ -266,7 +266,7 @@ public final class Burst {
       if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED))
         DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 
-      int timeMultiplier = (propertyService.getBoolean(Props.DEV_TESTNET) && propertyService.getBoolean(Props.DEV_OFFLINE)) ? Math.max(propertyService.getInt(Props.DEV_TIMEWARP), 1) : 1;
+      int timeMultiplier = (propertyService.getBoolean(Props.DEV_OFFLINE)) ? Math.max(propertyService.getInt(Props.DEV_TIMEWARP), 1) : 1;
 
       threadPool.start(timeMultiplier);
       if (timeMultiplier > 1) {
@@ -276,11 +276,8 @@ public final class Burst {
 
       long currentTime = System.currentTimeMillis();
       logger.info("Initialization took {} ms", currentTime - startTime);
-      logger.info("BRS {} started successfully.", VERSION);
-
-      if (propertyService.getBoolean(Props.DEV_TESTNET)) {
-        logger.info("RUNNING ON TESTNET!");
-      }
+      logger.info("Node {} started successfully.", VERSION);
+      logger.info("Running network: {}", propertyService.getString(Props.NETWORK_NAME));
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       System.exit(1);

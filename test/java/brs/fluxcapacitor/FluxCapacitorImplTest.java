@@ -29,7 +29,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("Feature is active on ProdNet")
   @Test
   public void featureIsActiveOnProdNet() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(false);
     when(blockchainMock.getHeight()).thenReturn(500000);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -40,7 +39,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("Feature is not active on ProdNet")
   @Test
   public void featureIsInactiveProdNet() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(false);
     when(blockchainMock.getHeight()).thenReturn(499999);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -51,7 +49,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("Feature is active on TestNet")
   @Test
   public void featureIsActiveTestNet() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
     when(blockchainMock.getHeight()).thenReturn(88999);
     when(propertyServiceMock.getInt(any())).thenReturn(-1);
 
@@ -67,7 +64,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("FluxInt gives its default value when no historical moments changed it yet")
   @Test
   public void fluxIntDefaultValue() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(false);
     when(blockchainMock.getHeight()).thenReturn(88000);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -78,7 +74,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("FluxInt gives a new value when a historical moment has passed")
   @Test
   public void fluxIntHistoricalValue() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(false);
     when(blockchainMock.getHeight()).thenReturn(500000);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -89,7 +84,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("FluxInt on TestNet gives its default value when no historical moments changed it yet")
   @Test
   public void fluxIntTestNetDefaultValue() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
     when(propertyServiceMock.getInt(any())).thenReturn(-1);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -102,7 +96,6 @@ public class FluxCapacitorImplTest {
   @DisplayName("FluxInt on TestNet gives a new value when a historical moment has passed")
   @Test
   public void fluxIntTestNetHistoricalValue() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
     when(propertyServiceMock.getInt(any())).thenReturn(-1);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -115,8 +108,7 @@ public class FluxCapacitorImplTest {
   @DisplayName("FluxInt on TestNet gives a different value because the historical moment configuration is different")
   @Test
   public void fluxIntTestNetHistoricalMomentChangedThroughProperty() {
-    when(propertyServiceMock.getBoolean(eq(Props.DEV_TESTNET))).thenReturn(true);
-    when(propertyServiceMock.getInt(eq(Props.DEV_PRE_POC2_BLOCK_HEIGHT))).thenReturn(12345);
+    when(propertyServiceMock.getInt(eq(Props.PRE_POC2_BLOCK_HEIGHT))).thenReturn(12345);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 

@@ -248,7 +248,7 @@ public class BurstGUI extends JFrame {
     	toolBar.add(openPhoenixButton);
     	toolBar.add(openClassicButton);
     	toolBar.add(editConfButton);
-    	if(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
+    	if(Burst.getPropertyService().getBoolean(Props.EXPERIMENTAL)) {
           toolBar.add(popOff10Button);
           toolBar.add(popOff100Button);
 //          toolBar.add(popOffMaxButton);
@@ -315,7 +315,7 @@ public class BurstGUI extends JFrame {
     private void openWebUi(boolean classic) {
         try {
             PropertyService propertyService = Burst.getPropertyService();
-            int port = propertyService.getBoolean(Props.DEV_TESTNET) ? propertyService.getInt(Props.DEV_API_PORT) : propertyService.getInt(Props.API_PORT);
+            int port = propertyService.getInt(Props.API_PORT);
             String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
             String address = httpPrefix + "localhost:" + port + (classic ? "/classic.html" : "/phoenix");
             try {
@@ -336,9 +336,7 @@ public class BurstGUI extends JFrame {
             try {
             	SwingUtilities.invokeLater(() -> showTrayIcon());
             	
-                if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-                    onTestNetEnabled();
-                }
+                updateTitle();
                 if (Burst.getBlockchain() == null)
                 	onBrsStopped();
             } catch (Exception t) {
@@ -352,10 +350,11 @@ public class BurstGUI extends JFrame {
         }
     }
 
-    private void onTestNetEnabled() {
-        SwingUtilities.invokeLater(() -> setTitle(getTitle() + " (TESTNET)"));
+    private void updateTitle() {
+        String networkName = Burst.getPropertyService().getString(Props.NETWORK_NAME);
+        SwingUtilities.invokeLater(() -> setTitle(getTitle() + " " + networkName));
         if(trayIcon != null)
-        	trayIcon.setToolTip(trayIcon.getToolTip() + " (TESTNET)");
+        	trayIcon.setToolTip(trayIcon.getToolTip() + " " + networkName);
     }
 
     private void onBrsStopped() {

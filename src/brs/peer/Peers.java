@@ -1,7 +1,6 @@
 package brs.peer;
 
 import brs.*;
-import brs.Constants;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -142,13 +141,10 @@ public final class Peers {
       myAddress = propertyService.getString(Props.P2P_MY_ADDRESS);
     }
 
-    if (myAddress != null && myAddress.endsWith(":" + Constants.PEER_TESTNET_PORT) && !Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      throw new RuntimeException("Port " + Constants.PEER_TESTNET_PORT + " should only be used for testnet!!!");
+    if (myAddress != null && !myAddress.endsWith(":" + Burst.getPropertyService().getInt(Props.P2P_PORT))) {
+      throw new RuntimeException("Unexpected peer Port for " + myAddress + "!!!");
     }
     myPeerServerPort = propertyService.getInt(Props.P2P_PORT);
-    if (myPeerServerPort == Constants.PEER_TESTNET_PORT && !Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      throw new RuntimeException("Port " + Constants.PEER_TESTNET_PORT + " should only be used for testnet!!!");
-    }
     useUpnp = propertyService.getBoolean(Props.P2P_UPNP);
     shareMyAddress = propertyService.getBoolean(Props.P2P_SHARE_MY_ADDRESS) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
 
@@ -158,17 +154,12 @@ public final class Peers {
         URI uri = new URI("http://" + myAddress.trim());
         String host = uri.getHost();
         int port = uri.getPort();
-        if (!Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
           if (port >= 0) {
             json.addProperty("announcedAddress", myAddress);
           }
           else {
-            json.addProperty("announcedAddress", host + (myPeerServerPort != Constants.PEER_DEFAULT_PORT ? ":" + myPeerServerPort : ""));
+            json.addProperty("announcedAddress", host + ":" + myPeerServerPort);
           }
-        }
-        else {
-          json.addProperty("announcedAddress", host);
-        }
       }
       catch (URISyntaxException e) {
         logger.info("Your announce address is invalid: {}", myAddress);
@@ -190,12 +181,12 @@ public final class Peers {
 
     if(propertyService.getBoolean(P2P_ENABLE_TX_REBROADCAST)) {
       rebroadcastPeers = Collections
-              .unmodifiableSet(new HashSet<>(propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_REBROADCAST_TO : Props.P2P_REBROADCAST_TO)));
+              .unmodifiableSet(new HashSet<>(propertyService.getStringList(Props.P2P_REBROADCAST_TO)));
     } else {
       rebroadcastPeers = Collections.emptySet();
     }
 
-    List<String> wellKnownPeersList = propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_BOOTSTRAP_PEERS : Props.P2P_BOOTSTRAP_PEERS);
+    List<String> wellKnownPeersList = propertyService.getStringList(Props.P2P_BOOTSTRAP_PEERS);
 
     for(String rePeer : rebroadcastPeers) {
       if(!wellKnownPeersList.contains(rePeer)) {
@@ -300,7 +291,7 @@ public final class Peers {
     static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
                      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
       if (Peers.shareMyAddress) {
-        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Constants.PEER_TESTNET_PORT : Peers.myPeerServerPort;
+        port = Peers.myPeerServerPort;
         if (useUpnp) {
           GatewayDiscover gatewayDiscover = new GatewayDiscover();
           gatewayDiscover.setTimeout(2000);
@@ -721,10 +712,6 @@ public final class Peers {
     }
 
     peer = new PeerImpl(peerAddress, announcedPeerAddress);
-    if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) && peer.getPort() > 0 && peer.getPort() != Constants.PEER_TESTNET_PORT) {
-      logger.debug("Peer {} on testnet port is not using port {}, ignoring", peerAddress, Constants.PEER_TESTNET_PORT);
-      return null;
-    }
     peers.put(peerAddress, peer);
     if (announcedAddress != null) {
       updateAddress(peer);

@@ -1,7 +1,5 @@
 package brs;
 
-import brs.props.Props;
-
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -67,9 +65,6 @@ public final class Constants {
   public static final int MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000;
 
 
-  public static final int PEER_DEFAULT_PORT = 8123;
-  public static final int PEER_TESTNET_PORT = 7123;
-
   /**
    * Must be >= 1.
    */
@@ -77,8 +72,7 @@ public final class Constants {
 
   public static final String HTTP = "http://";
 
-  // TODO check if we can remove this after the next fork
-  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
+  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = 100 * ONE_BURST;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;

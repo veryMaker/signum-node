@@ -137,9 +137,7 @@ public class BlockServiceImpl implements BlockService {
       return;
     }
     
-    int checkPointHeight = Burst.getPropertyService().getInt(
-    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+    int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
     try {
       if(block.getHeight() < checkPointHeight) {
         // do not verify the nonce up to the checkpoint block
@@ -147,9 +145,7 @@ public class BlockServiceImpl implements BlockService {
       }
       else {
     	if(block.getHeight() == checkPointHeight) {
-       	    String checkPointHash = Burst.getPropertyService().getString(
-    	    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-    	    				Props.DEV_CHECKPOINT_HASH : Props.BRS_CHECKPOINT_HASH);
+       	    String checkPointHash = Burst.getPropertyService().getString(Props.BRS_CHECKPOINT_HASH);
 
        	    String receivedHash = Hex.toHexString(block.getPreviousBlockHash()); 
     		if(!receivedHash.equals(checkPointHash)) {

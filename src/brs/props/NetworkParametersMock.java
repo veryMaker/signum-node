@@ -19,11 +19,10 @@ public class NetworkParametersMock extends NetworkParametersTestnet {
 
     setProperty(Props.DEV_OFFLINE, "true");
     setProperty(Props.MOCK_MINING, "true");
-    setProperty(Props.DEV_MOCK_MINING_DEADLINE, "1");
     
-    setProperty(Props.DEV_SODIUM_BLOCK_HEIGHT, "0");
-    setProperty(Props.DEV_SIGNUM, "0");
-    setProperty(Props.DEV_POC_PLUS, "0");
-    setProperty(Props.DEV_SPEEDWAY, "0");
+    setProperty(Props.SODIUM_BLOCK_HEIGHT, "0");
+    setProperty(Props.SIGNUM_HEIGHT, "0");
+    setProperty(Props.POC_PLUS_HEIGHT, "0");
+    setProperty(Props.SPEEDWAY_HEIGHT, "0");
   }  
 }
