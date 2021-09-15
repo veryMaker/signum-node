@@ -21,7 +21,7 @@ public class FluxValues {
     public static final FluxEnable SPEEDWAY = new FluxEnable(HistoricalMoments.SPEEDWAY);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
-    public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(255);
+    public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
     public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1, new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2));
 
     public static final FluxValue<Integer> MAX_NUMBER_TRANSACTIONS = new FluxValue<>(

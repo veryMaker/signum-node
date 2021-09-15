@@ -43,6 +43,7 @@ import javax.swing.UIManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import brs.fluxcapacitor.FluxValues;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.util.Convert;
@@ -189,7 +190,9 @@ public class BurstGUI extends JFrame {
         						" Timestamp: " + DATE_FORMAT.format(blockDate));
 
         				Date now = new Date();
-        				int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(Constants.BURST_BLOCK_TIME * 1000));
+        			    long blockTime = Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME);
+
+        				int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(blockTime * 1000));
         				int prog = block.getHeight()*100/(block.getHeight() + missingBlocks);
         				syncProgressBar.setValue(prog);
         				syncProgressBar.setString(prog + " %");

@@ -243,6 +243,8 @@ public class BlockServiceImpl implements BlockService {
 
   @Override
   public void calculateBaseTarget(Block block, Block previousBlock) throws BlockOutOfOrderException {
+    long blockTime = Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME);
+    
     if (block.getId() == Genesis.GENESIS_BLOCK_ID && block.getPreviousBlockId() == 0) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
       block.setCumulativeDifficulty(BigInteger.ZERO);
@@ -261,7 +263,7 @@ public class BlockServiceImpl implements BlockService {
 
       long curBaseTarget = avgBaseTarget.longValue();
       long newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-          .divide(BigInteger.valueOf(Constants.BURST_BLOCK_TIME * 4)).longValue();
+          .divide(BigInteger.valueOf(blockTime * 4)).longValue();
       if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
         newBaseTarget = Constants.MAX_BASE_TARGET;
       }
@@ -296,7 +298,7 @@ public class BlockServiceImpl implements BlockService {
             .divide(BigInteger.valueOf(blockCounter + 1L));
       } while (blockCounter < 24);
       long difTime = (long) block.getTimestamp() - itBlock.getTimestamp();
-      long targetTimespan = 24L * Constants.BURST_BLOCK_TIME;
+      long targetTimespan = 24L * blockTime;
 
       if (difTime < targetTimespan / 2) {
         difTime = targetTimespan / 2;
