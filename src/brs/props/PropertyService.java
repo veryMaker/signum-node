@@ -13,4 +13,6 @@ public interface PropertyService {
   String getString(Prop<String> name);
 
   List<String> getStringList(Prop<String> name);
+  
+  void setNetworkParameters(NetworkParameters params);
 }

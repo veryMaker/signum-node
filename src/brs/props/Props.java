@@ -1,6 +1,16 @@
 package brs.props;
 
 public class Props {
+  
+  // Structural parameters
+  public static final Prop<Integer> BLOCK_TIME = new Prop<>("brs.blockTime", 240);
+  public static final Prop<Boolean> MOCK_MINING = new Prop<>("brs.mockMining", false);
+  public static final Prop<Integer> MOCK_MINING_DEADLINE = new Prop<>("brs.mockMining.deadline", 10);
+  public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
+  public static final Prop<Integer> API_V2_PORT = new Prop<>("API.V2.Port", 8121);
+  public static final Prop<Integer> P2P_PORT = new Prop<>("P2P.Port", 8123);
+  public static final Prop<String> NETWORK_NAME = new Prop<>("brs.networkName", "Signum");
+  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("brs.genesisBlockId", "3444294670862540038");
 
   // DEV options
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
@@ -87,7 +97,6 @@ public class Props {
   public static final Prop<String> P2P_MY_PLATFORM = new Prop<>("P2P.myPlatform", "PC");
   public static final Prop<String> P2P_MY_ADDRESS  = new Prop<>("P2P.myAddress", "");
   public static final Prop<String> P2P_LISTEN      = new Prop<>("P2P.Listen", "0.0.0.0");
-  public static final Prop<Integer> P2P_PORT        = new Prop<>("P2P.Port", 8123);
   public static final Prop<Boolean> P2P_UPNP        = new Prop<>("P2P.UPnP", true);
   public static final Prop<Boolean> P2P_SHARE_MY_ADDRESS = new Prop<>("P2P.shareMyAddress", true);
   public static final Prop<Boolean> P2P_ENABLE_TX_REBROADCAST = new Prop<>("P2P.enableTxRebroadcast", true);
@@ -125,9 +134,7 @@ public class Props {
   public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
 
   public static final Prop<String> API_LISTEN  = new Prop<>("API.Listen", "127.0.0.1");
-  public static final Prop<Integer> API_PORT    = new Prop<>("API.Port", 8125);
   public static final Prop<String> API_V2_LISTEN  = new Prop<>("API.V2.Listen", "0.0.0.0");
-  public static final Prop<Integer> API_V2_PORT    = new Prop<>("API.V2.Port", 8121);
 
   public static final Prop<String> API_UI_DIR  = new Prop<>("API.UI_Dir", "html/ui");
   public static final Prop<String> API_SSL_KEY_STORE_PATH     = new Prop<>("API.SSL_keyStorePath", "keystore");
