@@ -18,7 +18,7 @@ public class NetworkParametersMock extends NetworkParametersTestnet {
     setProperty(Props.GENESIS_BLOCK_ID, Convert.toUnsignedLong(genesisBlockId));
 
     setProperty(Props.DEV_OFFLINE, "true");
-    setProperty(Props.MOCK_MINING, "true");
+    setProperty(Props.DEV_MOCK_MINING, "true");
     
     setProperty(Props.SODIUM_BLOCK_HEIGHT, "0");
     setProperty(Props.SIGNUM_HEIGHT, "0");
