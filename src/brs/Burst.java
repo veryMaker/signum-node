@@ -20,6 +20,7 @@ import brs.http.API;
 import brs.http.APITransactionManager;
 import brs.http.APITransactionManagerImpl;
 import brs.peer.Peers;
+import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.PropertyServiceImpl;
 import brs.props.Props;
@@ -171,6 +172,19 @@ public final class Burst {
     LoggerConfigurator.init();
 
     Burst.propertyService = propertyService;
+
+    String networkParametersClass = propertyService.getString(Props.NETWORK_PARAMETERS);
+    if(networkParametersClass != null) {
+      try {
+        NetworkParameters params = (NetworkParameters) Class.forName(networkParametersClass).getConstructor().newInstance();
+        params.initialize();
+        propertyService.setNetworkParameters(params);
+      } catch (Exception e) {
+        logger.error(e.getMessage(), e);
+        System.exit(1);
+      }
+    }
+    
 	if(!validateVersionNotDev(propertyService))
 		return;
 

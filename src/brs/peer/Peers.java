@@ -141,9 +141,6 @@ public final class Peers {
       myAddress = propertyService.getString(Props.P2P_MY_ADDRESS);
     }
 
-    if (myAddress != null && !myAddress.endsWith(":" + Burst.getPropertyService().getInt(Props.P2P_PORT))) {
-      throw new RuntimeException("Unexpected peer Port for " + myAddress + "!!!");
-    }
     myPeerServerPort = propertyService.getInt(Props.P2P_PORT);
     useUpnp = propertyService.getBoolean(Props.P2P_UPNP);
     shareMyAddress = propertyService.getBoolean(Props.P2P_SHARE_MY_ADDRESS) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);

@@ -13,6 +13,8 @@ public class Props {
   public static final Prop<String> ADDRESS_PREFIX = new Prop<>("brs.addressPrefix", "S");
   public static final Prop<String> VALUE_SUFIX = new Prop<>("brs.valueSuffix", "SIGNA");
   public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("brs.experimental", false);
+  
+  public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("brs.networkParameters", null);
 
   // DEV options
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
