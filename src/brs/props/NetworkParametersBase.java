@@ -46,5 +46,10 @@ public class NetworkParametersBase implements NetworkParameters {
     // TODO Auto-generated method stub
     return null;
   }
+
+  @Override
+  public Map<Long, Integer> getBlockRewardDistribution(int height) {
+    return null;
+  }
   
 }

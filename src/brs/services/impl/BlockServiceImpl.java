@@ -4,6 +4,7 @@ import brs.*;
 import brs.BlockchainProcessor.BlockOutOfOrderException;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.NetworkParameters;
 import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.BlockService;
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class BlockServiceImpl implements BlockService {
 
@@ -28,17 +30,20 @@ public class BlockServiceImpl implements BlockService {
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
   private final Generator generator;
+  private NetworkParameters networkParameters;
   
   private final List<Block> watchedBlocks = new ArrayList<>();
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 
-  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache, Generator generator) {
+  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache,
+      Generator generator, NetworkParameters networkParameters) {
     this.accountService = accountService;
     this.transactionService = transactionService;
     this.blockchain = blockchain;
     this.downloadCache = downloadCache;
     this.generator = generator;
+    this.networkParameters = networkParameters;
   }
 
   @Override
@@ -184,13 +189,27 @@ public class BlockServiceImpl implements BlockService {
   public void apply(Block block) {
     Account generatorAccount = accountService.getOrAddAccount(block.getGeneratorId());
     generatorAccount.apply(block.getGeneratorPublicKey(), block.getHeight());
+
+    long blockReward = getBlockReward(block);
+    Map<Long, Integer> blockDistribution = networkParameters != null ? networkParameters.getBlockRewardDistribution(block.getHeight()) : null;
+    if(blockDistribution != null) {
+      for(Long distAccountID : blockDistribution.keySet()) {
+        Account distAccount = accountService.getAccount(distAccountID);
+        if(distAccount != null) {
+          long distAmount = (blockReward * blockDistribution.get(distAccountID))/1000L;
+          blockReward -= distAmount;
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(distAccount, distAmount);
+          accountService.addToForgedBalanceNQT(distAccount, distAmount);
+        }
+      }
+    }
     if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
+      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
     } else {
       Account rewardAccount = getRewardAccount(block);
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + blockReward);
+      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + blockReward);
     }
 
     for(Transaction transaction : block.getTransactions()) {

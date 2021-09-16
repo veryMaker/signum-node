@@ -174,9 +174,10 @@ public final class Burst {
     Burst.propertyService = propertyService;
 
     String networkParametersClass = propertyService.getString(Props.NETWORK_PARAMETERS);
+    NetworkParameters params = null;
     if(networkParametersClass != null) {
       try {
-        NetworkParameters params = (NetworkParameters) Class.forName(networkParametersClass).getConstructor().newInstance();
+        params = (NetworkParameters) Class.forName(networkParametersClass).getConstructor().newInstance();
         params.initialize();
         propertyService.setNetworkParameters(params);
       } catch (Exception e) {
@@ -242,7 +243,7 @@ public final class Burst {
 
       TransactionType.init(blockchain, fluxCapacitor, accountService, digitalGoodsStoreService, aliasService, assetExchange, subscriptionService, escrowService);
 
-      final BlockService blockService = new BlockServiceImpl(accountService, transactionService, blockchain, downloadCache, generator);
+      final BlockService blockService = new BlockServiceImpl(accountService, transactionService, blockchain, downloadCache, generator, params);
       blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain, propertyService, subscriptionService,
           timeService, derivedTableManager,
           blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
