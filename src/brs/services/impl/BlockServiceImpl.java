@@ -200,20 +200,7 @@ public class BlockServiceImpl implements BlockService {
 
   @Override
   public long getBlockReward(Block block) {
-    return getBlockReward(block.getHeight());
-  }
-
-  public static long getBlockReward(int height) {
-    if (height == 0) {
-      return 0;
-    }
-    if (height >= 972_000) {
-      // Minimum incentive, lower than 0.6 % per year
-      return 100 * Constants.ONE_BURST;
-    }
-	int month = height / 10800;
-	return BigInteger.valueOf(10000).multiply(BigInteger.valueOf(95).pow(month))
-	  .divide(BigInteger.valueOf(100).pow(month)).longValue() * Constants.ONE_BURST;
+    return blockchain.getBlockReward(block.getHeight());
   }
 
   @Override

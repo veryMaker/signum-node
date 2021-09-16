@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.2.0");
+  public static final Version VERSION = Version.parse("v3.3.0-alpha1");
 
   public static final String APPLICATION = "BRS";
 
@@ -153,8 +153,8 @@ public final class Burst {
   }
 
   private static boolean validateVersionNotDev(PropertyService propertyService) {
-    if(VERSION.isPrelease() && propertyService.getString(Props.NETWORK_NAME).equals("Signum")) {
-      logger.error("THIS IS A DEVELOPMENT VERSION, PLEASE DO NOT USE THIS ON MAINNET");
+    if(VERSION.isPrelease() && propertyService.getString(Props.NETWORK_NAME).equals(Constants.SIGNUM_NETWORK_NAME)) {
+      logger.error("THIS IS A DEVELOPMENT VERSION, PLEASE DO NOT USE THIS ON Signum MAINNET");
       return false;
     }
     return true;
@@ -213,7 +213,7 @@ public final class Burst {
       final TransactionDb transactionDb = dbs.getTransactionDb();
       final BlockDb blockDb =  dbs.getBlockDb();
       final BlockchainStore blockchainStore = stores.getBlockchainStore();
-      blockchain = new BlockchainImpl(transactionDb, blockDb, blockchainStore);
+      blockchain = new BlockchainImpl(transactionDb, blockDb, blockchainStore, propertyService);
 
       final AliasService aliasService = new AliasServiceImpl(stores.getAliasStore());
       fluxCapacitor = new FluxCapacitorImpl(blockchain, propertyService);

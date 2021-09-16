@@ -13,6 +13,12 @@ public class Props {
   public static final Prop<String> ADDRESS_PREFIX = new Prop<>("brs.addressPrefix", "S");
   public static final Prop<String> VALUE_SUFIX = new Prop<>("brs.valueSuffix", "SIGNA");
   public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("brs.experimental", false);
+
+  public static final Prop<Integer> BLOCK_REWARD_START = new Prop<>("brs.blockRewardStart", 10_000);
+  public static final Prop<Integer> BLOCK_REWARD_CYCLE = new Prop<>("brs.blockRewardCycle", 10_800);
+  public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("brs.blockRewardCycle", 95);
+  public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("brs.blockLimitHeight", 972_000);
+  public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("brs.blockLimitAmount", 100);
   
   public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("brs.networkParameters", null);
 

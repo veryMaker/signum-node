@@ -24,5 +24,8 @@ public class NetworkParametersMock extends NetworkParametersTestnet {
     setProperty(Props.SIGNUM_HEIGHT, "0");
     setProperty(Props.POC_PLUS_HEIGHT, "0");
     setProperty(Props.SPEEDWAY_HEIGHT, "0");
+    
+    setProperty(Props.BRS_CHECKPOINT_HEIGHT, "-1");
+    setProperty(Props.BRS_CHECKPOINT_HASH, "");
   }  
 }

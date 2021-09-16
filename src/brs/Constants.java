@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Constants {
+  
+  public static final String SIGNUM_NETWORK_NAME = "Signum";
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
 
