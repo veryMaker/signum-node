@@ -7,14 +7,12 @@ import brs.at.AT;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
 import brs.at.AtMachineState;
-import brs.crypto.Crypto;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AtRecord;
 import brs.schema.tables.records.AtStateRecord;
-import brs.util.Convert;
 
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
@@ -95,8 +93,6 @@ public class SqlATStore implements ATStore {
   }
 
   private void saveAT(DSLContext ctx, brs.at.AT at) {
-    byte[] atCodeHash = Crypto.sha256().digest(at.getApCodeBytes());
-    long atCodeHashId = Convert.fullHashToId(atCodeHash);
     ctx.insertInto(
       AT,
       AT.ID, AT.CREATOR_ID, AT.NAME, AT.DESCRIPTION,
@@ -107,7 +103,7 @@ public class SqlATStore implements ATStore {
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
       at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
       at.getcCallStackBytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight(), atCodeHashId
+      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight(), at.getApCodeHashId()
     ).execute();
   }
 
@@ -178,20 +174,22 @@ public class SqlATStore implements ATStore {
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {
     byte[] code = brs.at.AT.decompressState(at.getApCode());
     long codeHashId = at.getApCodeHashId();
+    int codeSize = at.getCsize();
     if(code == null) {
       // Check the creation transaction for the reference code
       Transaction atCreationTransaction = Burst.getBlockchain().getTransaction(at.getId());
       Transaction transaction = Burst.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
       if(transaction!=null && transaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
         Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
-        AtMachineState atCreation = new AtMachineState(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), atCreationAttachment.getCreationBytes(), height);
+        AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), 0);
         code = atCreation.getApCodeBytes();
+        codeSize = atCreation.getcSize();
         codeHashId = atCreation.getApCodeHashId();
       }
     }
     return new AT(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), at.getName(), at.getDescription(), at.getVersion(),
             height,
-            brs.at.AT.decompressState(atState.getState()), at.getCsize(), at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
+            brs.at.AT.decompressState(atState.getState()), codeSize, at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
             atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), code, codeHashId);
   }
 

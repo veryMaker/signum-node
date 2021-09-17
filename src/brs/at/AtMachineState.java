@@ -24,7 +24,7 @@ public class AtMachineState {
     private final int creationBlockHeight;
     private final int sleepBetween;
     private final ByteBuffer apCode;
-    private final long apCodeHashId;
+    private long apCodeHashId;
     private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
     private short version;
     private long gBalance;
@@ -122,7 +122,12 @@ public class AtMachineState {
         this.apCode.put(code);
         this.apCode.clear();
         
-        this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
+        if(apCode.array().length > 0) {
+          this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
+        }
+        else {
+          this.apCodeHashId = 0L;
+        }
 
         int dataLen;
         if (dataPages * pageSize < 257) {
@@ -246,8 +251,12 @@ public class AtMachineState {
     }
     
     public long getApCodeHashId() {
-        return apCodeHashId;
-    }
+      return apCodeHashId;
+  }
+
+    public void setApCodeHashId(long hash) {
+      apCodeHashId = hash;
+  }
 
     public ByteBuffer getApData() {
         return apData;

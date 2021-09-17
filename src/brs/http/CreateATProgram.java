@@ -83,7 +83,7 @@ final class CreateATProgram extends CreateTransaction {
             throw new IllegalArgumentException();
           }
           Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
-          AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), blockchain.getHeight());
+          AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), transaction.getHeight());
           if(atCreation.getApCodeBytes().length == 0) {
             throw new IllegalArgumentException();
           }
@@ -156,7 +156,7 @@ final class CreateATProgram extends CreateTransaction {
     Account account = parameterService.getSenderAccount(req);
     Attachment attachment = new Attachment.AutomatedTransactionsCreation(name, description, creationBytes, blockchain.getHeight());
 
-    logger.debug("AT {} added successfully", name);
+    logger.debug("AT {} attachment created successfully", name);
     return createTransaction(req, account, attachment);
   }
 

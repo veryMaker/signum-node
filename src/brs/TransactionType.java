@@ -2661,7 +2661,7 @@ public abstract class TransactionType {
         long totalPages;
         int minCodePages = 1;
         try {
-          AtMachineState thisNewAtCreation = new AtMachineState(null, null, attachment.getCreationBytes(), blockchain.getHeight());
+          AtMachineState thisNewAtCreation = new AtMachineState(null, null, attachment.getCreationBytes(), 0);
           if(thisNewAtCreation.getApCodeBytes().length == 0) {
             // check if we have a reference for the code
             Transaction referenceTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
@@ -2669,7 +2669,7 @@ public abstract class TransactionType {
             
             if(referenceTransaction!=null && referenceTransaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
               Attachment.AutomatedTransactionsCreation atCreationAttachmentRef = (Attachment.AutomatedTransactionsCreation)referenceTransaction.getAttachment();
-              AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), blockchain.getHeight());
+              AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), referenceTransaction.getHeight());
               // we need a code and also compatible page sizes
               if(atCreationRef.getApCodeBytes().length == 0
                   || atCreationRef.getDataPages() != thisNewAtCreation.getDataPages()
@@ -2705,7 +2705,17 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
-        AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight() );
+        
+        long codeHashId = 0L;
+        AtMachineState thisNewAtCreation = new AtMachineState(null, null, attachment.getCreationBytes(), 0);
+        if(thisNewAtCreation.getApCodeBytes().length == 0) {
+          Transaction referenceTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
+          Attachment.AutomatedTransactionsCreation atCreationAttachmentRef = (Attachment.AutomatedTransactionsCreation)referenceTransaction.getAttachment();
+          AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), referenceTransaction.getHeight());
+          codeHashId = atCreationRef.getApCodeHashId();
+        }
+        
+        AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight(), codeHashId );
       }
 
 
