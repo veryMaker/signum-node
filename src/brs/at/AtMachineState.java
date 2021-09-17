@@ -24,7 +24,7 @@ public class AtMachineState {
     private final int creationBlockHeight;
     private final int sleepBetween;
     private final ByteBuffer apCode;
-    private final long apCodeHashId;
+    private long apCodeHashId;
     private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
     private short version;
     private long gBalance;
@@ -41,6 +41,9 @@ public class AtMachineState {
     private long minActivationAmount;
     private ByteBuffer apData;
     private int height;
+    private short dataPages;
+    private short callStackPages;
+    private short userStackPages;
 
     protected AtMachineState(byte[] atId, byte[] creator, short version,
                              int height,
@@ -88,9 +91,9 @@ public class AtMachineState {
 
         int pageSize = (int) AtConstants.getInstance().pageSize(height);
         short codePages = b.getShort();
-        short dataPages = b.getShort();
-        short callStackPages = b.getShort();
-        short userStackPages = b.getShort();
+        this.dataPages = b.getShort();
+        this.callStackPages = b.getShort();
+        this.userStackPages = b.getShort();
 
         this.cSize = codePages * pageSize;
         this.dSize = dataPages * pageSize;
@@ -119,7 +122,12 @@ public class AtMachineState {
         this.apCode.put(code);
         this.apCode.clear();
         
-        this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
+        if(apCode.array().length > 0) {
+          this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
+        }
+        else {
+          this.apCodeHashId = 0L;
+        }
 
         int dataLen;
         if (dataPages * pageSize < 257) {
@@ -243,8 +251,12 @@ public class AtMachineState {
     }
     
     public long getApCodeHashId() {
-        return apCodeHashId;
-    }
+      return apCodeHashId;
+  }
+
+    public void setApCodeHashId(long hash) {
+      apCodeHashId = hash;
+  }
 
     public ByteBuffer getApData() {
         return apData;
@@ -288,6 +300,18 @@ public class AtMachineState {
 
     protected void setdSize(int dSize) {
         this.dSize = dSize;
+    }
+    
+    public short getDataPages() {
+      return dataPages;
+    }
+
+    public short getCallStackPages() {
+      return callStackPages;
+    }
+
+    public short getUserStackPages() {
+      return userStackPages;
     }
 
     public Long getgBalance() {

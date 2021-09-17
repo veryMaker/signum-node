@@ -173,14 +173,14 @@ public class AtTestHelper {
     }
 
     public static void addHelloWorldAT() {
-        AT.addAT(1L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "HelloWorld", "Hello World AT", AtTestHelper.HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE);
+        AT.addAT(1L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "HelloWorld", "Hello World AT", AtTestHelper.HELLO_WORLD_CREATION_BYTES, Integer.MAX_VALUE, 0L);
     }
 
     public static void addEchoAT() {
-        AT.addAT(2L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "Echo", "Message Echo AT", AtTestHelper.ECHO_CREATION_BYTES, Integer.MAX_VALUE);
+        AT.addAT(2L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "Echo", "Message Echo AT", AtTestHelper.ECHO_CREATION_BYTES, Integer.MAX_VALUE, 0L);
     }
 
     public static void addTipThanksAT() {
-        AT.addAT(3L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "TipThanks", "Tip Thanks AT", AtTestHelper.TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE);
+        AT.addAT(3L, TestConstants.TEST_ACCOUNT_NUMERIC_ID_PARSED, "TipThanks", "Tip Thanks AT", AtTestHelper.TIP_THANKS_CREATION_BYTES, Integer.MAX_VALUE, 0L);
     }
 }
