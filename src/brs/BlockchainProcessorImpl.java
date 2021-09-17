@@ -1401,12 +1401,20 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private boolean hasAllReferencedTransactions(Transaction transaction, int timestamp, int count) {
+    // TODO: consider cleaning this method after the upgrade.
     if (transaction.getReferencedTransactionFullHash() == null) {
+      if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+        return true;
+      }
       return timestamp - transaction.getTimestamp() < 60 * 1440 * 60 && count < 10;
     }
     transaction = transactionDb.findTransactionByFullHash(transaction.getReferencedTransactionFullHash());
     if (!subscriptionService.isEnabled() && transaction != null && transaction.getSignature() == null) {
       transaction = null;
+    }
+    if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+      // No need to go deeper checking, if it is on the DB and confirmed already
+      return transaction != null;
     }
     return transaction != null && hasAllReferencedTransactions(transaction, timestamp, count + 1);
   }
