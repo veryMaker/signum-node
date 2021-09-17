@@ -1,9 +1,12 @@
 package brs.db.sql;
 
+import brs.Attachment;
 import brs.Burst;
+import brs.Transaction;
 import brs.at.AT;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
+import brs.at.AtMachineState;
 import brs.crypto.Crypto;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
@@ -173,10 +176,23 @@ public class SqlATStore implements ATStore {
   }
 
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {
+    byte[] code = brs.at.AT.decompressState(at.getApCode());
+    long codeHashId = at.getApCodeHashId();
+    if(code == null) {
+      // Check the creation transaction for the reference code
+      Transaction atCreationTransaction = Burst.getBlockchain().getTransaction(at.getId());
+      Transaction transaction = Burst.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
+      if(transaction!=null && transaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
+        Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
+        AtMachineState atCreation = new AtMachineState(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), atCreationAttachment.getCreationBytes(), height);
+        code = atCreation.getApCodeBytes();
+        codeHashId = atCreation.getApCodeHashId();
+      }
+    }
     return new AT(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), at.getName(), at.getDescription(), at.getVersion(),
             height,
             brs.at.AT.decompressState(atState.getState()), at.getCsize(), at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
-            atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), brs.at.AT.decompressState(at.getApCode()), at.getApCodeHashId());
+            atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), code, codeHashId);
   }
 
   @Override
