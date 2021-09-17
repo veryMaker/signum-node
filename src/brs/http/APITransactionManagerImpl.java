@@ -170,7 +170,8 @@ public class APITransactionManagerImpl implements APITransactionManager {
     } catch (BurstException.NotYetEnabledException e) {
       return FEATURE_NOT_AVAILABLE;
     } catch (BurstException.ValidationException e) {
-      response.addProperty(ERROR_RESPONSE, e.getMessage());
+      response.addProperty(ERROR_CODE_RESPONSE, 4);
+      response.addProperty(ERROR_DESCRIPTION_RESPONSE, e.getMessage());
     }
     return response;
   }
