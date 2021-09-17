@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.*;
 import brs.at.AtConstants;
+import brs.at.AtMachineState;
 import brs.services.ParameterService;
 import brs.util.Convert;
 import brs.util.TextUtils;
@@ -57,11 +58,50 @@ final class CreateATProgram extends CreateTransaction {
 
     byte[] creationBytes = null;
 
-    if (req.getParameter(CODE_PARAMETER) != null) {
+    if (req.getParameter(CREATION_BYTES_PARAMETER) != null) {
+      creationBytes = ParameterParser.getCreationBytes(req);
+    }
+    else {
       try {
         String code = req.getParameter(CODE_PARAMETER);
-        if ((code.length() & 1) != 0) {
+        if (code!=null && (code.length() & 1) != 0) {
           throw new IllegalArgumentException();
+        }
+        
+        short version = AtConstants.getInstance().atVersion(blockchain.getHeight());
+        int cpages = 0;
+        int dpages = 0;
+        int cspages = 0;
+        int uspages = 0;
+        long minActivationAmount = 0L;
+
+        if (code == null) {
+          // reuse code from another AT, code comes from the reference transaction
+          String referenceTransaction = req.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER);
+          Transaction transaction = blockchain.getTransactionByFullHash(referenceTransaction);
+          if(transaction == null || !(transaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation)) {
+            throw new IllegalArgumentException();
+          }
+          Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
+          AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), blockchain.getHeight());
+          if(atCreation.getApCodeBytes().length == 0) {
+            throw new IllegalArgumentException();
+          }
+          // we reuse all the configuration, so they behave identically
+          version = atCreation.getVersion();
+          dpages = atCreation.getDataPages();
+          cspages = atCreation.getCallStackPages();
+          uspages = atCreation.getUserStackPages();
+          minActivationAmount = atCreation.minActivationAmount();
+          code = "";
+        }
+        else {
+          // new contract code
+          cpages = (code.length() / 2 / 256) + (((code.length() / 2) % 256) != 0 ? 1 : 0);
+          dpages = Integer.parseInt(req.getParameter(DPAGES_PARAMETER));
+          cspages = Integer.parseInt(req.getParameter(CSPAGES_PARAMETER));
+          uspages = Integer.parseInt(req.getParameter(USPAGES_PARAMETER));
+          minActivationAmount = Convert.parseUnsignedLong(req.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER));
         }
 
         String data = req.getParameter(DATA_PARAMETER);
@@ -72,16 +112,9 @@ final class CreateATProgram extends CreateTransaction {
           throw new IllegalArgumentException();
         }
 
-        int cpages = (code.length() / 2 / 256) + (((code.length() / 2) % 256) != 0 ? 1 : 0);
-        int dpages = Integer.parseInt(req.getParameter(DPAGES_PARAMETER));
-        int cspages = Integer.parseInt(req.getParameter(CSPAGES_PARAMETER));
-        int uspages = Integer.parseInt(req.getParameter(USPAGES_PARAMETER));
-
         if (dpages < 0 || cspages < 0 || uspages < 0) {
           throw new IllegalArgumentException();
         }
-
-        long minActivationAmount = Convert.parseUnsignedLong(req.getParameter(MIN_ACTIVATION_AMOUNT_NQT_PARAMETER));
 
         int creationLength = 4; // version + reserved
         creationLength += 8; // pages
@@ -93,7 +126,7 @@ final class CreateATProgram extends CreateTransaction {
 
         ByteBuffer creation = ByteBuffer.allocate(creationLength);
         creation.order(ByteOrder.LITTLE_ENDIAN);
-        creation.putShort(AtConstants.getInstance().atVersion(blockchain.getHeight()));
+        creation.putShort(version);
         creation.putShort((short) 0);
         creation.putShort((short) cpages);
         creation.putShort((short) dpages);
@@ -120,10 +153,6 @@ final class CreateATProgram extends CreateTransaction {
       }
     }
 
-    if (creationBytes == null) {
-      creationBytes = ParameterParser.getCreationBytes(req);
-    }
-
     Account account = parameterService.getSenderAccount(req);
     Attachment attachment = new Attachment.AutomatedTransactionsCreation(name, description, creationBytes, blockchain.getHeight());
 
@@ -132,7 +161,10 @@ final class CreateATProgram extends CreateTransaction {
   }
 
     private void putLength(int nPages, String string, ByteBuffer buffer) {
-        if (nPages * 256 <= 256) {
+        if (nPages == 0) {
+          buffer.put((byte) 0);
+        }
+        else if (nPages * 256 <= 256) {
             buffer.put((byte) (string.length() / 2));
         } else if (nPages * 256 <= 32767) {
             buffer.putShort((short) (string.length() / 2));

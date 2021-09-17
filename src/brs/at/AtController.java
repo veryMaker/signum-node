@@ -121,7 +121,7 @@ public abstract class AtController {
         state.getMachineState().pc = opc;
     }
 
-    public static int checkCreationBytes(byte[] creation, int height) throws AtException {
+    public static int checkCreationBytes(byte[] creation, int height, int minCodePages) throws AtException {
         if (creation == null)
             throw new AtException("Creation bytes cannot be null");
 
@@ -136,7 +136,7 @@ public abstract class AtController {
             AtConstants instance = AtConstants.getInstance();
 
             short version = b.getShort();
-            if (version != instance.atVersion(height)) {
+            if (version > instance.atVersion(height)) {
                 throw new AtException(AtError.INCORRECT_VERSION.getDescription());
             }
 
@@ -144,7 +144,7 @@ public abstract class AtController {
             b.getShort(); //future: reserved for future needs
 
             short codePages = b.getShort();
-            if (codePages > instance.maxMachineCodePages(height) || codePages < 1) {
+            if (codePages > instance.maxMachineCodePages(height) || codePages < minCodePages) {
                 throw new AtException(AtError.INCORRECT_CODE_PAGES.getDescription());
             }
 
@@ -167,7 +167,7 @@ public abstract class AtController {
             b.getLong();
 
             int codeLen = getLength(codePages, b);
-            if (codeLen < 1 || codeLen > codePages * 256) {
+            if (codeLen < minCodePages || codeLen > codePages * 256) {
                 throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
             }
             byte[] code = new byte[codeLen];

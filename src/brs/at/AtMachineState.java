@@ -41,6 +41,9 @@ public class AtMachineState {
     private long minActivationAmount;
     private ByteBuffer apData;
     private int height;
+    private short dataPages;
+    private short callStackPages;
+    private short userStackPages;
 
     protected AtMachineState(byte[] atId, byte[] creator, short version,
                              int height,
@@ -88,9 +91,9 @@ public class AtMachineState {
 
         int pageSize = (int) AtConstants.getInstance().pageSize(height);
         short codePages = b.getShort();
-        short dataPages = b.getShort();
-        short callStackPages = b.getShort();
-        short userStackPages = b.getShort();
+        this.dataPages = b.getShort();
+        this.callStackPages = b.getShort();
+        this.userStackPages = b.getShort();
 
         this.cSize = codePages * pageSize;
         this.dSize = dataPages * pageSize;
@@ -288,6 +291,18 @@ public class AtMachineState {
 
     protected void setdSize(int dSize) {
         this.dSize = dSize;
+    }
+    
+    public short getDataPages() {
+      return dataPages;
+    }
+
+    public short getCallStackPages() {
+      return callStackPages;
+    }
+
+    public short getUserStackPages() {
+      return userStackPages;
     }
 
     public Long getgBalance() {
