@@ -41,7 +41,7 @@ public class GeneratorImpl implements Generator {
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
   
-  private static final double LN_SCALE = ((double) Constants.BURST_BLOCK_TIME) / Math.log((double) Constants.BURST_BLOCK_TIME);
+  private static final double LN_SCALE = (240D) / Math.log(240D);
   // private static final double LN_SCALE = 49d; // value that would keep the legacy network size estimation close to real capacity
 
   public GeneratorImpl(Blockchain blockchain, DownloadCacheImpl downloadCache, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {

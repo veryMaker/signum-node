@@ -14,14 +14,27 @@ public class PropertyServiceImpl implements PropertyService {
   private final Properties properties;
 
   private final List<String> alreadyLoggedProperties = new ArrayList<>();
+  private NetworkParameters networkParameters;
 
   public PropertyServiceImpl(Properties properties) {
     this.properties = properties;
   }
+  
+  private String getProperty(String name) {
+    String value = null;
+    if(networkParameters!=null) {
+      value = networkParameters.getProperty(name);
+    }
+    if(value == null) {
+      value = properties.getProperty(name);
+    }
+    return value;
+  }
+  
 
   @Override
   public Boolean getBoolean(String name, boolean assume) {
-    String value = properties.getProperty(name);
+    String value = getProperty(name);
 
     if (value != null) {
       if (value.matches("(?i)^1|active|true|yes|on$")) {
@@ -47,7 +60,7 @@ public class PropertyServiceImpl implements PropertyService {
   @Override
   public int getInt(Prop<Integer> prop) {
     try {
-      String value = properties.getProperty(prop.name);
+      String value = getProperty(prop.name);
       int radix = 10;
 
       if (value != null && value.matches("(?i)^0x.+$")) {
@@ -69,7 +82,7 @@ public class PropertyServiceImpl implements PropertyService {
 
   @Override
   public String getString(Prop<String> prop) {
-    String value = properties.getProperty(prop.name);
+    String value = getProperty(prop.name);
     if (value != null && ! value.isEmpty()) {
       logOnce(prop.name, true, prop.name + " = \"" + value + "\"");
       return value;
@@ -106,6 +119,12 @@ public class PropertyServiceImpl implements PropertyService {
       }
       this.alreadyLoggedProperties.add(propertyName);
     }
+  }
+
+
+  @Override
+  public void setNetworkParameters(NetworkParameters params) {
+    this.networkParameters = params;
   }
 
 }

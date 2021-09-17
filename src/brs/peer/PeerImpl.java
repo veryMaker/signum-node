@@ -309,7 +309,7 @@ final class PeerImpl implements Peer {
       buf.append(address);
       if (port.get() <= 0) {
         buf.append(':');
-        buf.append(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Constants.PEER_TESTNET_PORT : Constants.PEER_DEFAULT_PORT);
+        buf.append(Burst.getPropertyService().getInt(Props.P2P_PORT));
       }
       buf.append("/burst");
       URL url = new URL(buf.toString());

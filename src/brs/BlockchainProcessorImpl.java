@@ -1019,8 +1019,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         stores.commitTransaction();
         // We make sure downloadCache do not have this block anymore, but only after all DBs have it
         downloadCache.removeBlock(block);
-        int checkPointHeight = Burst.getPropertyService().getInt(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-                    Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+        int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
         // If loading from empty do less trims and checks to speed up
         if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK * (block.getHeight() < checkPointHeight ? 20 : 1) == 0) {
           if(checkDatabaseState()==0) {

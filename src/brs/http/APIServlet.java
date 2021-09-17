@@ -199,7 +199,7 @@ public final class APIServlet extends HttpServlet {
     abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
   }
 
-  abstract static class HttpRequestHandler {
+  public abstract static class HttpRequestHandler {
 
     private final List<String> parameters;
     private final Set<APITag> apiTags;
