@@ -32,6 +32,7 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID));
         response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
+        response.addProperty("ordinaryTransactionLength", Constants.ORDINARY_TRANSACTION_BYTES);
         response.addProperty("addressPrefix", BurstKitUtils.getAddressPrefix());
         response.addProperty("valueSuffix", BurstKitUtils.getValueSuffix());
         response.addProperty("blockTime", Constants.BURST_BLOCK_TIME);
