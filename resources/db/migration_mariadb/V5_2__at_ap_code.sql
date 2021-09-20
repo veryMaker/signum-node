@@ -1,1 +1,1 @@
-ALTER TABLE at ALTER COLUMN ap_code blob NULL;
+ALTER TABLE at MODIFY COLUMN ap_code blob NULL;
