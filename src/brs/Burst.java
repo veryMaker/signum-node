@@ -241,6 +241,9 @@ public final class Burst {
       final IndirectIncomingService indirectIncomingService = new IndirectIncomingServiceImpl(stores.getIndirectIncomingStore(), propertyService);
 
       TransactionType.init(blockchain, fluxCapacitor, accountService, digitalGoodsStoreService, aliasService, assetExchange, subscriptionService, escrowService);
+      if(params != null) {
+        TransactionType.addExtraSubtypes(params.getExtraTransactionSubtypes());
+      }
 
       final BlockService blockService = new BlockServiceImpl(accountService, transactionService, blockchain, downloadCache, generator, params);
       blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain, propertyService, subscriptionService,

@@ -8,7 +8,6 @@ import brs.BurstException.NotValidException;
 import brs.BurstException.ValidationException;
 import brs.assetexchange.AssetExchange;
 import brs.at.AT;
-import brs.at.AtApiHelper;
 import brs.at.AtConstants;
 import brs.at.AtController;
 import brs.at.AtException;
@@ -176,6 +175,20 @@ public abstract class TransactionType {
     TRANSACTION_TYPES.put(TYPE_ADVANCED_PAYMENT, Collections.unmodifiableMap(advancedPaymentTypes));
     TRANSACTION_TYPES.put(TYPE_AUTOMATED_TRANSACTIONS, Collections.unmodifiableMap(atTypes));
   }
+  
+  public static void addExtraSubtypes(Map<Byte, Map<Byte, TransactionType>> extraTransactionSubtypes) {
+    for(Byte type : extraTransactionSubtypes.keySet()){
+      Map<Byte, TransactionType> typeBeingExtended = TRANSACTION_TYPES.get(type);
+      if(typeBeingExtended != null) {
+        typeBeingExtended.putAll(extraTransactionSubtypes.get(type));
+      }
+      else {
+        typeBeingExtended = extraTransactionSubtypes.get(type);
+      }
+      TRANSACTION_TYPES.put(type, typeBeingExtended);
+    }
+  }
+
 
   public static TransactionType findTransactionType(byte type, byte subtype) {
     Map<Byte, TransactionType> subtypes = TRANSACTION_TYPES.get(type);
