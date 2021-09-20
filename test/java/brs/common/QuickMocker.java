@@ -37,7 +37,6 @@ public class QuickMocker {
     Blockchain blockchain = mock(Blockchain.class);
     PropertyService propertyService = mock(PropertyService.class);
     when(blockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
-    when(propertyService.getBoolean(ArgumentMatchers.eq(Props.DEV_TESTNET))).thenReturn(false);
     return new FluxCapacitorImpl(blockchain, propertyService);
   }
 

@@ -52,16 +52,9 @@ public final class Db {
     String dbUsername;
     String dbPassword;
 
-    if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      dbUrl = propertyService.getString(Props.DEV_DB_URL);
-      dbUsername = propertyService.getString(Props.DEV_DB_USERNAME);
-      dbPassword = propertyService.getString(Props.DEV_DB_PASSWORD);
-    }
-    else {
-      dbUrl = propertyService.getString(Props.DB_URL);
-      dbUsername = propertyService.getString(Props.DB_USERNAME);
-      dbPassword = propertyService.getString(Props.DB_PASSWORD);
-    }
+    dbUrl = propertyService.getString(Props.DB_URL);
+    dbUsername = propertyService.getString(Props.DB_USERNAME);
+    dbPassword = propertyService.getString(Props.DB_PASSWORD);
     dialect = JDBCUtils.dialect(dbUrl);
 
     logger.debug("Database jdbc url set to: {}", dbUrl);

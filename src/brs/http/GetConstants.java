@@ -35,9 +35,9 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         response.addProperty("ordinaryTransactionLength", Constants.ORDINARY_TRANSACTION_BYTES);
         response.addProperty("addressPrefix", BurstKitUtils.getAddressPrefix());
         response.addProperty("valueSuffix", BurstKitUtils.getValueSuffix());
-        response.addProperty("blockTime", Constants.BURST_BLOCK_TIME);
-        response.addProperty("networkName", Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-            "SignumTESTNET" : "Signum");
+        response.addProperty("blockTime", Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
+        response.addProperty("networkName", Burst.getPropertyService().getString(Props.NETWORK_NAME));
+        response.addProperty("feeQuantNQT", Constants.FEE_QUANT);
 
         JsonArray transactionTypes = new JsonArray();
         TransactionType.getTransactionTypes()
