@@ -21,7 +21,7 @@
   <properties>
     <versionQualifier>-beta3</versionQualifier>
     <javax.version>1.3.2</javax.version>
-    <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
+    <bcprov-jdk15on.version>1.66</bcprov-jdk15on.version>
     <signumj.version>v0.20.0</signumj.version>
     <rxjava.version>2.2.12</rxjava.version>
     <ehcache.version>3.8.0</ehcache.version>
