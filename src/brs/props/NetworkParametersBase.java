@@ -1,6 +1,7 @@
 package brs.props;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -37,14 +38,12 @@ public class NetworkParametersBase implements NetworkParameters {
 
   @Override
   public Map<Byte, Map<Byte, TransactionType>> getExtraTransactionSubtypes() {
-    // TODO Auto-generated method stub
-    return null;
+    return new HashMap<>();
   }
 
   @Override
   public Map<String, HttpRequestHandler> getExtraAPIs() {
-    // TODO Auto-generated method stub
-    return null;
+    return new HashMap<>();
   }
 
   @Override
