@@ -63,7 +63,6 @@ public class ResultFields {
   public static final String NEXT_BLOCK_RESPONSE = "nextBlock";
   public static final String PAYLOAD_HASH_RESPONSE = "payloadHash";
   public static final String GENERATION_SIGNATURE_RESPONSE = "generationSignature";
-  public static final String BLOCK_HASH_RESPONSE = "blockHash";
   public static final String PREVIOUS_BLOCK_HASH_RESPONSE = "previousBlockHash";
   public static final String BLOCK_SIGNATURE_RESPONSE = "blockSignature";
   public static final String TRANSACTIONS_RESPONSE = "transactions";

@@ -129,7 +129,6 @@ public final class JSONData {
     json.addProperty(GENERATION_SIGNATURE_RESPONSE, Convert.toHexString(block.getGenerationSignature()));
 
     if (block.getVersion() > 1) {
-      json.addProperty(BLOCK_HASH_RESPONSE, Convert.toHexString(block.getBlockHash()));
       json.addProperty(PREVIOUS_BLOCK_HASH_RESPONSE, Convert.toHexString(block.getPreviousBlockHash()));
     }
 
