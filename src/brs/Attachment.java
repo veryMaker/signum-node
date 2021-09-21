@@ -26,21 +26,21 @@ public interface Attachment extends Appendix {
 
   TransactionType getTransactionType();
 
-  abstract class AbstractAttachment extends AbstractAppendix implements Attachment {
+  public abstract class AbstractAttachment extends AbstractAppendix implements Attachment {
 
-    private AbstractAttachment(ByteBuffer buffer, byte transactionVersion) {
+    protected AbstractAttachment(ByteBuffer buffer, byte transactionVersion) {
       super(buffer, transactionVersion);
     }
 
-    private AbstractAttachment(JsonObject attachmentData) {
+    protected AbstractAttachment(JsonObject attachmentData) {
       super(attachmentData);
     }
 
-    private AbstractAttachment(byte version) {
+    protected AbstractAttachment(byte version) {
       super(version);
     }
 
-    private AbstractAttachment(int blockchainHeight) {
+    protected AbstractAttachment(int blockchainHeight) {
       super(blockchainHeight);
     }
 
