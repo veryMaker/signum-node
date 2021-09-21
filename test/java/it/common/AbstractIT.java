@@ -43,6 +43,7 @@ public abstract class AbstractIT {
     final Properties props = new Properties();
 
     props.setProperty(Props.DEV_OFFLINE.getName(), "true");
+    props.setProperty(Props.NETWORK_NAME.getName(), "Unit tests");
     props.setProperty(Props.DB_URL.getName(), TestInfrastructure.IN_MEMORY_DB_URL);
     props.setProperty(Props.DB_CONNECTIONS.getName(), "1");
 
