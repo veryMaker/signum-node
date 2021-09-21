@@ -233,9 +233,9 @@ public abstract class TransactionType {
 
   public abstract Attachment.AbstractAttachment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException;
 
-  abstract Attachment.AbstractAttachment parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException;
+  protected abstract Attachment.AbstractAttachment parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException;
 
-  abstract void validateAttachment(Transaction transaction) throws BurstException.ValidationException;
+  protected abstract void validateAttachment(Transaction transaction) throws BurstException.ValidationException;
 
   // return false if double spending
   public final boolean applyUnconfirmed(Transaction transaction, Account senderAccount) {
@@ -274,7 +274,7 @@ public abstract class TransactionType {
     return 0L;
   }
 
-  abstract boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
+  protected abstract boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
 
   final void apply(Transaction transaction, Account senderAccount, Account recipientAccount) {
     accountService.addToBalanceNQT(senderAccount, - (Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT())));
@@ -291,7 +291,7 @@ public abstract class TransactionType {
     applyAttachment(transaction, senderAccount, recipientAccount);
   }
 
-  abstract void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount);
+  protected abstract void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount);
 
   public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {
     builder.message(Appendix.Message.parse(attachmentData));
@@ -324,7 +324,7 @@ public abstract class TransactionType {
     accountService.addToUnconfirmedBalanceNQT(senderAccount, Convert.safeAdd(transaction.getAmountNQT(), transaction.getFeeNQT()));
   }
 
-  abstract void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
+  protected abstract void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount);
 
   public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
     return TransactionDuplicationKey.IS_NEVER_DUPLICATE;
@@ -352,16 +352,16 @@ public abstract class TransactionType {
     }
 
     @Override
-    boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
       return true;
     }
 
     @Override
-    void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+    protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
     }
 
     @Override
-    void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
     }
 
     public static final TransactionType ORDINARY = new Payment() {
@@ -382,12 +382,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.EmptyAttachment parseAttachment(JsonObject attachmentData) {
+      protected Attachment.EmptyAttachment parseAttachment(JsonObject attachmentData) {
         return Attachment.ORDINARY_PAYMENT;
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (transaction.getAmountNQT() <= 0 || transaction.getAmountNQT() >= Constants.MAX_BALANCE_NQT) {
           throw new BurstException.NotValidException("Invalid ordinary payment");
         }
@@ -416,12 +416,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.PaymentMultiOutCreation parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException {
+      protected Attachment.PaymentMultiOutCreation parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException {
         return new Attachment.PaymentMultiOutCreation(attachmentData);
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (!fluxCapacitor.getValue(FluxValues.PRE_POC2, transaction.getHeight())) {
           throw new BurstException.NotCurrentlyValidException("Multi Out Payments are not allowed before the Pre POC2 block");
         }
@@ -437,7 +437,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
         for (List<Long> recipient : attachment.getRecipients()) {
           accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(recipient.get(0)), recipient.get(1));
@@ -476,12 +476,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.PaymentMultiSameOutCreation parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException {
+      protected Attachment.PaymentMultiSameOutCreation parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException {
         return new Attachment.PaymentMultiSameOutCreation(attachmentData);
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (!fluxCapacitor.getValue(FluxValues.PRE_POC2, transaction.getHeight())) {
           throw new BurstException.NotCurrentlyValidException("Multi Same Out Payments are not allowed before the Pre POC2 block");
         }
@@ -493,7 +493,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
         final long amountNQT = Convert.safeDivide(transaction.getAmountNQT(), attachment.getRecipients().size());
         attachment.getRecipients().forEach(a -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(a), amountNQT));
@@ -528,12 +528,12 @@ public abstract class TransactionType {
     }
 
     @Override
-    final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
       return true;
     }
 
     @Override
-    final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
     }
 
     public static final TransactionType ARBITRARY_MESSAGE = new Messaging() {
@@ -554,17 +554,17 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.EmptyAttachment parseAttachment(JsonObject attachmentData) {
+      protected Attachment.EmptyAttachment parseAttachment(JsonObject attachmentData) {
         return Attachment.ARBITRARY_MESSAGE;
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         // No appendices
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment attachment = transaction.getAttachment();
         if (transaction.getAmountNQT() != 0) {
           throw new BurstException.NotValidException("Invalid arbitrary message: " + JSON.toJsonString(attachment.getJsonObject()));
@@ -626,12 +626,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.MessagingAliasAssignment parseAttachment(JsonObject attachmentData) {
+      protected Attachment.MessagingAliasAssignment parseAttachment(JsonObject attachmentData) {
         return new Attachment.MessagingAliasAssignment(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.MessagingAliasAssignment attachment = (Attachment.MessagingAliasAssignment) transaction.getAttachment();
         aliasService.addOrUpdateAlias(transaction, attachment);
       }
@@ -643,7 +643,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.MessagingAliasAssignment attachment = (Attachment.MessagingAliasAssignment) transaction.getAttachment();
         if (attachment.getAliasName().isEmpty()
                 || Convert.toBytes(attachment.getAliasName()).length > Constants.MAX_ALIAS_LENGTH
@@ -684,12 +684,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.MessagingAliasSell parseAttachment(JsonObject attachmentData) {
+      protected Attachment.MessagingAliasSell parseAttachment(JsonObject attachmentData) {
         return new Attachment.MessagingAliasSell(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         final Attachment.MessagingAliasSell attachment =
                 (Attachment.MessagingAliasSell) transaction.getAttachment();
         aliasService.sellAlias(transaction, attachment);
@@ -703,7 +703,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
           throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + blockchain.getLastBlock().getHeight());
         }
@@ -760,12 +760,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.MessagingAliasBuy parseAttachment(JsonObject attachmentData) {
+      protected Attachment.MessagingAliasBuy parseAttachment(JsonObject attachmentData) {
         return new Attachment.MessagingAliasBuy(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         final Attachment.MessagingAliasBuy attachment =
                 (Attachment.MessagingAliasBuy) transaction.getAttachment();
         final String aliasName = attachment.getAliasName();
@@ -780,7 +780,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
           throw new BurstException.NotYetEnabledException("Alias transfer not yet enabled at height " + blockchain.getLastBlock().getHeight());
         }
@@ -835,12 +835,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.MessagingAccountInfo parseAttachment(JsonObject attachmentData) {
+      protected Attachment.MessagingAccountInfo parseAttachment(JsonObject attachmentData) {
         return new Attachment.MessagingAccountInfo(attachmentData);
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.MessagingAccountInfo attachment = (Attachment.MessagingAccountInfo)transaction.getAttachment();
         if (Convert.toBytes(attachment.getName()).length > Constants.MAX_ACCOUNT_NAME_LENGTH
                 || Convert.toBytes(attachment.getDescription()).length > Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH
@@ -850,7 +850,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.MessagingAccountInfo attachment = (Attachment.MessagingAccountInfo) transaction.getAttachment();
         accountService.setAccountInfo(senderAccount, attachment.getName(), attachment.getDescription());
       }
@@ -898,17 +898,17 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.ColoredCoinsAssetIssuance parseAttachment(JsonObject attachmentData) {
+      protected Attachment.ColoredCoinsAssetIssuance parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsAssetIssuance(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return true;
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetIssuance attachment = (Attachment.ColoredCoinsAssetIssuance) transaction.getAttachment();
         long assetId = transaction.getId();
         assetExchange.addAsset(transaction, attachment);
@@ -916,12 +916,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         // Nothing to undo
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetIssuance attachment = (Attachment.ColoredCoinsAssetIssuance)transaction.getAttachment();
         if (attachment.getName().length() < Constants.MIN_ASSET_NAME_LENGTH
                 || attachment.getName().length() > Constants.MAX_ASSET_NAME_LENGTH
@@ -962,12 +962,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.ColoredCoinsAssetTransfer parseAttachment(JsonObject attachmentData) {
+      protected Attachment.ColoredCoinsAssetTransfer parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsAssetTransfer(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASSET_TRANSFER");
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
         long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId());
@@ -979,7 +979,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
         accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
@@ -987,13 +987,13 @@ public abstract class TransactionType {
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
         accountService.addToUnconfirmedAssetBalanceQNT(senderAccount,attachment.getAssetId(), attachment.getQuantityQNT());
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer)transaction.getAttachment();
         if (transaction.getAmountNQT() != 0
                 || attachment.getComment() != null && attachment.getComment().length() > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH
@@ -1024,7 +1024,7 @@ public abstract class TransactionType {
     abstract static class ColoredCoinsOrderPlacement extends ColoredCoins {
 
       @Override
-      final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsOrderPlacement attachment = (Attachment.ColoredCoinsOrderPlacement)transaction.getAttachment();
         if (attachment.getPriceNQT() <= 0 || attachment.getPriceNQT() > Constants.MAX_BALANCE_NQT
                 || attachment.getAssetId() == 0) {
@@ -1065,12 +1065,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.ColoredCoinsAskOrderPlacement parseAttachment(JsonObject attachmentData) {
+      protected Attachment.ColoredCoinsAskOrderPlacement parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsAskOrderPlacement(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASK_ORDER_PLACEMENT");
         Attachment.ColoredCoinsAskOrderPlacement attachment = (Attachment.ColoredCoinsAskOrderPlacement) transaction.getAttachment();
         long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId());
@@ -1082,7 +1082,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAskOrderPlacement attachment = (Attachment.ColoredCoinsAskOrderPlacement) transaction.getAttachment();
         if (assetExchange.getAsset(attachment.getAssetId()) != null) {
           assetExchange.addAskOrder(transaction, attachment);
@@ -1090,7 +1090,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Attachment.ColoredCoinsAskOrderPlacement attachment = (Attachment.ColoredCoinsAskOrderPlacement) transaction.getAttachment();
         accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
       }
@@ -1115,12 +1115,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.ColoredCoinsBidOrderPlacement parseAttachment(JsonObject attachmentData) {
+      protected Attachment.ColoredCoinsBidOrderPlacement parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsBidOrderPlacement(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType BID_ORDER_PLACEMENT");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
@@ -1137,7 +1137,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsBidOrderPlacement attachment = (Attachment.ColoredCoinsBidOrderPlacement) transaction.getAttachment();
         if (assetExchange.getAsset(attachment.getAssetId()) != null) {
           assetExchange.addBidOrder(transaction, attachment);
@@ -1145,7 +1145,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
       }
@@ -1155,12 +1155,12 @@ public abstract class TransactionType {
     abstract static class ColoredCoinsOrderCancellation extends ColoredCoins {
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return true;
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
       }
 
       @Override
@@ -1188,12 +1188,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.ColoredCoinsAskOrderCancellation parseAttachment(JsonObject attachmentData) {
+      protected Attachment.ColoredCoinsAskOrderCancellation parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsAskOrderCancellation(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAskOrderCancellation attachment = (Attachment.ColoredCoinsAskOrderCancellation) transaction.getAttachment();
         Order order = assetExchange.getAskOrder(attachment.getOrderId());
         assetExchange.removeAskOrder(attachment.getOrderId());
@@ -1203,7 +1203,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAskOrderCancellation attachment = (Attachment.ColoredCoinsAskOrderCancellation) transaction.getAttachment();
         Order ask = assetExchange.getAskOrder(attachment.getOrderId());
         if (ask == null) {
@@ -1235,12 +1235,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.ColoredCoinsBidOrderCancellation parseAttachment(JsonObject attachmentData) {
+      protected Attachment.ColoredCoinsBidOrderCancellation parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsBidOrderCancellation(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsBidOrderCancellation attachment = (Attachment.ColoredCoinsBidOrderCancellation) transaction.getAttachment();
         Order order = assetExchange.getBidOrder(attachment.getOrderId());
         assetExchange.removeBidOrder(attachment.getOrderId());
@@ -1250,7 +1250,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsBidOrderCancellation attachment = (Attachment.ColoredCoinsBidOrderCancellation) transaction.getAttachment();
         Order bid = assetExchange.getBidOrder(attachment.getOrderId());
         if (bid == null) {
@@ -1276,16 +1276,16 @@ public abstract class TransactionType {
     }
 
     @Override
-    boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
       return true;
     }
 
     @Override
-    void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
     }
 
     @Override
-    final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+    protected final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
       if (! fluxCapacitor.getValue(FluxValues.DIGITAL_GOODS_STORE, blockchain.getLastBlock().getHeight())) {
         throw new BurstException.NotYetEnabledException("Digital goods listing not yet enabled at height " + blockchain.getLastBlock().getHeight());
       }
@@ -1316,12 +1316,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsListing parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsListing parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsListing(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsListing attachment = (Attachment.DigitalGoodsListing) transaction.getAttachment();
         dgsGoodsStoreService.listGoods(transaction, attachment);
       }
@@ -1364,12 +1364,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsDelisting parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsDelisting parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsDelisting(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsDelisting attachment = (Attachment.DigitalGoodsDelisting) transaction.getAttachment();
         dgsGoodsStoreService.delistGoods(attachment.getGoodsId());
       }
@@ -1418,12 +1418,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsPriceChange parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsPriceChange parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsPriceChange(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsPriceChange attachment = (Attachment.DigitalGoodsPriceChange) transaction.getAttachment();
         dgsGoodsStoreService.changePrice(attachment.getGoodsId(), attachment.getPriceNQT());
       }
@@ -1474,12 +1474,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsQuantityChange parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsQuantityChange parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsQuantityChange(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsQuantityChange attachment = (Attachment.DigitalGoodsQuantityChange) transaction.getAttachment();
         dgsGoodsStoreService.changeQuantity(attachment.getGoodsId(), attachment.getDeltaQuantity(), false);
       }
@@ -1531,12 +1531,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsPurchase parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsPurchase parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsPurchase(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType PURCHASE");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT) {
@@ -1553,12 +1553,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsPurchase attachment = (Attachment.DigitalGoodsPurchase) transaction.getAttachment();
         dgsGoodsStoreService.purchase(transaction, attachment);
       }
@@ -1612,12 +1612,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsDelivery parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsDelivery parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsDelivery(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsDelivery attachment = (Attachment.DigitalGoodsDelivery)transaction.getAttachment();
         dgsGoodsStoreService.deliver(transaction, attachment);
       }
@@ -1672,12 +1672,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsFeedback parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsFeedback parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsFeedback(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsFeedback attachment = (Attachment.DigitalGoodsFeedback)transaction.getAttachment();
         dgsGoodsStoreService.feedback(attachment.getPurchaseId(), transaction.getEncryptedMessage(), transaction.getMessage());
       }
@@ -1736,12 +1736,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.DigitalGoodsRefund parseAttachment(JsonObject attachmentData) {
+      protected Attachment.DigitalGoodsRefund parseAttachment(JsonObject attachmentData) {
         return new Attachment.DigitalGoodsRefund(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType REFUND");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT) {
@@ -1758,12 +1758,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.DigitalGoodsRefund attachment = (Attachment.DigitalGoodsRefund) transaction.getAttachment();
         dgsGoodsStoreService.refund(transaction.getSenderId(), attachment.getPurchaseId(),
                 attachment.getRefundNQT(), transaction.getEncryptedMessage());
@@ -1813,12 +1813,12 @@ public abstract class TransactionType {
     }
 
     @Override
-    final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
       return true;
     }
 
     @Override
-    final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+    protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
     }
 
     public static final TransactionType EFFECTIVE_BALANCE_LEASING = new AccountControl() {
@@ -1839,17 +1839,17 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AccountControlEffectiveBalanceLeasing parseAttachment(JsonObject attachmentData) {
+      protected Attachment.AccountControlEffectiveBalanceLeasing parseAttachment(JsonObject attachmentData) {
         return new Attachment.AccountControlEffectiveBalanceLeasing(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         // This tx type is actually used before block 10k on mainnet, so we cannot actually remove it
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) throw new BurstException.NotCurrentlyValidException("Effective Balance Leasing disabled after Sodium HF");
 
         Attachment.AccountControlEffectiveBalanceLeasing attachment = (Attachment.AccountControlEffectiveBalanceLeasing)transaction.getAttachment();
@@ -1887,12 +1887,12 @@ public abstract class TransactionType {
     public static final TransactionType REWARD_RECIPIENT_ASSIGNMENT = new BurstMining() {
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return true;
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {}
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {}
 
       @Override
       public final byte getSubtype() {
@@ -1911,12 +1911,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.BurstMiningRewardRecipientAssignment parseAttachment(JsonObject attachmentData) {
+      protected Attachment.BurstMiningRewardRecipientAssignment parseAttachment(JsonObject attachmentData) {
         return new Attachment.BurstMiningRewardRecipientAssignment(attachmentData);
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         accountService.setRewardRecipientAssignment(senderAccount, recipientAccount.getId());
       }
 
@@ -1930,7 +1930,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         int height = blockchain.getLastBlock().getHeight() + 1;
         Account sender = accountService.getAccount(transaction.getSenderId());
 
@@ -1987,7 +1987,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.CommitmentAdd parseAttachment(JsonObject attachmentData) {
+      protected Attachment.CommitmentAdd parseAttachment(JsonObject attachmentData) {
         return new Attachment.CommitmentAdd(attachmentData);
       }
       
@@ -1998,7 +1998,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType COMMITMENT_ADD");
         CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
         Long totalAmountNQT = commitmentAdd.getAmountNQT();
@@ -2013,12 +2013,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         // Nothing to apply
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
         Long totalAmountNQT = commitmentAdd.getAmountNQT();
         accountService.addToUnconfirmedBalanceNQT(senderAccount, totalAmountNQT);
@@ -2031,7 +2031,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         int height = blockchain.getLastBlock().getHeight() + 1;
         Account sender = accountService.getAccount(transaction.getSenderId());
 
@@ -2069,12 +2069,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.CommitmentRemove parseAttachment(JsonObject attachmentData) {
+      protected Attachment.CommitmentRemove parseAttachment(JsonObject attachmentData) {
         return new Attachment.CommitmentRemove(attachmentData);
       }
 
       @Override
-      boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType COMMITMENT_REMOVE");
         CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
         long totalAmountNQT = commitmentRemove.getAmountNQT();
@@ -2096,12 +2096,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         // Nothing to apply
       }
 
       @Override
-      void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
         long totalAmountNQT = commitmentRemove.getAmountNQT();
 
@@ -2115,7 +2115,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         int height = blockchain.getLastBlock().getHeight() + 1;
         Account sender = accountService.getAccount(transaction.getSenderId());
 
@@ -2163,12 +2163,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AdvancedPaymentEscrowCreation parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException {
+      protected Attachment.AdvancedPaymentEscrowCreation parseAttachment(JsonObject attachmentData) throws BurstException.NotValidException {
         return new Attachment.AdvancedPaymentEscrowCreation(attachmentData);
       }
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ESCROW_CREATION");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
@@ -2185,7 +2185,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentEscrowCreation attachment = (Attachment.AdvancedPaymentEscrowCreation) transaction.getAttachment();
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         accountService.addToBalanceNQT(senderAccount, -totalAmountNQT);
@@ -2202,7 +2202,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         accountService.addToUnconfirmedBalanceNQT(senderAccount, calculateAttachmentTotalAmountNQT(transaction));
       }
 
@@ -2212,7 +2212,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.AdvancedPaymentEscrowCreation attachment = (Attachment.AdvancedPaymentEscrowCreation) transaction.getAttachment();
         Long totalAmountNQT = Convert.safeAdd(attachment.getAmountNQT(), transaction.getFeeNQT());
         if (transaction.getSenderId() == transaction.getRecipientId()) {
@@ -2278,24 +2278,24 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AdvancedPaymentEscrowSign parseAttachment(JsonObject attachmentData) {
+      protected Attachment.AdvancedPaymentEscrowSign parseAttachment(JsonObject attachmentData) {
         return new Attachment.AdvancedPaymentEscrowSign(attachmentData);
       }
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return true;
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentEscrowSign attachment = (Attachment.AdvancedPaymentEscrowSign) transaction.getAttachment();
         Escrow escrow = escrowService.getEscrowTransaction(attachment.getEscrowId());
         escrowService.sign(senderAccount.getId(), attachment.getDecision(), escrow);
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         // Nothing to undo.
       }
 
@@ -2308,7 +2308,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.AdvancedPaymentEscrowSign attachment = (Attachment.AdvancedPaymentEscrowSign) transaction.getAttachment();
         if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() != Constants.ONE_BURST) {
           throw new BurstException.NotValidException("Escrow signing must have amount 0 and fee of 1");
@@ -2360,22 +2360,22 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AdvancedPaymentEscrowResult parseAttachment(JsonObject attachmentData) {
+      protected Attachment.AdvancedPaymentEscrowResult parseAttachment(JsonObject attachmentData) {
         return new Attachment.AdvancedPaymentEscrowResult(attachmentData);
       }
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return false;
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         // Nothing to apply.
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         // Nothing to undo.
       }
 
@@ -2385,7 +2385,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         throw new BurstException.NotValidException("Escrow result never validates");
       }
 
@@ -2418,23 +2418,23 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AdvancedPaymentSubscriptionSubscribe parseAttachment(JsonObject attachmentData) {
+      protected Attachment.AdvancedPaymentSubscriptionSubscribe parseAttachment(JsonObject attachmentData) {
         return new Attachment.AdvancedPaymentSubscriptionSubscribe(attachmentData);
       }
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return true;
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentSubscriptionSubscribe attachment = (Attachment.AdvancedPaymentSubscriptionSubscribe) transaction.getAttachment();
         subscriptionService.addSubscription(senderAccount, recipientAccount, transaction.getId(), transaction.getAmountNQT(), transaction.getTimestamp(), attachment.getFrequency());
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         // Nothing to undo.
       }
 
@@ -2444,7 +2444,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.AdvancedPaymentSubscriptionSubscribe attachment = (Attachment.AdvancedPaymentSubscriptionSubscribe) transaction.getAttachment();
         if (attachment.getFrequency() == null ||
                 attachment.getFrequency() < Constants.BURST_SUBSCRIPTION_MIN_FREQ ||
@@ -2486,12 +2486,12 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AdvancedPaymentSubscriptionCancel parseAttachment(JsonObject attachmentData) {
+      protected Attachment.AdvancedPaymentSubscriptionCancel parseAttachment(JsonObject attachmentData) {
         return new Attachment.AdvancedPaymentSubscriptionCancel(attachmentData);
       }
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType SUBSCRIPTION_CANCEL");
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
         subscriptionService.addRemoval(attachment.getSubscriptionId());
@@ -2499,13 +2499,13 @@ public abstract class TransactionType {
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
         subscriptionService.removeSubscription(attachment.getSubscriptionId());
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         // Nothing to undo.
       }
 
@@ -2516,7 +2516,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
         if (attachment.getSubscriptionId() == null) {
           throw new BurstException.NotValidException("Subscription cancel must include subscription id");
@@ -2561,22 +2561,22 @@ public abstract class TransactionType {
       }
 
       @Override
-      Attachment.AdvancedPaymentSubscriptionPayment parseAttachment(JsonObject attachmentData) {
+      protected Attachment.AdvancedPaymentSubscriptionPayment parseAttachment(JsonObject attachmentData) {
         return new Attachment.AdvancedPaymentSubscriptionPayment(attachmentData);
       }
 
       @Override
-      final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         return false;
       }
 
       @Override
-      final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         // Nothing to apply.
       }
 
       @Override
-      final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+      protected final void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         // Nothing to undo.
       }
 
@@ -2586,7 +2586,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         throw new BurstException.NotValidException("Subscription payment never validates");
       }
 
@@ -2613,17 +2613,17 @@ public abstract class TransactionType {
     }
 
     @Override
-    boolean applyAttachmentUnconfirmed(Transaction transaction,Account senderAccount){
+    protected boolean applyAttachmentUnconfirmed(Transaction transaction,Account senderAccount){
       return true;
     }
 
     @Override
-    void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount){
+    protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount){
 
     }
 
     @Override
-    final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+    protected final void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
       if (transaction.getAmountNQT() != 0) {
         throw new BurstException.NotValidException("Invalid automated transaction transaction");
       }
@@ -2652,7 +2652,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      AbstractAttachment parseAttachment(JsonObject attachmentData) {
+      protected AbstractAttachment parseAttachment(JsonObject attachmentData) {
         return new AutomatedTransactionsCreation(attachmentData);
       }
 
@@ -2716,7 +2716,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
         
         long codeHashId = 0L;
@@ -2755,7 +2755,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      AbstractAttachment parseAttachment(JsonObject attachmentData) {
+      protected AbstractAttachment parseAttachment(JsonObject attachmentData) {
         return Attachment.AT_PAYMENT;
       }
 
@@ -2765,7 +2765,7 @@ public abstract class TransactionType {
       }
 
       @Override
-      void applyAttachment(Transaction transaction,
+      protected void applyAttachment(Transaction transaction,
                            Account senderAccount, Account recipientAccount) {
         // Nothing to apply
       }
