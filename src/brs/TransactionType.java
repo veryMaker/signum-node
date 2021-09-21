@@ -222,7 +222,7 @@ public abstract class TransactionType {
     return Collections.unmodifiableMap(TRANSACTION_TYPES);
   }
 
-  private TransactionType() {
+  protected TransactionType() {
   }
 
   public abstract byte getType();
