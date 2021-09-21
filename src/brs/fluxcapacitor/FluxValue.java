@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FluxValue<T> {
-    private final T defaultValue;
+    private T defaultValue;
     private List<ValueChange<T>> valueChanges;
 
     @SafeVarargs
@@ -15,6 +15,7 @@ public class FluxValue<T> {
     
     public void updateValueChanges(List<ValueChange<T>> valueChanges) {
         this.valueChanges = valueChanges;
+        this.defaultValue = valueChanges.get(0).getNewValue();
     }
 
     public T getDefaultValue() {

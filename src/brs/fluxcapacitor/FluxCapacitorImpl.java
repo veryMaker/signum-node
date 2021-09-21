@@ -34,7 +34,8 @@ public class FluxCapacitorImpl implements FluxCapacitor {
         if(cacheHeight != null) {
           return cacheHeight;
         }
-        int overridingHeight = propertyService.getInt(historicalMoment.getOverridingProperty());
+        int overridingHeight = historicalMoment.getOverridingProperty() == null ? -1 :
+          propertyService.getInt(historicalMoment.getOverridingProperty());
         int height = overridingHeight >= 0 ? overridingHeight : historicalMoment.getMainnetHeight();
         momentsCache.put(historicalMoment, height);
         
