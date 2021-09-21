@@ -69,16 +69,20 @@ public class BurstGUI extends JFrame {
     private JLabel infoLable = null;
     private JProgressBar syncProgressBar = null;
 	private JScrollPane textScrollPane = null;
+    private String programName = null;
+    private String version = null;
     Color iconColor = Color.BLACK;
 
     public static void main(String []args) {
-       	BurstGUI.args = args;
-        new BurstGUI();
+        new BurstGUI("Signum Node", Burst.VERSION.toString(), args);
     }
 
-    public BurstGUI() {
+    public BurstGUI(String programName, String version, String []args) {
         System.setSecurityManager(new BurstGUISecurityManager());
-        setTitle("Signum Node " + Burst.VERSION);
+        BurstGUI.args = args;
+        this.programName = programName;
+        this.version = version;
+        setTitle(programName + " " + version);
 
         Class<?> lafc = null;
         try {
@@ -165,7 +169,7 @@ public class BurstGUI extends JFrame {
         	public void windowClosing(WindowEvent e) {
         		if(trayIcon == null) {
         			if (JOptionPane.showConfirmDialog(BurstGUI.this, 
-        					"This will stop the Signum node. Are you sure?", "Exit and stop Signum", 
+        					"This will stop the node. Are you sure?", "Exit and stop node", 
         					JOptionPane.YES_NO_OPTION,
         					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
         				shutdown();
@@ -227,35 +231,45 @@ public class BurstGUI extends JFrame {
     	
         MenuItem openPheonixWalletItem = new MenuItem("Phoenix Wallet");
         MenuItem openClassicWalletItem = new MenuItem("Classic Wallet");
-    	MenuItem showItem = new MenuItem("Show Signum output");
+        MenuItem openApiItem = new MenuItem("API doc");
+    	MenuItem showItem = new MenuItem("Show the node window");
     	MenuItem shutdownItem = new MenuItem("Shutdown the node");
 
     	JButton openPhoenixButton = new JButton(openPheonixWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.FIRE, 18, iconColor));
-    	JButton openClassicButton = new JButton(openClassicWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
+        JButton openClassicButton = new JButton(openClassicWalletItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.WINDOW_RESTORE, 18, iconColor));
+        JButton openApiButton = new JButton(openApiItem.getLabel(), IconFontSwing.buildIcon(FontAwesome.BOOK, 18, iconColor));
     	JButton editConfButton = new JButton("Edit conf file", IconFontSwing.buildIcon(FontAwesome.PENCIL, 18, iconColor));
         JButton popOff10Button = new JButton("Pop off 10 blocks", IconFontSwing.buildIcon(FontAwesome.STEP_BACKWARD, 18, iconColor));
         JButton popOff100Button = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
         // TODO: find a way to actually store permanently the max block available to pop-off, otherwise we can break it
         // JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
     	
-        openPhoenixButton.addActionListener(e -> openWebUi(false));
-        openClassicButton.addActionListener(e -> openWebUi(true));
+        openPhoenixButton.addActionListener(e -> openWebUi("/phoenix"));
+        openClassicButton.addActionListener(e -> openWebUi("/classic.html"));
+        openApiButton.addActionListener(e -> openWebUi("/api-doc"));
     	editConfButton.addActionListener(e -> editConf());
         popOff10Button.addActionListener(e -> popOff(10));
         popOff100Button.addActionListener(e -> popOff(100));
         //popOffMaxButton.addActionListener(e -> popOff(0));
- 
-    	toolBar.add(openPhoenixButton);
-    	toolBar.add(openClassicButton);
+
+        File phoenixIndex = new File("html/ui/phoenix/index.html");
+        File classicIndex = new File("html/ui/classic.html");
+        if(phoenixIndex.isFile() && phoenixIndex.exists()) {
+          toolBar.add(openPhoenixButton);
+        }
+        if(classicIndex.isFile() && classicIndex.exists()) {
+          toolBar.add(openClassicButton);
+        }
     	toolBar.add(editConfButton);
+    	toolBar.add(openApiButton);
     	if(Burst.getPropertyService().getBoolean(Props.EXPERIMENTAL)) {
           toolBar.add(popOff10Button);
           toolBar.add(popOff100Button);
 //          toolBar.add(popOffMaxButton);
     	}
 
-    	openPheonixWalletItem.addActionListener(e -> openWebUi(false));
-        openClassicWalletItem.addActionListener(e -> openWebUi(true));
+    	openPheonixWalletItem.addActionListener(e -> openWebUi("/phoenix"));
+        openClassicWalletItem.addActionListener(e -> openWebUi("/classic.html"));
     	showItem.addActionListener(e -> showWindow());
     	shutdownItem.addActionListener(e -> shutdown());
 
@@ -268,7 +282,9 @@ public class BurstGUI extends JFrame {
     	try {
     		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu);
     		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
-    		newTrayIcon.addActionListener(e -> openWebUi(false));
+    		if(phoenixIndex.isFile() && phoenixIndex.exists()) {
+    		  newTrayIcon.addActionListener(e -> openWebUi("/phoenix"));
+    		}
 
     		SystemTray systemTray = SystemTray.getSystemTray();
     		systemTray.add(newTrayIcon);
@@ -312,12 +328,12 @@ public class BurstGUI extends JFrame {
 		}
     }
 
-    private void openWebUi(boolean classic) {
+    private void openWebUi(String path) {
         try {
             PropertyService propertyService = Burst.getPropertyService();
             int port = propertyService.getInt(Props.API_PORT);
             String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
-            String address = httpPrefix + "localhost:" + port + (classic ? "/classic.html" : "/phoenix");
+            String address = httpPrefix + "localhost:" + port + path;
             try {
                 Desktop.getDesktop().browse(new URI(address));
             } catch (Exception e) { // Catches parse exception or exception when opening browser
@@ -352,7 +368,9 @@ public class BurstGUI extends JFrame {
 
     private void updateTitle() {
         String networkName = Burst.getPropertyService().getString(Props.NETWORK_NAME);
-        SwingUtilities.invokeLater(() -> setTitle(getTitle() + " " + networkName));
+        SwingUtilities.invokeLater(() -> setTitle(
+            this.programName + " [" + networkName + "] " + this.version)
+            );
         if(trayIcon != null)
         	trayIcon.setToolTip(trayIcon.getToolTip() + " " + networkName);
     }
