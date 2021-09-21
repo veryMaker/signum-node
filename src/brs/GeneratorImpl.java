@@ -257,8 +257,8 @@ public class GeneratorImpl implements Generator {
 
   public static class MockGenerator extends GeneratorImpl {
     private final PropertyService propertyService;
-    public MockGenerator(PropertyService propertyService, Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
-      super(blockchain, null, null, timeService, fluxCapacitor);
+    public MockGenerator(PropertyService propertyService, Blockchain blockchain, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
+      super(blockchain, null, accountService, timeService, fluxCapacitor);
       this.propertyService = propertyService;
     }
 

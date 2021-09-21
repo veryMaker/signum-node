@@ -224,7 +224,9 @@ public final class Burst {
 
       final DownloadCacheImpl downloadCache = new DownloadCacheImpl(propertyService, fluxCapacitor, blockchain);
 
-      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ? new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor) : new GeneratorImpl(blockchain, downloadCache, accountService, timeService, fluxCapacitor);
+      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ?
+          new GeneratorImpl.MockGenerator(propertyService, blockchain, accountService, timeService, fluxCapacitor) :
+            new GeneratorImpl(blockchain, downloadCache, accountService, timeService, fluxCapacitor);
 
       final TransactionService transactionService = new TransactionServiceImpl(accountService, blockchain);
 
