@@ -519,7 +519,7 @@ public abstract class TransactionType {
 
   public abstract static class Messaging extends TransactionType {
 
-    private Messaging() {
+    protected Messaging() {
     }
 
     @Override
