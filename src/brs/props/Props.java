@@ -4,6 +4,7 @@ public class Props {
   
   // Structural parameters
   public static final Prop<Integer> BLOCK_TIME = new Prop<>("brs.blockTime", 240);
+  public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("brs.decimalPlaces", 8);
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
   public static final Prop<Integer> API_V2_PORT = new Prop<>("API.V2.Port", 8121);
   public static final Prop<String> NETWORK_NAME = new Prop<>("brs.networkName", "Signum");
