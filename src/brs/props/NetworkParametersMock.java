@@ -1,9 +1,5 @@
 package brs.props;
 
-import java.security.SecureRandom;
-
-import brs.util.Convert;
-
 public class NetworkParametersMock extends NetworkParametersTestnet {
   
   @Override
@@ -11,11 +7,7 @@ public class NetworkParametersMock extends NetworkParametersTestnet {
     super.initialize();
     
     setProperty(Props.NETWORK_NAME, "Signum-LOCAL-MOCK");
-
-    // We use a different one for every time we start.
-    SecureRandom rand = new SecureRandom();
-    long genesisBlockId = rand.nextLong();
-    setProperty(Props.GENESIS_BLOCK_ID, Convert.toUnsignedLong(genesisBlockId));
+    setProperty(Props.GENESIS_BLOCK_ID, "7255460345239802627");
 
     setProperty(Props.DEV_OFFLINE, "true");
     setProperty(Props.DEV_MOCK_MINING, "true");

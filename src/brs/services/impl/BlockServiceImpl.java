@@ -290,6 +290,9 @@ public class BlockServiceImpl implements BlockService {
       int blockCounter = 1;
       do {
         int previousHeight = itBlock.getHeight();
+        if(previousHeight < 1) {
+          break;
+        }
         itBlock = downloadCache.getBlock(itBlock.getPreviousBlockId());
         if (itBlock == null) {
           throw new BlockOutOfOrderException("Previous block does no longer exist for block height " + previousHeight);
@@ -300,7 +303,7 @@ public class BlockServiceImpl implements BlockService {
             .divide(BigInteger.valueOf(blockCounter + 1L));
       } while (blockCounter < 24);
       long difTime = (long) block.getTimestamp() - itBlock.getTimestamp();
-      long targetTimespan = 24L * blockTime;
+      long targetTimespan = blockCounter * blockTime;
 
       if (difTime < targetTimespan / 2) {
         difTime = targetTimespan / 2;
@@ -361,7 +364,8 @@ public class BlockServiceImpl implements BlockService {
               block.getPeer().getAnnouncedAddress());
         }
         
-        Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
+        int pastBlockHeight = Math.max(0,  block.getHeight() - Constants.MAX_ROLLBACK);
+        Block pastBlock = blockchain.getBlockAtHeight(pastBlockHeight);
         
         long pastAverageCommitment = pastBlock.getAverageCommitment();
         if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY, block.getHeight())) {
