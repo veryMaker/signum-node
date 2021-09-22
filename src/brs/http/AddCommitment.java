@@ -32,6 +32,7 @@ public final class AddCommitment extends CreateTransaction {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getSenderAccount(req);
     long amountNQT = ParameterParser.getAmountNQT(req);

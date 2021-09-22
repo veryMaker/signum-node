@@ -25,6 +25,7 @@ final class GetBidOrderIds extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long assetId = parameterService.getAsset(req).getId();
     int firstIndex = ParameterParser.getFirstIndex(req);

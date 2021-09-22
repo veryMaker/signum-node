@@ -196,7 +196,7 @@ public final class APIServlet extends HttpServlet {
       writeJsonToResponse(resp, response);
     }
 
-    abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
+    protected abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
   }
 
   public abstract static class HttpRequestHandler {

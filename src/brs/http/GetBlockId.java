@@ -21,6 +21,7 @@ final class GetBlockId extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     int height;

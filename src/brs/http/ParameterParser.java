@@ -17,7 +17,7 @@ import java.nio.ByteOrder;
 import static brs.http.JSONResponses.*;
 import static brs.http.common.Parameters.*;
 
-final class ParameterParser {
+public final class ParameterParser {
 
   static long getFeeNQT(HttpServletRequest req) throws ParameterException {
     String feeValueNQT = Convert.emptyToNull(req.getParameter(FEE_NQT_PARAMETER));
@@ -133,7 +133,7 @@ final class ParameterParser {
     return timestamp;
   }
 
-  static long getRecipientId(HttpServletRequest req) throws ParameterException {
+  public static long getRecipientId(HttpServletRequest req) throws ParameterException {
     String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
     if (recipientValue == null || Parameters.isZero(recipientValue)) {
       throw new ParameterException(MISSING_RECIPIENT);
@@ -257,5 +257,47 @@ final class ParameterParser {
       throw new ParameterException(INCORRECT_AMOUNT);
     }
     return amountNQT;
+  }
+  
+  public static byte getByte(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
+    String retString = Convert.emptyToNull(req.getParameter(param));
+    if (retString == null && checkMissing) {
+      throw new ParameterException(JSONResponses.missing(param));
+    }
+    if (retString == null)
+      return (byte)0;
+    try {
+      return Byte.parseByte(retString);
+    } catch (NumberFormatException e) {
+      throw new ParameterException(JSONResponses.incorrect(param));
+    }
+  }
+  
+  public static long getLong(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
+    String retString = Convert.emptyToNull(req.getParameter(param));
+    if (retString == null && checkMissing) {
+      throw new ParameterException(JSONResponses.missing(param));
+    }
+    try {
+      return Long.parseLong(retString);
+    } catch (NumberFormatException e) {
+      throw new ParameterException(JSONResponses.incorrect(param));
+    }
+  }
+  
+  public static byte[] getByteArray(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
+    try {
+      String creationBytes = req.getParameter(param);
+      if(creationBytes == null && checkMissing) {
+        throw new ParameterException(JSONResponses.missing(param));
+      }
+      if(creationBytes == null) {
+        return null;
+      }
+      
+      return Convert.parseHexString(creationBytes);
+    } catch (RuntimeException e) {
+      throw new ParameterException(JSONResponses.incorrect(param));
+    }
   }
 }

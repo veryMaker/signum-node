@@ -28,6 +28,7 @@ public final class DGSPurchase extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     DigitalGoodsStore.Goods goods = parameterService.getGoods(req);

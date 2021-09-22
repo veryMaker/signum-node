@@ -24,6 +24,7 @@ final class GetTransactionBytes extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     String transactionValue = req.getParameter(TRANSACTION_PARAMETER);

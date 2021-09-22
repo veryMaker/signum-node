@@ -49,6 +49,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String secret = req.getParameter(SECRET_PHRASE_PARAMETER);
     long nonce = Convert.parseUnsignedLong(req.getParameter(NONCE_PARAMETER));

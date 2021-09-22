@@ -25,6 +25,7 @@ public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws ParameterException {
     List<Account> accounts = parameterService.getAccounts(req);
     int firstIndex = ParameterParser.getFirstIndex(req);

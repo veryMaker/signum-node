@@ -23,6 +23,7 @@ public final class GetAccountPublicKey extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     Account account = parameterService.getAccount(req);

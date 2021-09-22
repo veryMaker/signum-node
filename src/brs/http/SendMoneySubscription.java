@@ -23,6 +23,7 @@ final class SendMoneySubscription extends CreateTransaction {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account sender = parameterService.getSenderAccount(req);
     Long recipient = ParameterParser.getRecipientId(req);

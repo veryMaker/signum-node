@@ -18,6 +18,7 @@ public final class GetTime extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     JsonObject response = new JsonObject();
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());

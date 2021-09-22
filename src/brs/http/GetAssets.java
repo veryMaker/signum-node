@@ -24,6 +24,7 @@ public final class GetAssets extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     String[] assets = req.getParameterValues(ASSETS_PARAMETER);

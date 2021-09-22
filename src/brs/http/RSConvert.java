@@ -19,6 +19,7 @@ final class RSConvert extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String accountValue = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     if (accountValue == null) {

@@ -22,6 +22,7 @@ public final class DGSListing extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String name = Convert.emptyToNull(req.getParameter(NAME_PARAMETER));

@@ -26,6 +26,7 @@ final class GetAccountTransactions extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account account = parameterService.getAccount(req);
     int timestamp = ParameterParser.getTimestamp(req);

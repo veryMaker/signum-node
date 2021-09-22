@@ -19,6 +19,7 @@ public class SuggestFee extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     final FeeSuggestion feeSuggestion = feeSuggestionCalculator.giveFeeSuggestion();
 

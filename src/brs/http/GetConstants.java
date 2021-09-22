@@ -26,6 +26,7 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
     }
     
     @Override
+    protected
     JsonElement processRequest(HttpServletRequest req) {
         JsonObject response = new JsonObject();
         response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
