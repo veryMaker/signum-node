@@ -265,7 +265,7 @@ public final class Burst {
       Peers.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool);
       if(params != null) {
         params.initialize(parameterService, apiTransactionManager);
-        TransactionType.addExtraSubtypes(params.getExtraTransactionSubtypes());
+        TransactionType.setNetworkParameters(params);
       }
 
       api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,

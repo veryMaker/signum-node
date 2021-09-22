@@ -1,17 +1,16 @@
 package brs.props;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import brs.TransactionType;
 import brs.fluxcapacitor.FluxValue;
-import brs.fluxcapacitor.HistoricalMoments;
 import brs.fluxcapacitor.FluxValue.ValueChange;
-import brs.http.APITransactionManager;
+import brs.fluxcapacitor.HistoricalMoments;
 import brs.http.APIServlet.HttpRequestHandler;
+import brs.http.APITransactionManager;
 import brs.services.ParameterService;
 
 public class NetworkParametersBase implements NetworkParameters {
@@ -43,18 +42,16 @@ public class NetworkParametersBase implements NetworkParameters {
   }
 
   @Override
-  public Map<Byte, Map<Byte, TransactionType>> getExtraTransactionSubtypes() {
-    return new HashMap<>();
-  }
-
-  @Override
-  public Map<String, HttpRequestHandler> getExtraAPIs() {
-    return new HashMap<>();
-  }
-
-  @Override
   public Map<Long, Integer> getBlockRewardDistribution(int height) {
     return null;
+  }
+
+  @Override
+  public void adjustTransactionTypes(Map<Byte, Map<Byte, TransactionType>> types) {
+  }
+
+  @Override
+  public void adjustAPIs(Map<String, HttpRequestHandler> map) {
   }
   
 }

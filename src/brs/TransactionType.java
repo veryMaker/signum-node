@@ -14,6 +14,7 @@ import brs.at.AtException;
 import brs.at.AtMachineState;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.NetworkParameters;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
@@ -165,29 +166,19 @@ public abstract class TransactionType {
     advancedPaymentTypes.put(SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_CANCEL, AdvancedPayment.SUBSCRIPTION_CANCEL);
     advancedPaymentTypes.put(SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT, AdvancedPayment.SUBSCRIPTION_PAYMENT);
 
-    TRANSACTION_TYPES.put(TYPE_PAYMENT, Collections.unmodifiableMap(paymentTypes));
-    TRANSACTION_TYPES.put(TYPE_MESSAGING, Collections.unmodifiableMap(messagingTypes));
-    TRANSACTION_TYPES.put(TYPE_COLORED_COINS, Collections.unmodifiableMap(coloredCoinsTypes));
-    TRANSACTION_TYPES.put(TYPE_DIGITAL_GOODS, Collections.unmodifiableMap(digitalGoodsTypes));
-    TRANSACTION_TYPES.put(TYPE_ACCOUNT_CONTROL, Collections.unmodifiableMap(accountControlTypes));
-    TRANSACTION_TYPES.put(TYPE_BURST_MINING, Collections.unmodifiableMap(burstMiningTypes));
-    TRANSACTION_TYPES.put(TYPE_ADVANCED_PAYMENT, Collections.unmodifiableMap(advancedPaymentTypes));
-    TRANSACTION_TYPES.put(TYPE_AUTOMATED_TRANSACTIONS, Collections.unmodifiableMap(atTypes));
+    TRANSACTION_TYPES.put(TYPE_PAYMENT, paymentTypes);
+    TRANSACTION_TYPES.put(TYPE_MESSAGING, messagingTypes);
+    TRANSACTION_TYPES.put(TYPE_COLORED_COINS, coloredCoinsTypes);
+    TRANSACTION_TYPES.put(TYPE_DIGITAL_GOODS, digitalGoodsTypes);
+    TRANSACTION_TYPES.put(TYPE_ACCOUNT_CONTROL, accountControlTypes);
+    TRANSACTION_TYPES.put(TYPE_BURST_MINING, burstMiningTypes);
+    TRANSACTION_TYPES.put(TYPE_ADVANCED_PAYMENT, advancedPaymentTypes);
+    TRANSACTION_TYPES.put(TYPE_AUTOMATED_TRANSACTIONS, atTypes);
   }
   
-  public static void addExtraSubtypes(Map<Byte, Map<Byte, TransactionType>> extraTransactionSubtypes) {
-    for(Byte type : extraTransactionSubtypes.keySet()){
-      Map<Byte, TransactionType> typeBeingExtended = TRANSACTION_TYPES.get(type);
-      if(typeBeingExtended != null) {
-        typeBeingExtended.putAll(extraTransactionSubtypes.get(type));
-      }
-      else {
-        typeBeingExtended = extraTransactionSubtypes.get(type);
-      }
-      TRANSACTION_TYPES.put(type, typeBeingExtended);
-    }
+  public static void setNetworkParameters(NetworkParameters params) {
+    params.adjustTransactionTypes(TRANSACTION_TYPES);
   }
-
 
   public static TransactionType findTransactionType(byte type, byte subtype) {
     Map<Byte, TransactionType> subtypes = TRANSACTION_TYPES.get(type);

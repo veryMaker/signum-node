@@ -13,9 +13,15 @@ public interface NetworkParameters {
   
   String getProperty(String key);
   
-  Map<Byte, Map<Byte, TransactionType>> getExtraTransactionSubtypes();
+  /**
+   * This method can either add or remove transaction types/subtyes on the given map.
+   */
+  void adjustTransactionTypes(Map<Byte, Map<Byte, TransactionType>> types);
   
-  Map<String, HttpRequestHandler> getExtraAPIs();
+  /**
+   * This method can either add or remove API requests from the given map.
+   */
+  void adjustAPIs(Map<String, HttpRequestHandler> map);
 
   /**
    * @param height

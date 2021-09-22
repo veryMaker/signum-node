@@ -169,7 +169,7 @@ public final class APIServlet extends HttpServlet {
     
     // Extra api for the custom network parameters
     if(params != null) {
-      map.putAll(params.getExtraAPIs());
+      params.adjustAPIs(map);
     }
 
     apiRequestHandlers = Collections.unmodifiableMap(map);
