@@ -30,7 +30,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.List;
 
 import static brs.Attachment.ORDINARY_PAYMENT;
-import static brs.Constants.FEE_QUANT;
+import static brs.Constants.FEE_QUANT_CIP3;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -93,7 +93,7 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 100; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
@@ -113,7 +113,7 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 100; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, mockPeer);
@@ -131,7 +131,7 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 100; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
@@ -152,7 +152,7 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 8192; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
@@ -162,7 +162,7 @@ public class UnconfirmedTransactionStoreTest {
     assertNotNull(t.get(1L));
 
     final Transaction oneTransactionTooMany =
-        new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 9999, FEE_QUANT * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+        new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 9999, FEE_QUANT_CIP3 * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
             .id(8193L).senderId(123L).build();
     oneTransactionTooMany.sign(TestConstants.TEST_SECRET_PHRASE);
     t.put(oneTransactionTooMany, null);
@@ -178,25 +178,25 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 8192; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 100, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
     }
 
     assertEquals(8192, t.getAll().size());
-    assertEquals(8192, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT * 100).count());
+    assertEquals(8192, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT_CIP3 * 100).count());
     assertNotNull(t.get(1L));
 
     final Transaction oneTransactionTooMany =
-        new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 9999, FEE_QUANT * 200, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+        new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 9999, FEE_QUANT_CIP3 * 200, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
             .id(8193L).senderId(123L).build();
     oneTransactionTooMany.sign(TestConstants.TEST_SECRET_PHRASE);
     t.put(oneTransactionTooMany, null);
 
     assertEquals(8192, t.getAll().size());
-    assertEquals(8192 - 1, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT * 100).count());
-    assertEquals(1, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT * 200).count());
+    assertEquals(8192 - 1, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT_CIP3 * 100).count());
+    assertEquals(1, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT_CIP3 * 200).count());
   }
 
   @DisplayName("The unconfirmed transaction gets denied in case the account is unknown")
@@ -259,7 +259,7 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 414; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 2, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 2, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).referencedTransactionFullHash("b33f").build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
@@ -275,7 +275,7 @@ public class UnconfirmedTransactionStoreTest {
     when(mockBlockChain.getHeight()).thenReturn(20);
 
     for (int i = 1; i <= 365; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
@@ -284,7 +284,7 @@ public class UnconfirmedTransactionStoreTest {
     assertEquals(360, t.getAll().size());
 
     for (int i = 1; i <= 725; i++) {
-      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT * 2, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
+      Transaction transaction = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, i, FEE_QUANT_CIP3 * 2, timeService.getEpochTime() + 50000, (short) 500, ORDINARY_PAYMENT)
           .id(i+1000).senderId(123L).build();
       transaction.sign(TestConstants.TEST_SECRET_PHRASE);
       t.put(transaction, null);
@@ -295,11 +295,11 @@ public class UnconfirmedTransactionStoreTest {
 
   @Test
   public void cheaperDuplicateTransactionGetsRemoved() throws ValidationException {
-    Transaction cheap = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.getEpochTime() + 50000, (short) 500,
+    Transaction cheap = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT_CIP3, timeService.getEpochTime() + 50000, (short) 500,
         new MessagingAliasSell("aliasName", 123, 5))
         .id(1).senderId(123L).build();
 
-    Transaction expensive = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT * 2, timeService.getEpochTime() + 50000, (short) 500,
+    Transaction expensive = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT_CIP3 * 2, timeService.getEpochTime() + 50000, (short) 500,
         new MessagingAliasSell("aliasName", 123, 5))
         .id(2).senderId(123L).build();
 
@@ -317,11 +317,11 @@ public class UnconfirmedTransactionStoreTest {
 
   @Test
   public void cheaperDuplicateTransactionNeverGetsAdded() throws ValidationException {
-    Transaction cheap = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT, timeService.getEpochTime() + 50000, (short) 500,
+    Transaction cheap = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT_CIP3, timeService.getEpochTime() + 50000, (short) 500,
         new MessagingAliasSell("aliasName", 123, 5))
         .id(1).senderId(123L).build();
 
-    Transaction expensive = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT * 2, timeService.getEpochTime() + 50000, (short) 500,
+    Transaction expensive = new Transaction.Builder((byte) 1, TestConstants.TEST_PUBLIC_KEY_BYTES, 1, FEE_QUANT_CIP3 * 2, timeService.getEpochTime() + 50000, (short) 500,
         new MessagingAliasSell("aliasName", 123, 5))
         .id(2).senderId(123L).build();
 

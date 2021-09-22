@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 
-import static brs.Constants.FEE_QUANT;
+import static brs.Constants.FEE_QUANT_CIP3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -51,8 +51,8 @@ public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
     listenerArgumentCaptor.getValue().notify(mockBlock1);
 
     FeeSuggestion feeSuggestionOne = t.giveFeeSuggestion();
-    assertEquals(1 * FEE_QUANT, feeSuggestionOne.getCheapFee());
-    assertEquals(2 * FEE_QUANT, feeSuggestionOne.getStandardFee());
-    assertEquals(12 * FEE_QUANT, feeSuggestionOne.getPriorityFee());
+    assertEquals(1 * FEE_QUANT_CIP3, feeSuggestionOne.getCheapFee());
+    assertEquals(2 * FEE_QUANT_CIP3, feeSuggestionOne.getStandardFee());
+    assertEquals(12 * FEE_QUANT_CIP3, feeSuggestionOne.getPriorityFee());
   }
 }

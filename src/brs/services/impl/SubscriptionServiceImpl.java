@@ -89,7 +89,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   private long getFee(int height) {
 	if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
-	  return Constants.FEE_QUANT;
+	  return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
     return Constants.ONE_BURST;
   }
 

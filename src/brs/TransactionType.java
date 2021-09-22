@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static brs.Constants.FEE_QUANT;
 import static brs.Constants.ONE_BURST;
 
 public abstract class TransactionType {
@@ -616,7 +615,7 @@ public abstract class TransactionType {
       @Override
       public Fee getBaselineFee(int height) {
         return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
-            new Fee(FEE_QUANT * BASELINE_ALIAS_ASSIGNMENT_FACTOR, 0) :
+            new Fee(fluxCapacitor.getValue(FluxValues.FEE_QUANT, height) * BASELINE_ALIAS_ASSIGNMENT_FACTOR, 0) :
             super.getBaselineFee(height);
       }
 
@@ -888,7 +887,7 @@ public abstract class TransactionType {
       @Override
       public Fee getBaselineFee(int height) {
         return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
-            new Fee(FEE_QUANT * BASELINE_ASSET_ISSUANCE_FACTOR, 0) :
+            new Fee(fluxCapacitor.getValue(FluxValues.FEE_QUANT, height) * BASELINE_ASSET_ISSUANCE_FACTOR, 0) :
             BASELINE_ASSET_ISSUANCE_FEE;
       }
 
@@ -1947,14 +1946,8 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Reward recipient must have public key saved in blockchain: " + JSON.toJsonString(transaction.getJsonObject()));
         }
 
-        if (fluxCapacitor.getValue(FluxValues.PRE_POC2)) {
-          if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() < FEE_QUANT) {
-            throw new BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + JSON.toJsonString(transaction.getJsonObject()));
-          }
-        } else {
-          if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() != Constants.ONE_BURST) {
-            throw new BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and 1 fee: " + JSON.toJsonString(transaction.getJsonObject()));
-          }
+        if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() < fluxCapacitor.getValue(FluxValues.FEE_QUANT, height)) {
+          throw new BurstException.NotValidException("Reward recipient assignment transaction must have 0 send amount and at least minimum fee: " + JSON.toJsonString(transaction.getJsonObject()));
         }
 
         if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE, height)) {
@@ -2794,6 +2787,7 @@ public abstract class TransactionType {
   }
 
   public Fee getBaselineFee(int height) {
+    long FEE_QUANT = fluxCapacitor.getValue(FluxValues.FEE_QUANT, height);
     if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
       return new Fee(FEE_QUANT, FEE_QUANT);
     }

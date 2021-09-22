@@ -10,8 +10,6 @@ import com.google.gson.JsonElement;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
 import static brs.http.common.Parameters.*;
 
 public abstract class CreateTransaction extends APIServlet.JsonRequestHandler {
@@ -62,7 +60,7 @@ public abstract class CreateTransaction extends APIServlet.JsonRequestHandler {
   }
 
   private long minimumFeeNQT() {
-    return Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? FEE_QUANT : ONE_BURST;
+    return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
   }
 
 }

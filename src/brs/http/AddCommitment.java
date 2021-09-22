@@ -14,8 +14,6 @@ import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
 import static brs.http.JSONResponses.INCORRECT_FEE;
 import static brs.http.JSONResponses.NOT_ENOUGH_FUNDS;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
@@ -37,7 +35,7 @@ public final class AddCommitment extends CreateTransaction {
     final Account account = parameterService.getSenderAccount(req);
     long amountNQT = ParameterParser.getAmountNQT(req);
     
-    long minimumFeeNQT = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? FEE_QUANT : ONE_BURST;
+    long minimumFeeNQT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     long feeNQT = ParameterParser.getFeeNQT(req);
     if (feeNQT < minimumFeeNQT) {
       return INCORRECT_FEE;
