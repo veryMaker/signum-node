@@ -287,17 +287,25 @@ public final class ParameterParser {
   
   public static byte[] getByteArray(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
     try {
-      String creationBytes = req.getParameter(param);
-      if(creationBytes == null && checkMissing) {
+      String stringValue = req.getParameter(param);
+      if(stringValue == null && checkMissing) {
         throw new ParameterException(JSONResponses.missing(param));
       }
-      if(creationBytes == null) {
+      if(stringValue == null) {
         return null;
       }
       
-      return Convert.parseHexString(creationBytes);
+      return Convert.parseHexString(stringValue);
     } catch (RuntimeException e) {
       throw new ParameterException(JSONResponses.incorrect(param));
     }
+  }
+  
+  public static String getString(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
+    String stringValue = req.getParameter(param);
+    if(stringValue == null && checkMissing) {
+      throw new ParameterException(JSONResponses.missing(param));
+    }
+    return stringValue;
   }
 }
