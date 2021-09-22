@@ -10,14 +10,20 @@ import brs.TransactionType;
 import brs.fluxcapacitor.FluxValue;
 import brs.fluxcapacitor.HistoricalMoments;
 import brs.fluxcapacitor.FluxValue.ValueChange;
+import brs.http.APITransactionManager;
 import brs.http.APIServlet.HttpRequestHandler;
+import brs.services.ParameterService;
 
 public class NetworkParametersBase implements NetworkParameters {
   
   private final Properties properties = new Properties();
+  protected ParameterService parameterService;
+  protected APITransactionManager apiTransactionManager;
   
   @Override
-  public void initialize() {
+  public void initialize(ParameterService parameterService, APITransactionManager apiTransactionManager) {
+    this.parameterService = parameterService;
+    this.apiTransactionManager = apiTransactionManager;
   }
   
   protected <T> void setProperty(Prop<T> prop, String value) {

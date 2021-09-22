@@ -2,8 +2,8 @@ package brs.props;
 
 public class NetworkParametersTestnet extends NetworkParametersBase {
   
-  @Override
-  public void initialize() {
+  public NetworkParametersTestnet() {
+    
     setProperty(Props.NETWORK_NAME, "Signum-TESTNET");
 
     setProperty(Props.REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT, "0");

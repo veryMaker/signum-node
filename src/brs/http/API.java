@@ -4,6 +4,7 @@ import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
+import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
@@ -47,7 +48,9 @@ public final class API {
       SubscriptionService subscriptionService, ATService atService,
       TimeService timeService, EconomicClustering economicClustering, PropertyService propertyService,
       ThreadPool threadPool, TransactionService transactionService, BlockService blockService,
-      Generator generator, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator, DeeplinkQRCodeGenerator deepLinkQRCodeGenerator, IndirectIncomingService indirectIncomingService) {
+      Generator generator, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
+      DeeplinkQRCodeGenerator deepLinkQRCodeGenerator, IndirectIncomingService indirectIncomingService,
+      NetworkParameters params) {
 
     List<String> allowedBotHostsList = propertyService.getStringList(Props.API_ALLOWED);
     Set<Subnet> allowedBotHosts;
@@ -155,7 +158,7 @@ public final class API {
               accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
               subscriptionService, atService, timeService, economicClustering, transactionService, blockService, generator, propertyService,
               apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService,
-              allowedBotHosts);
+              allowedBotHosts, params);
       ServletHolder apiServletHolder = new ServletHolder(apiServlet);
       apiHandler.addServlet(apiServletHolder, API_PATH);
 

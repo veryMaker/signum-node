@@ -177,7 +177,6 @@ public final class Burst {
     if(networkParametersClass != null) {
       try {
         params = (NetworkParameters) Class.forName(networkParametersClass).getConstructor().newInstance();
-        params.initialize();
         propertyService.setNetworkParameters(params);
       } catch (Exception e) {
         logger.error(e.getMessage(), e);
@@ -243,9 +242,6 @@ public final class Burst {
       final IndirectIncomingService indirectIncomingService = new IndirectIncomingServiceImpl(stores.getIndirectIncomingStore(), propertyService);
 
       TransactionType.init(blockchain, fluxCapacitor, accountService, digitalGoodsStoreService, aliasService, assetExchange, subscriptionService, escrowService);
-      if(params != null) {
-        TransactionType.addExtraSubtypes(params.getExtraTransactionSubtypes());
-      }
 
       final BlockService blockService = new BlockServiceImpl(accountService, transactionService, blockchain, downloadCache, generator, params);
       blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain, propertyService, subscriptionService,
@@ -267,12 +263,17 @@ public final class Burst {
       final APITransactionManager apiTransactionManager = new APITransactionManagerImpl(parameterService, transactionProcessor, blockchain, accountService, transactionService);
 
       Peers.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool);
+      if(params != null) {
+        params.initialize(parameterService, apiTransactionManager);
+        TransactionType.addExtraSubtypes(params.getExtraTransactionSubtypes());
+      }
 
       api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,
           accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
           subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
-          transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService);
-
+          transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator,
+          deepLinkQRCodeGenerator, indirectIncomingService, params);
+      
       if (propertyService.getBoolean(Props.API_V2_SERVER)) {
           int port = propertyService.getInt(Props.API_V2_PORT);
           logger.info("Starting V2 API Server on port {}", port);

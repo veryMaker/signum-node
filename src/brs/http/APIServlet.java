@@ -4,6 +4,7 @@ import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
+import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
@@ -38,7 +39,7 @@ public final class APIServlet extends HttpServlet {
                     EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
                     SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
                     BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
-                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts) {
+                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts, NetworkParameters params) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
     allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
@@ -165,6 +166,11 @@ public final class APIServlet extends HttpServlet {
     map.put("fullReset", new FullReset(blockchainProcessor, propertyService));
     map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService, propertyService));
     map.put("backupDB", new BackupDB(propertyService));
+    
+    // Extra api for the custom network parameters
+    if(params != null) {
+      map.putAll(params.getExtraAPIs());
+    }
 
     apiRequestHandlers = Collections.unmodifiableMap(map);
   }

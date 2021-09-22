@@ -2,9 +2,7 @@ package brs.props;
 
 public class NetworkParametersMock extends NetworkParametersTestnet {
   
-  @Override
-  public void initialize() {
-    super.initialize();
+  public NetworkParametersMock() {
     
     setProperty(Props.NETWORK_NAME, "Signum-LOCAL-MOCK");
     setProperty(Props.GENESIS_BLOCK_ID, "7255460345239802627");
