@@ -295,7 +295,7 @@ public final class Burst {
 
       long currentTime = System.currentTimeMillis();
       logger.info("Initialization took {} ms", currentTime - startTime);
-      logger.info("Node {} started successfully.", VERSION);
+      logger.info("Signum Multiverse {} started successfully.", VERSION);
       logger.info("Running network: {}", propertyService.getString(Props.NETWORK_NAME));
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
