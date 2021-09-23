@@ -364,7 +364,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
 
   private long amountSlotForTransaction(Transaction transaction) {
-    long slot = transaction.getFeeNQT() / Constants.FEE_QUANT_CIP3;
+    long slot = transaction.getFeeNQT() / Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // Using the 'slot' now as a priority measure, not exactly as before
       long transactionSize = transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES;
