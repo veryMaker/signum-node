@@ -191,12 +191,13 @@ public class BlockServiceImpl implements BlockService {
     generatorAccount.apply(block.getGeneratorPublicKey(), block.getHeight());
 
     long blockReward = getBlockReward(block);
+    long blockRewardTotal = blockReward;
     Map<Long, Integer> blockDistribution = networkParameters != null ? networkParameters.getBlockRewardDistribution(block.getHeight()) : null;
     if(blockDistribution != null) {
       for(Long distAccountID : blockDistribution.keySet()) {
-        Account distAccount = accountService.getAccount(distAccountID);
+        Account distAccount = accountService.getOrAddAccount(distAccountID);
         if(distAccount != null) {
-          long distAmount = (blockReward * blockDistribution.get(distAccountID))/1000L;
+          long distAmount = (blockRewardTotal * blockDistribution.get(distAccountID))/1000L;
           blockReward -= distAmount;
           accountService.addToBalanceAndUnconfirmedBalanceNQT(distAccount, distAmount);
           accountService.addToForgedBalanceNQT(distAccount, distAmount);
