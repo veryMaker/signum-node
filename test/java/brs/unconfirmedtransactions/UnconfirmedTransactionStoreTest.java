@@ -33,7 +33,9 @@ import static brs.Attachment.ORDINARY_PAYMENT;
 import static brs.Constants.FEE_QUANT_CIP3;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -80,6 +82,9 @@ public class UnconfirmedTransactionStoreTest {
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
 
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    
+    doReturn(Constants.FEE_QUANT_CIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
+    doReturn(Constants.FEE_QUANT_CIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     TransactionType.init(mockBlockChain, mockFluxCapacitor, null, null, null, null, null, null);
 

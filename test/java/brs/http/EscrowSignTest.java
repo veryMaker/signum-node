@@ -25,6 +25,7 @@ import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -70,6 +71,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
     mockStatic(Burst.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    doReturn(Constants.FEE_QUANT_CIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     when(escrowServiceMock.getEscrowTransaction(eq(escrowId))).thenReturn(escrow);
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(sender);
@@ -105,6 +107,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
     mockStatic(Burst.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    doReturn(Constants.FEE_QUANT_CIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.AdvancedPaymentEscrowSign attachment = (brs.Attachment.AdvancedPaymentEscrowSign) attachmentCreatedTransaction(() -> t.processRequest(req),
         apiTransactionManagerMock);
@@ -134,6 +137,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
     mockStatic(Burst.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    doReturn(Constants.FEE_QUANT_CIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     when(escrowServiceMock.isIdSigner(eq(senderId), eq(escrow))).thenReturn(true);
 
