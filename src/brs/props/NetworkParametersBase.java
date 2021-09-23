@@ -47,7 +47,7 @@ public class NetworkParametersBase implements NetworkParameters {
   }
 
   @Override
-  public void adjustTransactionTypes(Map<Byte, Map<Byte, TransactionType>> types) {
+  public void adjustTransactionTypes(Map<TransactionType.Type, Map<Byte, TransactionType>> types) {
   }
 
   @Override

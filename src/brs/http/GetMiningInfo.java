@@ -6,6 +6,7 @@ import brs.Burst;
 import brs.Constants;
 import brs.Generator;
 import brs.http.common.ResultFields;
+import brs.props.Props;
 import brs.services.BlockService;
 import brs.util.Convert;
 import com.google.gson.JsonElement;
@@ -39,7 +40,9 @@ final class GetMiningInfo extends APIServlet.JsonRequestHandler {
     response.addProperty(ResultFields.GENERATION_SIGNATURE_RESPONSE, Convert.toHexString(newGenSig));
     response.addProperty(ResultFields.BASE_TARGET_RESPONSE, Long.toString(lastBlock.getCapacityBaseTarget()));
     response.addProperty(ResultFields.AVERAGE_COMMITMENT_NQT_RESPONSE, Long.toString(lastBlock.getAverageCommitment()));
-    response.addProperty(ResultFields.LAST_BLOCK_REWARD_RESPONSE, Long.toString(blockService.getBlockReward(lastBlock)/Constants.ONE_BURST));
+    response.addProperty(ResultFields.LAST_BLOCK_REWARD_RESPONSE, Long.toString(blockService.getBlockReward(lastBlock)
+        / Burst.getPropertyService().getInt(Props.ONE_COIN_NQT)));
+    response.addProperty(ResultFields.LAST_BLOCK_REWARD_NQT_RESPONSE, Long.toString(blockService.getBlockReward(lastBlock)));
     response.addProperty(ResultFields.TIMESTAMP_RESPONSE, Long.toString((long)lastBlock.getTimestamp()));
 		
     return response;

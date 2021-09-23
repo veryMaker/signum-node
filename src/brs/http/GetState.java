@@ -71,7 +71,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
       }
       
       long totalEffectiveBalance = accountService.getAllAccountsBalance();
-      response.addProperty("totalEffectiveBalance", totalEffectiveBalance / Constants.ONE_BURST);
+      response.addProperty("totalEffectiveBalance", totalEffectiveBalance / propertyService.getInt(Props.ONE_COIN_NQT));
       response.addProperty("totalEffectiveBalanceNQT", totalEffectiveBalance);
       
       long totalCommitted = blockchain.getCommittedAmount(null, blockchain.getHeight(), blockchain.getHeight(), null);

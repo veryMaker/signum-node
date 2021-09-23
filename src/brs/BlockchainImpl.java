@@ -185,15 +185,18 @@ public class BlockchainImpl implements Blockchain {
     if (height == 0) {
       return 0;
     }
+    
+    long ONE_COIN = propertyService.getInt(Props.ONE_COIN_NQT);
+    
     if (height >= propertyService.getInt(Props.BLOCK_REWARD_LIMIT_HEIGHT)) {
       // Minimum incentive, lower than 0.6 % per year
-      return propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * Constants.ONE_BURST;
+      return propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * ONE_COIN;
     }
     int month = height / propertyService.getInt(Props.BLOCK_REWARD_CYCLE);
     int percentage = propertyService.getInt(Props.BLOCK_REWARD_CYCLE_PERCENTAGE);
     int start = propertyService.getInt(Props.BLOCK_REWARD_START);
     return BigInteger.valueOf(start).multiply(BigInteger.valueOf(percentage).pow(month))
-      .divide(BigInteger.valueOf(100).pow(month)).longValue() * Constants.ONE_BURST;
+      .divide(BigInteger.valueOf(100).pow(month)).longValue() * ONE_COIN;
   }
   
   @Override
@@ -206,7 +209,7 @@ public class BlockchainImpl implements Blockchain {
     int decreaseStopHeight = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_HEIGHT);
     for (int i=1; i <= height; i++) {
       if (i >= decreaseStopHeight) {
-        blockReward = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * Constants.ONE_BURST;
+        blockReward = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * propertyService.getInt(Props.ONE_COIN_NQT);
       }
       else {
         int cycle = i / rewardCycle;

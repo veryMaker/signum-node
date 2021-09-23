@@ -22,8 +22,8 @@ public class GetConstantsHandler implements GrpcApiHandler<Empty, BrsApi.Constan
         TransactionType.getTransactionTypes()
                 .forEach((key, value) -> transactionTypes
                         .add(BrsApi.Constants.TransactionType.newBuilder()
-                                .setType(key)
-                                .setDescription(TransactionType.getTypeDescription(key))
+                                .setType(key.getType())
+                                .setDescription(key.getDescription())
                                 .addAllSubtypes(value.entrySet().stream()
                                         .map(entry -> BrsApi.Constants.TransactionType.TransactionSubtype.newBuilder()
                                                 .setSubtype(entry.getKey())

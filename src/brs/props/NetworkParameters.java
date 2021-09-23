@@ -16,7 +16,7 @@ public interface NetworkParameters {
   /**
    * This method can either add or remove transaction types/subtyes on the given map.
    */
-  void adjustTransactionTypes(Map<Byte, Map<Byte, TransactionType>> types);
+  void adjustTransactionTypes(Map<TransactionType.Type, Map<Byte, TransactionType>> types);
   
   /**
    * This method can either add or remove API requests from the given map.

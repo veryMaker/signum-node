@@ -34,16 +34,16 @@ public abstract class TransactionType {
 
   private static final Logger logger = LoggerFactory.getLogger(TransactionType.class);
 
-  private static final Map<Byte, Map<Byte, TransactionType>> TRANSACTION_TYPES = new HashMap<>();
+  private static final Map<Type, Map<Byte, TransactionType>> TRANSACTION_TYPES = new HashMap<>();
 
-  public static final byte TYPE_PAYMENT = 0;
-  public static final byte TYPE_MESSAGING = 1;
-  public static final byte TYPE_COLORED_COINS = 2;
-  public static final byte TYPE_DIGITAL_GOODS = 3;
-  public static final byte TYPE_ACCOUNT_CONTROL = 4;
-  public static final byte TYPE_BURST_MINING = 20; // jump some for easier nxt updating
-  public static final byte TYPE_ADVANCED_PAYMENT = 21;
-  public static final byte TYPE_AUTOMATED_TRANSACTIONS = 22;
+  public static final Type TYPE_PAYMENT = new Type((byte)0, "Payment");
+  public static final Type TYPE_MESSAGING = new Type((byte)1, "Messaging");
+  public static final Type TYPE_COLORED_COINS = new Type((byte)2, "Colored coins");
+  public static final Type TYPE_DIGITAL_GOODS = new Type((byte)3, "Digital Goods");
+  public static final Type TYPE_ACCOUNT_CONTROL = new Type((byte)4, "Account Control");
+  public static final Type TYPE_BURST_MINING = new Type((byte)20, "Mining");
+  public static final Type TYPE_ADVANCED_PAYMENT = new Type((byte)21, "Advanced Payment");
+  public static final Type TYPE_AUTOMATED_TRANSACTIONS = new Type((byte)22, "Automated Transactions");
 
   public static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT = 0;
   public static final byte SUBTYPE_PAYMENT_ORDINARY_PAYMENT_MULTI_OUT = 1;
@@ -101,6 +101,24 @@ public abstract class TransactionType {
   private static AssetExchange assetExchange;
   private static SubscriptionService subscriptionService;
   private static EscrowService escrowService;
+  
+  public static class Type {
+    private byte type;
+    private String description;
+    
+    public Type(byte type, String description) {
+      this.type = type;
+      this.description = description;
+    }
+    
+    public byte getType() {
+      return type;
+    }
+    
+    public String getDescription() {
+      return description;
+    }
+  }
 
   // TODO Temporary...
   public static void init(Blockchain blockchain, FluxCapacitor fluxCapacitor,
@@ -181,34 +199,16 @@ public abstract class TransactionType {
   }
 
   public static TransactionType findTransactionType(byte type, byte subtype) {
-    Map<Byte, TransactionType> subtypes = TRANSACTION_TYPES.get(type);
-    return subtypes == null ? null : subtypes.get(subtype);
-  }
-
-  public static String getTypeDescription(byte type) {
-    switch (type) {
-      case TYPE_PAYMENT:
-        return "Payment";
-      case TYPE_MESSAGING:
-        return "Messaging";
-      case TYPE_COLORED_COINS:
-        return "Colored coins";
-      case TYPE_DIGITAL_GOODS:
-        return "Digital Goods";
-      case TYPE_ACCOUNT_CONTROL:
-        return "Account Control";
-      case TYPE_BURST_MINING:
-        return "Burst Mining";
-      case TYPE_ADVANCED_PAYMENT:
-        return "Advanced Payment";
-      case TYPE_AUTOMATED_TRANSACTIONS:
-        return "Automated Transactions";
-      default:
-        return "Unknown";
+    for(Type t : TRANSACTION_TYPES.keySet()) {
+      if(t.getType() == type) {
+        Map<Byte, TransactionType> subtypes = TRANSACTION_TYPES.get(t);
+        return subtypes == null ? null : subtypes.get(subtype);        
+      }
     }
+    return null;
   }
 
-  public static Map<Byte, Map<Byte, TransactionType>> getTransactionTypes() {
+  public static Map<Type, Map<Byte, TransactionType>> getTransactionTypes() {
     return Collections.unmodifiableMap(TRANSACTION_TYPES);
   }
 
@@ -338,7 +338,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_PAYMENT;
+      return TransactionType.TYPE_PAYMENT.getType();
     }
 
     @Override
@@ -514,7 +514,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_MESSAGING;
+      return TransactionType.TYPE_MESSAGING.getType();
     }
 
     @Override
@@ -860,7 +860,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_COLORED_COINS;
+      return TransactionType.TYPE_COLORED_COINS.getType();
     }
 
     public static final TransactionType ASSET_ISSUANCE = new ColoredCoins() {
@@ -1262,7 +1262,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_DIGITAL_GOODS;
+      return TransactionType.TYPE_DIGITAL_GOODS.getType();
     }
 
     @Override
@@ -1799,7 +1799,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_ACCOUNT_CONTROL;
+      return TransactionType.TYPE_ACCOUNT_CONTROL.getType();
     }
 
     @Override
@@ -1871,7 +1871,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_BURST_MINING;
+      return TransactionType.TYPE_BURST_MINING.getType();
     }
 
     public static final TransactionType REWARD_RECIPIENT_ASSIGNMENT = new BurstMining() {
@@ -2126,7 +2126,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_ADVANCED_PAYMENT;
+      return TransactionType.TYPE_ADVANCED_PAYMENT.getType();
     }
 
     public static final TransactionType ESCROW_CREATION = new AdvancedPayment() {
@@ -2593,7 +2593,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType(){
-      return TransactionType.TYPE_AUTOMATED_TRANSACTIONS;
+      return TransactionType.TYPE_AUTOMATED_TRANSACTIONS.getType();
     }
 
     @Override

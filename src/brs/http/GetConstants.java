@@ -45,8 +45,8 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         TransactionType.getTransactionTypes()
                 .forEach((key, value) -> {
                     JsonObject transactionType = new JsonObject();
-                    transactionType.addProperty("value", key);
-                    transactionType.addProperty("description", TransactionType.getTypeDescription(key));
+                    transactionType.addProperty("value", key.getType());
+                    transactionType.addProperty("description", key.getDescription());
                     JsonArray transactionSubtypes = new JsonArray();
                     transactionSubtypes.addAll(value.entrySet().stream()
                             .map(entry -> {

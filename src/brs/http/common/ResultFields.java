@@ -55,6 +55,7 @@ public class ResultFields {
   public static final String BLOCK_REWARD_RESPONSE = "blockReward";
   public static final String BLOCK_REWARD_NQT_RESPONSE = "blockRewardNQT";
   public static final String LAST_BLOCK_REWARD_RESPONSE = "lastBlockReward";
+  public static final String LAST_BLOCK_REWARD_NQT_RESPONSE = "lastBlockRewardNQT";
   public static final String PAYLOAD_LENGTH_RESPONSE = "payloadLength";
   public static final String VERSION_RESPONSE = "version";
   public static final String BASE_TARGET_RESPONSE = "baseTarget";

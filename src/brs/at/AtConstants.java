@@ -29,11 +29,11 @@ public class AtConstants {
     private AtConstants() {
         // constants for AT version 1
         MIN_FEE.put((short) 1, 1000L);
-        STEP_FEE.put((short) 1, Constants.ONE_BURST / 10L);
+        STEP_FEE.put((short) 1, 100000000L / 10L);
         MAX_STEPS.put((short) 1, 2000L);
         API_STEP_MULTIPLIER.put((short) 1, 10L);
 
-        COST_PER_PAGE.put((short) 1, Constants.ONE_BURST);
+        COST_PER_PAGE.put((short) 1, 100000000L);
 
         MAX_WAIT_FOR_NUM_OF_BLOCKS.put((short) 1, 31536000L);
         MAX_SLEEP_BETWEEN_BLOCKS.put((short) 1, 31536000L);

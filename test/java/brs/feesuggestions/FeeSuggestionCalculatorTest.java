@@ -2,8 +2,11 @@ package brs.feesuggestions;
 
 import brs.Block;
 import brs.BlockchainProcessor;
+import brs.Burst;
+import brs.Constants;
 import brs.BlockchainProcessor.Event;
 import brs.common.AbstractUnitTest;
+import brs.fluxcapacitor.FluxValues;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.util.Listener;
 import org.junit.Before;
@@ -34,6 +37,8 @@ public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
 
     listenerArgumentCaptor = ArgumentCaptor.forClass(Listener.class);
     when(blockchainProcessorMock.addListener(listenerArgumentCaptor.capture(), eq(Event.AFTER_BLOCK_APPLY))).thenReturn(true);
+    
+    when(Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT)).thenReturn(Constants.FEE_QUANT_CIP3);
 
     t = new FeeSuggestionCalculator(blockchainProcessorMock, unconfirmedTransactionStoreMock);
   }

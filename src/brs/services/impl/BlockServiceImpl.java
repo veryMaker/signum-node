@@ -354,8 +354,8 @@ public class BlockServiceImpl implements BlockService {
           newAvgCommitment = curCommitment * 12 / 10;
         }
         
-        // assuming a minimum value of 1 BURST
-        newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
+        // assuming a minimum value of 1 coin
+        newAvgCommitment = Math.max(newAvgCommitment, Burst.getPropertyService().getInt(Props.ONE_COIN_NQT));
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
         
         if(block.getPeer()!=null && peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {

@@ -142,7 +142,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       return ctx.select(DSL.sum(TRANSACTION.AMOUNT)).from(TRANSACTION)
           .where(TRANSACTION.RECIPIENT_ID.isNull())
           .and(TRANSACTION.AMOUNT.gt(0L))
-          .and(TRANSACTION.TYPE.equal(TransactionType.TYPE_AUTOMATED_TRANSACTIONS))
+          .and(TRANSACTION.TYPE.equal(TransactionType.TYPE_AUTOMATED_TRANSACTIONS.getType()))
           .fetchOneInto(long.class);
     });
   }
@@ -232,7 +232,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     int commitmentHeight = Math.min(height - Constants.COMMITMENT_WAIT, endHeight);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
-      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
           .and(TRANSACTION.HEIGHT.le(commitmentHeight));
       if(account != null)
@@ -240,7 +240,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       return getTransactions(ctx, select.fetch());
     });
     Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
-      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
           .and(TRANSACTION.HEIGHT.le(endHeight));
       if(account != null)
