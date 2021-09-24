@@ -74,10 +74,10 @@ public class BurstGUI extends JFrame {
     Color iconColor = Color.BLACK;
 
     public static void main(String []args) {
-        new BurstGUI("Signum Node", Burst.VERSION.toString(), args);
+        new BurstGUI("Signum Node", ICON_LOCATION, Burst.VERSION.toString(), args);
     }
 
-    public BurstGUI(String programName, String version, String []args) {
+    public BurstGUI(String programName, String iconLocation, String version, String []args) {
         System.setSecurityManager(new BurstGUISecurityManager());
         BurstGUI.args = args;
         this.programName = programName;
