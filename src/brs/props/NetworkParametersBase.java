@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import brs.Transaction;
 import brs.TransactionType;
 import brs.fluxcapacitor.FluxValue;
 import brs.fluxcapacitor.FluxValue.ValueChange;
@@ -52,6 +53,14 @@ public class NetworkParametersBase implements NetworkParameters {
 
   @Override
   public void adjustAPIs(Map<String, HttpRequestHandler> map) {
+  }
+
+  @Override
+  public void unconfirmedTransactionAdded(Transaction transaction) {
+  }
+
+  @Override
+  public void unconfirmedTransactionRemoved(Transaction transaction) {
   }
   
 }

@@ -88,7 +88,7 @@ public class UnconfirmedTransactionStoreTest {
 
     TransactionType.init(mockBlockChain, mockFluxCapacitor, null, null, null, null, null, null);
 
-    t = new UnconfirmedTransactionStoreImpl(timeService, mockPropertyService, accountStoreMock, transactionDbMock);
+    t = new UnconfirmedTransactionStoreImpl(timeService, mockPropertyService, accountStoreMock, transactionDbMock, null);
   }
 
   @DisplayName("When we add Unconfirmed Transactions to the store, they can be retrieved")

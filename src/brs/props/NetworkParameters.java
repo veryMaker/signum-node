@@ -2,6 +2,7 @@ package brs.props;
 
 import java.util.Map;
 
+import brs.Transaction;
 import brs.TransactionType;
 import brs.http.APITransactionManager;
 import brs.http.APIServlet.HttpRequestHandler;
@@ -28,5 +29,19 @@ public interface NetworkParameters {
    * @return the block reward distribution in per thousand for the given account IDs
    */
   Map<Long, Integer> getBlockRewardDistribution(int height);
+  
+  /**
+   * A new unconfirmed transaction was added to the mempool
+   * 
+   * @param transaction
+   */
+  void unconfirmedTransactionAdded(Transaction transaction);
+  
+  /**
+   * A new unconfirmed transaction was removed from the mempool (either expired or confirmed)
+   * 
+   * @param transaction
+   */
+  void unconfirmedTransactionRemoved(Transaction transaction);
 
 }

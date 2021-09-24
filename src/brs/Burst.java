@@ -207,7 +207,7 @@ public final class Burst {
       Db.init(propertyService, dbCacheManager);
       dbs = Db.getDbsByDatabaseType();
 
-      stores = new Stores(derivedTableManager, dbCacheManager, timeService, propertyService, dbs.getTransactionDb());
+      stores = new Stores(derivedTableManager, dbCacheManager, timeService, propertyService, dbs.getTransactionDb(), params);
 
       final TransactionDb transactionDb = dbs.getTransactionDb();
       final BlockDb blockDb =  dbs.getBlockDb();
