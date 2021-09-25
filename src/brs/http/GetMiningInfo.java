@@ -3,7 +3,6 @@ package brs.http;
 import brs.Block;
 import brs.Blockchain;
 import brs.Burst;
-import brs.Constants;
 import brs.Generator;
 import brs.http.common.ResultFields;
 import brs.props.Props;
