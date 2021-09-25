@@ -249,8 +249,6 @@ public final class Burst {
           blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
           dbCacheManager, accountService, indirectIncomingService);
 
-      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
-
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
 
       final DeeplinkQRCodeGenerator deepLinkQRCodeGenerator = new DeeplinkQRCodeGenerator();
@@ -267,6 +265,8 @@ public final class Burst {
         params.initialize(parameterService, apiTransactionManager);
         TransactionType.setNetworkParameters(params);
       }
+      
+      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
 
       api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,
           accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
