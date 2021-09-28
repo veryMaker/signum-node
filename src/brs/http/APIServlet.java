@@ -175,9 +175,9 @@ public final class APIServlet extends HttpServlet {
     apiRequestHandlers = Collections.unmodifiableMap(map);
   }
 
-  abstract static class JsonRequestHandler extends HttpRequestHandler {
+  public abstract static class JsonRequestHandler extends HttpRequestHandler {
 
-    JsonRequestHandler(APITag[] apiTags, String... parameters) {
+    public JsonRequestHandler(APITag[] apiTags, String... parameters) {
       super(apiTags, parameters);
     }
 
