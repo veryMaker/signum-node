@@ -31,6 +31,7 @@ public final class Parameters {
   public static final String ACCOUNT_PARAMETER = "account";
   public static final String TIMESTAMP_PARAMETER = "timestamp";
   public static final String RECIPIENT_PARAMETER = "recipient";
+  public static final String SENDER_PARAMETER = "sender";
   public static final String RECIPIENTS_PARAMETER = "recipients";
   public static final String SELLER_PARAMETER = "seller";
   public static final String BUYER_PARAMETER = "buyer";
