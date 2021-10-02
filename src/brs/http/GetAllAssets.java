@@ -20,6 +20,7 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);

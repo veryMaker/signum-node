@@ -50,7 +50,7 @@ import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static brs.Constants.FEE_QUANT;
+import static brs.Constants.FEE_QUANT_CIP3;
 import static brs.Constants.ONE_BURST;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
@@ -997,7 +997,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
-            if (feeArray[i] < Constants.FEE_QUANT * (i + 1)) {
+            if (feeArray[i] < Constants.FEE_QUANT_CIP3 * (i + 1)) {
               throw new BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.getHeight());
             }
           }
@@ -1021,8 +1021,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         stores.commitTransaction();
         // We make sure downloadCache do not have this block anymore, but only after all DBs have it
         downloadCache.removeBlock(block);
-        int checkPointHeight = Burst.getPropertyService().getInt(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-                    Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+        int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
         // If loading from empty do less trims and checks to speed up
         if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK * (block.getHeight() < checkPointHeight ? 20 : 1) == 0) {
           if(checkDatabaseState()==0) {
@@ -1213,7 +1212,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           long feePriority = transaction.getFeeNQT() * (transaction.getSize()/Constants.ORDINARY_TRANSACTION_BYTES);
           // So the age has less priority (60 minutes to increase the priority to the next level)
           // TODO: consider giving priority based on the last sent transaction and not transaction age to improve spam protection
-          long priority = (feePriority * 60) + FEE_QUANT*age;
+          long priority = (feePriority * 60) + Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT)*age;
           
           return priority;
         };
@@ -1235,7 +1234,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
-            long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT)) / FEE_QUANT;
+            long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_CIP3)) / FEE_QUANT_CIP3;
             slot = Math.min(Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
             TreeMap<Long, Transaction> utxInSlot = unconfirmedTransactionsOrderedBySlotThenPriority.get(slot);
             if(utxInSlot == null) {
@@ -1303,10 +1302,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             continue;
           }
 
-          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT : ONE_BURST;
+          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_CIP3 : ONE_BURST;
           if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
             // we already got the list by priority, no need to check the fees again
-            slotFee = FEE_QUANT;
+            slotFee = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
           }
           if (transaction.getFeeNQT() >= slotFee) {
             if (transactionService.applyUnconfirmed(transaction)) {

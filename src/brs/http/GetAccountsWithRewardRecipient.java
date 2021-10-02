@@ -26,6 +26,7 @@ public final class GetAccountsWithRewardRecipient extends APIServlet.JsonRequest
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     JsonObject response = new JsonObject();
 		

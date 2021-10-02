@@ -43,6 +43,10 @@ public class GeneratorImplTest {
         FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);
         FluxCapacitor fluxCapacitorLnTime = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.SODIUM);
         FluxCapacitor fluxCapacitorPocPlus = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.POC_PLUS);
+        
+        doReturn(240).when(fluxCapacitor).getValue(FluxValues.BLOCK_TIME);
+        doReturn(240).when(fluxCapacitorLnTime).getValue(FluxValues.BLOCK_TIME);
+        doReturn(240).when(fluxCapacitorPocPlus).getValue(FluxValues.BLOCK_TIME);
 
         generator = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitor);
         generatorLnTime = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitorLnTime);

@@ -8,6 +8,7 @@ import brs.at.AtMachineState;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
 import brs.peer.Peer;
+import brs.props.Props;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -111,7 +112,7 @@ public final class JSONData {
     json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
     json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
-    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Constants.ONE_BURST));
+    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Burst.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
     json.addProperty(VERSION_RESPONSE, block.getVersion());
     json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.getCapacityBaseTarget()));

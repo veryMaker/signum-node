@@ -20,6 +20,7 @@ public final class GetBidOrder extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long orderId = ParameterParser.getOrderId(req);
     Order.Bid bidOrder = assetExchange.getBidOrder(orderId);

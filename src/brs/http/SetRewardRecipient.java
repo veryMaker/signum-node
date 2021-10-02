@@ -29,6 +29,7 @@ public final class SetRewardRecipient extends CreateTransaction {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getSenderAccount(req);
     Long recipient = ParameterParser.getRecipientId(req);

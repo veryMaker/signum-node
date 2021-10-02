@@ -32,6 +32,7 @@ final class SendMoneyMultiSame extends CreateTransaction {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long amountNQT = ParameterParser.getAmountNQT(req);
     Account sender = parameterService.getSenderAccount(req);

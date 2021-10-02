@@ -3,6 +3,7 @@ package brs.db.store;
 import brs.db.TransactionDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.*;
+import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.services.TimeService;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
@@ -23,7 +24,8 @@ public class Stores {
   private final UnconfirmedTransactionStore unconfirmedTransactionStore;
   private final IndirectIncomingStore indirectIncomingStore;
 
-  public Stores(DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager, TimeService timeService, PropertyService propertyService, TransactionDb transactionDb) {
+  public Stores(DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager, TimeService timeService, PropertyService propertyService, TransactionDb transactionDb,
+      NetworkParameters params) {
     this.accountStore                = new SqlAccountStore(derivedTableManager, dbCacheManager);
     this.aliasStore                  = new SqlAliasStore(derivedTableManager);
     this.assetStore                  = new SqlAssetStore(derivedTableManager);
@@ -34,7 +36,7 @@ public class Stores {
     this.orderStore                  = new SqlOrderStore(derivedTableManager);
     this.tradeStore                  = new SqlTradeStore(derivedTableManager);
     this.subscriptionStore           = new SqlSubscriptionStore(derivedTableManager);
-    this.unconfirmedTransactionStore = new UnconfirmedTransactionStoreImpl(timeService, propertyService, accountStore, transactionDb);
+    this.unconfirmedTransactionStore = new UnconfirmedTransactionStoreImpl(timeService, propertyService, accountStore, transactionDb, params);
     this.indirectIncomingStore       = new SqlIndirectIncomingStore(derivedTableManager);
     this.blockchainStore             = new SqlBlockchainStore(indirectIncomingStore);
   }

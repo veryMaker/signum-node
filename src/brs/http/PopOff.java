@@ -37,6 +37,7 @@ final class PopOff extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     
     String apiKey = req.getParameter(API_KEY_PARAMETER);

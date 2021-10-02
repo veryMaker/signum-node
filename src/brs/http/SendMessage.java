@@ -20,6 +20,7 @@ final class SendMessage extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long recipient = ParameterParser.getRecipientId(req);
     Account account = parameterService.getSenderAccount(req);

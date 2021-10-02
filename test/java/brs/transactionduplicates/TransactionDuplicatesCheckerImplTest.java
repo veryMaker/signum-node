@@ -5,6 +5,7 @@ import brs.Attachment.AdvancedPaymentSubscriptionSubscribe;
 import brs.Attachment.MessagingAliasSell;
 import brs.BlockchainImpl;
 import brs.Burst;
+import brs.Constants;
 import brs.BurstException.NotValidException;
 import brs.Escrow.DecisionType;
 import brs.Transaction;
@@ -22,8 +23,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
@@ -41,6 +45,8 @@ public class TransactionDuplicatesCheckerImplTest {
     BlockchainImpl mockBlockchain = mock(BlockchainImpl.class);
     when(mockBlockchain.getHeight()).thenReturn(4);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    
+    doReturn(Constants.FEE_QUANT_CIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
 
     TransactionType.init(mockBlockchain, mockFluxCapacitor, null, null, null, null, null, null);
 

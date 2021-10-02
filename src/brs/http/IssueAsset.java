@@ -24,6 +24,7 @@ public final class IssueAsset extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String name = req.getParameter(NAME_PARAMETER);

@@ -24,6 +24,7 @@ public class GetAccountsWithName extends APIServlet.JsonRequestHandler {
     }
 
     @Override
+    protected
     JsonElement processRequest(HttpServletRequest request) throws BurstException {
         Collection<Account> accounts = accountService.getAccountsWithName(request.getParameter(NAME_PARAMETER));
         JsonArray accountIds = new JsonArray();

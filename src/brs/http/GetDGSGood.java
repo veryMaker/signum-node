@@ -18,6 +18,7 @@ public final class GetDGSGood extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     return JSONData.goods(parameterService.getGoods(req));
   }

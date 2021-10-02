@@ -28,6 +28,7 @@ public final class EscrowSign extends CreateTransaction {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long escrowId;
     try {

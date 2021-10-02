@@ -49,7 +49,7 @@ public class GetAssetTest extends AbstractUnitTest {
     when(asset.getId()).thenReturn(assetId);
     when(asset.getName()).thenReturn("assetName");
     when(asset.getDescription()).thenReturn("assetDescription");
-    when(asset.getDecimals()).thenReturn(new Byte("3"));
+    when(asset.getDecimals()).thenReturn(Byte.parseByte("3"));
 
     when(parameterServiceMock.getAsset(eq(req))).thenReturn(asset);
 
