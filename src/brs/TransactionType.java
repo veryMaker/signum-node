@@ -2789,7 +2789,7 @@ public abstract class TransactionType {
     private final long constantFee;
     private final long appendagesFee;
 
-    Fee(long constantFee, long appendagesFee) {
+    public Fee(long constantFee, long appendagesFee) {
       this.constantFee = constantFee;
       this.appendagesFee = appendagesFee;
     }
