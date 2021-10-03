@@ -104,6 +104,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getAssetTransfers", new GetAssetTransfers(parameterService, accountService, assetExchange));
     map.put("getTransaction", new GetTransaction(transactionProcessor, blockchain));
     map.put("getTransactionBytes", new GetTransactionBytes(blockchain, transactionProcessor));
+    map.put("getTransactionIds", new GetTransactionIds(parameterService, blockchain));
     map.put("getUnconfirmedTransactionIds", new GetUnconfirmedTransactionIds(transactionProcessor, indirectIncomingService, parameterService));
     map.put("getUnconfirmedTransactions", new GetUnconfirmedTransactions(transactionProcessor, indirectIncomingService, parameterService));
     map.put("getAccountCurrentAskOrderIds", new GetAccountCurrentAskOrderIds(parameterService, assetExchange));
@@ -151,7 +152,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getAccountSubscriptions", new GetAccountSubscriptions(parameterService, subscriptionService));
     map.put("getSubscriptionsToAccount", new GetSubscriptionsToAccount(parameterService, subscriptionService));
     map.put("createATProgram", new CreateATProgram(parameterService, blockchain, apiTransactionManager));
-    map.put("getAT", new GetAT(parameterService));
+    map.put("getAT", new GetAT(parameterService, blockchain));
     map.put("getATDetails", new GetATDetails(parameterService));
     map.put("getATIds", new GetATIds(atService));
     map.put("getATLong", GetATLong.instance);

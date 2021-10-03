@@ -8,7 +8,9 @@
 package brs.at;
 
 import brs.Burst;
+import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
+import brs.util.Convert;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,6 +24,7 @@ public class AtMachineState {
     private final int creationBlockHeight;
     private final int sleepBetween;
     private final ByteBuffer apCode;
+    private long apCodeHashId;
     private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
     private short version;
     private long gBalance;
@@ -38,12 +41,15 @@ public class AtMachineState {
     private long minActivationAmount;
     private ByteBuffer apData;
     private int height;
+    private short dataPages;
+    private short callStackPages;
+    private short userStackPages;
 
     protected AtMachineState(byte[] atId, byte[] creator, short version,
                              int height,
                              byte[] stateBytes, int cSize, int dSize, int cUserStackBytes, int cCallStackBytes,
                              int creationBlockHeight, int sleepBetween,
-                             boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
+                             boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode, long apCodeHashId) {
         this.atID = atId;
         this.creator = creator;
         this.version = version;
@@ -63,11 +69,12 @@ public class AtMachineState {
         this.apCode.order(ByteOrder.LITTLE_ENDIAN);
         this.apCode.put(apCode);
         this.apCode.clear();
+        this.apCodeHashId = apCodeHashId;
 
         transactions = new LinkedHashMap<>();
     }
 
-    protected AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
+    public AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
         this.version = AtConstants.getInstance().atVersion(height);
         this.atID = atId;
         this.creator = creator;
@@ -84,9 +91,9 @@ public class AtMachineState {
 
         int pageSize = (int) AtConstants.getInstance().pageSize(height);
         short codePages = b.getShort();
-        short dataPages = b.getShort();
-        short callStackPages = b.getShort();
-        short userStackPages = b.getShort();
+        this.dataPages = b.getShort();
+        this.callStackPages = b.getShort();
+        this.userStackPages = b.getShort();
 
         this.cSize = codePages * pageSize;
         this.dSize = dataPages * pageSize;
@@ -114,6 +121,13 @@ public class AtMachineState {
         this.apCode.order(ByteOrder.LITTLE_ENDIAN);
         this.apCode.put(code);
         this.apCode.clear();
+        
+        if(apCode.array().length > 0) {
+          this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
+        }
+        else {
+          this.apCodeHashId = 0L;
+        }
 
         int dataLen;
         if (dataPages * pageSize < 257) {
@@ -235,6 +249,14 @@ public class AtMachineState {
     public ByteBuffer getApCode() {
         return apCode;
     }
+    
+    public long getApCodeHashId() {
+      return apCodeHashId;
+  }
+
+    public void setApCodeHashId(long hash) {
+      apCodeHashId = hash;
+  }
 
     public ByteBuffer getApData() {
         return apData;
@@ -278,6 +300,18 @@ public class AtMachineState {
 
     protected void setdSize(int dSize) {
         this.dSize = dSize;
+    }
+    
+    public short getDataPages() {
+      return dataPages;
+    }
+
+    public short getCallStackPages() {
+      return callStackPages;
+    }
+
+    public short getUserStackPages() {
+      return userStackPages;
     }
 
     public Long getgBalance() {

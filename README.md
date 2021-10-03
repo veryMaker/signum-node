@@ -1,4 +1,4 @@
-# Signum Node (previously Burstcoin Reference Software)
+# Signum Node
 [![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
@@ -21,7 +21,7 @@ The two supported database backends are:
 ## Network Specification
 
 - 4 minute block time
-- Total Supply: [2,138,119,200 BURST up to block 972k + 100 SIGNA per block after that](https://github.com/burst-apps-team/CIPs/blob/master/cip-0029.md)
+- Total Supply: [2,138,119,200 SIGNA up to block 972k + 100 SIGNA per block after that](https://github.com/signum-network/CIPs/blob/master/cip-0029.md)
 - Block reward starts at 10,000/block
 - Block reward decreases at 5% each month with a minimum mining incentive of 100 SIGNA per block
 
@@ -65,18 +65,18 @@ DB.Password=YOUR_PASSWORD
 
 ## Installation
 
-Grab the latest [release](https://github.com/signum-network/signum-smartj/releases) (or, if you prefer, compile yourself using the instructions below)
+Grab the latest [release](https://github.com/signum-network/signum-node/releases) (or, if you prefer, compile yourself using the instructions below)
 
 In the `conf` directory, copy `brs-default.properties` into a new file named `brs.properties` and modify this file to suit your needs (See "Configuration" section below)
 
-To run BRS, double click on `burst.exe` (if on Windows) or run `java -jar burst.jar`.
-On most systems this will show you a monitoring window and will create a tray icon to show that Signum node is running. To disable this, instead run `java -jar burst.jar --headless`.
+To run the node, double click on `signum-node.exe` (if on Windows) or run `java -jar signum-node.jar`.
+On most systems this will show you a monitoring window and will create a tray icon to show that Signum node is running. To disable this, instead run `java -jar signum-node.jar --headless`.
 
 ## Configuration
 
 ### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
 
-There is no need to change any configuration. Optionally, if you want to use mariadb (see above), you will need to add the following to your `conf/brs.properties`:
+There is no need to change any configuration. Optionally, if you want to use mariadb (see above), you will need to adjust your `conf/brs.properties`:
 
 ```properties
 DB.Url=jdbc:mariadb://localhost:3306/brs_master
@@ -88,16 +88,17 @@ Also look through the existing properties if there is anything you want to chang
 
 ### Testnet
 
-Please see the [Wiki article](https://burstwiki.org/en/testnet/) for details on how to setup a testnet node.
+In order to run a testnet node adjust your `conf/brs.properties` to:
+
+```properties
+DEV.TestNet = yes
+```
 
 ### Private Chains
 
 In order to run a private chain, you need the following properties:
 
 ```properties
-DEV.DB.Url=(Your Database URL)
-DEV.DB.Username=(Your Database Username)
-DEV.DB.Password=(Your Database Password2)
 API.Listen = 0.0.0.0
 API.allowed = *
 DEV.TestNet = yes

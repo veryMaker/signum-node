@@ -81,7 +81,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
 
     response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
     response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
-    response.addProperty("numberOfATs", atService.getAllATIds().size());
+    response.addProperty("numberOfATs", atService.getAllATIds(null).size());
     response.addProperty("numberOfAssets", assetExchange.getAssetsCount());
     int askCount = assetExchange.getAskCount();
     int bidCount = assetExchange.getBidCount();

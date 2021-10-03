@@ -4,9 +4,13 @@ import brs.Burst;
 import brs.Constants;
 import brs.Genesis;
 import brs.TransactionType;
+import brs.TransactionType.Fee;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.util.Convert;
 import brs.util.JSON;
+import burst.kit.util.BurstKitUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,18 +18,26 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 final class GetConstants extends APIServlet.JsonRequestHandler {
-
+  
     static final GetConstants instance = new GetConstants();
-
-    private final JsonElement constants;
 
     private GetConstants() {
         super(new APITag[] {APITag.INFO});
+    }
+    
+    @Override
+    JsonElement processRequest(HttpServletRequest req) {
         JsonObject response = new JsonObject();
         response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
         response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID));
         response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
+        response.addProperty("ordinaryTransactionLength", Constants.ORDINARY_TRANSACTION_BYTES);
+        response.addProperty("addressPrefix", BurstKitUtils.getAddressPrefix());
+        response.addProperty("valueSuffix", BurstKitUtils.getValueSuffix());
+        response.addProperty("blockTime", Constants.BURST_BLOCK_TIME);
+        response.addProperty("networkName", Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
+            "SignumTESTNET" : "Signum");
 
         JsonArray transactionTypes = new JsonArray();
         TransactionType.getTransactionTypes()
@@ -37,8 +49,11 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
                     transactionSubtypes.addAll(value.entrySet().stream()
                             .map(entry -> {
                                 JsonObject transactionSubtype = new JsonObject();
+                                Fee fee = entry.getValue().getBaselineFee(Burst.getBlockchain().getHeight());
                                 transactionSubtype.addProperty("value", entry.getKey());
                                 transactionSubtype.addProperty("description", entry.getValue().getDescription());
+                                transactionSubtype.addProperty("minimumFeeConstantNQT", fee.getConstantFee());
+                                transactionSubtype.addProperty("minimumFeeAppendagesNQT", fee.getAppendagesFee());
                                 return transactionSubtype;
                             })
                             .collect(JSON.jsonArrayCollector()));
@@ -62,15 +77,6 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         peerStates.add(peerState);
         response.add("peerStates", peerStates);
 
-        // TODO remove this always empty field
-        response.add("requestTypes", new JsonObject());
-
-        constants = response;
+        return response;
     }
-
-    @Override
-    JsonElement processRequest(HttpServletRequest req) {
-        return constants;
-    }
-
 }

@@ -323,8 +323,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   downloadCache.resetCache();
                   return;
                 } catch (RuntimeException | BurstException.ValidationException e) {
-                  logger.info("Failed to parse block: {}" + e.toString(), e);
-                  logger.info("Failed to parse block trace: {}", Arrays.toString(e.getStackTrace()));
+                  logger.info("Failed to parse block: {}", e.getMessage());
+                  if(logger.isDebugEnabled()) {
+                    logger.debug("Failed to parse block trace: {}", Arrays.toString(e.getStackTrace()));
+                  }
                   peer.blacklist(e, "pulled invalid data using getCumulativeDifficulty");
                   return;
                 } catch (Exception e) {
@@ -514,6 +516,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     
                     logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
+                    logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
+                        block.getCumulativeDifficulty(), block.getCommitment());
                     
                     pushBlock(block);
                     pushedForkBlocks += 1;
@@ -990,7 +994,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
             if (feeArray[i] < Constants.FEE_QUANT * (i + 1)) {
@@ -1123,7 +1127,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         	  }
         	}
             logger.info("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
-            		Hex.toHexString(block.getBlockSignature()));
+                Hex.toHexString(block.getBlockSignature()));
+            logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
+                block.getCumulativeDifficulty(), block.getCommitment());
             poppedOffBlocks.add(block);
             block = popLastBlock();
           }
@@ -1203,7 +1209,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         ToLongFunction<Transaction> priorityCalculator = transaction -> {
           int age = blockTimestamp + 1 - transaction.getTimestamp();
           if (age < 0) age = 1;
-          return ((long) age) * transaction.getFeeNQT();
+          
+          long feePriority = transaction.getFeeNQT() * (transaction.getSize()/Constants.ORDINARY_TRANSACTION_BYTES);
+          // So the age has less priority (60 minutes to increase the priority to the next level)
+          // TODO: consider giving priority based on the last sent transaction and not transaction age to improve spam protection
+          long priority = (feePriority * 60) + FEE_QUANT*age;
+          
+          return priority;
         };
 
         // Map of slot number -> transaction
@@ -1219,7 +1231,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         ))
                 .filter(transaction -> preCheckUnconfirmedTransaction(transactionDuplicatesChecker, unconfirmedTransactionStore, transaction)); // Extra check for transactions that are to be considered
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
@@ -1262,15 +1274,19 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             }
           }
           transactionsToBeIncluded = slotTransactionsToBeincluded;
-        } else { // Before Pre-POC2 HF, just choose highest priority
-          Map<Long, Transaction> transactionsOrderedByPriority = inclusionCandidates.collect(Collectors.toMap(priorityCalculator::applyAsLong, Function.identity()));
+        } else {
+          // Just confirm transactions by the highest priority
+          Stream<Transaction> transactionsOrderedByPriority = inclusionCandidates.sorted(new Comparator<Transaction>() {
+            @Override
+            public int compare(Transaction t1, Transaction t2) {
+              return Long.compare(priorityCalculator.applyAsLong(t2), priorityCalculator.applyAsLong(t1));
+            }
+          });
           Map<Long, Transaction> transactionsOrderedBySlot = new HashMap<>();
           AtomicLong currentSlot = new AtomicLong(1);
-          transactionsOrderedByPriority.keySet()
-                  .stream()
-                  .sorted(Comparator.reverseOrder())
-                  .forEach(priority -> { // This should do highest priority to lowest priority
-                    transactionsOrderedBySlot.put(currentSlot.get(), transactionsOrderedByPriority.get(priority));
+          transactionsOrderedByPriority
+                  .forEach(tx -> { // This should do highest priority to lowest priority
+                    transactionsOrderedBySlot.put(currentSlot.get(), tx);
                     currentSlot.incrementAndGet();
                   });
           transactionsToBeIncluded = transactionsOrderedBySlot;
@@ -1288,6 +1304,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
 
           long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT : ONE_BURST;
+          if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+            // we already got the list by priority, no need to check the fees again
+            slotFee = FEE_QUANT;
+          }
           if (transaction.getFeeNQT() >= slotFee) {
             if (transactionService.applyUnconfirmed(transaction)) {
               try {
@@ -1384,12 +1404,20 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private boolean hasAllReferencedTransactions(Transaction transaction, int timestamp, int count) {
+    // TODO: consider cleaning this method after the upgrade.
     if (transaction.getReferencedTransactionFullHash() == null) {
+      if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+        return true;
+      }
       return timestamp - transaction.getTimestamp() < 60 * 1440 * 60 && count < 10;
     }
     transaction = transactionDb.findTransactionByFullHash(transaction.getReferencedTransactionFullHash());
     if (!subscriptionService.isEnabled() && transaction != null && transaction.getSignature() == null) {
       transaction = null;
+    }
+    if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+      // No need to go deeper checking, if it is on the DB and confirmed already
+      return transaction != null;
     }
     return transaction != null && hasAllReferencedTransactions(transaction, timestamp, count + 1);
   }

@@ -16,7 +16,7 @@ public class GetATIdsHandler implements GrpcApiHandler<Empty, BrsApi.ATIds> {
     @Override
     public BrsApi.ATIds handleRequest(Empty empty) throws Exception {
         return BrsApi.ATIds.newBuilder()
-                .addAllIds(atService.getAllATIds())
+                .addAllIds(atService.getAllATIds(null))
                 .build();
     }
 }

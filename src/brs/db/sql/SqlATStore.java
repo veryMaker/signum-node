@@ -1,15 +1,19 @@
 package brs.db.sql;
 
+import brs.Attachment;
 import brs.Burst;
+import brs.Transaction;
 import brs.at.AT;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
+import brs.at.AtMachineState;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AtRecord;
 import brs.schema.tables.records.AtStateRecord;
+
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 
@@ -94,12 +98,12 @@ public class SqlATStore implements ATStore {
       AT.ID, AT.CREATOR_ID, AT.NAME, AT.DESCRIPTION,
       AT.VERSION, AT.CSIZE, AT.DSIZE, AT.C_USER_STACK_BYTES,
       AT.C_CALL_STACK_BYTES, AT.CREATION_HEIGHT,
-      AT.AP_CODE, AT.HEIGHT
+      AT.AP_CODE, AT.HEIGHT, AT.AP_CODE_HASH_ID
     ).values(
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
       at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
       at.getcCallStackBytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight()
+      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight(), at.getApCodeHashId()
     ).execute();
   }
 
@@ -168,23 +172,44 @@ public class SqlATStore implements ATStore {
   }
 
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {
+    byte[] code = brs.at.AT.decompressState(at.getApCode());
+    long codeHashId = at.getApCodeHashId();
+    int codeSize = at.getCsize();
+    if(code == null) {
+      // Check the creation transaction for the reference code
+      Transaction atCreationTransaction = Burst.getBlockchain().getTransaction(at.getId());
+      Transaction transaction = Burst.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
+      if(transaction!=null && transaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
+        Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
+        AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), 0);
+        code = atCreation.getApCodeBytes();
+        codeSize = atCreation.getcSize();
+        codeHashId = atCreation.getApCodeHashId();
+      }
+    }
     return new AT(AtApiHelper.getByteArray(at.getId()), AtApiHelper.getByteArray(at.getCreatorId()), at.getName(), at.getDescription(), at.getVersion(),
             height,
-            brs.at.AT.decompressState(atState.getState()), at.getCsize(), at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
-            atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), brs.at.AT.decompressState(at.getApCode()));
+            brs.at.AT.decompressState(atState.getState()), codeSize, at.getDsize(), at.getCUserStackBytes(), at.getCCallStackBytes(), at.getCreationHeight(), atState.getSleepBetween(), atState.getNextHeight(),
+            atState.getFreezeWhenSameBalance(), atState.getMinActivateAmount(), code, codeHashId);
   }
 
   @Override
-  public List<Long> getATsIssuedBy(Long accountId) {
+  public List<Long> getATsIssuedBy(Long accountId, Long codeHashId) {
     return Db.useDSLContext(ctx -> {
-      return ctx.selectFrom(AT).where(AT.LATEST.isTrue()).and(AT.CREATOR_ID.eq(accountId)).orderBy(AT.CREATION_HEIGHT.desc(), AT.ID.asc()).fetch().getValues(AT.ID);
+      SelectConditionStep<AtRecord> request = ctx.selectFrom(AT).where(AT.LATEST.isTrue()).and(AT.CREATOR_ID.eq(accountId));
+      if(codeHashId != null)
+        request = request.and(AT.AP_CODE_HASH_ID.eq(codeHashId));
+      return request.orderBy(AT.CREATION_HEIGHT.desc(), AT.ID.asc()).fetch().getValues(AT.ID);
     });
   }
 
   @Override
-  public Collection<Long> getAllATIds() {
+  public Collection<Long> getAllATIds(Long codeHashId) {
     return Db.useDSLContext(ctx -> {
-      return ctx.selectFrom(AT).where(AT.LATEST.isTrue()).fetch().getValues(AT.ID);
+      SelectConditionStep<AtRecord> request = ctx.selectFrom(AT).where(AT.LATEST.isTrue());
+      if(codeHashId != null)
+        request = request.and(AT.AP_CODE_HASH_ID.eq(codeHashId));
+      return request.fetch().getValues(AT.ID);
     });
   }
 

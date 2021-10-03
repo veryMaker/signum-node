@@ -47,7 +47,8 @@ public final class EconomicClustering {
       if (!Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE)) {
         return true;
       }
-      if (transaction.getReferencedTransactionFullHash() != null) {
+      if (transaction.getReferencedTransactionFullHash() != null && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+        // TODO: remove this conditional above in the future, do the EC check regardless of a full hash reference
         return true;
       }
       if (blockchain.getHeight() < Constants.EC_CHANGE_BLOCK_1 && blockchain.getHeight() - transaction.getECBlockHeight() > Constants.EC_BLOCK_DISTANCE_LIMIT) {

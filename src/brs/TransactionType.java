@@ -8,9 +8,11 @@ import brs.BurstException.NotValidException;
 import brs.BurstException.ValidationException;
 import brs.assetexchange.AssetExchange;
 import brs.at.AT;
+import brs.at.AtApiHelper;
 import brs.at.AtConstants;
 import brs.at.AtController;
 import brs.at.AtException;
+import brs.at.AtMachineState;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.*;
@@ -88,6 +90,9 @@ public abstract class TransactionType {
 
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
+  
+  private static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
+  private static final long BASELINE_ALIAS_ASSIGNMENT_FACTOR = 20L;
 
   private static Blockchain blockchain;
   private static FluxCapacitor fluxCapacitor;
@@ -594,6 +599,13 @@ public abstract class TransactionType {
       public String getDescription() {
         return "Alias Assignment";
       }
+      
+      @Override
+      public Fee getBaselineFee(int height) {
+        return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
+            new Fee(FEE_QUANT * BASELINE_ALIAS_ASSIGNMENT_FACTOR, 0) :
+            super.getBaselineFee(height);
+      }
 
       @Override
       public Attachment.MessagingAliasAssignment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
@@ -862,7 +874,9 @@ public abstract class TransactionType {
 
       @Override
       public Fee getBaselineFee(int height) {
-        return BASELINE_ASSET_ISSUANCE_FEE;
+        return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
+            new Fee(FEE_QUANT * BASELINE_ASSET_ISSUANCE_FACTOR, 0) :
+            BASELINE_ASSET_ISSUANCE_FEE;
       }
 
       @Override
@@ -2641,16 +2655,42 @@ public abstract class TransactionType {
             throw new BurstException.NotValidException("Account with id already exists");
         }
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
+        if (attachment.getCreationBytes() == null) {
+          throw new BurstException.NotCurrentlyValidException("AT creation bytes cannot be null");
+        }
         long totalPages;
+        int minCodePages = 1;
         try {
-          totalPages = AtController.checkCreationBytes(attachment.getCreationBytes(), blockchain.getHeight());
+          AtMachineState thisNewAtCreation = new AtMachineState(null, null, attachment.getCreationBytes(), 0);
+          if(thisNewAtCreation.getApCodeBytes().length == 0) {
+            // check if we have a reference for the code
+            Transaction referenceTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
+            minCodePages = 0;
+            
+            if(referenceTransaction!=null && referenceTransaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
+              Attachment.AutomatedTransactionsCreation atCreationAttachmentRef = (Attachment.AutomatedTransactionsCreation)referenceTransaction.getAttachment();
+              AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), referenceTransaction.getHeight());
+              // we need a code and also compatible page sizes
+              if(atCreationRef.getApCodeBytes().length == 0
+                  || atCreationRef.getDataPages() != thisNewAtCreation.getDataPages()
+                  || atCreationRef.getCallStackPages() != thisNewAtCreation.getCallStackPages()
+                  || atCreationRef.getUserStackPages() != thisNewAtCreation.getUserStackPages()) {
+                referenceTransaction = null;
+              }
+            }
+            if(referenceTransaction == null) {
+              throw new BurstException.NotCurrentlyValidException("Invalid reference transaction for the AT code");
+            }
+          }
+          totalPages = AtController.checkCreationBytes(attachment.getCreationBytes(), blockchain.getHeight(), minCodePages);
         }
         catch (AtException e) {
           throw new BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e);
         }
         long requiredFee = totalPages * AtConstants.getInstance().costPerPage( transaction.getHeight() );
         if (transaction.getFeeNQT() <  requiredFee){
-          throw new BurstException.NotValidException("Insufficient fee for AT creation. Minimum: " + Convert.toUnsignedLong(requiredFee / Constants.ONE_BURST));
+          throw new BurstException.NotValidException("Insufficient fee for AT creation, using " + transaction.getFeeNQT()
+            + ", minimum: " + requiredFee);
         }
         if (fluxCapacitor.getValue(FluxValues.AT_FIX_BLOCK_3)) {
           if (attachment.getName().length() > Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH) {
@@ -2665,7 +2705,17 @@ public abstract class TransactionType {
       @Override
       void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
-        AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight() );
+        
+        long codeHashId = 0L;
+        AtMachineState thisNewAtCreation = new AtMachineState(null, null, attachment.getCreationBytes(), 0);
+        if(thisNewAtCreation.getApCodeBytes().length == 0) {
+          Transaction referenceTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
+          Attachment.AutomatedTransactionsCreation atCreationAttachmentRef = (Attachment.AutomatedTransactionsCreation)referenceTransaction.getAttachment();
+          AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), referenceTransaction.getHeight());
+          codeHashId = atCreationRef.getApCodeHashId();
+        }
+        
+        AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight(), codeHashId );
       }
 
 
@@ -2726,10 +2776,14 @@ public abstract class TransactionType {
       return 0; // No need to validate fees before baseline block
     }
     Fee fee = getBaselineFee(height);
-    return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendagesSize, fee.getAppendagesFee()));
+    int appendageMultiplier = appendagesSize/Constants.ORDINARY_TRANSACTION_BYTES;
+    return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendageMultiplier, fee.getAppendagesFee()));
   }
 
-  protected Fee getBaselineFee(int height) {
+  public Fee getBaselineFee(int height) {
+    if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
+      return new Fee(FEE_QUANT, FEE_QUANT);
+    }
     return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_BURST), 0);
   }
 
@@ -2742,11 +2796,11 @@ public abstract class TransactionType {
       this.appendagesFee = appendagesFee;
     }
 
-    long getConstantFee() {
+    public long getConstantFee() {
       return constantFee;
     }
 
-    long getAppendagesFee() {
+    public long getAppendagesFee() {
       return appendagesFee;
     }
 

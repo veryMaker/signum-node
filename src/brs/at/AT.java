@@ -47,12 +47,12 @@ public class AT extends AtMachineState {
               int height,
               byte[] stateBytes, int csize, int dsize, int cUserStackBytes, int cCallStackBytes,
               int creationBlockHeight, int sleepBetween, int nextHeight,
-              boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
+              boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode, long apCodeHashId) {
         super(atId, creator, version,
                 height,
                 stateBytes, csize, dsize, cUserStackBytes, cCallStackBytes,
                 creationBlockHeight, sleepBetween,
-                freezeWhenSameBalance, minActivationAmount, apCode);
+                freezeWhenSameBalance, minActivationAmount, apCode, apCodeHashId);
         this.name = name;
         this.description = description;
         dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
@@ -129,7 +129,7 @@ public class AT extends AtMachineState {
         return Burst.getStores().getAtStore().getAT(id, -1);
     }
 
-    public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes, int height) {
+    public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes, int height, long atCodeHashId) {
         ByteBuffer bf = ByteBuffer.allocate(8 + 8);
         bf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -145,6 +145,9 @@ public class AT extends AtMachineState {
         bf.get(creator, 0, 8);
 
         AT at = new AT(id, creator, name, description, creationBytes, height);
+        
+        if(at.getApCodeHashId() == 0L)
+          at.setApCodeHashId(atCodeHashId);
 
         AtController.resetMachine(at);
 

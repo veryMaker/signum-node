@@ -32,6 +32,7 @@ public class Props {
   public static final Prop<Integer> DEV_SODIUM_BLOCK_HEIGHT = new Prop<>("DEV.sodium.startBlock", -1);
   public static final Prop<Integer> DEV_SIGNUM = new Prop<>("DEV.signum.startBlock", -1);
   public static final Prop<Integer> DEV_POC_PLUS = new Prop<>("DEV.pocPlus.startBlock", -1);
+  public static final Prop<Integer> DEV_SPEEDWAY = new Prop<>("DEV.speedway.startBlock", -1);
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);

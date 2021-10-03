@@ -35,7 +35,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
 
 
   SubmitNonce(PropertyService propertyService, AccountService accountService, Blockchain blockchain, Generator generator) {
-    super(new APITag[] {APITag.MINING}, SECRET_PHRASE_PARAMETER, NONCE_PARAMETER, ACCOUNT_ID_PARAMETER, BLOCK_HEIGHT_PARAMETER);
+    super(new APITag[] {APITag.MINING}, SECRET_PHRASE_PARAMETER, NONCE_PARAMETER, ACCOUNT_ID_PARAMETER, BLOCK_HEIGHT_PARAMETER, DEADLINE_PARAMETER);
     BurstCrypto burstCrypto = BurstCrypto.getInstance();
     this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
             .stream()
