@@ -57,8 +57,8 @@ final class GetState extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
 
-    response.addProperty("application", Burst.APPLICATION);
-    response.addProperty("version", Burst.VERSION.toString());
+    response.addProperty("application", Burst.getPropertyService().getString(Props.APPLICATION));
+    response.addProperty("version", Burst.getPropertyService().getString(Props.VERSION));
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());

@@ -1,6 +1,11 @@
 package brs.props;
 
+import brs.Burst;
+
 public class Props {
+  
+  public static final Prop<String> APPLICATION = new Prop<>("brs.application", Burst.APPLICATION);
+  public static final Prop<String> VERSION = new Prop<>("brs.version", Burst.VERSION.toString());
   
   // Structural parameters
   public static final Prop<Integer> BLOCK_TIME = new Prop<>("brs.blockTime", 240);

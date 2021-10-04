@@ -140,7 +140,7 @@ final class PeerImpl implements Peer {
   void setVersion(String version) {
     this.version.set(Version.EMPTY);
     isOldVersion.set(false);
-    if (Burst.APPLICATION.equals(getApplication()) && version != null) {
+    if (Burst.getPropertyService().getString(Props.APPLICATION).equals(getApplication()) && version != null) {
       try {
         this.version.set(Version.parse(version));
         isOldVersion.set(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION).isGreaterThan(this.version.get()));
