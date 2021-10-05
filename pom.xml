@@ -6,7 +6,7 @@
 
   <groupId>signum-node</groupId>
   <artifactId>signum-node</artifactId>
-  <version>3.2.0</version>
+  <version>3.2.1</version>
   <name>Signum Node Software</name>
   <url>https://github.com/signum-network/signum-node</url>
 
