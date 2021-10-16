@@ -279,7 +279,7 @@ public final class ParameterParser {
       throw new ParameterException(JSONResponses.missing(param));
     }
     try {
-      return Long.parseLong(retString);
+      return Convert.parseUnsignedLong(retString);
     } catch (NumberFormatException e) {
       throw new ParameterException(JSONResponses.incorrect(param));
     }
