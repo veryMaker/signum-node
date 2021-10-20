@@ -104,6 +104,21 @@ public class SqlTransactionDb implements TransactionDb {
   }
 
   @Override
+  public List<Transaction> findBlockAllTransactions(long blockId) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.selectFrom(TRANSACTION)
+              .where(TRANSACTION.BLOCK_ID.eq(blockId))
+              .fetch(record -> {
+                try {
+                  return loadTransaction(record);
+                } catch (BurstException.ValidationException e) {
+                  throw new RuntimeException("Transaction already in database for block_id = " + Convert.toUnsignedLong(blockId) + " does not pass validation!", e);
+                }
+              });
+    });
+  }
+
+  @Override
   public List<Transaction> findBlockTransactions(long blockId) {
     return Db.useDSLContext(ctx -> {
       return ctx.selectFrom(TRANSACTION)
