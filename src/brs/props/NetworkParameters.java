@@ -6,11 +6,13 @@ import brs.Transaction;
 import brs.TransactionType;
 import brs.http.APITransactionManager;
 import brs.http.APIServlet.HttpRequestHandler;
+import brs.services.AccountService;
 import brs.services.ParameterService;
 
 public interface NetworkParameters {
   
-  void initialize(ParameterService parameterService, APITransactionManager apiTransactionManager);
+  void initialize(ParameterService parameterService, AccountService accountService,
+      APITransactionManager apiTransactionManager);
   
   String getProperty(String key);
   

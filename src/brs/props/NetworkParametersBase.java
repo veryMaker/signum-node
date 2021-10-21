@@ -12,17 +12,20 @@ import brs.fluxcapacitor.FluxValue.ValueChange;
 import brs.fluxcapacitor.HistoricalMoments;
 import brs.http.APIServlet.HttpRequestHandler;
 import brs.http.APITransactionManager;
+import brs.services.AccountService;
 import brs.services.ParameterService;
 
 public class NetworkParametersBase implements NetworkParameters {
   
   private final Properties properties = new Properties();
   protected ParameterService parameterService;
+  protected AccountService accountService;
   protected APITransactionManager apiTransactionManager;
   
   @Override
-  public void initialize(ParameterService parameterService, APITransactionManager apiTransactionManager) {
+  public void initialize(ParameterService parameterService, AccountService accountService, APITransactionManager apiTransactionManager) {
     this.parameterService = parameterService;
+    this.accountService = accountService;
     this.apiTransactionManager = apiTransactionManager;
   }
   
