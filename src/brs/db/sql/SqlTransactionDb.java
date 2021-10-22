@@ -104,7 +104,7 @@ public class SqlTransactionDb implements TransactionDb {
   }
 
   @Override
-  public List<Transaction> findBlockAllTransactions(long blockId) {
+  public List<Transaction> findAllTransactionsByBlock(long blockId) {
     return Db.useDSLContext(ctx -> {
       return ctx.selectFrom(TRANSACTION)
               .where(TRANSACTION.BLOCK_ID.eq(blockId))

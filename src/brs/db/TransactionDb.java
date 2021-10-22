@@ -19,7 +19,7 @@ public interface TransactionDb extends Table {
 
   List<Transaction> findBlockTransactions(long blockId);
 
-  List<Transaction> findBlockAllTransactions(long blockId);
+  List<Transaction> findAllTransactionsByBlock(long blockId);
 
   void saveTransactions(List<Transaction> transactions);
 }

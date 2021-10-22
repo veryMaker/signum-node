@@ -17,11 +17,11 @@ import static brs.http.common.ResultFields.TRANSACTIONS_RESPONSE;
 import static brs.http.common.Parameters.*;
 import javax.servlet.http.HttpServletRequest;
 
-final class GetTransactionsByBlock extends APIServlet.JsonRequestHandler {
+final class GetTransactionsAtBlock extends APIServlet.JsonRequestHandler {
 
   private final Blockchain blockchain;
 
-  GetTransactionsByBlock(Blockchain blockchain) {
+  GetTransactionsAtBlock(Blockchain blockchain) {
     super(new APITag[] {APITag.TRANSACTIONS}, BLOCK_PARAMETER, HEIGHT_PARAMETER, TIMESTAMP_PARAMETER);
     this.blockchain = blockchain;
   }

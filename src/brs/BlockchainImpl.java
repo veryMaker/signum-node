@@ -206,7 +206,7 @@ public class BlockchainImpl implements Blockchain {
 
   @Override
   public Collection<Transaction> getAllTransactionsAtBlock(long blockId) {
-      return transactionDb.findBlockAllTransactions(blockId);
+      return transactionDb.findAllTransactionsByBlock(blockId);
   };
 
   @Override
