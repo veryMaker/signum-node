@@ -129,7 +129,6 @@ public final class Parameters {
   public static final String INCLUDE_INDIRECT_PARAMETER = "includeIndirect";
   public static final String GET_COMMITTED_AMOUNT_PARAMETER = "getCommittedAmount";
   public static final String ESTIMATE_COMMITMENT_PARAMETER = "estimateCommitment";
-  public static final String DOMAIN_PARAMETER = "domain";
   public static final String ACTION_PARAMETER = "action";
   public static final String PAYLOAD_PARAMETER = "payload";
   public static final String API_KEY_PARAMETER = "apiKey";
