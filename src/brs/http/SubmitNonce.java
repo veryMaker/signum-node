@@ -41,8 +41,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
             .stream()
             .collect(Collectors.toMap(passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
     this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
-    this.checkPointHeight = propertyService.getInt(propertyService.getBoolean(Props.DEV_TESTNET) ?
-    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+    this.checkPointHeight = propertyService.getInt(Props.BRS_CHECKPOINT_HEIGHT);
 
     this.accountService = accountService;
     this.blockchain = blockchain;
@@ -50,6 +49,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String secret = req.getParameter(SECRET_PHRASE_PARAMETER);
     long nonce = Convert.parseUnsignedLong(req.getParameter(NONCE_PARAMETER));

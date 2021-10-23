@@ -41,9 +41,6 @@ public class GeneratorImpl implements Generator {
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
   
-  private static final double LN_SCALE = ((double) Constants.BURST_BLOCK_TIME) / Math.log((double) Constants.BURST_BLOCK_TIME);
-  // private static final double LN_SCALE = 49d; // value that would keep the legacy network size estimation close to real capacity
-
   public GeneratorImpl(Blockchain blockchain, DownloadCacheImpl downloadCache, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
     this.downloadCache = downloadCache;
@@ -162,20 +159,26 @@ public class GeneratorImpl implements Generator {
   @Override
   public BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight) {
     BigInteger deadline = hit.divide(BigInteger.valueOf(capacityBaseTarget));
+    
+    double blockTime = fluxCapacitor.getValue(FluxValues.BLOCK_TIME);
+    double lnScale = (blockTime) / Math.log(blockTime);
+
     if(fluxCapacitor.getValue(FluxValues.POC_PLUS, blockHeight)) {
+      // private static final double lnScale = 49d; // value that would keep the legacy network size estimation close to real capacity
+
       double commitmentFactor = getCommitmentFactor(commitment, averageCommitment, blockHeight);
       
       double nextDeadline = deadline.doubleValue()/commitmentFactor;
       if(nextDeadline > 0) {
         // Avoid zero logarithm
-        nextDeadline = Math.log(nextDeadline) * LN_SCALE;
+        nextDeadline = Math.log(nextDeadline) * lnScale;
       }
       deadline = BigInteger.valueOf((long)(nextDeadline));
     }
     else if(fluxCapacitor.getValue(FluxValues.SODIUM, blockHeight)) {
       if(deadline.bitLength() < 100 && deadline.longValue() > 0L) {
     	  // Avoid the double precision limit for extremely large numbers (of no value) and zero logarithm
-    	  double sodiumDeadline = Math.log(deadline.doubleValue()) * LN_SCALE;
+    	  double sodiumDeadline = Math.log(deadline.doubleValue()) * lnScale;
     	  deadline = BigInteger.valueOf((long)sodiumDeadline);
       }
     }
@@ -257,8 +260,8 @@ public class GeneratorImpl implements Generator {
 
   public static class MockGenerator extends GeneratorImpl {
     private final PropertyService propertyService;
-    public MockGenerator(PropertyService propertyService, Blockchain blockchain, TimeService timeService, FluxCapacitor fluxCapacitor) {
-      super(blockchain, null, null, timeService, fluxCapacitor);
+    public MockGenerator(PropertyService propertyService, Blockchain blockchain, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
+      super(blockchain, null, accountService, timeService, fluxCapacitor);
       this.propertyService = propertyService;
     }
 

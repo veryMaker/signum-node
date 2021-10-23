@@ -41,14 +41,14 @@ public interface Appendix {
       this.version = (byte)(Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0);
     }
 
-    abstract String getAppendixName();
+    protected abstract String getAppendixName();
 
     @Override
     public final int getSize() {
       return getMySize() + (version > 0 ? 1 : 0);
     }
 
-    abstract int getMySize();
+    protected abstract int getMySize();
 
     @Override
     public final void putBytes(ByteBuffer buffer) {
@@ -58,7 +58,7 @@ public interface Appendix {
       putMyBytes(buffer);
     }
 
-    abstract void putMyBytes(ByteBuffer buffer);
+    protected abstract void putMyBytes(ByteBuffer buffer);
 
     @Override
     public final JsonObject getJsonObject() {
@@ -70,7 +70,7 @@ public interface Appendix {
       return json;
     }
 
-    abstract void putMyJSON(JsonObject json);
+    protected abstract void putMyJSON(JsonObject json);
 
     @Override
     public final byte getVersion() {
@@ -138,23 +138,23 @@ public interface Appendix {
     }
 
     @Override
-    String getAppendixName() {
+    protected String getAppendixName() {
       return "Message";
     }
 
     @Override
-    int getMySize() {
+    protected int getMySize() {
       return 4 + messageBytes.length;
     }
 
     @Override
-    void putMyBytes(ByteBuffer buffer) {
+    protected void putMyBytes(ByteBuffer buffer) {
       buffer.putInt(isText ? (messageBytes.length | Integer.MIN_VALUE) : messageBytes.length);
       buffer.put(messageBytes);
     }
 
     @Override
-    void putMyJSON(JsonObject json) {
+    protected void putMyJSON(JsonObject json) {
       json.addProperty("message", isText ? Convert.toString(messageBytes) : Convert.toHexString(messageBytes));
       json.addProperty("messageIsText", isText);
     }
@@ -231,19 +231,19 @@ public interface Appendix {
     }
 
     @Override
-    int getMySize() {
+    protected int getMySize() {
       return 4 + encryptedData.getSize();
     }
 
     @Override
-    void putMyBytes(ByteBuffer buffer) {
+    protected void putMyBytes(ByteBuffer buffer) {
       buffer.putInt(isText ? (encryptedData.getData().length | Integer.MIN_VALUE) : encryptedData.getData().length);
       buffer.put(encryptedData.getData());
       buffer.put(encryptedData.getNonce());
     }
 
     @Override
-    void putMyJSON(JsonObject json) {
+    protected void putMyJSON(JsonObject json) {
       json.addProperty("data", Convert.toHexString(encryptedData.getData()));
       json.addProperty("nonce", Convert.toHexString(encryptedData.getNonce()));
       json.addProperty("isText", isText);
@@ -309,12 +309,12 @@ public interface Appendix {
     }
 
     @Override
-    String getAppendixName() {
+    protected String getAppendixName() {
       return "EncryptedMessage";
     }
 
     @Override
-    void putMyJSON(JsonObject json) {
+    protected void putMyJSON(JsonObject json) {
       JsonObject encryptedMessageJSON = new JsonObject();
       super.putMyJSON(encryptedMessageJSON);
       json.add("encryptedMessage", encryptedMessageJSON);
@@ -365,12 +365,12 @@ public interface Appendix {
     }
 
     @Override
-    String getAppendixName() {
+    protected String getAppendixName() {
       return "EncryptToSelfMessage";
     }
 
     @Override
-    void putMyJSON(JsonObject json) {
+    protected void putMyJSON(JsonObject json) {
       JsonObject encryptToSelfMessageJSON = new JsonObject();
       super.putMyJSON(encryptToSelfMessageJSON);
       json.add("encryptToSelfMessage", encryptToSelfMessageJSON);
@@ -424,22 +424,22 @@ public interface Appendix {
     }
 
     @Override
-    String getAppendixName() {
+    protected String getAppendixName() {
       return "PublicKeyAnnouncement";
     }
 
     @Override
-    int getMySize() {
+    protected int getMySize() {
       return 32;
     }
 
     @Override
-    void putMyBytes(ByteBuffer buffer) {
+    protected void putMyBytes(ByteBuffer buffer) {
       buffer.put(publicKey);
     }
 
     @Override
-    void putMyJSON(JsonObject json) {
+    protected void putMyJSON(JsonObject json) {
       json.addProperty("recipientPublicKey", Convert.toHexString(publicKey));
     }
 

@@ -48,6 +48,8 @@ public interface Blockchain {
   
   public long getTotalMined();
 
+  long getBlockReward(int height);
+  
   Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockImplTimestamp, boolean includeIndirectIncoming);
 
   Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockImplTimestamp, int from, int to, boolean includeIndirectIncoming);

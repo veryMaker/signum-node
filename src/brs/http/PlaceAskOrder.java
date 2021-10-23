@@ -24,6 +24,7 @@ final class PlaceAskOrder extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     final Asset asset = parameterService.getAsset(req);

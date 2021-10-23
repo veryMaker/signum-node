@@ -15,6 +15,7 @@ final class GetATLong extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     return JSONData.hex2long(ParameterParser.getATLong(req));
   }

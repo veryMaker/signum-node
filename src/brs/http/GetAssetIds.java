@@ -23,6 +23,7 @@ public final class GetAssetIds extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     int firstIndex = ParameterParser.getFirstIndex(req);

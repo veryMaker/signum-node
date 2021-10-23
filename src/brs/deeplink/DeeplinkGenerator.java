@@ -13,7 +13,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.regex.Pattern;

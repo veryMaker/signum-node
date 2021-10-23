@@ -30,6 +30,7 @@ public final class GetTrades extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String assetId = Convert.emptyToNull(req.getParameter(ASSET_PARAMETER));

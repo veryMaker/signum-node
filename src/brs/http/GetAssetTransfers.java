@@ -33,6 +33,7 @@ public final class GetAssetTransfers extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     String assetId = Convert.emptyToNull(req.getParameter(ASSET_PARAMETER));
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));

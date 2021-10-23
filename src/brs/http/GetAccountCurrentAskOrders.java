@@ -27,6 +27,7 @@ public final class GetAccountCurrentAskOrders extends APIServlet.JsonRequestHand
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final long accountId = parameterService.getAccount(req).getId();
 

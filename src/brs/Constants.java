@@ -1,13 +1,11 @@
 package brs;
 
-import brs.props.Props;
-
 import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Constants {
-
-  public static final long BURST_BLOCK_TIME = 240L;
+  
+  public static final String SIGNUM_NETWORK_NAME = "Signum";
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
 
@@ -23,7 +21,7 @@ public final class Constants {
 
   public static final long MAX_BALANCE_BURST = 2158812800L;
 
-  public static final long FEE_QUANT =    735000;
+  public static final long FEE_QUANT_CIP3 = 735000;
   public static final long ONE_BURST = 100000000;
   public static final long INITIAL_COMMITMENT = 1000 * ONE_BURST;
   public static final int COMMITMENT_WAIT = 60;
@@ -69,9 +67,6 @@ public final class Constants {
   public static final int MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH = 1000;
 
 
-  public static final int PEER_DEFAULT_PORT = 8123;
-  public static final int PEER_TESTNET_PORT = 7123;
-
   /**
    * Must be >= 1.
    */
@@ -79,8 +74,7 @@ public final class Constants {
 
   public static final String HTTP = "http://";
 
-  // TODO check if we can remove this after the next fork
-  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? 50 : 100) * ONE_BURST;
+  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = 100 * ONE_BURST;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;

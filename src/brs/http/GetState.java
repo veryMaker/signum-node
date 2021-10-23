@@ -52,12 +52,13 @@ final class GetState extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     JsonObject response = new JsonObject();
 
-    response.addProperty("application", Burst.APPLICATION);
-    response.addProperty("version", Burst.VERSION.toString());
+    response.addProperty("application", Burst.getPropertyService().getString(Props.APPLICATION));
+    response.addProperty("version", Burst.getPropertyService().getString(Props.VERSION));
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());
@@ -70,7 +71,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
       }
       
       long totalEffectiveBalance = accountService.getAllAccountsBalance();
-      response.addProperty("totalEffectiveBalance", totalEffectiveBalance / Constants.ONE_BURST);
+      response.addProperty("totalEffectiveBalance", totalEffectiveBalance / propertyService.getInt(Props.ONE_COIN_NQT));
       response.addProperty("totalEffectiveBalanceNQT", totalEffectiveBalance);
       
       long totalCommitted = blockchain.getCommittedAmount(null, blockchain.getHeight(), blockchain.getHeight(), null);
@@ -105,7 +106,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("indirectIncomingServiceEnabled", propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE));
     boolean grpcApiEnabled = propertyService.getBoolean(Props.API_V2_SERVER);
     response.addProperty("grpcApiEnabled", grpcApiEnabled);
-    if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.getInt(propertyService.getBoolean(Props.DEV_TESTNET) ? Props.DEV_API_V2_PORT : Props.API_V2_PORT));
+    if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.getInt(Props.API_V2_PORT));
 
     return response;
   }

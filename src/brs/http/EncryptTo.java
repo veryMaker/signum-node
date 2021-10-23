@@ -24,6 +24,7 @@ final class EncryptTo extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     long recipientId = ParameterParser.getRecipientId(req);

@@ -8,7 +8,6 @@ import brs.fluxcapacitor.FluxCapacitorImpl;
 import brs.grpc.proto.BrsApiServiceGrpc;
 import brs.grpc.proto.BrsService;
 import brs.props.PropertyService;
-import brs.props.Props;
 import brs.services.*;
 import io.grpc.Context;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -52,7 +51,6 @@ public abstract class AbstractGrpcTest {
         // Returns
         doReturn(Integer.MAX_VALUE).when(blockchain).getHeight();
         doReturn(latestBlock).when(blockchain).getLastBlock();
-        doReturn(true).when(propertyService).getBoolean(Props.DEV_TESTNET);
         doReturn(new byte[32]).when(generator).calculateGenerationSignature(ArgumentMatchers.any(), ArgumentMatchers.anyLong());
         doReturn(0L).when(latestBlock).getGeneratorId();
         doReturn(new byte[32]).when(latestBlock).getGenerationSignature();

@@ -27,6 +27,7 @@ final class GetECBlock extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     int timestamp = ParameterParser.getTimestamp(req);
     if (timestamp == 0) {

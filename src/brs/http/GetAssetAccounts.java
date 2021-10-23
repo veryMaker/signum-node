@@ -25,6 +25,7 @@ final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     Asset asset = parameterService.getAsset(req);

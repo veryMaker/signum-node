@@ -1,38 +1,53 @@
 package brs.props;
 
+import brs.Burst;
+
 public class Props {
+  
+  public static final Prop<String> APPLICATION = new Prop<>("brs.application", Burst.APPLICATION);
+  public static final Prop<String> VERSION = new Prop<>("brs.version", Burst.VERSION.toString());
+  
+  // Structural parameters
+  public static final Prop<Integer> BLOCK_TIME = new Prop<>("brs.blockTime", 240);
+  public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("brs.decimalPlaces", 8);
+  public static final Prop<Integer> ONE_COIN_NQT = new Prop<>("brs.coinFactor", 100_000_000);
+  public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
+  public static final Prop<Integer> API_V2_PORT = new Prop<>("API.V2.Port", 8121);
+  public static final Prop<String> NETWORK_NAME = new Prop<>("brs.networkName", "Signum");
+  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("brs.genesisBlockId", "3444294670862540038");
+  public static final Prop<String> ADDRESS_PREFIX = new Prop<>("brs.addressPrefix", "S");
+  public static final Prop<String> VALUE_SUFIX = new Prop<>("brs.valueSuffix", "SIGNA");
+  public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("brs.experimental", false);
+
+  public static final Prop<Integer> BLOCK_REWARD_START = new Prop<>("brs.blockRewardStart", 10_000);
+  public static final Prop<Integer> BLOCK_REWARD_CYCLE = new Prop<>("brs.blockRewardCycle", 10_800);
+  public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("brs.blockRewardCycle", 95);
+  public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("brs.blockLimitHeight", 972_000);
+  public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("brs.blockLimitAmount", 100);
+  
+  public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("brs.networkParameters", null);
 
   // DEV options
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
-  public static final Prop<Boolean> DEV_TESTNET = new Prop<>("DEV.TestNet", false);
-  public static final Prop<Integer> DEV_API_PORT = new Prop<>("DEV.API.Port", 6876);
-  public static final Prop<Integer> DEV_API_V2_PORT = new Prop<>("DEV.API.V2.Port", 6878);
-
   public static final Prop<Integer> DEV_TIMEWARP    = new Prop<>("DEV.TimeWarp", 1);
   public static final Prop<Boolean> DEV_MOCK_MINING = new Prop<>("DEV.mockMining", false);
   public static final Prop<Integer> DEV_MOCK_MINING_DEADLINE = new Prop<>("DEV.mockMining.deadline", 10);
 
-  public static final Prop<String> DEV_DB_URL      = new Prop<>("DEV.DB.Url", "");
-  public static final Prop<String> DEV_DB_USERNAME = new Prop<>("DEV.DB.Username", "");
-  public static final Prop<String> DEV_DB_PASSWORD = new Prop<>("DEV.DB.Password", "");
-
   public static final Prop<String> DEV_DUMP_PEERS_VERSION = new Prop<>("DEV.dumpPeersVersion", "");
 
-  public static final Prop<String> DEV_P2P_REBROADCAST_TO  = new Prop<>("DEV.P2P.rebroadcastTo", "");
-  public static final Prop<String> DEV_P2P_BOOTSTRAP_PEERS = new Prop<>("DEV.P2P.BootstrapPeers", "");
-
-  public static final Prop<Integer> DEV_REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT = new Prop<>("DEV.rewardRecipient.startBlock", -1);
-  public static final Prop<Integer> DEV_DIGITAL_GOODS_STORE_BLOCK_HEIGHT = new Prop<>("DEV.digitalGoodsStore.startBlock", -1);
-  public static final Prop<Integer> DEV_AUTOMATED_TRANSACTION_BLOCK_HEIGHT = new Prop<>("DEV.automatedTransactions.startBlock", -1);
-  public static final Prop<Integer> DEV_AT_FIX_BLOCK_2_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock2.startBlock", -1);
-  public static final Prop<Integer> DEV_AT_FIX_BLOCK_3_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock3.startBlock", -1);
-  public static final Prop<Integer> DEV_AT_FIX_BLOCK_4_BLOCK_HEIGHT = new Prop<>("DEV.atFixBlock4.startBlock", -1);
-  public static final Prop<Integer> DEV_PRE_POC2_BLOCK_HEIGHT = new Prop<>("DEV.prePoc2.startBlock", -1);
-  public static final Prop<Integer> DEV_POC2_BLOCK_HEIGHT = new Prop<>("DEV.poc2.startBlock", -1);
-  public static final Prop<Integer> DEV_SODIUM_BLOCK_HEIGHT = new Prop<>("DEV.sodium.startBlock", -1);
-  public static final Prop<Integer> DEV_SIGNUM = new Prop<>("DEV.signum.startBlock", -1);
-  public static final Prop<Integer> DEV_POC_PLUS = new Prop<>("DEV.pocPlus.startBlock", -1);
-  public static final Prop<Integer> DEV_SPEEDWAY = new Prop<>("DEV.speedway.startBlock", -1);
+  public static final Prop<Integer> REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT = new Prop<>("brs.rewardRecipient.startBlock", -1);
+  public static final Prop<Integer> DIGITAL_GOODS_STORE_BLOCK_HEIGHT = new Prop<>("brs.digitalGoodsStore.startBlock", -1);
+  public static final Prop<Integer> AUTOMATED_TRANSACTION_BLOCK_HEIGHT = new Prop<>("brs.automatedTransactions.startBlock", -1);
+  public static final Prop<Integer> AT_FIX_BLOCK_2_BLOCK_HEIGHT = new Prop<>("brs.atFixBlock2.startBlock", -1);
+  public static final Prop<Integer> AT_FIX_BLOCK_3_BLOCK_HEIGHT = new Prop<>("brs.atFixBlock3.startBlock", -1);
+  public static final Prop<Integer> AT_FIX_BLOCK_4_BLOCK_HEIGHT = new Prop<>("brs.atFixBlock4.startBlock", -1);
+  public static final Prop<Integer> PRE_POC2_BLOCK_HEIGHT = new Prop<>("brs.prePoc2.startBlock", -1);
+  public static final Prop<Integer> POC2_BLOCK_HEIGHT = new Prop<>("brs.poc2.startBlock", -1);
+  public static final Prop<Integer> SODIUM_BLOCK_HEIGHT = new Prop<>("brs.sodium.startBlock", -1);
+  public static final Prop<Integer> SIGNUM_HEIGHT = new Prop<>("brs.signum.startBlock", -1);
+  public static final Prop<Integer> POC_PLUS_HEIGHT = new Prop<>("brs.pocPlus.startBlock", -1);
+  public static final Prop<Integer> SPEEDWAY_HEIGHT = new Prop<>("brs.speedway.startBlock", -1);
+  
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
@@ -49,8 +64,6 @@ public class Props {
   // Checkpoint block for faster sync from empty database
   public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("brs.checkPointHeight", 866_300);
   public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("brs.checkPointPrevHash", "9823ef410a5b3fa33d199631d31bfa814d3811ec7e01f68131497a1e7d6651e2");
-  public static final Prop<Integer> DEV_CHECKPOINT_HEIGHT = new Prop<>("DEV.checkPointHeight", 249_000);
-  public static final Prop<String> DEV_CHECKPOINT_HASH = new Prop<>("DEV.checkPointPrevHash", "41e28a9068369bd528f7da97951b07e42d64c263e8b190dd56287ad2b0c63a38");
 
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);
@@ -83,11 +96,10 @@ public class Props {
   public static final Prop<Integer> BRS_BLOCK_CACHE_MB = new Prop<>("brs.blockCacheMB", 40);
 
   // P2P options
-
+  public static final Prop<Integer> P2P_PORT = new Prop<>("P2P.Port", 8123);
   public static final Prop<String> P2P_MY_PLATFORM = new Prop<>("P2P.myPlatform", "PC");
   public static final Prop<String> P2P_MY_ADDRESS  = new Prop<>("P2P.myAddress", "");
   public static final Prop<String> P2P_LISTEN      = new Prop<>("P2P.Listen", "0.0.0.0");
-  public static final Prop<Integer> P2P_PORT        = new Prop<>("P2P.Port", 8123);
   public static final Prop<Boolean> P2P_UPNP        = new Prop<>("P2P.UPnP", true);
   public static final Prop<Boolean> P2P_SHARE_MY_ADDRESS = new Prop<>("P2P.shareMyAddress", true);
   public static final Prop<Boolean> P2P_ENABLE_TX_REBROADCAST = new Prop<>("P2P.enableTxRebroadcast", true);
@@ -125,9 +137,7 @@ public class Props {
   public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
 
   public static final Prop<String> API_LISTEN  = new Prop<>("API.Listen", "127.0.0.1");
-  public static final Prop<Integer> API_PORT    = new Prop<>("API.Port", 8125);
   public static final Prop<String> API_V2_LISTEN  = new Prop<>("API.V2.Listen", "0.0.0.0");
-  public static final Prop<Integer> API_V2_PORT    = new Prop<>("API.V2.Port", 8121);
 
   public static final Prop<String> API_UI_DIR  = new Prop<>("API.UI_Dir", "html/ui");
   public static final Prop<String> API_SSL_KEY_STORE_PATH     = new Prop<>("API.SSL_keyStorePath", "keystore");

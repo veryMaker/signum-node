@@ -22,6 +22,7 @@ final class GetATIds extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     
     Long codeHashId = null;

@@ -18,6 +18,7 @@ public final class GetDGSPurchase extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     return JSONData.purchase(parameterService.getPurchase(req));
   }

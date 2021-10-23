@@ -22,6 +22,7 @@ public final class DGSPriceChange extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account account = parameterService.getSenderAccount(req);
     DigitalGoodsStore.Goods goods = parameterService.getGoods(req);
