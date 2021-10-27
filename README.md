@@ -152,10 +152,12 @@ Your packaged release will now be available in the `dist` directory.
 
 ## Updating the Phoenix Wallet
 
-Since V3.0 the Phoenix Wallet is available as built-in alternative to the classic wallet. As the Phoenix Wallet is a project apart from this repository one need to update it from time to time.
-The update process is semi-automated, i.e. one needs to trigger the update script which sites in `./ci`.
+Since V3.0 the Phoenix Wallet is available as built-in alternative to the classic wallet. 
+Within a release of the node software automatically the latest available release of the Phoenix wallet will be applied.
+As the Phoenix Wallet is a project apart from this repository the node and wallet software have different
+release cycles. Therefore, an additional update script (at this moment only for Linux/MacOS) is provided.
 
-**Inside** `./ci` run `./updatePhoenix.sh`
+Just run `./update-phoenix.sh`, which is available in the distribution package 
 
 # Releasing
 
@@ -174,6 +176,9 @@ See DOCKER.md for information on running and building docker images.
 # Developers
 
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)
+Frequent Contributors: 
+- [ohager](https://github.com/ohager). Donation address: [S-9K9L-4CB5-88Y5-F5G4Z](https://explorer.signum.network/?action=account&account=16107620026796983538)
+- [damccull](https://github.com/damccull). Donation address: ???
 
 For more information, see [Credits](doc/Credits.md)
 
