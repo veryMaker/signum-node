@@ -321,6 +321,10 @@ public abstract class TransactionType {
   }
 
   public abstract boolean hasRecipient();
+  
+  public boolean isIndirect() {
+    return false;
+  }
 
   public boolean isSigned() {
     return true;
@@ -438,6 +442,11 @@ public abstract class TransactionType {
       public final boolean hasRecipient() {
         return false;
       }
+      
+      @Override
+      public boolean isIndirect() {
+        return true;
+      }
 
       @Override
       public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {
@@ -492,6 +501,11 @@ public abstract class TransactionType {
       @Override
       public final boolean hasRecipient() {
         return false;
+      }
+      
+      @Override
+      public boolean isIndirect() {
+        return true;
       }
 
       @Override
