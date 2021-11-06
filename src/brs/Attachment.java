@@ -794,6 +794,7 @@ public interface Attachment extends Appendix {
     private final String description;
     private final long quantityQNT;
     private final byte decimals;
+    private final boolean mintable;
 
     ColoredCoinsAssetIssuance(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
@@ -801,6 +802,12 @@ public interface Attachment extends Appendix {
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ASSET_DESCRIPTION_LENGTH);
       this.quantityQNT = buffer.getLong();
       this.decimals = buffer.get();
+      
+      boolean mintable = false;
+      if(transactionVersion > 1) {
+        mintable = buffer.get() == 1;
+      }
+      this.mintable = mintable;
     }
 
     ColoredCoinsAssetIssuance(JsonObject attachmentData) {
@@ -809,14 +816,16 @@ public interface Attachment extends Appendix {
       this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)));
       this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
       this.decimals = JSON.getAsByte(attachmentData.get(DECIMALS_PARAMETER));
+      this.mintable = JSON.getAsBoolean(attachmentData.get(MINTABLE_PARAMETER));
     }
 
-    public ColoredCoinsAssetIssuance(String name, String description, long quantityQNT, byte decimals, int blockchainHeight) {
+    public ColoredCoinsAssetIssuance(String name, String description, long quantityQNT, byte decimals, int blockchainHeight, boolean mintable) {
       super(blockchainHeight);
       this.name = name;
       this.description = Convert.nullToEmpty(description);
       this.quantityQNT = quantityQNT;
       this.decimals = decimals;
+      this.mintable = mintable;
     }
 
     ColoredCoinsAssetIssuance(BrsApi.AssetIssuanceAttachment attachment) {
@@ -825,6 +834,8 @@ public interface Attachment extends Appendix {
         this.description = attachment.getDescription();
         this.quantityQNT = attachment.getQuantity();
         this.decimals = (byte) attachment.getDecimals();
+        // FIXME: check this
+        this.mintable = false;
     }
 
     @Override
@@ -834,7 +845,8 @@ public interface Attachment extends Appendix {
 
     @Override
     protected int getMySize() {
-      return 1 + Convert.toBytes(name).length + 2 + Convert.toBytes(description).length + 8 + 1;
+      return 1 + Convert.toBytes(name).length + 2 + Convert.toBytes(description).length + 8 + 1
+          + (super.getVersion() > 1 ? 1 : 0);
     }
 
     @Override
@@ -847,6 +859,9 @@ public interface Attachment extends Appendix {
       buffer.put(description);
       buffer.putLong(quantityQNT);
       buffer.put(decimals);
+      if(super.getVersion() > 1) {
+        buffer.put(mintable ? (byte)1 : (byte)0);
+      }
     }
 
     @Override
@@ -855,6 +870,7 @@ public interface Attachment extends Appendix {
       attachment.addProperty(DESCRIPTION_RESPONSE, description);
       attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
       attachment.addProperty(DECIMALS_RESPONSE, decimals);
+      attachment.addProperty(MINTABLE_RESPONSE, mintable);
     }
 
     @Override
@@ -876,6 +892,10 @@ public interface Attachment extends Appendix {
 
     public byte getDecimals() {
       return decimals;
+    }
+
+    public boolean getMintable() {
+      return mintable;
     }
 
     @Override

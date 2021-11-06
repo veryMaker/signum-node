@@ -76,6 +76,7 @@ public class ResultFields {
   public static final String UNCONFIRMED_QUANTITY_QNT_RESPONSE = "unconfirmedQuantityQNT";
   public static final String PRICE_NQT_RESPONSE = "priceNQT";
   public static final String DECIMALS_RESPONSE = "decimals";
+  public static final String MINTABLE_RESPONSE = "mintable";
   public static final String NUMBER_OF_TRADES_RESPONSE = "numberOfTrades";
   public static final String NUMBER_OF_TRANSFERS_RESPONSE = "numberOfTransfers";
   public static final String NUMBER_OF_ACCOUNTS_RESPONSE = "numberOfAccounts";

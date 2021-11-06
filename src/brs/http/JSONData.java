@@ -59,6 +59,7 @@ public final class JSONData {
     json.addProperty(NAME_RESPONSE, asset.getName());
     json.addProperty(DESCRIPTION_RESPONSE, asset.getDescription());
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
+    json.addProperty(MINTABLE_RESPONSE, asset.getMintable());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQNT()));
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(asset.getId()));
     json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount);

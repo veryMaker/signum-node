@@ -933,6 +933,8 @@ public abstract class TransactionType {
                 || attachment.getDecimals() < 0 || attachment.getDecimals() > 8
                 || attachment.getQuantityQNT() <= 0
                 || attachment.getQuantityQNT() > Constants.MAX_ASSET_QUANTITY_QNT
+                || (attachment.getVersion()>1 && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK))
+                || (attachment.getMintable() && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK))
         ) {
           throw new BurstException.NotValidException("Invalid asset issuance: " + JSON.toJsonString(attachment.getJsonObject()));
         }

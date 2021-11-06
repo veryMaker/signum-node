@@ -70,6 +70,7 @@ public final class Parameters {
   public static final String ESCROW_PARAMETER = "escrow";
   public static final String DECISION_PARAMETER = "decision";
   public static final String DECIMALS_PARAMETER = "decimals";
+  public static final String MINTABLE_PARAMETER = "mintable";
   public static final String PERIOD_PARAMETER = "period";
   public static final String ESCROW_DEADLINE_PARAMETER = "escrowDeadline";
   public static final String DEADLINE_ACTION_PARAMETER = "deadlineAction";

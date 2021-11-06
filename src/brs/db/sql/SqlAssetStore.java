@@ -74,7 +74,8 @@ public class SqlAssetStore implements AssetStore {
             record.get(ASSET.NAME),
             record.get(ASSET.DESCRIPTION),
             record.get(ASSET.QUANTITY),
-            record.get(ASSET.DECIMALS)
+            record.get(ASSET.DECIMALS),
+            record.get(ASSET.MINTABLE)
             );
     }
   }
