@@ -39,6 +39,7 @@ public class FluxCapacitorImplTest {
   @DisplayName("Feature is not active on ProdNet")
   @Test
   public void featureIsInactiveProdNet() {
+    when(propertyServiceMock.getInt(any())).thenReturn(-1);
     when(blockchainMock.getHeight()).thenReturn(499999);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -46,24 +47,10 @@ public class FluxCapacitorImplTest {
     assertFalse(t.getValue(FluxValues.POC2));
   }
 
-  @DisplayName("Feature is active on TestNet")
-  @Test
-  public void featureIsActiveTestNet() {
-    when(blockchainMock.getHeight()).thenReturn(88999);
-    when(propertyServiceMock.getInt(any())).thenReturn(-1);
-
-    t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
-
-    assertTrue(t.getValue(FluxValues.POC2));
-
-    when(blockchainMock.getHeight()).thenReturn(30000);
-
-    assertFalse(t.getValue(FluxValues.POC2));
-  }
-
   @DisplayName("FluxInt gives its default value when no historical moments changed it yet")
   @Test
   public void fluxIntDefaultValue() {
+    when(propertyServiceMock.getInt(any())).thenReturn(-1);
     when(blockchainMock.getHeight()).thenReturn(88000);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
@@ -93,14 +80,16 @@ public class FluxCapacitorImplTest {
     assertEquals((Integer) 255, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS));
   }
 
-  @DisplayName("FluxInt on TestNet gives a new value when a historical moment has passed")
+  @DisplayName("FluxInt test overrriding property")
   @Test
-  public void fluxIntTestNetHistoricalValue() {
+  public void fluxIntTestOverrridePropertyValue() {
+    int overridingHeight = 2000;
     when(propertyServiceMock.getInt(any())).thenReturn(-1);
+    when(propertyServiceMock.getInt(eq(HistoricalMoments.PRE_POC2.getOverridingProperty()))).thenReturn(overridingHeight);
 
     t = new FluxCapacitorImpl(blockchainMock, propertyServiceMock);
 
-    when(blockchainMock.getHeight()).thenReturn(88000);
+    when(blockchainMock.getHeight()).thenReturn(overridingHeight);
 
     assertEquals((Integer) 1020, t.getValue(FluxValues.MAX_NUMBER_TRANSACTIONS));
   }
