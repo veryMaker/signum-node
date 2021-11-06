@@ -18,7 +18,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row8;
+import org.jooq.Row9;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -89,6 +89,11 @@ public class Asset extends TableImpl<AssetRecord> {
      * The column <code>DB.asset.height</code>.
      */
     public final TableField<AssetRecord, Integer> HEIGHT = createField(DSL.name("height"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>DB.asset.mintable</code>.
+     */
+    public final TableField<AssetRecord, Boolean> MINTABLE = createField(DSL.name("mintable"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field("0", SQLDataType.BOOLEAN)), this, "");
 
     private Asset(Name alias, Table<AssetRecord> aliased) {
         this(alias, aliased, null);
@@ -175,11 +180,11 @@ public class Asset extends TableImpl<AssetRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row8 type methods
+    // Row9 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row8<Long, Long, Long, String, String, Long, Byte, Integer> fieldsRow() {
-        return (Row8) super.fieldsRow();
+    public Row9<Long, Long, Long, String, String, Long, Byte, Integer, Boolean> fieldsRow() {
+        return (Row9) super.fieldsRow();
     }
 }
