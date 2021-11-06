@@ -61,6 +61,7 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT = 3;
   public static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
   public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_MINT = 6;
 
   public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
   public static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
@@ -153,6 +154,7 @@ public abstract class TransactionType {
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, ColoredCoins.BID_ORDER_PLACEMENT);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION, ColoredCoins.ASK_ORDER_CANCELLATION);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, ColoredCoins.BID_ORDER_CANCELLATION);
+    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_MINT, ColoredCoins.ASSET_MINT);
 
     Map<Byte, TransactionType> digitalGoodsTypes = new HashMap<>();
     digitalGoodsTypes.put(SUBTYPE_DIGITAL_GOODS_LISTING, DigitalGoods.LISTING);
@@ -1023,6 +1025,78 @@ public abstract class TransactionType {
       @Override
       public boolean hasRecipient() {
         return true;
+      }
+
+    };
+
+    public static final TransactionType ASSET_MINT = new ColoredCoins() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_MINT;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Asset Mint";
+      }
+
+      @Override
+      public Attachment.ColoredCoinsAssetMint parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+        return new Attachment.ColoredCoinsAssetMint(buffer, transactionVersion);
+      }
+
+      @Override
+      protected Attachment.ColoredCoinsAssetMint parseAttachment(JsonObject attachmentData) {
+        return new Attachment.ColoredCoinsAssetMint(attachmentData);
+      }
+
+      @Override
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        logger.trace("TransactionType ASSET_MINT");
+        Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
+        
+        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        if(asset == null || asset.getAccountId() != transaction.getSenderId() || !asset.getMintable()
+            || attachment.getQuantityQNT() <= 0L
+            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+          return false;
+        }
+        
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+        return true;
+      }
+
+      @Override
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
+        accountService.addToAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+      }
+
+      @Override
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
+      }
+
+      @Override
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint)transaction.getAttachment();
+        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        if (asset == null) {
+          throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
+                  " does not exist yet");
+        }
+        if(transaction.getAmountNQT() != 0 || asset.getAccountId() != transaction.getSenderId()
+            || !asset.getMintable() || attachment.getQuantityQNT() <= 0L
+            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+          throw new BurstException.NotValidException("Invalid asset mint: " + JSON.toJsonString(attachment.getJsonObject()));
+        }
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return false;
       }
 
     };

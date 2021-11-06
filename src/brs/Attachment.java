@@ -760,6 +760,66 @@ public interface Attachment extends Appendix {
     }
 
   }
+  
+  final class ColoredCoinsAssetMint extends AbstractAttachment {
+
+    private final long assetId;
+    private final long quantityQNT;
+
+    ColoredCoinsAssetMint(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+      super(buffer, transactionVersion);
+      this.assetId = buffer.getLong();
+      this.quantityQNT = buffer.getLong();
+    }
+
+    ColoredCoinsAssetMint(JsonObject attachmentData) {
+      super(attachmentData);
+      this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
+      this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
+    }
+
+    public ColoredCoinsAssetMint(long assetId, long quantityQNT, int blockchainHeight) {
+      super(blockchainHeight);
+      this.assetId = assetId;
+      this.quantityQNT = quantityQNT;
+    }
+
+    @Override
+    protected String getAppendixName() {
+      return "AssetMint";
+    }
+
+    @Override
+    protected int getMySize() {
+      return 8 + 8;
+    }
+
+    @Override
+    protected void putMyBytes(ByteBuffer buffer) {
+      buffer.putLong(assetId);
+      buffer.putLong(quantityQNT);
+    }
+
+    @Override
+    protected void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
+      attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.ColoredCoins.ASSET_MINT;
+    }
+
+    public long getAssetId() {
+      return assetId;
+    }
+
+    public long getQuantityQNT() {
+      return quantityQNT;
+    }
+    
+  }
 
   abstract class ColoredCoinsOrderPlacement extends AbstractAttachment {
 
