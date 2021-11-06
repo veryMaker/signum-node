@@ -1,5 +1,8 @@
 package brs.props;
 
+import java.util.Arrays;
+
+import brs.fluxcapacitor.FluxValue;
 import brs.fluxcapacitor.FluxValues;
 import brs.fluxcapacitor.HistoricalMoments;
 
@@ -22,7 +25,10 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
     setProperty(Props.SIGNUM_HEIGHT, "269100");
     setProperty(Props.POC_PLUS_HEIGHT, "269700");
     setProperty(Props.SPEEDWAY_HEIGHT, "338090");
-    setFluxValue(FluxValues.MIN_CAPACITY, HistoricalMoments.GENESIS, 8_000L);
+    FluxValues.MIN_CAPACITY.updateValueChanges(Arrays.asList(
+        new FluxValue.ValueChange<Long>(HistoricalMoments.GENESIS, 1_000L),
+        new FluxValue.ValueChange<Long>(HistoricalMoments.SPEEDWAY, 8_000L)
+        ));
     
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "249000");
     setProperty(Props.BRS_CHECKPOINT_HASH, "41e28a9068369bd528f7da97951b07e42d64c263e8b190dd56287ad2b0c63a38");
