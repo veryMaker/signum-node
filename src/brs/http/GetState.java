@@ -104,9 +104,6 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("totalMemory", Runtime.getRuntime().totalMemory());
     response.addProperty("freeMemory", Runtime.getRuntime().freeMemory());
     response.addProperty("indirectIncomingServiceEnabled", propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE));
-    boolean grpcApiEnabled = propertyService.getBoolean(Props.API_V2_SERVER);
-    response.addProperty("grpcApiEnabled", grpcApiEnabled);
-    if (grpcApiEnabled) response.addProperty("grpcApiPort", propertyService.getInt(Props.API_V2_PORT));
 
     return response;
   }

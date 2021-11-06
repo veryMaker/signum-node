@@ -12,7 +12,6 @@ public class Props {
   public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("brs.decimalPlaces", 8);
   public static final Prop<Integer> ONE_COIN_NQT = new Prop<>("brs.coinFactor", 100_000_000);
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
-  public static final Prop<Integer> API_V2_PORT = new Prop<>("API.V2.Port", 8121);
   public static final Prop<String> NETWORK_NAME = new Prop<>("brs.networkName", "Signum");
   public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("brs.genesisBlockId", "3444294670862540038");
   public static final Prop<String> ADDRESS_PREFIX = new Prop<>("brs.addressPrefix", "S");
@@ -130,14 +129,12 @@ public class Props {
   // API options
   public static final Prop<Boolean> API_SSL     = new Prop<>("API.SSL", false);
   public static final Prop<Boolean> API_SERVER  = new Prop<>("API.Server", true);
-  public static final Prop<Boolean> API_V2_SERVER  = new Prop<>("API.V2.Server", false);
   public static final Prop<String> API_ALLOWED = new Prop<>("API.allowed", "127.0.0.1; localhost; [0:0:0:0:0:0:0:1];");
   public static final Prop<String> API_ADMIN_KEY_LIST = new Prop<>("API.adminKeyList", "");
 
   public static final Prop<Boolean> API_ACCEPT_SURPLUS_PARAMS = new Prop<>("API.AcceptSurplusParams", false);
 
   public static final Prop<String> API_LISTEN  = new Prop<>("API.Listen", "127.0.0.1");
-  public static final Prop<String> API_V2_LISTEN  = new Prop<>("API.V2.Listen", "0.0.0.0");
 
   public static final Prop<String> API_UI_DIR  = new Prop<>("API.UI_Dir", "html/ui");
   public static final Prop<String> API_SSL_KEY_STORE_PATH     = new Prop<>("API.SSL_keyStorePath", "keystore");

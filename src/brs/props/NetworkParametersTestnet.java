@@ -39,7 +39,6 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
     
     setProperty(Props.P2P_PORT, "7123");
     setProperty(Props.API_PORT, "6876");
-    setProperty(Props.API_V2_PORT, "6878");
     
     setProperty(Props.P2P_REBROADCAST_TO, "");
     setProperty(Props.P2P_BOOTSTRAP_PEERS, "nivbox.co.uk; testnet.burstcoin.network; 77.66.65.240; 2.29.196.249; 176.9.197.183;");

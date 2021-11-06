@@ -15,7 +15,6 @@ import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
-import brs.grpc.proto.BrsService;
 import brs.http.API;
 import brs.http.APITransactionManager;
 import brs.http.APITransactionManagerImpl;
@@ -32,7 +31,6 @@ import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
 import burst.kit.util.BurstKitUtils;
-import io.grpc.Server;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -89,7 +87,6 @@ public final class Burst {
   private static DBCacheManagerImpl dbCacheManager;
 
   private static API api;
-  private static Server apiV2Server;
 
   private static PropertyService loadProperties(String confFolder) {
     logger.info("Initializing Signum Node version {}", VERSION);
@@ -274,15 +271,6 @@ public final class Burst {
           transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator,
           deepLinkQRCodeGenerator, indirectIncomingService, params);
       
-      if (propertyService.getBoolean(Props.API_V2_SERVER)) {
-          int port = propertyService.getInt(Props.API_V2_PORT);
-          logger.info("Starting V2 API Server on port {}", port);
-          String hostname = propertyService.getString(Props.API_V2_LISTEN);
-          apiV2Server = new BrsService(blockchainProcessor, blockchain, blockService, accountService, generator, transactionProcessor, timeService, feeSuggestionCalculator, atService, aliasService, indirectIncomingService, fluxCapacitor, escrowService, assetExchange, subscriptionService, digitalGoodsStoreService, propertyService).start(hostname, port);
-      } else {
-          logger.info("Not starting V2 API Server - it is disabled.");
-      }
-
       if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED))
         DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 
@@ -348,8 +336,6 @@ public final class Burst {
     logger.info("Shutting down...");
     if (api != null)
       api.shutdown();
-    if (apiV2Server != null)
-      apiV2Server.shutdownNow();
     if (threadPool != null) {
       Peers.shutdown(threadPool);
       threadPool.shutdown();

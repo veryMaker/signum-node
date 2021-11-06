@@ -2,13 +2,9 @@ package brs;
 
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FluxValues;
-import brs.grpc.proto.BrsApi;
-import brs.grpc.proto.ProtoBuilder;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
-import com.google.protobuf.Any;
-import com.google.protobuf.ByteString;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -19,7 +15,6 @@ public interface Appendix {
   void putBytes(ByteBuffer buffer);
   JsonObject getJsonObject();
   byte getVersion();
-  Any getProtobufMessage();
 
   abstract class AbstractAppendix implements Appendix {
 
@@ -131,12 +126,6 @@ public interface Appendix {
       this.isText = true;
     }
 
-    public Message(BrsApi.MessageAppendix messageAppendix, int blockchainHeight) {
-      super(blockchainHeight);
-      this.messageBytes = messageAppendix.getMessage().toByteArray();
-      this.isText = messageAppendix.getIsText();
-    }
-
     @Override
     protected String getAppendixName() {
       return "Message";
@@ -184,15 +173,6 @@ public interface Appendix {
     public boolean isText() {
       return isText;
     }
-
-    @Override
-    public Any getProtobufMessage() {
-      return Any.pack(BrsApi.MessageAppendix.newBuilder()
-              .setVersion(super.getVersion())
-              .setMessage(ByteString.copyFrom(messageBytes))
-              .setIsText(isText)
-              .build());
-    }
   }
 
   abstract class AbstractEncryptedMessage extends AbstractAppendix {
@@ -224,12 +204,6 @@ public interface Appendix {
       this.isText = isText;
     }
 
-    private AbstractEncryptedMessage(BrsApi.EncryptedMessageAppendix encryptedMessageAppendix, int blockchainHeight) {
-      super(blockchainHeight);
-      this.encryptedData = ProtoBuilder.parseEncryptedData(encryptedMessageAppendix.getEncryptedData());
-      this.isText = encryptedMessageAppendix.getIsText();
-    }
-
     @Override
     protected int getMySize() {
       return 4 + encryptedData.getSize();
@@ -247,15 +221,6 @@ public interface Appendix {
       json.addProperty("data", Convert.toHexString(encryptedData.getData()));
       json.addProperty("nonce", Convert.toHexString(encryptedData.getNonce()));
       json.addProperty("isText", isText);
-    }
-
-    @Override
-    public Any getProtobufMessage() {
-      return Any.pack(BrsApi.EncryptedMessageAppendix.newBuilder()
-              .setVersion(super.getVersion())
-              .setEncryptedData(ProtoBuilder.buildEncryptedData(encryptedData))
-              .setType(getType())
-              .build());
     }
 
     @Override
@@ -278,8 +243,6 @@ public interface Appendix {
     public final boolean isText() {
       return isText;
     }
-
-    protected abstract BrsApi.EncryptedMessageAppendix.Type getType();
   }
 
   class EncryptedMessage extends AbstractEncryptedMessage {
@@ -301,11 +264,6 @@ public interface Appendix {
 
     public EncryptedMessage(EncryptedData encryptedData, boolean isText, int blockchainHeight) {
       super(encryptedData, isText, blockchainHeight);
-    }
-
-    public EncryptedMessage(BrsApi.EncryptedMessageAppendix encryptedMessageAppendix, int blockchainHeight) {
-      super(encryptedMessageAppendix, blockchainHeight);
-      if (encryptedMessageAppendix.getType() != BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT) throw new IllegalArgumentException();
     }
 
     @Override
@@ -330,12 +288,6 @@ public interface Appendix {
         throw new BurstException.NotValidException("Encrypted message attachments not enabled for version 0 transactions");
       }
     }
-
-    @Override
-    protected BrsApi.EncryptedMessageAppendix.Type getType() {
-      return BrsApi.EncryptedMessageAppendix.Type.TO_RECIPIENT;
-    }
-
   }
 
   class EncryptToSelfMessage extends AbstractEncryptedMessage {
@@ -359,11 +311,6 @@ public interface Appendix {
       super(encryptedData, isText, blockchainHeight);
     }
 
-    public EncryptToSelfMessage(BrsApi.EncryptedMessageAppendix encryptedMessageAppendix, int blockchainHeight) {
-      super(encryptedMessageAppendix, blockchainHeight);
-      if (encryptedMessageAppendix.getType() != BrsApi.EncryptedMessageAppendix.Type.TO_SELF) throw new IllegalArgumentException();
-    }
-
     @Override
     protected String getAppendixName() {
       return "EncryptToSelfMessage";
@@ -382,11 +329,6 @@ public interface Appendix {
       if (transaction.getVersion() == 0) {
         throw new BurstException.NotValidException("Encrypt-to-self message attachments not enabled for version 0 transactions");
       }
-    }
-
-    @Override
-    protected BrsApi.EncryptedMessageAppendix.Type getType() {
-      return BrsApi.EncryptedMessageAppendix.Type.TO_SELF;
     }
 
   }
@@ -416,11 +358,6 @@ public interface Appendix {
     public PublicKeyAnnouncement(byte[] publicKey, int blockchainHeight) {
       super(blockchainHeight);
       this.publicKey = publicKey;
-    }
-
-    public PublicKeyAnnouncement(BrsApi.PublicKeyAnnouncementAppendix publicKeyAnnouncementAppendix, int blockchainHeight) {
-      super(blockchainHeight);
-      this.publicKey = publicKeyAnnouncementAppendix.getRecipientPublicKey().toByteArray();
     }
 
     @Override
@@ -475,12 +412,5 @@ public interface Appendix {
       return publicKey;
     }
 
-    @Override
-    public Any getProtobufMessage() {
-      return Any.pack(BrsApi.PublicKeyAnnouncementAppendix.newBuilder()
-              .setVersion(super.getVersion())
-              .setRecipientPublicKey(ByteString.copyFrom(publicKey))
-              .build());
-    }
   }
 }
