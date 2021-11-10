@@ -1,7 +1,6 @@
 /*.iml
 /dist
 .idea
-*.jar
 brs.log
 brs.log.*
 /conf/logging.properties
@@ -17,3 +16,7 @@ target
 /conf-tests/
 *.zip
 
+/.gradle/
+/build/
+/bin/
+launch.json
