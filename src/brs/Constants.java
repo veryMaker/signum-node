@@ -68,7 +68,7 @@ public final class Constants {
 
 
   /**
-   * Must be >= 1.
+   * Must be 1 or greater.
    */
   public static final int MAX_API_RETURNED_ITEMS = 500;
 
