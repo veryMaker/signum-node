@@ -208,6 +208,15 @@ task dist(type: Zip) {
    archiveName "${baseName}.zip"
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 import org.gradle.crypto.checksum.Checksum
 
 task release(type: Checksum, dependsOn: [shadowJar, dist
