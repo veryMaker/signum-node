@@ -90,6 +90,20 @@ public interface Attachment extends Appendix {
     }
 
   };
+  
+  EmptyAttachment ASSET_IGNORE_ACCOUNT_ATTACHMENT = new EmptyAttachment() {
+
+    @Override
+    protected String getAppendixName() {
+      return "AssetIgnoreAccount";
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.ColoredCoins.ASSET_IGNORE_ACCOUNT;
+    }
+
+  };
 
   class PaymentMultiOutCreation extends AbstractAttachment {
 

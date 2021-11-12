@@ -1,6 +1,7 @@
 package brs.db.store;
 
 import brs.Account;
+import brs.Asset;
 import brs.db.BurstKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
@@ -25,6 +26,8 @@ public interface AccountStore {
   VersionedEntityTable<Account.AccountAsset> getAccountAssetTable();
 
   int getAssetAccountsCount(long assetId);
+
+  long getAssetCirculatingSupply(Asset asset);
 
   BurstKey.LongKeyFactory<Account> getAccountKeyFactory();
 

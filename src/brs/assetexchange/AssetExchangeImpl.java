@@ -59,6 +59,11 @@ public class AssetExchangeImpl implements AssetExchange {
   public int getAssetAccountsCount(long assetId) {
     return assetAccountService.getAssetAccountsCount(assetId);
   }
+  
+  @Override
+  public long getAssetCirculatingSupply(Asset asset) {
+    return assetAccountService.getAssetCirculatingSupply(asset);
+  }
 
   @Override
   public void addTradeListener(Listener<Trade> listener, Event eventType) {

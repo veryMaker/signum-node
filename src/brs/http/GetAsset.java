@@ -29,8 +29,9 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
     int tradeCount = assetExchange.getTradeCount(asset.getId());
     int transferCount = assetExchange.getTransferCount(asset.getId());
     int accountsCount = assetExchange.getAssetAccountsCount(asset.getId());
+    long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset);
 
-    return JSONData.asset(asset, tradeCount, transferCount, accountsCount);
+    return JSONData.asset(asset, tradeCount, transferCount, accountsCount, circulatingSupply);
   }
 
 }

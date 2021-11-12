@@ -73,6 +73,7 @@ public class ResultFields {
   public static final String SUBTYPE_RESPONSE = "subtype";
   public static final String ORDER_RESPONSE = "order";
   public static final String QUANTITY_QNT_RESPONSE = "quantityQNT";
+  public static final String QUANTITY_CIRCULATING_QNT_RESPONSE = "quantityCirculatingQNT";
   public static final String UNCONFIRMED_QUANTITY_QNT_RESPONSE = "unconfirmedQuantityQNT";
   public static final String PRICE_NQT_RESPONSE = "priceNQT";
   public static final String DECIMALS_RESPONSE = "decimals";

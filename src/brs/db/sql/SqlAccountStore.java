@@ -1,13 +1,17 @@
 package brs.db.sql;
 
 import brs.Account;
+import brs.Asset;
 import brs.Burst;
+import brs.Transaction;
+import brs.TransactionType;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.AccountStore;
 import brs.db.store.DerivedTableManager;
 import brs.util.Convert;
+
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.slf4j.LoggerFactory;
@@ -153,11 +157,30 @@ public class SqlAccountStore implements AccountStore {
       return ctx.select(DSL.sum(ACCOUNT.BALANCE)).from(ACCOUNT).where(ACCOUNT.ID.ne(0L)).and(ACCOUNT.LATEST.isTrue()).fetchOneInto(long.class);
     });
   }
-
+  
   @Override
   public int getAssetAccountsCount(long assetId) {
     return Db.useDSLContext(ctx -> {
       return ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue()).fetchOne(0, int.class);
+    });
+  }
+  
+  @Override
+  public long getAssetCirculatingSupply(Asset asset) {
+    return Db.useDSLContext(ctx -> {
+      
+      Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
+      SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
+            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ASSET_IGNORE_ACCOUNT))
+            .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
+      ;
+      
+      return ctx.select(DSL.sum(ACCOUNT_ASSET.QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
+          .and(ACCOUNT_ASSET.LATEST.isTrue())
+          .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L))
+          .and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(ignoredAccounts))
+          .fetchOne(0, long.class);
     });
   }
 

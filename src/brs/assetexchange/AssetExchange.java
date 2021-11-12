@@ -24,6 +24,8 @@ public interface AssetExchange {
   int getTransferCount(long id);
 
   int getAssetAccountsCount(long id);
+  
+  long getAssetCirculatingSupply(Asset asset);  
 
   void addTradeListener(Listener<Trade> listener, Event trade);
 

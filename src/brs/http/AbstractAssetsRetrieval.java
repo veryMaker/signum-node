@@ -24,8 +24,9 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
       int tradeCount = assetExchange.getTradeCount(asset.getId());
       int transferCount = assetExchange.getTransferCount(asset.getId());
       int accountsCount = assetExchange.getAssetAccountsCount(asset.getId());
+      long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset);
 
-      assetsJsonArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount));
+      assetsJsonArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount, circulatingSupply));
     }
 
     return assetsJsonArray;

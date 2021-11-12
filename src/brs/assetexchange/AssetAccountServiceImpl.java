@@ -1,6 +1,7 @@
 package brs.assetexchange;
 
 import brs.Account.AccountAsset;
+import brs.Asset;
 import brs.db.store.AccountStore;
 
 import java.util.Collection;
@@ -26,6 +27,10 @@ class AssetAccountServiceImpl {
 
   public int getAssetAccountsCount(long assetId) {
     return accountStore.getAssetAccountsCount(assetId);
+  }
+  
+  public long getAssetCirculatingSupply(Asset asset) {
+    return accountStore.getAssetCirculatingSupply(asset);
   }
 
 }

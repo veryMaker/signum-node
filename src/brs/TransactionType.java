@@ -62,6 +62,8 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
   public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
   public static final byte SUBTYPE_COLORED_COINS_ASSET_MINT = 6;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_IGNORE_ACCOUNT = 7;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_DISTRIBUTE = 8;
 
   public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
   public static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
@@ -1097,6 +1099,81 @@ public abstract class TransactionType {
       @Override
       public boolean hasRecipient() {
         return false;
+      }
+
+    };
+
+    public static final TransactionType ASSET_IGNORE_ACCOUNT = new ColoredCoins() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_IGNORE_ACCOUNT;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Asset Ignore Account";
+      }
+
+      @Override
+      public Attachment.AbstractAttachment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+        return Attachment.ASSET_IGNORE_ACCOUNT_ATTACHMENT;
+      }
+
+      @Override
+      protected Attachment.AbstractAttachment parseAttachment(JsonObject attachmentData) {
+        return Attachment.ASSET_IGNORE_ACCOUNT_ATTACHMENT;
+      }
+
+      @Override
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        logger.trace("TransactionType ASSET_IGNORE_ACCOUNT");
+        
+        Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
+        if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
+            || assetCreationTransaction.getSenderId() != transaction.getSenderId())
+          return false;
+        
+        Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
+        if(asset == null || asset.getAccountId() != transaction.getSenderId()
+            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+          return false;
+        }
+        
+        return true;
+      }
+
+      @Override
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // not needed
+      }
+
+      @Override
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // not needed
+      }
+
+      @Override
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        
+        Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
+        if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
+            || assetCreationTransaction.getSenderId() != transaction.getSenderId()
+            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+          throw new BurstException.NotValidException("Invalid asset ignore account");
+        }
+        
+        Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
+        if (asset == null) {
+          throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(assetCreationTransaction.getId()) +
+                  " does not exist yet");
+        }
+      }
+      
+      @Override
+      public boolean hasRecipient() {
+        // recipient is the account being ignored
+        return true;
       }
 
     };
