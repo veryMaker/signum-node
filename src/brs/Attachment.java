@@ -834,6 +834,87 @@ public interface Attachment extends Appendix {
     }
     
   }
+  
+  final class ColoredCoinsAssetDistribute extends AbstractAttachment {
+
+    private final long assetId;
+    private final long minimumAssetQuantityQNT;
+    private final long assetToDistribute;
+    private final long quantityQNT;
+
+    ColoredCoinsAssetDistribute(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+      super(buffer, transactionVersion);
+      this.assetId = buffer.getLong();
+      this.minimumAssetQuantityQNT = buffer.getLong();
+      this.assetToDistribute = buffer.getLong();
+      this.quantityQNT = buffer.getLong();
+    }
+
+    ColoredCoinsAssetDistribute(JsonObject attachmentData) {
+      super(attachmentData);
+      this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
+      this.minimumAssetQuantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_MININUM_QNT_PARAMETER));
+      this.assetToDistribute = JSON.getAsLong(attachmentData.get(ASSET_TO_DISTRIBUTE_PARAMETER));
+      this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
+    }
+
+    public ColoredCoinsAssetDistribute(long assetId, long minimumAssetQuantityQNT, long amountNQT, long assetToDistribute, long quantityQNT, int blockchainHeight) {
+      super(blockchainHeight);
+      this.assetId = assetId;
+      this.minimumAssetQuantityQNT = minimumAssetQuantityQNT;
+      this.assetToDistribute = assetToDistribute;
+      this.quantityQNT = quantityQNT;
+    }
+
+    @Override
+    protected String getAppendixName() {
+      return "AssetDistribute";
+    }
+
+    @Override
+    protected int getMySize() {
+      return 8 + 8 + 8 + 8;
+    }
+
+    @Override
+    protected void putMyBytes(ByteBuffer buffer) {
+      buffer.putLong(assetId);
+      buffer.putLong(minimumAssetQuantityQNT);
+      buffer.putLong(assetToDistribute);
+      buffer.putLong(quantityQNT);
+    }
+
+    @Override
+    protected void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
+      attachment.addProperty(QUANTITY_MININUM_QNT_PARAMETER, minimumAssetQuantityQNT);
+      attachment.addProperty(ASSET_TO_DISTRIBUTE_PARAMETER, Convert.toUnsignedLong(assetToDistribute));
+      attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.ColoredCoins.ASSET_DISTRIBUTE;
+    }
+
+    public long getAssetId() {
+      return assetId;
+    }
+    
+    public long getMinimumAssetQuantityQNT() {
+      return minimumAssetQuantityQNT;
+    }
+
+    public long getAssetToDistribute() {
+      return assetToDistribute;
+    }
+
+    public long getQuantityQNT() {
+      return quantityQNT;
+    }
+
+  }
+
 
   abstract class ColoredCoinsOrderPlacement extends AbstractAttachment {
 
