@@ -15,7 +15,7 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
     this.assetExchange = assetExchange;
   }
 
-  JsonArray assetsToJson(Iterator<Asset> assets) {
+  JsonArray assetsToJson(Iterator<Asset> assets, long mininumQuantity) {
     final JsonArray assetsJsonArray = new JsonArray();
 
     while (assets.hasNext()) {
@@ -23,7 +23,7 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
 
       int tradeCount = assetExchange.getTradeCount(asset.getId());
       int transferCount = assetExchange.getTransferCount(asset.getId());
-      int accountsCount = assetExchange.getAssetAccountsCount(asset.getId());
+      int accountsCount = assetExchange.getAssetAccountsCount(asset.getId(), mininumQuantity);
       long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset);
 
       assetsJsonArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount, circulatingSupply));

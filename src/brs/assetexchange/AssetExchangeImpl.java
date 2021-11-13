@@ -56,8 +56,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public int getAssetAccountsCount(long assetId) {
-    return assetAccountService.getAssetAccountsCount(assetId);
+  public int getAssetAccountsCount(long assetId, long minimumQuantity) {
+    return assetAccountService.getAssetAccountsCount(assetId, minimumQuantity);
   }
   
   @Override

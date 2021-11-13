@@ -25,8 +25,8 @@ class AssetAccountServiceImpl {
     return accountStore.getAssetAccounts(assetId, height, from, to);
   }
 
-  public int getAssetAccountsCount(long assetId) {
-    return accountStore.getAssetAccountsCount(assetId);
+  public int getAssetAccountsCount(long assetId, long minimumQuantity) {
+    return accountStore.getAssetAccountsCount(assetId, minimumQuantity);
   }
   
   public long getAssetCirculatingSupply(Asset asset) {

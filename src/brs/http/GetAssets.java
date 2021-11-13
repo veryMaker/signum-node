@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.JSONResponses.INCORRECT_ASSET;
 import static brs.http.JSONResponses.UNKNOWN_ASSET;
 import static brs.http.common.Parameters.ASSETS_PARAMETER;
+import static brs.http.common.Parameters.QUANTITY_MININUM_QNT_PARAMETER;
 import static brs.http.common.ResultFields.ASSETS_RESPONSE;
 
 public final class GetAssets extends APIServlet.JsonRequestHandler {
@@ -19,7 +20,7 @@ public final class GetAssets extends APIServlet.JsonRequestHandler {
   private final AssetExchange assetExchange;
 
   public GetAssets(AssetExchange assetExchange) {
-    super(new APITag[]{APITag.AE}, ASSETS_PARAMETER, ASSETS_PARAMETER, ASSETS_PARAMETER); // limit to 3 for testing
+    super(new APITag[]{APITag.AE}, ASSETS_PARAMETER, ASSETS_PARAMETER, ASSETS_PARAMETER, QUANTITY_MININUM_QNT_PARAMETER); // limit to 3 for testing
     this.assetExchange = assetExchange;
   }
 
@@ -28,6 +29,8 @@ public final class GetAssets extends APIServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) {
 
     String[] assets = req.getParameterValues(ASSETS_PARAMETER);
+    
+    long minimumQuantity = Convert.parseUnsignedLong(req.getParameter(QUANTITY_MININUM_QNT_PARAMETER));
 
     JsonObject response = new JsonObject();
     JsonArray assetsJsonArray = new JsonArray();
@@ -44,7 +47,7 @@ public final class GetAssets extends APIServlet.JsonRequestHandler {
 
         int tradeCount = assetExchange.getTradeCount(asset.getId());
         int transferCount = assetExchange.getTransferCount(asset.getId());
-        int accountsCount = assetExchange.getAssetAccountsCount(asset.getId());
+        int accountsCount = assetExchange.getAssetAccountsCount(asset.getId(), minimumQuantity);
         long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset);
 
         assetsJsonArray.add(JSONData.asset(asset, tradeCount, transferCount, accountsCount, circulatingSupply));

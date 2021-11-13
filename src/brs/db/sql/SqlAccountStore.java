@@ -159,9 +159,13 @@ public class SqlAccountStore implements AccountStore {
   }
   
   @Override
-  public int getAssetAccountsCount(long assetId) {
+  public int getAssetAccountsCount(long assetId, long minimumQuantity) {
     return Db.useDSLContext(ctx -> {
-      return ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue()).fetchOne(0, int.class);
+      SelectConditionStep<Record1<Integer>> select = ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue());
+      if(minimumQuantity > 0L) {
+        select = select.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+      }
+      return select.fetchOne(0, int.class);
     });
   }
   

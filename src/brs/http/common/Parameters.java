@@ -10,6 +10,7 @@ public final class Parameters {
   public static final String FEE_NQT_PARAMETER = "feeNQT";
   public static final String PRICE_NQT_PARAMETER = "priceNQT";
   public static final String QUANTITY_QNT_PARAMETER = "quantityQNT";
+  public static final String QUANTITY_MININUM_QNT_PARAMETER = "quantityMinimumQNT";
   public static final String ASSET_PARAMETER = "asset";
   public static final String ASSETS_PARAMETER = "assets";
   public static final String GOODS_PARAMETER = "goods";

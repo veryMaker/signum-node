@@ -59,7 +59,7 @@ public class GetAssetTest extends AbstractUnitTest {
 
     when(mockAssetExchange.getTradeCount(eq(assetId))).thenReturn(tradeCount);
     when(mockAssetExchange.getTransferCount(eq(assetId))).thenReturn(transferCount);
-    when(mockAssetExchange.getAssetAccountsCount(eq(assetId))).thenReturn(assetAccountsCount);
+    when(mockAssetExchange.getAssetAccountsCount(eq(assetId), eq(0L))).thenReturn(assetAccountsCount);
 
     final JsonObject result = (JsonObject) t.processRequest(req);
 
