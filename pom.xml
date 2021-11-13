@@ -75,7 +75,7 @@
       <artifactId>signumj</artifactId>
       <version>${signumj.version}</version>
     </dependency>
-    
+
     <dependency>
         <groupId>javax.annotation</groupId>
         <artifactId>javax.annotation-api</artifactId>
@@ -505,6 +505,7 @@
                     <include name="README.md"/>
                     <include name="README_refactoring.md"/>
                     <include name="signum-node.exe"/>
+                    <include name="update-phoenix.sh"/>
                   </fileset>
                 </copy>
 
