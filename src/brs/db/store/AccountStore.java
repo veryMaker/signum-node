@@ -35,9 +35,9 @@ public interface AccountStore {
 
   Collection<Account.AccountAsset> getAssets(int from, int to, Long id);
 
-  Collection<Account.AccountAsset> getAssetAccounts(long assetId, int from, int to);
+  Collection<Account.AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int from, int to);
 
-  Collection<Account.AccountAsset> getAssetAccounts(long assetId, int height, int from, int to);
+  Collection<Account.AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int height, int from, int to);
   // returns true iff:
   // this.publicKey is set to null (in which case this.publicKey also gets set to key)
   // or

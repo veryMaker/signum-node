@@ -14,15 +14,15 @@ class AssetAccountServiceImpl {
     this.accountStore = accountStore;
   }
 
-  public Collection<AccountAsset> getAssetAccounts(long assetId, int from, int to) {
-    return accountStore.getAssetAccounts(assetId, from, to);
+  public Collection<AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int from, int to) {
+    return accountStore.getAssetAccounts(assetId, minimumQuantity, from, to);
   }
 
-  public Collection<AccountAsset> getAssetAccounts(long assetId, int height, int from, int to) {
+  public Collection<AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int height, int from, int to) {
     if (height < 0) {
-      return getAssetAccounts(assetId, from, to);
+      return getAssetAccounts(assetId, minimumQuantity, from, to);
     }
-    return accountStore.getAssetAccounts(assetId, height, from, to);
+    return accountStore.getAssetAccounts(assetId, minimumQuantity, height, from, to);
   }
 
   public int getAssetAccountsCount(long assetId, long minimumQuantity) {

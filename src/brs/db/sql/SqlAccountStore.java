@@ -204,23 +204,32 @@ public class SqlAccountStore implements AccountStore {
   }
 
   @Override
-  public Collection<Account.AccountAsset> getAssetAccounts(long assetId, int from, int to) {
+  public Collection<Account.AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int from, int to) {
     List<SortField<?>> sort = new ArrayList<>();
     sort.add(ACCOUNT_ASSET.field("quantity", Long.class).desc());
     sort.add(ACCOUNT_ASSET.field("account_id", Long.class).asc());
-    return getAccountAssetTable().getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), from, to, sort);
+    
+    Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(assetId);
+    if(minimumQuantity > 0L) {
+      condition = condition.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+    }
+    return getAccountAssetTable().getManyBy(condition, from, to, sort);
   }
 
   @Override
-  public Collection<Account.AccountAsset> getAssetAccounts(long assetId, int height, int from, int to) {
+  public Collection<Account.AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int height, int from, int to) {
     if (height < 0) {
-      return getAssetAccounts(assetId, from, to);
+      return getAssetAccounts(assetId, minimumQuantity, from, to);
     }
 
     List<SortField<?>> sort = new ArrayList<>();
     sort.add(ACCOUNT_ASSET.field("quantity", Long.class).desc());
     sort.add(ACCOUNT_ASSET.field("account_id", Long.class).asc());
-    return getAccountAssetTable().getManyBy(ACCOUNT_ASSET.ASSET_ID.eq(assetId), height, from, to, sort);
+    Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(assetId);
+    if(minimumQuantity > 0L) {
+      condition = condition.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+    }
+    return getAccountAssetTable().getManyBy(condition, height, from, to, sort);
   }
 
   @Override

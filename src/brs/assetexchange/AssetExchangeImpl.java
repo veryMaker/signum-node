@@ -136,8 +136,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public Collection<AccountAsset> getAccountAssetsOverview(long id, int height, int from, int to) {
-    return assetAccountService.getAssetAccounts(id, height, from, to);
+  public Collection<AccountAsset> getAccountAssetsOverview(long id, long minimumQuantity, int height, int from, int to) {
+    return assetAccountService.getAssetAccounts(id, minimumQuantity, height, from, to);
   }
 
   @Override
