@@ -1229,11 +1229,11 @@ public abstract class TransactionType {
         
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
-        long totalQuantityQNT = 0L;
+        long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
-          totalQuantityQNT += holder.getQuantityQNT();
+          circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
         }
-        if(totalQuantityQNT <= 0L) {
+        if(circulatingQuantityQNT <= 0L) {
           return false;
         }
         long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute());
@@ -1253,7 +1253,7 @@ public abstract class TransactionType {
             true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
-          circulatingQuantityQNT += holder.getQuantityQNT();
+          circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
         }
         BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
 
@@ -1270,19 +1270,19 @@ public abstract class TransactionType {
         for(AccountAsset holder : assetHolders) {
           // add to the holders
           Account account = accountService.getOrAddAccount(holder.getAccountId());
-          if(largestHolder == null || holder.getQuantityQNT() > largestHolder.getQuantityQNT()) {
+          if(largestHolder == null || holder.getUnconfirmedQuantityQNT() > largestHolder.getUnconfirmedQuantityQNT()) {
             largestHolder = holder;
           }
           
           if(attachment.getQuantityQNT() > 0L) {
-            long quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getQuantityQNT()))
+            long quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
                 .divide(circulatingQuantity).longValue();
             accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
             quantityDistributed += quantity;
           }
           
           if(transaction.getAmountNQT() > 0L) {
-            long amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getQuantityQNT()))
+            long amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
                 .divide(circulatingQuantity).longValue();
             accountService.addToUnconfirmedBalanceNQT(account, amount);
             amountDistributed += amount;
