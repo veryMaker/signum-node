@@ -631,6 +631,9 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public boolean verifySignature() {
+    if(signature.get() == null) {
+      return false;
+    }
     byte[] data = zeroSignature(getBytes());
     return Crypto.verify(signature.get(), data, senderPublicKey, useNQT());
   }
