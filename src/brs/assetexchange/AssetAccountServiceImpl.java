@@ -14,8 +14,8 @@ class AssetAccountServiceImpl {
     this.accountStore = accountStore;
   }
 
-  public Collection<AccountAsset> getAssetAccounts(Asset asset, boolean filterIgnored, long minimumQuantity, int from, int to) {
-    return accountStore.getAssetAccounts(asset, filterIgnored, minimumQuantity, from, to);
+  public Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to) {
+    return accountStore.getAssetAccounts(asset, ignoreTreasury, minimumQuantity, from, to);
   }
 
   public int getAssetAccountsCount(long assetId, long minimumQuantity) {

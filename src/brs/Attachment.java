@@ -91,16 +91,16 @@ public interface Attachment extends Appendix {
 
   };
   
-  EmptyAttachment ASSET_IGNORE_ACCOUNT_ATTACHMENT = new EmptyAttachment() {
+  EmptyAttachment ASSET_ADD_TREASURY_ACCOUNT_ATTACHMENT = new EmptyAttachment() {
 
     @Override
     protected String getAppendixName() {
-      return "AssetIgnoreAccount";
+      return "AssetAddTreasuryAccount";
     }
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.ColoredCoins.ASSET_IGNORE_ACCOUNT;
+      return TransactionType.ColoredCoins.ASSET_ADD_TREASURY_ACCOUNT;
     }
 
   };

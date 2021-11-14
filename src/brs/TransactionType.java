@@ -64,7 +64,7 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
   public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
   public static final byte SUBTYPE_COLORED_COINS_ASSET_MINT = 6;
-  public static final byte SUBTYPE_COLORED_COINS_ASSET_IGNORE_ACCOUNT = 7;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT = 7;
   public static final byte SUBTYPE_COLORED_COINS_ASSET_DISTRIBUTE = 8;
 
   public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
@@ -1108,31 +1108,31 @@ public abstract class TransactionType {
 
     };
 
-    public static final TransactionType ASSET_IGNORE_ACCOUNT = new ColoredCoins() {
+    public static final TransactionType ASSET_ADD_TREASURY_ACCOUNT = new ColoredCoins() {
 
       @Override
       public final byte getSubtype() {
-        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_IGNORE_ACCOUNT;
+        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT;
       }
 
       @Override
       public String getDescription() {
-        return "Asset Ignore Account";
+        return "Asset Add Treasury Account";
       }
 
       @Override
       public Attachment.AbstractAttachment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
-        return Attachment.ASSET_IGNORE_ACCOUNT_ATTACHMENT;
+        return Attachment.ASSET_ADD_TREASURY_ACCOUNT_ATTACHMENT;
       }
 
       @Override
       protected Attachment.AbstractAttachment parseAttachment(JsonObject attachmentData) {
-        return Attachment.ASSET_IGNORE_ACCOUNT_ATTACHMENT;
+        return Attachment.ASSET_ADD_TREASURY_ACCOUNT_ATTACHMENT;
       }
       
       @Override
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        logger.trace("TransactionType ASSET_IGNORE_ACCOUNT");
+        logger.trace("TransactionType ASSET_ADD_TREASURY_ACCOUNT");
         
         if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
           return false;          
@@ -1172,7 +1172,7 @@ public abstract class TransactionType {
         if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
             || assetCreationTransaction.getSenderId() != transaction.getSenderId()
             || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
-          throw new BurstException.NotValidException("Invalid asset ignore account");
+          throw new BurstException.NotValidException("Invalid add treasury account transaction");
         }
         
         Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
