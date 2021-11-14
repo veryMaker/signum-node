@@ -839,14 +839,14 @@ public interface Attachment extends Appendix {
 
     private final long assetId;
     private final long minimumAssetQuantityQNT;
-    private final long assetToDistribute;
+    private final long assetIdToDistribute;
     private final long quantityQNT;
 
     ColoredCoinsAssetDistribute(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
       this.assetId = buffer.getLong();
       this.minimumAssetQuantityQNT = buffer.getLong();
-      this.assetToDistribute = buffer.getLong();
+      this.assetIdToDistribute = buffer.getLong();
       this.quantityQNT = buffer.getLong();
     }
 
@@ -854,7 +854,7 @@ public interface Attachment extends Appendix {
       super(attachmentData);
       this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
       this.minimumAssetQuantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_MININUM_QNT_PARAMETER));
-      this.assetToDistribute = JSON.getAsLong(attachmentData.get(ASSET_TO_DISTRIBUTE_PARAMETER));
+      this.assetIdToDistribute = JSON.getAsLong(attachmentData.get(ASSET_TO_DISTRIBUTE_PARAMETER));
       this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
     }
 
@@ -862,7 +862,7 @@ public interface Attachment extends Appendix {
       super(blockchainHeight);
       this.assetId = assetId;
       this.minimumAssetQuantityQNT = minimumAssetQuantityQNT;
-      this.assetToDistribute = assetToDistribute;
+      this.assetIdToDistribute = assetToDistribute;
       this.quantityQNT = quantityQNT;
     }
 
@@ -880,7 +880,7 @@ public interface Attachment extends Appendix {
     protected void putMyBytes(ByteBuffer buffer) {
       buffer.putLong(assetId);
       buffer.putLong(minimumAssetQuantityQNT);
-      buffer.putLong(assetToDistribute);
+      buffer.putLong(assetIdToDistribute);
       buffer.putLong(quantityQNT);
     }
 
@@ -888,7 +888,7 @@ public interface Attachment extends Appendix {
     protected void putMyJSON(JsonObject attachment) {
       attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
       attachment.addProperty(QUANTITY_MININUM_QNT_PARAMETER, minimumAssetQuantityQNT);
-      attachment.addProperty(ASSET_TO_DISTRIBUTE_PARAMETER, Convert.toUnsignedLong(assetToDistribute));
+      attachment.addProperty(ASSET_TO_DISTRIBUTE_PARAMETER, Convert.toUnsignedLong(assetIdToDistribute));
       attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
     }
 
@@ -905,8 +905,8 @@ public interface Attachment extends Appendix {
       return minimumAssetQuantityQNT;
     }
 
-    public long getAssetToDistribute() {
-      return assetToDistribute;
+    public long getAssetIdToDistribute() {
+      return assetIdToDistribute;
     }
 
     public long getQuantityQNT() {

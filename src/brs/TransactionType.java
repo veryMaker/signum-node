@@ -1221,13 +1221,14 @@ public abstract class TransactionType {
           return false;          
         }
 
-        if(attachment.getAssetToDistribute() != 0L && attachment.getQuantityQNT() > 0L) {
-          long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetToDistribute());
-          if(attachment.getAssetToDistribute() > unconfirmedAssetBalance)
+        if(attachment.getAssetIdToDistribute() != 0L && attachment.getQuantityQNT() > 0L) {
+          long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute());
+          if(attachment.getAssetIdToDistribute() > unconfirmedAssetBalance)
             return false;
         }
         
-        Collection<AccountAsset> assetHolders = assetExchange.getAccountAssetsOverview(attachment.getAssetId(), attachment.getMinimumAssetQuantityQNT(), -1, -1, -1);
+        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
         long totalQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
           totalQuantityQNT += holder.getQuantityQNT();
@@ -1235,25 +1236,26 @@ public abstract class TransactionType {
         if(totalQuantityQNT <= 0L) {
           return false;
         }
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetToDistribute(), -attachment.getQuantityQNT());
+        long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute());
+        if (unconfirmedAssetBalance < attachment.getQuantityQNT()) {
+          return false;
+        }
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
         return true;
       }
 
       @Override
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
-//        Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
-//        accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
-//        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
-//        assetExchange.addAssetTransfer(transaction, attachment);
-        
         Attachment.ColoredCoinsAssetDistribute attachment = (Attachment.ColoredCoinsAssetDistribute) transaction.getAttachment();
 
-        Collection<AccountAsset> assetHolders = assetExchange.getAccountAssetsOverview(attachment.getAssetId(), attachment.getMinimumAssetQuantityQNT(), -1, -1, -1);
-        long totalQuantityQNT = 0L;
+        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
+            assetExchange.getAsset(attachment.getAssetId()),
+            true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
+        long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
-          totalQuantityQNT += holder.getQuantityQNT();
+          circulatingQuantityQNT += holder.getQuantityQNT();
         }
-        BigInteger totalQuantity = BigInteger.valueOf(totalQuantityQNT);
+        BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
 
         BigInteger quantityToDistribute = BigInteger.valueOf(attachment.getQuantityQNT());
         BigInteger amountToDistribute = BigInteger.valueOf(transaction.getAmountNQT());
@@ -1262,7 +1264,7 @@ public abstract class TransactionType {
         long quantityDistributed = 0L;
 
         // subtract the asset balance from the sender, the amount was already subtracted by the transaction 
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetToDistribute(), -attachment.getQuantityQNT());
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
         
         AccountAsset largestHolder = null;
         for(AccountAsset holder : assetHolders) {
@@ -1274,14 +1276,14 @@ public abstract class TransactionType {
           
           if(attachment.getQuantityQNT() > 0L) {
             long quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getQuantityQNT()))
-                .divide(totalQuantity).longValue();
-            accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetToDistribute(), quantity);
+                .divide(circulatingQuantity).longValue();
+            accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
             quantityDistributed += quantity;
           }
           
           if(transaction.getAmountNQT() > 0L) {
             long amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getQuantityQNT()))
-                .divide(totalQuantity).longValue();
+                .divide(circulatingQuantity).longValue();
             accountService.addToUnconfirmedBalanceNQT(account, amount);
             amountDistributed += amount;
           }
@@ -1294,7 +1296,7 @@ public abstract class TransactionType {
         }
         if(quantityDistributed < attachment.getQuantityQNT()) {
           Account account = accountService.getOrAddAccount(largestHolder.getAccountId());
-          accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetToDistribute(),
+          accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(),
               attachment.getQuantityQNT() - quantityDistributed);
         }
       }
@@ -1302,7 +1304,7 @@ public abstract class TransactionType {
       @Override
       protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         Attachment.ColoredCoinsAssetDistribute attachment = (Attachment.ColoredCoinsAssetDistribute) transaction.getAttachment();
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetToDistribute(), attachment.getQuantityQNT());
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), attachment.getQuantityQNT());
       }
 
       @Override
@@ -1314,15 +1316,19 @@ public abstract class TransactionType {
         }
         
         if (attachment.getAssetId() == 0L) {
-          throw new BurstException.NotValidException("Invalid asset transfer amount or comment: " + JSON.toJsonString(attachment.getJsonObject()));
+          throw new BurstException.NotValidException("Invalid asset transfer id: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        if (attachment.getQuantityQNT() <= 0L || (asset != null && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
-          throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
-        }
         if (asset == null) {
           throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
                   " does not exist yet");
+        }
+        long circulatingQuantity = assetExchange.getAssetCirculatingSupply(asset);
+        if (circulatingQuantity <= 0L) {
+          throw new BurstException.NotValidException("Asset has no circulating supply: " + JSON.toJsonString(attachment.getJsonObject()));
+        }
+        if (attachment.getQuantityQNT() <= 0L || (asset != null && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
+          throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
         }
       }
 

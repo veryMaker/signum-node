@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -63,43 +64,15 @@ public class AssetServiceImplTest extends AbstractUnitTest {
 
   @Test
   public void getAccounts() {
-    final long assetId = 123l;
     final int from = 1;
     final int to = 5;
+    final Asset mockAsset = mock(Asset.class);
+    
+    final ArrayList<AccountAsset> mockAccountAssetIterator = new ArrayList<>();
 
-    final Collection<AccountAsset> mockAccountAssetIterator = mock(Collection.class);
+    when(assetAccountServiceMock.getAssetAccounts(eq(mockAsset), eq(false), eq(0L), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
 
-    when(assetAccountServiceMock.getAssetAccounts(eq(assetId), eq(0L), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
-
-    assertEquals(mockAccountAssetIterator, t.getAccounts(assetId, 0L, from, to));
-  }
-
-  @Test
-  public void getAccounts_forHeight() {
-    final long assetId = 123l;
-    final int from = 1;
-    final int to = 5;
-    final int height = 3;
-
-    final Collection<AccountAsset> mockAccountAssetIterator = mock(Collection.class);
-
-    when(assetAccountServiceMock.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
-
-    assertEquals(mockAccountAssetIterator, t.getAccounts(assetId, height, from, to));
-  }
-
-  @Test
-  public void getAccounts_forHeight_negativeHeightGivesForZeroHeight() {
-    final long assetId = 123l;
-    final int from = 1;
-    final int to = 5;
-    final int height = -3;
-
-    final Collection<AccountAsset> mockAccountAssetIterator = mock(Collection.class);
-
-    when(assetAccountServiceMock.getAssetAccounts(eq(assetId), eq(0L), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
-
-    assertEquals(mockAccountAssetIterator, t.getAccounts(assetId, 0L, height, from, to));
+    assertEquals(mockAccountAssetIterator, t.getAccounts(mockAsset, false, 0L, from, to));
   }
 
   @Test

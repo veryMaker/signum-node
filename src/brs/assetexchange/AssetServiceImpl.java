@@ -32,15 +32,8 @@ class AssetServiceImpl {
     return assetTable.get(assetDbKeyFactory.newKey(id));
   }
 
-  public Collection<AccountAsset> getAccounts(long assetId, long minimumQuantity, int from, int to) {
-    return assetAccountService.getAssetAccounts(assetId, minimumQuantity, from, to);
-  }
-
-  public Collection<AccountAsset> getAccounts(long assetId, long minimumQuantity, int height, int from, int to) {
-    if (height < 0) {
-      return getAccounts(assetId, minimumQuantity, from, to);
-    }
-    return assetAccountService.getAssetAccounts(assetId, minimumQuantity, height, from, to);
+  public Collection<AccountAsset> getAccounts(Asset asset, boolean filterIgnored, long minimumQuantity, int from, int to) {
+    return assetAccountService.getAssetAccounts(asset, filterIgnored, minimumQuantity, from, to);
   }
 
   public Collection<Trade> getTrades(long assetId, int from, int to) {

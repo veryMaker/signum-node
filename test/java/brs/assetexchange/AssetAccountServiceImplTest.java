@@ -1,11 +1,12 @@
 package brs.assetexchange;
 
 import brs.Account.AccountAsset;
+import brs.Asset;
 import brs.db.store.AccountStore;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -27,43 +28,14 @@ public class AssetAccountServiceImplTest {
 
   @Test
   public void getAssetAccounts() {
-    final long assetId = 4L;
     final int from = 1;
     final int to = 5;
+    final Asset mockAsset = mock(Asset.class);
+    final ArrayList<AccountAsset> mockAccountIterator = new ArrayList<>();
+    
+    when(mockAccountStore.getAssetAccounts(eq(mockAsset), eq(false), eq(0L), eq(from), eq(to))).thenReturn(mockAccountIterator);
 
-    final Collection<AccountAsset> mockAccountIterator = mock(Collection.class);
-
-    when(mockAccountStore.getAssetAccounts(eq(assetId), eq(0L), eq(from), eq(to))).thenReturn(mockAccountIterator);
-
-    assertEquals(mockAccountIterator, t.getAssetAccounts(assetId, 0L, from, to));
-  }
-
-  @Test
-  public void getAssetAccounts_withHeight() {
-    final long assetId = 4L;
-    final int from = 1;
-    final int to = 5;
-    final int height = 3;
-
-    final Collection<AccountAsset> mockAccountIterator = mock(Collection.class);
-
-    when(mockAccountStore.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).thenReturn(mockAccountIterator);
-
-    assertEquals(mockAccountIterator, t.getAssetAccounts(assetId, height, from, to));
-  }
-
-  @Test
-  public void getAssetAccounts_withHeight_negativeHeightGivesForZeroHeight() {
-    final long assetId = 4L;
-    final int from = 1;
-    final int to = 5;
-    final int height = -2;
-
-    final Collection<AccountAsset> mockAccountIterator = mock(Collection.class);
-
-    when(mockAccountStore.getAssetAccounts(eq(assetId), eq(0L), eq(from), eq(to))).thenReturn(mockAccountIterator);
-
-    assertEquals(mockAccountIterator, t.getAssetAccounts(assetId, 0L, height, from, to));
+    assertEquals(mockAccountIterator, t.getAssetAccounts(mockAsset, false, 0L, from, to));
   }
 
   @Test

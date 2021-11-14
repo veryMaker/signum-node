@@ -53,7 +53,7 @@ public interface AssetExchange {
 
   Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
 
-  Collection<AccountAsset> getAccountAssetsOverview(long assetId, long minimumQuantity, int height, int from, int to);
+  Collection<AccountAsset> getAssetAccounts(Asset asset, boolean filterIgnored, long minimumQuantity, int from, int to);
 
   Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to);
 

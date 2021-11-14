@@ -204,32 +204,28 @@ public class SqlAccountStore implements AccountStore {
   }
 
   @Override
-  public Collection<Account.AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int from, int to) {
+  public Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean filterIgnored, long minimumQuantity, int from, int to) {
     List<SortField<?>> sort = new ArrayList<>();
     sort.add(ACCOUNT_ASSET.field("quantity", Long.class).desc());
     sort.add(ACCOUNT_ASSET.field("account_id", Long.class).asc());
     
-    Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(assetId);
+    Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(asset.getId());
     if(minimumQuantity > 0L) {
       condition = condition.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+    }
+    if(filterIgnored) {
+      Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
+      
+      List<Long> ignoredAccounts = Db.useDSLContext(ctx -> {
+      return ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
+            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ASSET_IGNORE_ACCOUNT))
+            .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
+            .fetch().getValues(TRANSACTION.RECIPIENT_ID);
+      });
+      condition = condition.and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(ignoredAccounts));
     }
     return getAccountAssetTable().getManyBy(condition, from, to, sort);
-  }
-
-  @Override
-  public Collection<Account.AccountAsset> getAssetAccounts(long assetId, long minimumQuantity, int height, int from, int to) {
-    if (height < 0) {
-      return getAssetAccounts(assetId, minimumQuantity, from, to);
-    }
-
-    List<SortField<?>> sort = new ArrayList<>();
-    sort.add(ACCOUNT_ASSET.field("quantity", Long.class).desc());
-    sort.add(ACCOUNT_ASSET.field("account_id", Long.class).asc());
-    Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(assetId);
-    if(minimumQuantity > 0L) {
-      condition = condition.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
-    }
-    return getAccountAssetTable().getManyBy(condition, height, from, to, sort);
   }
 
   @Override

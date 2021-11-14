@@ -13,6 +13,7 @@ public final class Parameters {
   public static final String QUANTITY_MININUM_QNT_PARAMETER = "quantityMinimumQNT";
   public static final String ASSET_PARAMETER = "asset";
   public static final String ASSET_TO_DISTRIBUTE_PARAMETER = "assetToDistribute";
+  public static final String ASSET_FILTER_IGNORED_PARAMETER = "filterIgnored";
   public static final String ASSETS_PARAMETER = "assets";
   public static final String GOODS_PARAMETER = "goods";
   public static final String ORDER_PARAMETER = "order";
