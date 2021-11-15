@@ -7,7 +7,15 @@ Info: https://signum.network
 Explorer: https://explorer.signum.network/
 
 
-### Additional Software
+### Additional Software 
+
+BTDEX: https://btdex.trade/
+
+### Games on chain
+
+Cryptoball: https://www.cryptoball.org/
+
+Blockplay: https://blockplay.io/
 
 
 
