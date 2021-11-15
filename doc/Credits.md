@@ -2,7 +2,7 @@
 
 Numerous people have contributed to make this software what it is today. The Nxt-developers before Signum was forked off from the Nxt code base, the initial - yet anonymous - [Creator of Signum](https://github.com/BurstProject) who invented PoC and also many small contributors who helped out with small fixes, typos, translations etc. In case we forgot to mention someone, please do not hesitate to bring this to our attention.
 
-## [Signum-Network](current team)
+## [Signum-Network](https://github.com/signum-network)
 
 * Responsible for releases v2.5.0 - Present
 * HF Speedway: https://medium.com/signum-network/hard-fork-speedway-preparing-signum-for-mass-transactions-and-more-a71e0d34b990
