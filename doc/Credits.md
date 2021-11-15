@@ -1,11 +1,18 @@
 # Contributors
 
-Numerous people have contributed to make this software what it is today. The Nxt-developers before Burst was forked off from the Nxt code base, the initial - yet anonymous - [Creator of Burstcoin](https://github.com/BurstProject) who invented PoC and also many small contributors who helped out with small fixes, typos, translations etc. In case we forgot to mention someone, please do not hesitate to bring this to our attention.
+Numerous people have contributed to make this software what it is today. The Nxt-developers before Signum was forked off from the Nxt code base, the initial - yet anonymous - [Creator of Signum](https://github.com/BurstProject) who invented PoC and also many small contributors who helped out with small fixes, typos, translations etc. In case we forgot to mention someone, please do not hesitate to bring this to our attention.
+
+## [Signum-Network](current team)
+
+* Responsible for releases v2.5.0 - Present
+* HF Speedway: https://medium.com/signum-network/hard-fork-speedway-preparing-signum-for-mass-transactions-and-more-a71e0d34b990
+* HF Signum: https://medium.com/signum-network/signum-hard-fork-a-new-consensus-for-burstcoin-and-much-more-9fd4fa1d3fd3
+
 
 ## [Burst Apps Team](https://github.com/burst-apps-team)
 
 [Harry1453](https://github.com/harry1453) (Donation Address: [BURST-W5YR-ZZQC-KUBJ-G78KB](https://explore.burstcoin.network/?action=account&account=16484518239061020631))
-* Main developer for releases v2.3.0 - Present
+* Main developer for releases v2.3.0 - v2.5.0
 * Introduced gRPC API
 * Heavy optimization of sync speed, along with lots of other database optimization work
 * Reverse lookup of Multi-out transactions
