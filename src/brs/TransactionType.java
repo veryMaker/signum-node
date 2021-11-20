@@ -1099,6 +1099,12 @@ public abstract class TransactionType {
             || !asset.getMintable() || attachment.getQuantityQNT() <= 0L) {
           throw new BurstException.NotValidException("Invalid asset mint: " + JSON.toJsonString(attachment.getJsonObject()));
         }
+        
+        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset);
+        long newSupply = circulatingSupply + attachment.getQuantityQNT();
+        if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
+          throw new BurstException.NotCurrentlyValidException("Maximum circulating supply QNT is " + Constants.MAX_ASSET_QUANTITY_QNT);
+        }
       }
 
       @Override

@@ -21,7 +21,7 @@ final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
   private final AssetExchange assetExchange;
 
   GetAssetAccounts(ParameterService parameterService, AssetExchange assetExchange) {
-    super(new APITag[]{APITag.AE}, ASSET_PARAMETER, ASSET_FILTER_IGNORED_PARAMETER, QUANTITY_MININUM_QNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
+    super(new APITag[]{APITag.AE}, ASSET_PARAMETER, ASSET_IGNORE_TREASURY_PARAMETER, QUANTITY_MININUM_QNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
     this.parameterService = parameterService;
     this.assetExchange = assetExchange;
   }
@@ -35,11 +35,11 @@ final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
     long minimumQuantity = Convert.parseUnsignedLong(req.getParameter(QUANTITY_MININUM_QNT_PARAMETER));
     // default is to filter out ignored accounts
-    boolean filterIgnored = "false".equals(req.getParameter(ASSET_FILTER_IGNORED_PARAMETER)) ? false : true;
+    boolean filterTreasury = "false".equals(req.getParameter(ASSET_IGNORE_TREASURY_PARAMETER)) ? false : true;
 
     JsonArray accountAssets = new JsonArray();
     for (Account.AccountAsset accountAsset : assetExchange.getAssetAccounts(asset,
-        filterIgnored, minimumQuantity, firstIndex, lastIndex)) {
+        filterTreasury, minimumQuantity, firstIndex, lastIndex)) {
       accountAssets.add(JSONData.accountAsset(accountAsset));
     }
 
