@@ -159,6 +159,8 @@ public abstract class TransactionType {
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION, ColoredCoins.ASK_ORDER_CANCELLATION);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, ColoredCoins.BID_ORDER_CANCELLATION);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_MINT, ColoredCoins.ASSET_MINT);
+    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT, ColoredCoins.ASSET_ADD_TREASURY_ACCOUNT);
+    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_DISTRIBUTE, ColoredCoins.ASSET_DISTRIBUTE);
 
     Map<Byte, TransactionType> digitalGoodsTypes = new HashMap<>();
     digitalGoodsTypes.put(SUBTYPE_DIGITAL_GOODS_LISTING, DigitalGoods.LISTING);
