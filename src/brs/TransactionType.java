@@ -1019,7 +1019,7 @@ public abstract class TransactionType {
                   "or encrypted message appendix instead");
         }
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        if (attachment.getQuantityQNT() <= 0 || (asset != null && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
+        if (attachment.getQuantityQNT() <= 0) {
           throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         if (asset == null) {
@@ -1069,20 +1069,18 @@ public abstract class TransactionType {
           return false;
         }
         
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
         return true;
       }
 
       @Override
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
-        accountService.addToAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
       }
 
       @Override
       protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
+        // do nothing
       }
 
       @Override
