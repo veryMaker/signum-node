@@ -170,10 +170,12 @@ public class SqlBlockchainStore implements BlockchainStore {
       }
 
       SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions).and(
-              TRANSACTION.RECIPIENT_ID.eq(account.getId()).and(
+          account == null ? TRANSACTION.RECIPIENT_ID.isNull() :
+            TRANSACTION.RECIPIENT_ID.eq(account.getId()).and(
                       TRANSACTION.SENDER_ID.ne(account.getId())
               )
       ).unionAll(
+          account == null ? null :
               ctx.selectFrom(TRANSACTION).where(conditions).and(
                       TRANSACTION.SENDER_ID.eq(account.getId())
               )

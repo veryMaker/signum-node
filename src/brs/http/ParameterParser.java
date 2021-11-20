@@ -1,7 +1,9 @@
 package brs.http;
 
+import brs.Burst;
 import brs.Constants;
 import brs.crypto.EncryptedData;
+import brs.fluxcapacitor.FluxValues;
 import brs.http.common.Parameters;
 import brs.util.Convert;
 import burst.kit.entity.BurstAddress;
@@ -135,7 +137,9 @@ public final class ParameterParser {
 
   public static long getRecipientId(HttpServletRequest req) throws ParameterException {
     String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
-    if (recipientValue == null || Parameters.isZero(recipientValue)) {
+    if (recipientValue == null
+        || (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK) && Parameters.isZero(recipientValue))
+        ) {
       throw new ParameterException(MISSING_RECIPIENT);
     }
     long recipientId;
@@ -144,7 +148,7 @@ public final class ParameterParser {
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
-    if (recipientId == 0) {
+    if (recipientId == 0 && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
     return recipientId;

@@ -805,11 +805,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long totalMined = blockchain.getTotalMined();
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
-    // Check the amount burnt with multi-out transactions the the 0L address
+    // Check the amount burnt with transactions sent to NULL
     long totalBurnt = 0;
+    for (Transaction transaction : blockchain.getTransactions(null, (byte)0, (byte)0, 0, false)) {
+      totalBurnt += transaction.getAmountNQT();
+    }
+    // Check the amount burnt with transactions the the 0L address
     Account nullAccount = accountService.getNullAccount();
     if(nullAccount != null) {
-      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)1, 0, true)) {
+      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)-1, 0, true)) {
         Attachment attachment = transaction.getAttachment();
         if(attachment instanceof PaymentMultiOutCreation) {
           PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) attachment;
@@ -818,15 +822,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               totalBurnt += recipient.get(1);
           }
         }
-      }
-      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)2, 0, true)) {
-        Attachment attachment = transaction.getAttachment();
-        if(attachment instanceof PaymentMultiSameOutCreation) {
+        else if(attachment instanceof PaymentMultiSameOutCreation) {
           PaymentMultiSameOutCreation multiOut = (PaymentMultiSameOutCreation) attachment;
           for (Long recipient : multiOut.getRecipients()) {
             if(recipient == nullAccount.getId())
               totalBurnt += transaction.getAmountNQT()/multiOut.getRecipients().size();
           }
+        }
+        else {
+          totalBurnt += transaction.getAmountNQT();
         }
       }
       totalBurnt += blockchain.getAtBurnTotal();
