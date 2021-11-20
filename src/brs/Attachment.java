@@ -3,6 +3,7 @@ package brs;
 import brs.TransactionType.Payment;
 import brs.at.AtConstants;
 import brs.crypto.EncryptedData;
+import brs.fluxcapacitor.FluxValues;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -613,7 +614,7 @@ public interface Attachment extends Appendix {
       this.decimals = buffer.get();
       
       boolean mintable = false;
-      if(transactionVersion > 1) {
+      if(super.getVersion() > 1) {
         mintable = buffer.get() == 1;
       }
       this.mintable = mintable;
@@ -625,11 +626,12 @@ public interface Attachment extends Appendix {
       this.description = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(DESCRIPTION_PARAMETER)));
       this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
       this.decimals = JSON.getAsByte(attachmentData.get(DECIMALS_PARAMETER));
-      this.mintable = JSON.getAsBoolean(attachmentData.get(MINTABLE_PARAMETER));
+      this.mintable = Boolean.TRUE.equals(JSON.getAsBoolean(attachmentData.get(MINTABLE_PARAMETER)));
     }
 
     public ColoredCoinsAssetIssuance(String name, String description, long quantityQNT, byte decimals, int blockchainHeight, boolean mintable) {
-      super(blockchainHeight);
+      super((byte)(mintable ? 2 :
+        Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0));
       this.name = name;
       this.description = Convert.nullToEmpty(description);
       this.quantityQNT = quantityQNT;
