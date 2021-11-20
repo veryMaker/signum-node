@@ -1333,8 +1333,15 @@ public abstract class TransactionType {
         if (circulatingQuantity <= 0L) {
           throw new BurstException.NotValidException("Asset has no circulating supply: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (attachment.getQuantityQNT() <= 0L || (asset != null && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
-          throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
+        if (attachment.getQuantityQNT() == 0L && transaction.getAmountNQT() == 0L){
+          throw new BurstException.NotValidException("Nothing to distribute");          
+        }
+        if(attachment.getQuantityQNT() > 0L) {
+          Asset assetToDistribute = assetExchange.getAsset(attachment.getAssetIdToDistribute());
+          if (assetToDistribute == null) {
+            throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
+                    " does not exist yet");
+          }
         }
       }
 

@@ -856,11 +856,11 @@ public interface Attachment extends Appendix {
       super(attachmentData);
       this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
       this.minimumAssetQuantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_MININUM_QNT_PARAMETER));
-      this.assetIdToDistribute = JSON.getAsLong(attachmentData.get(ASSET_TO_DISTRIBUTE_PARAMETER));
+      this.assetIdToDistribute = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_TO_DISTRIBUTE_PARAMETER)));
       this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
     }
 
-    public ColoredCoinsAssetDistribute(long assetId, long minimumAssetQuantityQNT, long amountNQT, long assetToDistribute, long quantityQNT, int blockchainHeight) {
+    public ColoredCoinsAssetDistribute(long assetId, long minimumAssetQuantityQNT, long assetToDistribute, long quantityQNT, int blockchainHeight) {
       super(blockchainHeight);
       this.assetId = assetId;
       this.minimumAssetQuantityQNT = minimumAssetQuantityQNT;
