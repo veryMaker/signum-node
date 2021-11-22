@@ -1223,7 +1223,8 @@ public abstract class TransactionType {
         long minFeeBasic = super.minimumFeeNQT(height, transaction);
         
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
-        long numberOfHolders = assetExchange.getAssetAccountsCount(attachment.getAssetId(), attachment.getMinimumAssetQuantityQNT());
+        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true);
         long minFeeHolders = (numberOfHolders*minFeeBasic)/10L;
         
         return Math.max(minFeeBasic, minFeeHolders);
