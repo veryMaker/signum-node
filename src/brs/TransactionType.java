@@ -64,8 +64,8 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
   public static final byte SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
   public static final byte SUBTYPE_COLORED_COINS_ASSET_MINT = 6;
-  public static final byte SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT = 7;
-  public static final byte SUBTYPE_COLORED_COINS_ASSET_DISTRIBUTE = 8;
+  public static final byte SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT = 7;
+  public static final byte SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS = 8;
 
   public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
   public static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
@@ -159,8 +159,8 @@ public abstract class TransactionType {
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION, ColoredCoins.ASK_ORDER_CANCELLATION);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, ColoredCoins.BID_ORDER_CANCELLATION);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_MINT, ColoredCoins.ASSET_MINT);
-    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT, ColoredCoins.ASSET_ADD_TREASURY_ACCOUNT);
-    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_DISTRIBUTE, ColoredCoins.ASSET_DISTRIBUTE);
+    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT, ColoredCoins.ASSET_ADD_TREASURY_ACCOUNT);
+    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS, ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS);
 
     Map<Byte, TransactionType> digitalGoodsTypes = new HashMap<>();
     digitalGoodsTypes.put(SUBTYPE_DIGITAL_GOODS_LISTING, DigitalGoods.LISTING);
@@ -1118,7 +1118,7 @@ public abstract class TransactionType {
 
       @Override
       public final byte getSubtype() {
-        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT;
+        return TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT;
       }
 
       @Override
@@ -1196,32 +1196,32 @@ public abstract class TransactionType {
 
     };
     
-    public static final TransactionType ASSET_DISTRIBUTE = new ColoredCoins() {
+    public static final TransactionType ASSET_DISTRIBUTE_TO_HOLDERS = new ColoredCoins() {
 
       @Override
       public final byte getSubtype() {
-        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_DISTRIBUTE;
+        return TransactionType.SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS;
       }
 
       @Override
       public String getDescription() {
-        return "Asset Distribute";
+        return "Asset Distribute to Holders";
       }
 
       @Override
-      public Attachment.ColoredCoinsAssetDistribute parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
-        return new Attachment.ColoredCoinsAssetDistribute(buffer, transactionVersion);
+      public Attachment.ColoredCoinsAssetDistributeToHolders parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+        return new Attachment.ColoredCoinsAssetDistributeToHolders(buffer, transactionVersion);
       }
 
       @Override
-      protected Attachment.ColoredCoinsAssetDistribute parseAttachment(JsonObject attachmentData) {
-        return new Attachment.ColoredCoinsAssetDistribute(attachmentData);
+      protected Attachment.ColoredCoinsAssetDistributeToHolders parseAttachment(JsonObject attachmentData) {
+        return new Attachment.ColoredCoinsAssetDistributeToHolders(attachmentData);
       }
 
       @Override
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        logger.trace("TransactionType ASSET_DISTRIBUTE");
-        Attachment.ColoredCoinsAssetDistribute attachment = (Attachment.ColoredCoinsAssetDistribute) transaction.getAttachment();
+        logger.trace("TransactionType ASSET_DISTRIBUTE_TO_HOLDERS");
+        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
         
         if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
           return false;          
@@ -1229,7 +1229,7 @@ public abstract class TransactionType {
 
         if(attachment.getAssetIdToDistribute() != 0L && attachment.getQuantityQNT() > 0L) {
           long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute());
-          if(attachment.getAssetIdToDistribute() > unconfirmedAssetBalance)
+          if(attachment.getQuantityQNT() > unconfirmedAssetBalance)
             return false;
         }
         
@@ -1252,7 +1252,7 @@ public abstract class TransactionType {
 
       @Override
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
-        Attachment.ColoredCoinsAssetDistribute attachment = (Attachment.ColoredCoinsAssetDistribute) transaction.getAttachment();
+        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
             assetExchange.getAsset(attachment.getAssetId()),
@@ -1270,7 +1270,7 @@ public abstract class TransactionType {
         long quantityDistributed = 0L;
 
         // subtract the asset balance from the sender, the amount was already subtracted by the transaction 
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
+        accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
         
         AccountAsset largestHolder = null;
         for(AccountAsset holder : assetHolders) {
@@ -1283,14 +1283,15 @@ public abstract class TransactionType {
           if(attachment.getQuantityQNT() > 0L) {
             long quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
                 .divide(circulatingQuantity).longValue();
-            accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
+            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
+
             quantityDistributed += quantity;
           }
           
           if(transaction.getAmountNQT() > 0L) {
             long amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
                 .divide(circulatingQuantity).longValue();
-            accountService.addToUnconfirmedBalanceNQT(account, amount);
+            accountService.addToBalanceAndUnconfirmedBalanceNQT(account, amount);
             amountDistributed += amount;
           }
         }
@@ -1298,24 +1299,24 @@ public abstract class TransactionType {
         // any "dust" goes to the largestHolder
         if(amountDistributed < transaction.getAmountNQT()) {
           Account account = accountService.getOrAddAccount(largestHolder.getAccountId());
-          accountService.addToUnconfirmedBalanceNQT(account, transaction.getAmountNQT() - amountDistributed);          
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(account, transaction.getAmountNQT() - amountDistributed);          
         }
         if(quantityDistributed < attachment.getQuantityQNT()) {
           Account account = accountService.getOrAddAccount(largestHolder.getAccountId());
-          accountService.addToUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(),
+          accountService.addToAssetAndUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(),
               attachment.getQuantityQNT() - quantityDistributed);
         }
       }
 
       @Override
       protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        Attachment.ColoredCoinsAssetDistribute attachment = (Attachment.ColoredCoinsAssetDistribute) transaction.getAttachment();
+        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
         accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), attachment.getQuantityQNT());
       }
 
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        Attachment.ColoredCoinsAssetDistribute attachment = (Attachment.ColoredCoinsAssetDistribute) transaction.getAttachment();
+        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
         if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
           throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));          

@@ -176,7 +176,7 @@ public class SqlAccountStore implements AccountStore {
       Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
       SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
             .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
-            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT))
+            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
             .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
       ;
       
@@ -219,7 +219,7 @@ public class SqlAccountStore implements AccountStore {
       List<Long> treasuryAccounts = Db.useDSLContext(ctx -> {
       return ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
             .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
-            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ASSET_ADD_TREASURY_ACCOUNT))
+            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
             .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
             .fetch().getValues(TRANSACTION.RECIPIENT_ID);
       });

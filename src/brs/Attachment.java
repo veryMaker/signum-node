@@ -837,14 +837,14 @@ public interface Attachment extends Appendix {
     
   }
   
-  final class ColoredCoinsAssetDistribute extends AbstractAttachment {
+  final class ColoredCoinsAssetDistributeToHolders extends AbstractAttachment {
 
     private final long assetId;
     private final long minimumAssetQuantityQNT;
     private final long assetIdToDistribute;
     private final long quantityQNT;
 
-    ColoredCoinsAssetDistribute(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    ColoredCoinsAssetDistributeToHolders(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
       this.assetId = buffer.getLong();
       this.minimumAssetQuantityQNT = buffer.getLong();
@@ -852,7 +852,7 @@ public interface Attachment extends Appendix {
       this.quantityQNT = buffer.getLong();
     }
 
-    ColoredCoinsAssetDistribute(JsonObject attachmentData) {
+    ColoredCoinsAssetDistributeToHolders(JsonObject attachmentData) {
       super(attachmentData);
       this.assetId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ASSET_PARAMETER)));
       this.minimumAssetQuantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_MININUM_QNT_PARAMETER));
@@ -860,7 +860,7 @@ public interface Attachment extends Appendix {
       this.quantityQNT = JSON.getAsLong(attachmentData.get(QUANTITY_QNT_PARAMETER));
     }
 
-    public ColoredCoinsAssetDistribute(long assetId, long minimumAssetQuantityQNT, long assetToDistribute, long quantityQNT, int blockchainHeight) {
+    public ColoredCoinsAssetDistributeToHolders(long assetId, long minimumAssetQuantityQNT, long assetToDistribute, long quantityQNT, int blockchainHeight) {
       super(blockchainHeight);
       this.assetId = assetId;
       this.minimumAssetQuantityQNT = minimumAssetQuantityQNT;
@@ -870,7 +870,7 @@ public interface Attachment extends Appendix {
 
     @Override
     protected String getAppendixName() {
-      return "AssetDistribute";
+      return "AssetDistributeToHolders";
     }
 
     @Override
@@ -896,7 +896,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.ColoredCoins.ASSET_DISTRIBUTE;
+      return TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS;
     }
 
     public long getAssetId() {
