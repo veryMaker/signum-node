@@ -232,7 +232,7 @@ public class Transaction implements Comparable<Transaction> {
     }
     this.appendagesSize = countAppendeges;
     int effectiveHeight = (height.get() < Integer.MAX_VALUE ? height.get() : Burst.getBlockchain().getHeight());
-    long minimumFeeNQT = type.minimumFeeNQT(effectiveHeight, countAppendeges);
+    long minimumFeeNQT = type.minimumFeeNQT(effectiveHeight, this);
     if(type == null || type.isSigned()) {
       if (builder.feeNQT > 0 && builder.feeNQT < minimumFeeNQT) {
         throw new BurstException.NotValidException(String.format("Requested fee %d less than the minimum fee %d",

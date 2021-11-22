@@ -1217,6 +1217,17 @@ public abstract class TransactionType {
       protected Attachment.ColoredCoinsAssetDistributeToHolders parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsAssetDistributeToHolders(attachmentData);
       }
+      
+      @Override
+      public long minimumFeeNQT(int height, Transaction transaction) {
+        long minFeeBasic = super.minimumFeeNQT(height, transaction);
+        
+        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
+        long numberOfHolders = assetExchange.getAssetAccountsCount(attachment.getAssetId(), attachment.getMinimumAssetQuantityQNT());
+        long minFeeHolders = (numberOfHolders*minFeeBasic)/10L;
+        
+        return Math.max(minFeeBasic, minFeeHolders);
+      }
 
       @Override
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
@@ -3116,12 +3127,12 @@ public abstract class TransactionType {
 
   }
 
-  public long minimumFeeNQT(int height, int appendagesSize) {
+  public long minimumFeeNQT(int height, Transaction transaction) {
     if (height < BASELINE_FEE_HEIGHT) {
       return 0; // No need to validate fees before baseline block
     }
     Fee fee = getBaselineFee(height);
-    int appendageMultiplier = appendagesSize/Constants.ORDINARY_TRANSACTION_BYTES;
+    int appendageMultiplier = transaction.getAppendagesSize()/Constants.ORDINARY_TRANSACTION_BYTES;
     return Convert.safeAdd(fee.getConstantFee(), Convert.safeMultiply(appendageMultiplier, fee.getAppendagesFee()));
   }
 
