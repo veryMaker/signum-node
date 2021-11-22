@@ -25,7 +25,7 @@ public interface AccountStore {
 
   VersionedEntityTable<Account.AccountAsset> getAccountAssetTable();
 
-  int getAssetAccountsCount(long assetId, long minimumQuantity);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
 
   long getAssetCirculatingSupply(Asset asset);
 

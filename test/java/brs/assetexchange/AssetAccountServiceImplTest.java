@@ -40,8 +40,10 @@ public class AssetAccountServiceImplTest {
 
   @Test
   public void getAssetAccountsCount() {
-    when(mockAccountStore.getAssetAccountsCount(eq(123L), eq(0L))).thenReturn(5);
+    final Asset mockAsset = mock(Asset.class);
+    
+    when(mockAccountStore.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true))).thenReturn(5);
 
-    assertEquals(5L, t.getAssetAccountsCount(123, eq(0L)));
+    assertEquals(5L, t.getAssetAccountsCount(mockAsset, 0L, true));
   }
 }

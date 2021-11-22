@@ -159,11 +159,24 @@ public class SqlAccountStore implements AccountStore {
   }
   
   @Override
-  public int getAssetAccountsCount(long assetId, long minimumQuantity) {
+  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury) {
     return Db.useDSLContext(ctx -> {
-      SelectConditionStep<Record1<Integer>> select = ctx.selectCount().from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(assetId)).and(ACCOUNT_ASSET.LATEST.isTrue());
+      
+      SelectConditionStep<Record1<Integer>> select = ctx.selectCount().from(ACCOUNT_ASSET)
+          .where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId())).and(ACCOUNT_ASSET.LATEST.isTrue())
+          .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
       if(minimumQuantity > 0L) {
         select = select.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+      }
+      if(ignoreTreasury) {
+        Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
+        SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID)
+            .from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
+              .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+              .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
+              .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
+        ;
+        select = select.and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(ignoredAccounts));
       }
       return select.fetchOne(0, int.class);
     });

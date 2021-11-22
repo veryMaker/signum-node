@@ -18,8 +18,8 @@ class AssetAccountServiceImpl {
     return accountStore.getAssetAccounts(asset, ignoreTreasury, minimumQuantity, from, to);
   }
 
-  public int getAssetAccountsCount(long assetId, long minimumQuantity) {
-    return accountStore.getAssetAccountsCount(assetId, minimumQuantity);
+  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury) {
+    return accountStore.getAssetAccountsCount(asset, minimumQuantity, ignoreTreasury);
   }
   
   public long getAssetCirculatingSupply(Asset asset) {

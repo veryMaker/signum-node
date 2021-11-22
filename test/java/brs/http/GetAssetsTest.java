@@ -54,7 +54,7 @@ public class GetAssetsTest {
 
     when(mockAssetExchange.getTradeCount(eq(assetId))).thenReturn(mockTradeCount);
     when(mockAssetExchange.getTransferCount(eq(assetId))).thenReturn(mockTransferCount);
-    when(mockAssetExchange.getAssetAccountsCount(eq(assetId), eq(0L))).thenReturn(mockAccountsCount);
+    when(mockAssetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true))).thenReturn(mockAccountsCount);
 
     final JsonObject response = (JsonObject) t.processRequest(req);
     assertNotNull(response);

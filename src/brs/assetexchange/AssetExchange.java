@@ -23,7 +23,7 @@ public interface AssetExchange {
 
   int getTransferCount(long id);
 
-  int getAssetAccountsCount(long id, long minimumQuantity);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
   
   long getAssetCirculatingSupply(Asset asset);  
 
