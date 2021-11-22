@@ -223,6 +223,8 @@ public class SqlAccountStore implements AccountStore {
             .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
             .fetch().getValues(TRANSACTION.RECIPIENT_ID);
       });
+      // the 0 account should also be removed from the circulating
+      treasuryAccounts.add(0L);
       condition = condition.and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(treasuryAccounts));
     }
     return getAccountAssetTable().getManyBy(condition, from, to, sort);
