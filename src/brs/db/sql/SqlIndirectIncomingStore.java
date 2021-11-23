@@ -1,5 +1,6 @@
 package brs.db.sql;
 
+import brs.IndirectIncoming;
 import brs.db.BurstKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.IndirectIncomingStore;
@@ -29,13 +30,21 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
         this.indirectIncomingTable = new EntitySqlTable<IndirectIncoming>("indirect_incoming", INDIRECT_INCOMING, indirectIncomingDbKeyFactory, derivedTableManager) {
             @Override
             protected IndirectIncoming load(DSLContext ctx, Record rs) {
-                return new IndirectIncoming(rs.get(INDIRECT_INCOMING.ACCOUNT_ID), rs.get(INDIRECT_INCOMING.TRANSACTION_ID), rs.get(INDIRECT_INCOMING.HEIGHT));
+                return new IndirectIncoming(rs.get(INDIRECT_INCOMING.ACCOUNT_ID),
+                    rs.get(INDIRECT_INCOMING.TRANSACTION_ID),
+                    rs.get(INDIRECT_INCOMING.AMOUNT),
+                    rs.get(INDIRECT_INCOMING.QUANTITY),
+                    rs.get(INDIRECT_INCOMING.HEIGHT));
             }
 
             private Query getQuery(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID, INDIRECT_INCOMING.HEIGHT)
+                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
+                    INDIRECT_INCOMING.AMOUNT, INDIRECT_INCOMING.QUANTITY,
+                    INDIRECT_INCOMING.HEIGHT)
                         .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
-                        .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(), indirectIncoming.getHeight());
+                        .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
+                            indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
+                            indirectIncoming.getHeight());
             }
 
             @Override
@@ -62,7 +71,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
     }
 
     @Override
-    public List<Long> getIndirectIncomings(long accountId, int from, int to) {
+    public Collection<Long> getIndirectIncomings(long accountId, int from, int to) {
         return indirectIncomingTable.getManyBy(INDIRECT_INCOMING.ACCOUNT_ID.eq(accountId), from, to)
                 .stream()
                 .map(IndirectIncoming::getTransactionId)

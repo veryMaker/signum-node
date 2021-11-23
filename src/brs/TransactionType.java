@@ -455,6 +455,18 @@ public abstract class TransactionType {
       public boolean isIndirect() {
         return true;
       }
+      
+      @Override
+      public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
+        Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
+        
+        ArrayList<IndirectIncoming> indirects = new ArrayList<IndirectIncoming>(attachment.getRecipients().size());
+        for(List<Long> recipient : attachment.getRecipients()) {
+          indirects.add(new IndirectIncoming(recipient.get(0), transaction.getId(),
+              recipient.get(1), 0, transaction.getHeight()));
+        }
+        return indirects;
+      }
 
       @Override
       public void parseAppendices(Transaction.Builder builder, JsonObject attachmentData) {
@@ -514,6 +526,18 @@ public abstract class TransactionType {
       @Override
       public boolean isIndirect() {
         return true;
+      }
+      
+      @Override
+      public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
+        Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
+        long amount = transaction.getAmountNQT() / attachment.getRecipients().size();
+        ArrayList<IndirectIncoming> indirects = new ArrayList<IndirectIncoming>(attachment.getRecipients().size());
+        for(Long recipient : attachment.getRecipients()) {
+          indirects.add(new IndirectIncoming(recipient, transaction.getId(),
+                    amount, 0, transaction.getHeight()));
+        }
+        return indirects;
       }
 
       @Override
@@ -3169,6 +3193,12 @@ public abstract class TransactionType {
               ", appendagesFee=" + appendagesFee +
               '}';
     }
+  }
+  
+  private static final Collection<IndirectIncoming> NO_INDIRECTS = Collections.emptyList();
+  public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
+    // by default there is no indirect incomings, transaction types should implement it
+    return NO_INDIRECTS;
   }
 
 }
