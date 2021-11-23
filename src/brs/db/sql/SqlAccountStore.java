@@ -16,6 +16,7 @@ import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static brs.schema.Tables.*;
@@ -183,21 +184,24 @@ public class SqlAccountStore implements AccountStore {
   }
   
   @Override
-  public long getAssetCirculatingSupply(Asset asset) {
+  public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
     return Db.useDSLContext(ctx -> {
       
-      Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
-      SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
-            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
-            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
-            .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
-      ;
-      
-      return ctx.select(DSL.sum(ACCOUNT_ASSET.QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
+      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(ACCOUNT_ASSET.QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
           .and(ACCOUNT_ASSET.LATEST.isTrue())
-          .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L))
-          .and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(ignoredAccounts))
-          .fetchOne(0, long.class);
+          .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
+      
+      if(ignoreTreasury) {
+        Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
+        SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
+              .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+              .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
+              .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
+        ;
+        select = select.and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(ignoredAccounts));
+      }
+      
+      return select.fetchOne(0, long.class);
     });
   }
 
