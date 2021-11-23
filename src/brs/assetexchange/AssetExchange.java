@@ -25,7 +25,7 @@ public interface AssetExchange {
 
   int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
   
-  long getAssetCirculatingSupply(Asset asset);  
+  long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury);
 
   void addTradeListener(Listener<Trade> listener, Event trade);
 

@@ -27,7 +27,7 @@ public interface AccountStore {
 
   int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
 
-  long getAssetCirculatingSupply(Asset asset);
+  long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury);
 
   BurstKey.LongKeyFactory<Account> getAccountKeyFactory();
 

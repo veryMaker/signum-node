@@ -61,8 +61,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
   
   @Override
-  public long getAssetCirculatingSupply(Asset asset) {
-    return assetAccountService.getAssetCirculatingSupply(asset);
+  public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
+    return assetAccountService.getAssetCirculatingSupply(asset, ignoreTreasury);
   }
 
   @Override
