@@ -184,7 +184,7 @@ shadowJar{
 
 createExe {
     outfile = 'signum-node.exe'
-    // icon = "${projectDir}/dist/anne.ico"
+    icon = "${projectDir}/resources/images/signum_overlay_logo.ico"
     jreMinVersion = '1.8.0'
     copyright = 'signum.network'
     companyName = 'https://signum.network'
@@ -196,16 +196,18 @@ createExe {
 
     mainClassName = project.mainClassName
     copyConfigurable = project.tasks.shadowJar.outputs.files
-    jar = "lib/${project.tasks.shadowJar.archiveName}"
+    jar = "${project.tasks.shadowJar.archiveName}"
 }
 
 task dist(type: Zip) {
    dependsOn createExe
    from project.tasks.shadowJar.outputs.files
    from "${project.buildDir}/launch4j/${baseName}.exe"
-   into('conf') {from "conf"} 
+   into('conf') {from "conf/brs-default.properties"} 
+   into('conf') {from "conf/logging-default.properties"} 
    into('html') {from "html"}
-   from "LICENSE"
+   from "LICENSE.txt"
+   from "README.md"
    archiveName "${baseName}.zip"
 }
 

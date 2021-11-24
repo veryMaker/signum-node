@@ -11,7 +11,6 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
   public NetworkParametersTestnet() {
     
     setProperty(Props.NETWORK_NAME, "Signum-TESTNET");
-    setProperty(Props.VERSION, "3.3.0-alpha1");
 
     setProperty(Props.REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT, "0");
     setProperty(Props.DIGITAL_GOODS_STORE_BLOCK_HEIGHT, "0");
@@ -30,7 +29,9 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
         new FluxValue.ValueChange<Long>(HistoricalMoments.GENESIS, 1_000L),
         new FluxValue.ValueChange<Long>(HistoricalMoments.SPEEDWAY, 8_000L)
         ));
-    
+
+    setProperty(Props.DEV_NEXT_FORK_BLOCK_HEIGHT, "364400");
+
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "364000");
     setProperty(Props.BRS_CHECKPOINT_HASH, "19095af8f50555058682a4bf79db41cabcc5500bc856231f4ad8051de2d98cff");
     
