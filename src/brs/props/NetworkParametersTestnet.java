@@ -11,6 +11,7 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
   public NetworkParametersTestnet() {
     
     setProperty(Props.NETWORK_NAME, "Signum-TESTNET");
+    setProperty(Props.VERSION, "3.3.0-alpha1");
 
     setProperty(Props.REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT, "0");
     setProperty(Props.DIGITAL_GOODS_STORE_BLOCK_HEIGHT, "0");
@@ -30,8 +31,8 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
         new FluxValue.ValueChange<Long>(HistoricalMoments.SPEEDWAY, 8_000L)
         ));
     
-    setProperty(Props.BRS_CHECKPOINT_HEIGHT, "249000");
-    setProperty(Props.BRS_CHECKPOINT_HASH, "41e28a9068369bd528f7da97951b07e42d64c263e8b190dd56287ad2b0c63a38");
+    setProperty(Props.BRS_CHECKPOINT_HEIGHT, "364000");
+    setProperty(Props.BRS_CHECKPOINT_HASH, "19095af8f50555058682a4bf79db41cabcc5500bc856231f4ad8051de2d98cff");
     
     setProperty(Props.ADDRESS_PREFIX, "TS");
     setProperty(Props.VALUE_SUFIX, "TSIGNA");
@@ -41,7 +42,7 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
     setProperty(Props.API_PORT, "6876");
     
     // setProperty(Props.P2P_BOOTSTRAP_PEERS, "");
-    setProperty(Props.P2P_REBROADCAST_TO, "nivbox.co.uk; testnet.burstcoin.network; 77.66.65.240; 2.29.196.249; 176.9.197.183;");
+    setProperty(Props.P2P_REBROADCAST_TO, "nivbox.co.uk; testnet.signum.network; 77.66.65.240; 2.29.196.249; 176.9.197.183;");
     setProperty(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS, "1");
     
   }  
