@@ -230,6 +230,11 @@ public class BlockchainImpl implements Blockchain {
   }
 
   @Override
+  public Collection<Transaction> getAllTransactionsAtBlock(long blockId) {
+      return transactionDb.findAllTransactionsAtBlock(blockId);
+  };
+
+  @Override
   public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype,
                                                  int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
     return blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming);

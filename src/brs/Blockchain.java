@@ -34,6 +34,8 @@ public interface Blockchain {
 
   Transaction getTransaction(long transactionId);
 
+  Collection<Transaction> getAllTransactionsAtBlock(long blockId);
+
   Transaction getTransactionByFullHash(String fullHash); // TODO add byte[] method
 
   boolean hasTransaction(long transactionId);
