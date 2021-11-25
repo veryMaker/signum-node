@@ -17,9 +17,7 @@ public interface TransactionDb extends Table {
 
   Transaction loadTransaction(TransactionRecord transactionRecord) throws BurstException.ValidationException;
 
-  List<Transaction> findBlockTransactions(long blockId);
-
-  List<Transaction> findAllTransactionsAtBlock(long blockId);
+  List<Transaction> findBlockTransactions(long blockId, boolean onlySigned);
 
   void saveTransactions(List<Transaction> transactions);
 }

@@ -7,7 +7,9 @@ import brs.TransactionType;
 import brs.db.TransactionDb;
 import brs.schema.tables.records.TransactionRecord;
 import brs.util.Convert;
+
 import org.jooq.BatchBindStep;
+import org.jooq.SelectConditionStep;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -104,27 +106,14 @@ public class SqlTransactionDb implements TransactionDb {
   }
 
   @Override
-  public List<Transaction> findAllTransactionsAtBlock(long blockId) {
+  public List<Transaction> findBlockTransactions(long blockId, boolean onlySigned) {
     return Db.useDSLContext(ctx -> {
-      return ctx.selectFrom(TRANSACTION)
-              .where(TRANSACTION.BLOCK_ID.eq(blockId))
-              .fetch(record -> {
-                try {
-                  return loadTransaction(record);
-                } catch (BurstException.ValidationException e) {
-                  throw new RuntimeException("Transaction already in database for block_id = " + Convert.toUnsignedLong(blockId) + " does not pass validation!", e);
-                }
-              });
-    });
-  }
-
-  @Override
-  public List<Transaction> findBlockTransactions(long blockId) {
-    return Db.useDSLContext(ctx -> {
-      return ctx.selectFrom(TRANSACTION)
-              .where(TRANSACTION.BLOCK_ID.eq(blockId))
-              .and(TRANSACTION.SIGNATURE.isNotNull())
-              .fetch(record -> {
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION)
+          .where(TRANSACTION.BLOCK_ID.eq(blockId));
+      if(onlySigned) {
+        select = select.and(TRANSACTION.SIGNATURE.isNotNull());
+      }
+      return select.fetch(record -> {
                 try {
                   return loadTransaction(record);
                 } catch (BurstException.ValidationException e) {

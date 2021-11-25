@@ -17,6 +17,8 @@ import com.google.gson.JsonObject;
 
 import static brs.http.common.ResultFields.*;
 
+import java.util.List;
+
 public final class JSONData {
 
   static JsonObject alias(Alias alias, Offer offer) {
@@ -103,6 +105,7 @@ public final class JSONData {
 
   static JsonObject block(Block block, boolean includeTransactions, int currentBlockchainHeight, long blockReward, int scoopNum) {
     JsonObject json = new JsonObject();
+    List<Transaction> allBlockTransactions = block.getAllTransactions();
     json.addProperty(BLOCK_RESPONSE, block.getStringId());
     json.addProperty(HEIGHT_RESPONSE, block.getHeight());
     putAccount(json, GENERATOR_RESPONSE, block.getGeneratorId());
@@ -110,7 +113,7 @@ public final class JSONData {
     json.addProperty(NONCE_RESPONSE, Convert.toUnsignedLong(block.getNonce()));
     json.addProperty(SCOOP_NUM_RESPONSE, scoopNum);
     json.addProperty(TIMESTAMP_RESPONSE, block.getTimestamp());
-    json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.getTransactions().size());
+    json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, allBlockTransactions.size());
     json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
     json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
@@ -138,7 +141,7 @@ public final class JSONData {
     json.addProperty(BLOCK_SIGNATURE_RESPONSE, Convert.toHexString(block.getBlockSignature()));
 
     JsonArray transactions = new JsonArray();
-    for (Transaction transaction : block.getTransactions()) {
+    for (Transaction transaction : allBlockTransactions) {
       if (includeTransactions) {
         transactions.add(transaction(transaction, currentBlockchainHeight));
       } else {
