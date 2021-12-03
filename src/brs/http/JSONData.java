@@ -7,6 +7,7 @@ import brs.at.AtApiHelper;
 import brs.at.AtMachineState;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
+import brs.db.sql.SqlTransactionDb;
 import brs.peer.Peer;
 import brs.props.Props;
 import brs.util.Convert;
@@ -352,6 +353,10 @@ public final class JSONData {
     if (attachmentJSON.size() > 0) {
       modifyAttachmentJSON(attachmentJSON);
       json.add(ATTACHMENT_RESPONSE, attachmentJSON);
+    }
+    byte[] attachmentBytes = SqlTransactionDb.getAttachmentBytes(transaction);
+    if (attachmentBytes != null) {
+      json.addProperty(ATTACHMENT_BYTES_RESPONSE, Convert.toHexString(attachmentBytes));
     }
     putAccount(json, SENDER_RESPONSE, transaction.getSenderId());
     json.addProperty(HEIGHT_RESPONSE, transaction.getHeight());

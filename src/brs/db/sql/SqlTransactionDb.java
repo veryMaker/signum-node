@@ -123,7 +123,7 @@ public class SqlTransactionDb implements TransactionDb {
     });
   }
 
-  private byte[] getAttachmentBytes(Transaction transaction) {
+  public static byte[] getAttachmentBytes(Transaction transaction) {
     int bytesLength = 0;
     for (Appendix appendage : transaction.getAppendages()) {
       bytesLength += appendage.getSize();

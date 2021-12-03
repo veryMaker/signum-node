@@ -130,6 +130,7 @@ public class ResultFields {
   public static final String SENDER_PUBLIC_KEY_RESPONSE = "senderPublicKey";
   public static final String REFERENCED_TRANSACTION_FULL_HASH_RESPONSE = "referencedTransactionFullHash";
   public static final String ATTACHMENT_RESPONSE = "attachment";
+  public static final String ATTACHMENT_BYTES_RESPONSE = "attachmentBytes";
   public static final String EC_BLOCK_ID_RESPONSE = "ecBlockId";
   public static final String EC_BLOCK_HEIGHT_RESPONSE = "ecBlockHeight";
   public static final String FREQUENCY_RESPONSE = "frequency";
