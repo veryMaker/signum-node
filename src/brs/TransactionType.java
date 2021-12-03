@@ -1093,6 +1093,12 @@ public abstract class TransactionType {
           return false;
         }
         
+        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false);
+        long newSupply = circulatingSupply + attachment.getQuantityQNT();
+        if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
+          return false;
+        }
+        
         return true;
       }
 
@@ -1100,6 +1106,12 @@ public abstract class TransactionType {
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+      }
+      
+      @Override
+      public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
+        // All mint transactions from the same account are considered duplicates, so just the one with highest fee is kept
+        return new TransactionDuplicationKey(ASSET_MINT, Convert.toUnsignedLong(transaction.getSenderId()));
       }
 
       @Override
