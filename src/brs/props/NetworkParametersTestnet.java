@@ -43,7 +43,7 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
     setProperty(Props.API_PORT, "6876");
     
     // setProperty(Props.P2P_BOOTSTRAP_PEERS, "");
-    setProperty(Props.P2P_REBROADCAST_TO, "nivbox.co.uk; testnet.signum.network; 77.66.65.240; 2.29.196.249; 176.9.197.183;");
+    setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club; nivbox.co.uk; testnet.signum.network; 77.66.65.240; 2.29.196.249; 176.9.197.183;");
     setProperty(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS, "1");
     
   }  
