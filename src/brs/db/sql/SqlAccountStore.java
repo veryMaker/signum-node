@@ -193,7 +193,8 @@ public class SqlAccountStore implements AccountStore {
       
       if(ignoreTreasury) {
         Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
-        SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
+        SelectConditionStep<Record1<Long>> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION)
+              .where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
               .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
               .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
               .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
