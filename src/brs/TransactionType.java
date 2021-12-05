@@ -1033,7 +1033,7 @@ public abstract class TransactionType {
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer)transaction.getAttachment();
-        if (transaction.getAmountNQT() != 0
+        if ((!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK) && transaction.getAmountNQT() != 0)
                 || attachment.getComment() != null && attachment.getComment().length() > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH
                 || attachment.getAssetId() == 0) {
           throw new BurstException.NotValidException("Invalid asset transfer amount or comment: " + JSON.toJsonString(attachment.getJsonObject()));
