@@ -3,8 +3,8 @@ package brs;
 public class IndirectIncoming {
   private final long accountId;
   private final long transactionId;
-  private final long amount;
-  private final long quantity;
+  private long amount;
+  private long quantity;
   private final int height;
 
   public IndirectIncoming(long accountId, long transactionId, long amount, long quantity, int height) {
@@ -27,8 +27,16 @@ public class IndirectIncoming {
       return amount;
   }
   
+  public void addAmount(long add) {
+    amount += add;
+  }
+  
   public long getQuantity() {
     return quantity;
+  }
+  
+  public void addQuantity(long add) {
+    quantity += add;
   }
 
   public int getHeight() {

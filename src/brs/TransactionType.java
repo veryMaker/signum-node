@@ -1233,7 +1233,7 @@ public abstract class TransactionType {
     };
     
     public static final TransactionType ASSET_DISTRIBUTE_TO_HOLDERS = new ColoredCoins() {
-
+      
       @Override
       public final byte getSubtype() {
         return TransactionType.SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS;
@@ -1301,58 +1301,25 @@ public abstract class TransactionType {
       @Override
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
-
-        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
-            assetExchange.getAsset(attachment.getAssetId()),
-            true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
-        long circulatingQuantityQNT = 0L;
-        for(AccountAsset holder : assetHolders) {
-          circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
-        }
-        BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
-
-        BigInteger quantityToDistribute = BigInteger.valueOf(attachment.getQuantityQNT());
-        BigInteger amountToDistribute = BigInteger.valueOf(transaction.getAmountNQT());
         
-        long amountDistributed = 0L;
-        long quantityDistributed = 0L;
-
         // subtract the asset balance from the sender, the amount was already subtracted by the transaction 
         accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
-        
-        AccountAsset largestHolder = null;
-        for(AccountAsset holder : assetHolders) {
-          // add to the holders
-          Account account = accountService.getOrAddAccount(holder.getAccountId());
-          if(largestHolder == null || holder.getUnconfirmedQuantityQNT() > largestHolder.getUnconfirmedQuantityQNT()) {
-            largestHolder = holder;
-          }
-          
-          if(attachment.getQuantityQNT() > 0L) {
-            long quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
-                .divide(circulatingQuantity).longValue();
-            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
 
-            quantityDistributed += quantity;
+        Collection<IndirectIncoming> incomings = getIndirectIncomings(transaction);
+        for(IndirectIncoming incoming : incomings) {
+          
+          // add to the holders
+          Account account = accountService.getOrAddAccount(incoming.getAccountId());
+          
+          long quantity = incoming.getQuantity();
+          if(quantity > 0L) {
+            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
           }
           
-          if(transaction.getAmountNQT() > 0L) {
-            long amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
-                .divide(circulatingQuantity).longValue();
+          long amount = incoming.getAmount();
+          if(amount > 0L) {
             accountService.addToBalanceAndUnconfirmedBalanceNQT(account, amount);
-            amountDistributed += amount;
           }
-        }
-        
-        // any "dust" goes to the largestHolder
-        if(amountDistributed < transaction.getAmountNQT()) {
-          Account account = accountService.getOrAddAccount(largestHolder.getAccountId());
-          accountService.addToBalanceAndUnconfirmedBalanceNQT(account, transaction.getAmountNQT() - amountDistributed);          
-        }
-        if(quantityDistributed < attachment.getQuantityQNT()) {
-          Account account = accountService.getOrAddAccount(largestHolder.getAccountId());
-          accountService.addToAssetAndUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(),
-              attachment.getQuantityQNT() - quantityDistributed);
         }
       }
 
@@ -1402,6 +1369,68 @@ public abstract class TransactionType {
       @Override
       public boolean isIndirect() {
         return true;
+      }
+      
+      @Override
+      public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
+        // TODO: rework this so we do not run this more than once
+        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
+
+        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
+            assetExchange.getAsset(attachment.getAssetId()),
+            true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
+        long circulatingQuantityQNT = 0L;
+        for(AccountAsset holder : assetHolders) {
+          circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
+        }
+        BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
+        
+        ArrayList<IndirectIncoming> indirects = new ArrayList<IndirectIncoming>(assetHolders.size());
+
+        BigInteger quantityToDistribute = BigInteger.valueOf(attachment.getQuantityQNT());
+        BigInteger amountToDistribute = BigInteger.valueOf(transaction.getAmountNQT());
+        
+        long amountDistributed = 0L;
+        long quantityDistributed = 0L;
+
+        AccountAsset largestHolder = null;
+        IndirectIncoming largestIndirect = null;
+        for(AccountAsset holder : assetHolders) {
+          // add to the holders
+          long quantity = 0L;
+          if(attachment.getQuantityQNT() > 0L) {
+            quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
+                .divide(circulatingQuantity).longValue();
+
+            quantityDistributed += quantity;
+          }
+          
+          long amount = 0L;
+          if(transaction.getAmountNQT() > 0L) {
+            amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
+                .divide(circulatingQuantity).longValue();
+            amountDistributed += amount;
+          }
+          
+          IndirectIncoming indirect = new IndirectIncoming(holder.getAccountId(), transaction.getId(),
+              amount, quantity, transaction.getHeight());
+          indirects.add(indirect);
+          
+          if(largestHolder == null || holder.getUnconfirmedQuantityQNT() > largestHolder.getUnconfirmedQuantityQNT()) {
+            largestHolder = holder;
+            largestIndirect = indirect;
+          }          
+        }
+        
+        // any "dust" goes to the largestHolder
+        if(amountDistributed < transaction.getAmountNQT()) {
+          largestIndirect.addAmount(transaction.getAmountNQT() - amountDistributed);
+        }
+        if(quantityDistributed < attachment.getQuantityQNT()) {
+          largestIndirect.addQuantity(attachment.getQuantityQNT() - quantityDistributed);
+        }
+
+        return indirects;
       }
 
     };
