@@ -20,6 +20,7 @@ import brs.Attachment;
 import brs.Blockchain;
 import brs.Burst;
 import brs.BurstException;
+import brs.Constants;
 import brs.assetexchange.AssetExchange;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
@@ -49,7 +50,19 @@ public final class DistributeToAssetHolders extends CreateTransaction {
 
     Account account = parameterService.getSenderAccount(req);
     Asset asset = parameterService.getAsset(req);
-    long amountNQT = ParameterParser.getAmountNQT(req);
+
+    long amountNQT = 0L;
+    String amountValueNQT = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
+    if (amountValueNQT != null) {
+      try {
+        amountNQT = Long.parseLong(amountValueNQT);
+      } catch (RuntimeException e) {
+        return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
+      }
+      if (amountNQT < 0 || amountNQT >= Constants.MAX_BALANCE_NQT) {
+        return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
+      }
+    }
     
     if(!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
       return JSONResponses.incorrect("asset distribution is not enabled yet");
@@ -78,6 +91,10 @@ public final class DistributeToAssetHolders extends CreateTransaction {
     }
     else if (quantityQNT != 0L) {
       return JSONResponses.incorrect(QUANTITY_QNT_PARAMETER);
+    }
+    
+    if(amountNQT == 0L && quantityQNT == 0L) {
+      return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
     }
     
     Collection<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, -1, -1);
