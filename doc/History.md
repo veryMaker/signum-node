@@ -1,4 +1,4 @@
-[History of Burst](https://burstwiki.org/en/history-of-burst/)
+[History of Signum](https://signum.community/signum-development/)
 
 ```
 2020-04-06 v3.0.0
