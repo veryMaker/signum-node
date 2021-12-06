@@ -79,7 +79,7 @@ public class Props {
 
   // DB options
   public static final Prop<Boolean> DB_SKIP_CHECK  = new Prop<>("DB.SkipCheck", false);
-  public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:mariadb://localhost:3306/burstwallet");
+  public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:h2:file:./burst_db/burst.h2;DB_CLOSE_ON_EXIT=FALSE");
   public static final Prop<String> DB_USERNAME     = new Prop<>("DB.Username", "");
   public static final Prop<String> DB_PASSWORD     = new Prop<>("DB.Password", "");
   public static final Prop<Integer> DB_CONNECTIONS  = new Prop<>("DB.Connections", 30);
