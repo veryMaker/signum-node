@@ -12,7 +12,7 @@ plugins {
 	
 	  id 'nu.studer.jooq' version '3.0.3'
 	  
-	  id "org.flywaydb.flyway" version "7.15.0"
+	  id "org.flywaydb.flyway" version "8.2.0"
 	
     id "de.undercouch.download" version "1.2"
     
@@ -38,7 +38,7 @@ dependencies {
     implementation 'io.reactivex:rxjava:1.3.8'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
     implementation 'org.ehcache:ehcache:3.8.0'
-    implementation 'org.flywaydb:flyway-core:7.3.2'
+    implementation 'org.flywaydb:flyway-core:8.2.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.h2database:h2:1.4.199'
     implementation 'commons-cli:commons-cli:1.4'
@@ -177,10 +177,13 @@ jar {
     }
 }
 
-shadowJar{
-    archiveName = "${baseName}-${classifier}.${extension}"
+tasks.jar.configure {
+  classifier = 'default'
 }
 
+tasks.shadowJar.configure {
+  classifier = null
+}
 
 createExe {
     outfile = 'signum-node.exe'
