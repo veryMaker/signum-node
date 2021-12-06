@@ -43,7 +43,7 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
     setProperty(Props.API_PORT, "6876");
     
     // setProperty(Props.P2P_BOOTSTRAP_PEERS, "lmsi.club");
-    setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club");
+    setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club; 162.55.177.197");
     setProperty(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS, "1");
 
     setProperty(Props.P2P_USE_PEERS_DB, "false");
