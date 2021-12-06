@@ -97,7 +97,7 @@ public class PropertyServiceImpl implements PropertyService {
   public List<String> getStringList(Prop<String> name) {
     String value = getString(name);
     if (value == null || value.isEmpty()) {
-      return Collections.emptyList();
+      return new ArrayList<>();
     }
     List<String> result = new ArrayList<>();
     for (String s : value.split(";")) {
