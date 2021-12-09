@@ -1256,14 +1256,18 @@ public abstract class TransactionType {
       
       @Override
       public long minimumFeeNQT(int height, Transaction transaction) {
-        long minFeeBasic = super.minimumFeeNQT(height, transaction);
+        long minFee = super.minimumFeeNQT(height, transaction);
         
-        Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
-        Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true);
-        long minFeeHolders = (numberOfHolders*minFeeBasic)/10L;
+        if (height >= blockchain.getHeight()) {
+          // only check the distribution fee for a transaction still to be added, ignore when loading past transactions
+          Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
+          Asset asset = assetExchange.getAsset(attachment.getAssetId());
+          long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true);
+          long minFeeHolders = (numberOfHolders*minFee)/10L;        
+          minFee = Math.max(minFee, minFeeHolders);
+        }
         
-        return Math.max(minFeeBasic, minFeeHolders);
+        return minFee;
       }
 
       @Override

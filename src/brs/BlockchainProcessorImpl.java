@@ -459,7 +459,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         request.addProperty("requestType", "getNextBlocks");
         request.addProperty("blockId", Convert.toUnsignedLong(curBlockId));
         if (logger.isDebugEnabled()) {
-          logger.debug("Getting next Blocks after {} from {}", curBlockId, peer.getPeerAddress());
+          logger.debug("Getting next Blocks after {} from {}", Convert.toUnsignedLong(curBlockId), peer.getPeerAddress());
         }
         JsonObject response = peer.send(JSON.prepareRequest(request));
         if (response == null) {

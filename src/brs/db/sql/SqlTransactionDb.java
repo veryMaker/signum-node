@@ -117,7 +117,8 @@ public class SqlTransactionDb implements TransactionDb {
                 try {
                   return loadTransaction(record);
                 } catch (BurstException.ValidationException e) {
-                  throw new RuntimeException("Transaction already in database for block_id = " + Convert.toUnsignedLong(blockId) + " does not pass validation!", e);
+                  e.printStackTrace();
+                  throw new RuntimeException("Invalid transaction :" + e.getMessage(), e);
                 }
               });
     });
