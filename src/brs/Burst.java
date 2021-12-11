@@ -80,6 +80,7 @@ public final class Burst {
   private static BlockchainImpl blockchain;
   private static BlockchainProcessorImpl blockchainProcessor;
   private static TransactionProcessorImpl transactionProcessor;
+  private static TransactionService transactionService;
 
   private static PropertyService propertyService;
   private static FluxCapacitor fluxCapacitor;
@@ -124,6 +125,10 @@ public final class Burst {
 
   public static TransactionProcessorImpl getTransactionProcessor() {
     return transactionProcessor;
+  }
+
+  public static TransactionService getTransactionService() {
+    return transactionService;
   }
 
   public static Stores getStores() {
@@ -224,7 +229,7 @@ public final class Burst {
           new GeneratorImpl.MockGenerator(propertyService, blockchain, accountService, timeService, fluxCapacitor) :
             new GeneratorImpl(blockchain, downloadCache, accountService, timeService, fluxCapacitor);
 
-      final TransactionService transactionService = new TransactionServiceImpl(accountService, blockchain);
+      transactionService = new TransactionServiceImpl(accountService, blockchain);
 
       transactionProcessor = new TransactionProcessorImpl(propertyService, economicClustering, blockchain, stores, timeService, dbs,
           accountService, transactionService, threadPool);
