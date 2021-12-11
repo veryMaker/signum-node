@@ -177,13 +177,10 @@ jar {
     }
 }
 
-tasks.jar.configure {
-  classifier = 'default'
+shadowJar{
+    archiveName = "${baseName}-${classifier}.${extension}"
 }
 
-tasks.shadowJar.configure {
-  classifier = null
-}
 
 createExe {
     outfile = 'signum-node.exe'
@@ -199,12 +196,15 @@ createExe {
 
     mainClassName = project.mainClassName
     copyConfigurable = project.tasks.shadowJar.outputs.files
-    jar = "${project.tasks.shadowJar.archiveName}"
+    jar = "signum-node.jar"
 }
 
 task dist(type: Zip) {
    dependsOn createExe
-   from project.tasks.shadowJar.outputs.files
+   from (project.tasks.shadowJar.outputs.files){
+    include 'signum-node-all.jar'
+    rename {'signum-node.jar'}
+   }
    from "${project.buildDir}/launch4j/${baseName}.exe"
    into('conf') {from "conf/brs-default.properties"} 
    into('conf') {from "conf/logging-default.properties"} 
