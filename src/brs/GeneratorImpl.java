@@ -325,10 +325,16 @@ public class GeneratorImpl implements Generator {
       blockIt = downloadCache.getBlock(blockIt.getPreviousBlockId());
     }
     
+    committedAmount = committedAmountOnCache;
     Account account = accountService.getAccount(generatorId);
-    if (account != null) {
-      committedAmount = blockchain.getCommittedAmount(account, height, endHeight, null);
-      committedAmount += committedAmountOnCache;
+    if (account == null) {
+      if(nBlocksMinedOnCache < 3) {
+        // Use more blocks in the past to make the estimation if that is necessary
+        capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
+      }
+    }
+    else {
+      committedAmount += blockchain.getCommittedAmount(account, height, endHeight, null);
       if(committedAmount <= 0L) {
         if(logger.isDebugEnabled()) {
           logger.debug("Block {}, ID {}, no commitment", height, BurstID.fromLong(generatorId).getID());
