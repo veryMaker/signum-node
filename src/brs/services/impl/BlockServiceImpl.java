@@ -352,6 +352,11 @@ public class BlockServiceImpl implements BlockService {
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
         
         if(block.getPeer()!=null && peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
+          if(logger.isDebugEnabled()) {
+            logger.debug("Peer base target mismatch, height {}, id {}, generator id {}, cap bt {}, avg com. {}", block.getHeight(),
+                Convert.toUnsignedLong(block.getId()), Convert.toUnsignedLong(block.getGeneratorId()),
+                newBaseTarget, newAvgCommitment);
+          }
           // peer sent the base target and we do not agree with it
           throw new RuntimeException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget() + ", peer " +
               block.getPeer().getAnnouncedAddress());
