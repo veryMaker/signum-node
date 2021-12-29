@@ -203,7 +203,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               if(downloadCache.getBlock(downloadCache.getLastBlockId()).getHeight() + 1
                   - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
                 logger.debug("GetMoreBlocks, skip download, wait for other threads to catch up");
-                break;
+                return;
               }
 
               peerHasMore = true;
