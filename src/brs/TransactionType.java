@@ -965,8 +965,8 @@ public abstract class TransactionType {
                 || attachment.getDecimals() < 0 || attachment.getDecimals() > 8
                 || attachment.getQuantityQNT() <= 0
                 || attachment.getQuantityQNT() > Constants.MAX_ASSET_QUANTITY_QNT
-                || (attachment.getVersion()>1 && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK))
-                || (attachment.getMintable() && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK))
+                || (attachment.getVersion()>1 && !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN))
+                || (attachment.getMintable() && !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN))
         ) {
           throw new BurstException.NotValidException("Invalid asset issuance: " + JSON.toJsonString(attachment.getJsonObject()));
         }
@@ -1033,7 +1033,7 @@ public abstract class TransactionType {
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer)transaction.getAttachment();
-        if ((!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK) && transaction.getAmountNQT() != 0)
+        if ((!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN) && transaction.getAmountNQT() != 0)
                 || attachment.getComment() != null && attachment.getComment().length() > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH
                 || attachment.getAssetId() == 0) {
           throw new BurstException.NotValidException("Invalid asset transfer amount or comment: " + JSON.toJsonString(attachment.getJsonObject()));
@@ -1089,7 +1089,7 @@ public abstract class TransactionType {
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         if(asset == null || asset.getAccountId() != transaction.getSenderId() || !asset.getMintable()
             || attachment.getQuantityQNT() <= 0L
-            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+            || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           return false;
         }
         
@@ -1122,7 +1122,7 @@ public abstract class TransactionType {
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint)transaction.getAttachment();
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));          
         }
 
@@ -1176,7 +1176,7 @@ public abstract class TransactionType {
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASSET_ADD_TREASURY_ACCOUNT");
         
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           return false;          
         }
         
@@ -1187,7 +1187,7 @@ public abstract class TransactionType {
         
         Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
         if(asset == null || asset.getAccountId() != transaction.getSenderId()
-            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+            || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           return false;
         }
         
@@ -1206,14 +1206,14 @@ public abstract class TransactionType {
 
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           throw new BurstException.NotValidException("Transaction type not yet enabled");          
         }
 
         Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
         if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
             || assetCreationTransaction.getSenderId() != transaction.getSenderId()
-            || !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+            || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           throw new BurstException.NotValidException("Invalid add treasury account transaction");
         }
         
@@ -1258,7 +1258,7 @@ public abstract class TransactionType {
       public long minimumFeeNQT(int height, Transaction transaction) {
         long minFee = super.minimumFeeNQT(height, transaction);
         
-        if (height >= blockchain.getHeight()) {
+        if (height > blockchain.getHeight()) {
           // only check the distribution fee for a transaction still to be added, ignore when loading past transactions
           Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
           Asset asset = assetExchange.getAsset(attachment.getAssetId());
@@ -1275,7 +1275,7 @@ public abstract class TransactionType {
         logger.trace("TransactionType ASSET_DISTRIBUTE_TO_HOLDERS");
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
         
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           return false;          
         }
 
@@ -1337,7 +1337,7 @@ public abstract class TransactionType {
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));          
         }
         

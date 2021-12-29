@@ -52,7 +52,7 @@ public final class TransferAsset extends CreateTransaction {
       if (amountNQT < 0 || amountNQT >= Constants.MAX_BALANCE_NQT) {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
-      else if (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+      else if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
     }

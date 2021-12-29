@@ -64,7 +64,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
       }
     }
     
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       return JSONResponses.incorrect("asset distribution is not enabled yet");
     }
     

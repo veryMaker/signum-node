@@ -30,7 +30,7 @@ public class NetworkParametersTestnet extends NetworkParametersBase {
         new FluxValue.ValueChange<Long>(HistoricalMoments.SPEEDWAY, 8_000L)
         ));
 
-    setProperty(Props.DEV_NEXT_FORK_BLOCK_HEIGHT, "364400");
+    setProperty(Props.SMART_TOKEN_HEIGHT, "364400");
 
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "364000");
     setProperty(Props.BRS_CHECKPOINT_HASH, "19095af8f50555058682a4bf79db41cabcc5500bc856231f4ad8051de2d98cff");

@@ -32,7 +32,7 @@ public final class IssueAsset extends CreateTransaction {
     String description = req.getParameter(DESCRIPTION_PARAMETER);
     String decimalsValue = Convert.emptyToNull(req.getParameter(DECIMALS_PARAMETER));
     boolean mintable = "true".equals(req.getParameter(MINTABLE_PARAMETER));
-    if(mintable && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if(mintable && !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       //only after the fork we are allowed to have a mintable assset
       return JSONResponses.incorrect(MINTABLE_PARAMETER);
     }

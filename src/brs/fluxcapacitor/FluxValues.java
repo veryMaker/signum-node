@@ -19,6 +19,7 @@ public class FluxValues {
     public static final FluxEnable SIGNUM = new FluxEnable(HistoricalMoments.SIGNUM);
     public static final FluxEnable POC_PLUS = new FluxEnable(HistoricalMoments.POC_PLUS);
     public static final FluxEnable SPEEDWAY = new FluxEnable(HistoricalMoments.SPEEDWAY);
+    public static final FluxEnable SMART_TOKEN = new FluxEnable(HistoricalMoments.SMART_TOKEN);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
     public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
@@ -45,6 +46,6 @@ public class FluxValues {
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
         Version.parse("3.2.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.NEXT_FORK, Version.parse("3.3.0-alpha4"))
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_TOKEN, Version.parse("3.3.0-alpha4"))
         );
 }

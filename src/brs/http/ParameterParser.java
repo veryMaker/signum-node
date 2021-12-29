@@ -138,7 +138,7 @@ public final class ParameterParser {
   public static long getRecipientId(HttpServletRequest req) throws ParameterException {
     String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
     if (recipientValue == null
-        || (!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK) && Parameters.isZero(recipientValue))
+        || (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN) && Parameters.isZero(recipientValue))
         ) {
       throw new ParameterException(MISSING_RECIPIENT);
     }
@@ -148,7 +148,7 @@ public final class ParameterParser {
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
-    if (recipientId == 0 && !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if (recipientId == 0 && !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
     return recipientId;

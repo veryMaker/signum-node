@@ -36,7 +36,7 @@ public final class MintAsset extends CreateTransaction {
     if(asset.getMintable() == false) {
       return JSONResponses.incorrect("this asset is not mintable");
     }
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       return JSONResponses.incorrect("minting assets is not enabled yet");
     }
     if(asset.getAccountId() != account.getId()) {

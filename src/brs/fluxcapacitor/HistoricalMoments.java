@@ -17,6 +17,7 @@ public class HistoricalMoments {
     public static HistoricalMoments SIGNUM = new HistoricalMoments(875_500, Props.SIGNUM_HEIGHT);
     public static HistoricalMoments POC_PLUS = new HistoricalMoments(878_000, Props.POC_PLUS_HEIGHT);
     public static HistoricalMoments SPEEDWAY = new HistoricalMoments(941_100, Props.SPEEDWAY_HEIGHT);
+    public static HistoricalMoments SMART_TOKEN = new HistoricalMoments(Integer.MAX_VALUE, Props.SMART_TOKEN_HEIGHT);
     public static HistoricalMoments NEXT_FORK = new HistoricalMoments(Integer.MAX_VALUE, Props.DEV_NEXT_FORK_BLOCK_HEIGHT);
 
     private final int mainnetHeight;
