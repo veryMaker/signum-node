@@ -157,8 +157,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
     if (trimDerivedTables) {    
       blockListeners.addListener(block -> { 
-        if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {   
-            this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
+        if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {
+          logger.debug("Trimming derived tables...");
+          this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
         }   
       }, Event.AFTER_BLOCK_APPLY);  
     }
@@ -197,6 +198,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               if (downloadCache.isFull()) {
                 return;
               }
+              
+              // Keep the download cache below the rollback limit
+              if(downloadCache.getBlock(downloadCache.getLastBlockId()).getHeight() + 1
+                  - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
+                logger.debug("GetMoreBlocks, skip download, wait for other threads to catch up");
+                break;
+              }
+
               peerHasMore = true;
               Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
               if (peer == null) {
@@ -801,7 +810,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
   
   private int checkDatabaseState() {
-    logger.debug("Checking database state...");
+    logger.debug("Block height {}, checking database state...", blockchain.getHeight());
     long totalMined = blockchain.getTotalMined();
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();

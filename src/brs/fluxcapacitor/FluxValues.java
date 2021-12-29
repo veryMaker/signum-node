@@ -38,7 +38,7 @@ public class FluxValues {
         1000L);
     public static final FluxValue<Integer> COMMITMENT_WAIT = new FluxValue<>(
         Constants.COMMITMENT_WAIT,
-        new FluxValue.ValueChange<>(HistoricalMoments.SPEEDWAY, Constants.MAX_ROLLBACK));
+        new FluxValue.ValueChange<>(HistoricalMoments.NEXT_FORK, Constants.MAX_ROLLBACK));
     public static final FluxValue<Long> AVERAGE_COMMITMENT_WINDOW = new FluxValue<>(
         24L,
         new FluxValue.ValueChange<>(HistoricalMoments.SPEEDWAY, 96L));
