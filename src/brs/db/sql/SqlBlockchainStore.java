@@ -2,7 +2,6 @@ package brs.db.sql;
 
 import brs.*;
 import brs.Block;
-import brs.Constants;
 import brs.Transaction;
 import brs.Attachment.CommitmentAdd;
 import brs.Attachment.CommitmentRemove;
@@ -10,6 +9,7 @@ import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
 import brs.db.store.IndirectIncomingStore;
+import brs.fluxcapacitor.FluxValues;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
 import org.jooq.*;
@@ -229,7 +229,8 @@ public class SqlBlockchainStore implements BlockchainStore {
   
   @Override
   public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
-    int commitmentHeight = Math.min(height - Constants.COMMITMENT_WAIT, endHeight);
+    int commitmentWait = Burst.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
+    int commitmentHeight = Math.min(height - commitmentWait, endHeight);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
       SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
