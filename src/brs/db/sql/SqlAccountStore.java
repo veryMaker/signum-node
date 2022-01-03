@@ -155,7 +155,8 @@ public class SqlAccountStore implements AccountStore {
   @Override
   public long getAllAccountsBalance() {
     return Db.useDSLContext(ctx -> {
-      return ctx.select(DSL.sum(ACCOUNT.BALANCE)).from(ACCOUNT).where(ACCOUNT.ID.ne(0L)).and(ACCOUNT.LATEST.isTrue()).fetchOneInto(long.class);
+      return ctx.select(DSL.sum(ACCOUNT.BALANCE)).from(ACCOUNT).where(ACCOUNT.LATEST.isTrue())
+          .fetchOneInto(long.class);
     });
   }
   

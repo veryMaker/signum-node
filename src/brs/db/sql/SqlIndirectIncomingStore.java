@@ -38,10 +38,9 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
             }
 
             private Query getQuery(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
+                return ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
                     INDIRECT_INCOMING.AMOUNT, INDIRECT_INCOMING.QUANTITY,
                     INDIRECT_INCOMING.HEIGHT)
-                        .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
                             indirectIncoming.getHeight());
@@ -53,7 +52,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
             }
 
             @Override
-            void save(DSLContext ctx, IndirectIncoming[] indirectIncomings) {
+            void save(DSLContext ctx, Collection<IndirectIncoming> indirectIncomings) {
                 List<Query> queries = new ArrayList<>();
                 for (IndirectIncoming indirectIncoming: indirectIncomings) {
                     queries.add(getQuery(ctx, indirectIncoming));
@@ -66,7 +65,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
     @Override
     public void addIndirectIncomings(Collection<IndirectIncoming> indirectIncomings) {
         Db.useDSLContext(ctx -> {
-            indirectIncomingTable.save(ctx, indirectIncomings.toArray(new IndirectIncoming[0]));
+            indirectIncomingTable.save(ctx, indirectIncomings);
         });
     }
 

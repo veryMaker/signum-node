@@ -15,8 +15,12 @@ import brs.util.Convert;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SubscriptionServiceImpl implements SubscriptionService {
 
+  private final Logger logger = LoggerFactory.getLogger(SubscriptionServiceImpl.class);
   private final SubscriptionStore subscriptionStore;
   private final VersionedEntityTable<Subscription> subscriptionTable;
   private final LongKeyFactory<Subscription> subscriptionDbKeyFactory;
@@ -85,6 +89,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
       transactionDb.saveTransactions(paymentTransactions);
     }
     removeSubscriptions.forEach(this::removeSubscription);
+    if(logger.isDebugEnabled()) {
+      if(appliedSubscriptions.size() > 0 || removeSubscriptions.size() > 0) {
+        logger.debug("Subscriptions: applied {}, removed {}", appliedSubscriptions.size(), removeSubscriptions.size());
+      }
+    }
   }
 
   private long getFee(int height) {

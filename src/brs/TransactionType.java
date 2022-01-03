@@ -280,7 +280,7 @@ public abstract class TransactionType {
         !Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, transaction.getHeight())) {
       accountService.addToUnconfirmedBalanceNQT(senderAccount, Constants.UNCONFIRMED_POOL_DEPOSIT_NQT);
     }
-    if (recipientAccount != null) {
+    if (recipientAccount != null && transaction.getAmountNQT() > 0L && !transaction.getType().isIndirect() ) {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }
     if (logger.isTraceEnabled()) {

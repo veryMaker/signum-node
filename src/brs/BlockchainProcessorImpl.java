@@ -1,7 +1,5 @@
 package brs;
 
-import brs.Attachment.PaymentMultiOutCreation;
-import brs.Attachment.PaymentMultiSameOutCreation;
 import brs.at.AT;
 import brs.at.AtBlock;
 import brs.at.AtController;
@@ -187,55 +185,53 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               if (!getMoreBlocks.get()) {
                 return;
               }
-              // unlocking cache for writing.
-              // This must be done before we query where to add blocks.
-              // We sync the cache in event of pop off
-              synchronized (BlockchainProcessorImpl.this.downloadCache) {
-                downloadCache.unlockCache();
-              }
-
 
               if (downloadCache.isFull()) {
                 return;
               }
               
               // Keep the download cache below the rollback limit
-              if(downloadCache.getBlock(downloadCache.getLastBlockId()).getHeight() + 1
-                  - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
+              int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
+              int cacheHeight = downloadCache.getLastBlock().getHeight();
+              if( cacheHeight > checkPointHeight && cacheHeight - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
                 logger.debug("GetMoreBlocks, skip download, wait for other threads to catch up");
                 return;
               }
 
               peerHasMore = true;
-              Peer peer = Peers.getAnyPeer(Peer.State.CONNECTED);
-              if (peer == null) {
-                logger.debug("No peer connected.");
-                return;
-              }
-              JsonObject response = peer.send(getCumulativeDifficultyRequest);
-              if (response == null) {
-                return;
-              }
-              if (response.get("blockchainHeight") != null) {
-                lastBlockchainFeeder.set(peer);
-                lastBlockchainFeederHeight.set(JSON.getAsInt(response.get("blockchainHeight")));
-              } else {
-                logger.debug("Peer {} has no chainheight", peer.getAnnouncedAddress());
-                return;
-              }
-
-              /* Cache now contains Cumulative Difficulty */
-
               BigInteger curCumulativeDifficulty = downloadCache.getCumulativeDifficulty();
-              String peerCumulativeDifficulty = JSON.getAsString(response.get("cumulativeDifficulty"));
-              if (peerCumulativeDifficulty == null) {
-                logger.debug("Peer CumulativeDifficulty is null");
-                return;
+              BigInteger betterCumulativeDifficulty = BigInteger.ZERO;
+
+              Peer peer = null;
+              do {
+                peer = Peers.getAnyPeer(Peer.State.CONNECTED);
+                if (peer == null) {
+                  logger.debug("No peer connected.");
+                  return;
+                }
+                JsonObject response = peer.send(getCumulativeDifficultyRequest);
+                if (response == null) {
+                  continue;
+                }
+                if (response.get("blockchainHeight") != null) {
+                  lastBlockchainFeeder.set(peer);
+                  lastBlockchainFeederHeight.set(JSON.getAsInt(response.get("blockchainHeight")));
+                } else {
+                  logger.debug("Peer {} has no chainheight", peer.getAnnouncedAddress());
+                  continue;
+                }
+
+                /* Cache now contains Cumulative Difficulty */
+
+                String peerCumulativeDifficulty = JSON.getAsString(response.get("cumulativeDifficulty"));
+                if (peerCumulativeDifficulty == null) {
+                  logger.debug("Peer CumulativeDifficulty is null");
+                  continue;
+                }
+                betterCumulativeDifficulty = new BigInteger(peerCumulativeDifficulty);
               }
-              BigInteger betterCumulativeDifficulty = new BigInteger(peerCumulativeDifficulty);
-              if (betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) <= 0) {
-                return;
-              }
+              while(betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) <= 0);
+              
               logger.trace("Got a better cumulative difficulty {} than current {}.", betterCumulativeDifficulty, curCumulativeDifficulty);
 
               long commonBlockId = Genesis.GENESIS_BLOCK_ID;
@@ -248,6 +244,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   logger.debug("We could not get a common milestone block from peer.");
                   return;
                 }
+              }
+              
+              // unlocking cache for writing.
+              // This must be done before we query where to add blocks.
+              // We sync the cache in event of pop off
+              synchronized (BlockchainProcessorImpl.this.downloadCache) {
+                downloadCache.unlockCache();
               }
 
               /*
@@ -297,7 +300,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 int height = lastBlock.getHeight() + 1;
                 blockData = JSON.getAsJsonObject(o);
                 try {
-                  if(height - blockchain.getHeight() > Constants.MAX_ROLLBACK) {
+                  if(height > checkPointHeight && height - blockchain.getHeight() > Constants.MAX_ROLLBACK) {
                     logger.debug("GetMoreBlocks, wait for other threads to catch up");
                     break;
                   }
@@ -625,11 +628,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       int queueThreshold = oclVerify ? oclUnverifiedQueue : 0;
 
       while (!Thread.interrupted() && ThreadPool.running.get()) {
-        try {
-          Thread.sleep(10);
-        } catch (InterruptedException ex) {
-          Thread.currentThread().interrupt();
-        }
         int unVerified = downloadCache.getUnverifiedSize();
         if (unVerified > queueThreshold) { //Is there anything to verify
           if (unVerified >= oclUnverifiedQueue && oclVerify) { //should we use Ocl?
@@ -686,6 +684,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               logger.error("Block failed to preverify: ", e);
             }
           }
+        }
+        else {
+          // nothing to verify right now
+          return;
         }
       }
     };
@@ -814,44 +816,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long totalMined = blockchain.getTotalMined();
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
-    // Check the amount burnt with transactions sent to NULL
-    long totalBurnt = 0;
-    for (Transaction transaction : blockchain.getTransactions(null, (byte)0, (byte)0, 0, false)) {
-      totalBurnt += transaction.getAmountNQT();
-    }
-    // Check the amount burnt with transactions the the 0L address
-    Account nullAccount = accountService.getNullAccount();
-    if(nullAccount != null) {
-      for (Transaction transaction : blockchain.getTransactions(nullAccount, (byte)0, (byte)-1, 0, true)) {
-        Attachment attachment = transaction.getAttachment();
-        if(attachment instanceof PaymentMultiOutCreation) {
-          PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) attachment;
-          for (List<Long> recipient : multiOut.getRecipients()) {
-            if(recipient.get(0) == nullAccount.getId())
-              totalBurnt += recipient.get(1);
-          }
-        }
-        else if(attachment instanceof PaymentMultiSameOutCreation) {
-          PaymentMultiSameOutCreation multiOut = (PaymentMultiSameOutCreation) attachment;
-          for (Long recipient : multiOut.getRecipients()) {
-            if(recipient == nullAccount.getId())
-              totalBurnt += transaction.getAmountNQT()/multiOut.getRecipients().size();
-          }
-        }
-        else {
-          totalBurnt += transaction.getAmountNQT();
-        }
-      }
-      totalBurnt += blockchain.getAtBurnTotal();
-    }
     
     for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
       totalEffectiveBalance += escrow.getAmountNQT();
     }
     
-    totalEffectiveBalance += totalBurnt;
-    if(totalEffectiveBalance != totalMined) {
-      logger.warn("Block {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);      
+    if(totalMined != totalEffectiveBalance) {
+      logger.warn("Block height {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);
     }
     
     isConsistent.set(totalMined == totalEffectiveBalance);
@@ -1034,9 +1005,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         stores.commitTransaction();
         // We make sure downloadCache do not have this block anymore, but only after all DBs have it
         downloadCache.removeBlock(block);
-        int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
-        // If loading from empty do less trims and checks to speed up
-        if (trimDerivedTables && block.getHeight() % Constants.MAX_ROLLBACK * (block.getHeight() < checkPointHeight ? 20 : 1) == 0) {
+        if (trimDerivedTables && (block.getHeight() % Constants.MAX_ROLLBACK) == 0) {
           if(checkDatabaseState()==0) {
             // Only trim a consistent database, otherwise it would be impossible to fix it by roll back
             lastTrimHeight.set(Math.max(block.getHeight() - Constants.MAX_ROLLBACK, 0));
