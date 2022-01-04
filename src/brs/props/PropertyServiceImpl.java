@@ -47,7 +47,9 @@ public class PropertyServiceImpl implements PropertyService {
       }
     }
 
-    logOnce(name, false, LOG_UNDEF_NAME_DEFAULT, name, assume);
+    if(logger.isDebugEnabled()) {
+      logOnce(name, false, LOG_UNDEF_NAME_DEFAULT, name, assume);
+    }
     return assume;
   }
 

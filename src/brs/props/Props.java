@@ -4,27 +4,27 @@ import brs.Burst;
 
 public class Props {
   
-  public static final Prop<String> APPLICATION = new Prop<>("brs.application", Burst.APPLICATION);
-  public static final Prop<String> VERSION = new Prop<>("brs.version", Burst.VERSION.toString());
+  public static final Prop<String> APPLICATION = new Prop<>("node.application", Burst.APPLICATION);
+  public static final Prop<String> VERSION = new Prop<>("node.version", Burst.VERSION.toString());
   
   // Structural parameters
-  public static final Prop<Integer> BLOCK_TIME = new Prop<>("brs.blockTime", 240);
-  public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("brs.decimalPlaces", 8);
-  public static final Prop<Integer> ONE_COIN_NQT = new Prop<>("brs.coinFactor", 100_000_000);
+  public static final Prop<Integer> BLOCK_TIME = new Prop<>("node.blockTime", 240);
+  public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("node.decimalPlaces", 8);
+  public static final Prop<Integer> ONE_COIN_NQT = new Prop<>("node.coinFactor", 100_000_000);
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
-  public static final Prop<String> NETWORK_NAME = new Prop<>("brs.networkName", "Signum");
-  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("brs.genesisBlockId", "3444294670862540038");
-  public static final Prop<String> ADDRESS_PREFIX = new Prop<>("brs.addressPrefix", "S");
-  public static final Prop<String> VALUE_SUFIX = new Prop<>("brs.valueSuffix", "SIGNA");
-  public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("brs.experimental", false);
+  public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", "Signum");
+  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", "3444294670862540038");
+  public static final Prop<String> ADDRESS_PREFIX = new Prop<>("node.addressPrefix", "S");
+  public static final Prop<String> VALUE_SUFIX = new Prop<>("node.valueSuffix", "SIGNA");
+  public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("node.experimental", false);
 
-  public static final Prop<Integer> BLOCK_REWARD_START = new Prop<>("brs.blockRewardStart", 10_000);
-  public static final Prop<Integer> BLOCK_REWARD_CYCLE = new Prop<>("brs.blockRewardCycle", 10_800);
-  public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("brs.blockRewardCycle", 95);
-  public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("brs.blockLimitHeight", 972_000);
-  public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("brs.blockLimitAmount", 100);
+  public static final Prop<Integer> BLOCK_REWARD_START = new Prop<>("node.blockRewardStart", 10_000);
+  public static final Prop<Integer> BLOCK_REWARD_CYCLE = new Prop<>("node.blockRewardCycle", 10_800);
+  public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("node.blockRewardCycle", 95);
+  public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("node.blockLimitHeight", 972_000);
+  public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("node.blockLimitAmount", 100);
   
-  public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("brs.networkParameters", null);
+  public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("node.networkParameters", null);
 
   // DEV options
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
@@ -59,11 +59,11 @@ public class Props {
   public static final Prop<String> BRS_DEBUG_TRACE_LOG = new Prop<>("brs.debugTraceLog", "LOG_AccountBalances_trace.csv");
   public static final Prop<Integer> BRS_COMMUNICATION_LOGGING_MASK = new Prop<>("brs.communicationLoggingMask", 0);
 
-  public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("brs.ShutdownTimeout", 180);
+  public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("node.shutdownTimeout", 180);
 
   // Checkpoint block for faster sync from empty database
-  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("brs.checkPointHeight", 866_300);
-  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("brs.checkPointPrevHash", "9823ef410a5b3fa33d199631d31bfa814d3811ec7e01f68131497a1e7d6651e2");
+  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("node.checkPointHeight", 866_300);
+  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("node.checkPointPrevHash", "9823ef410a5b3fa33d199631d31bfa814d3811ec7e01f68131497a1e7d6651e2");
 
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);
@@ -93,7 +93,7 @@ public class Props {
   public static final Prop<Boolean> DB_H2_DEFRAG_ON_SHUTDOWN = new Prop<>("Db.H2.DefragOnShutdown", false);
 
 
-  public static final Prop<Integer> BRS_BLOCK_CACHE_MB = new Prop<>("brs.blockCacheMB", 40);
+  public static final Prop<Integer> BRS_BLOCK_CACHE_MB = new Prop<>("node.blockCacheMB", 40);
 
   // P2P options
   public static final Prop<Integer> P2P_PORT = new Prop<>("P2P.Port", 8123);
@@ -179,11 +179,11 @@ public class Props {
   public static final Prop<String> JETTY_P2P_DOS_FILTER_IP_WHITELIST = new Prop<>("JETTY.P2P.DoSFilter.ipWhitelist", "");
   public static final Prop<String> JETTY_P2P_DOS_FILTER_MANAGED_ATTR = new Prop<>("JETTY.P2P.DoSFilter.managedAttr", "true");
 
-  public static final Prop<Boolean> INDIRECT_INCOMING_SERVICE_ENABLE = new Prop<>("IndirectIncomingService.Enable", false);
+  public static final Prop<Boolean> INDIRECT_INCOMING_SERVICE_ENABLE = new Prop<>("node.indirectIncomingService.enable", false);
 
-  public static final Prop<Boolean> AUTO_POP_OFF_ENABLED = new Prop<>("AutoPopOff.Enable", true);
+  public static final Prop<Boolean> AUTO_POP_OFF_ENABLED = new Prop<>("node.autoPopOff.enable", true);
 
-  public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("ATDebugLog.Enable", false);
+  public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("node.ATDebugLog.enable", false);
 
   public static final Prop<String> SOLO_MINING_PASSPHRASES = new Prop<>("SoloMiningPassphrases", "");
   public static final Prop<Boolean> ALLOW_OTHER_SOLO_MINERS = new Prop<>("AllowOtherSoloMiners", true);
