@@ -60,25 +60,33 @@ public class PropertyServiceImpl implements PropertyService {
 
   @Override
   public int getInt(Prop<Integer> prop) {
-    try {
-      String value = getProperty(prop.name);
-      int radix = 10;
+    String value = getProperty(prop.name);
+    if (value != null && ! value.isEmpty()) {
+      try {
+        int radix = 10;
 
-      if (value != null && value.matches("(?i)^0x.+$")) {
-        value = value.replaceFirst("^0x", "");
-        radix = 16;
-      } else if (value != null && value.matches("(?i)^0b[01]+$")) {
-        value = value.replaceFirst("^0b", "");
-        radix = 2;
+        if (value != null && value.matches("(?i)^0x.+$")) {
+          value = value.replaceFirst("^0x", "");
+          radix = 16;
+        } else if (value != null && value.matches("(?i)^0b[01]+$")) {
+          value = value.replaceFirst("^0b", "");
+          radix = 2;
+        }
+
+        int result = Integer.parseInt(value, radix);
+        logOnce(prop.name, true, "{} = '{}'", prop.name, result);
+        return result;
+      } catch (NumberFormatException e) {
+        logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
+        return prop.defaultValue;
       }
-
-      int result = Integer.parseInt(value, radix);
-      logOnce(prop.name, true, "{} = '{}'", prop.name, result);
-      return result;
-    } catch (NumberFormatException e) {
-      logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
-      return prop.defaultValue;
     }
+    
+    if(logger.isDebugEnabled()) {
+      logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
+    }
+    return prop.defaultValue;
+
   }
 
   @Override
@@ -89,7 +97,9 @@ public class PropertyServiceImpl implements PropertyService {
       return value;
     }
 
-    logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
+    if(logger.isDebugEnabled()) {
+      logOnce(prop.name, false, LOG_UNDEF_NAME_DEFAULT, prop.name, prop.defaultValue);
+    }
 
     return prop.defaultValue;
   }
