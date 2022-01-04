@@ -211,7 +211,7 @@ task dist(type: Zip) {
    into('html') {from "html"}
    from "LICENSE.txt"
    from "README.md"
-   archiveName "${baseName}.zip"
+   archiveName "${baseName}-${details.lastTag}.zip"
 }
 
 import org.gradle.crypto.checksum.Checksum
@@ -219,8 +219,8 @@ import org.gradle.crypto.checksum.Checksum
 task release(type: Checksum, dependsOn: [shadowJar, dist
 	//createInstaller
 	]) {
-    files = project.tasks.shadowJar.outputs.files.plus(files(['build/distributions/signum-node-win_x64.zip',
-    	]))
+    files = project.tasks.shadowJar.outputs.files
+    //.plus(files(['build/distributions/signum-node-win_x64.zip', ]))
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
