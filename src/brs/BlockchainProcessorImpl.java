@@ -272,8 +272,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   saveInCache = false;
                   downloadCache.resetForkBlocks();
                 } else {
-                  logger.warn("Our peer want to feed us a fork that is more than "
+                  if(logger.isDebugEnabled()) {
+                    logger.debug("A peer wants to feed us a fork that is more than "
                           + Constants.MAX_ROLLBACK + " blocks old.");
+                  }
                   peer.blacklist("feeding us a too old fork");
                   return;
                 }
