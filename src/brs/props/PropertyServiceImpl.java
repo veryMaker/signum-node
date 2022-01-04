@@ -21,12 +21,11 @@ public class PropertyServiceImpl implements PropertyService {
   }
   
   private String getProperty(String name) {
-    String value = null;
-    if(networkParameters!=null) {
+    String value = properties.getProperty(name);
+    
+    // so we have precedence for user set values
+    if(value==null && networkParameters!=null) {
       value = networkParameters.getProperty(name);
-    }
-    if(value == null) {
-      value = properties.getProperty(name);
     }
     return value;
   }
