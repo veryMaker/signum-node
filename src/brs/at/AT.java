@@ -203,8 +203,10 @@ public class AT extends AtMachineState {
         int prevHeight = Burst.getBlockchain().getHeight();
         int newNextHeight = prevHeight + getWaitForNumberOfBlocks();
         ATState state = new ATState(AtApiHelper.getLong(this.getId()),
-                    getState(), newNextHeight, getSleepBetween(),
-                    getpBalance(), freezeOnSameBalance(), minActivationAmount());
+            getState(), newNextHeight, getSleepBetween(),
+            getpBalance(), freezeOnSameBalance(), minActivationAmount());
+        state.setPrevHeight(prevHeight);
+
         atStateTable().insert(state);
     }
 
