@@ -191,9 +191,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               }
               
               // Keep the download cache below the rollback limit
-              int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
               int cacheHeight = downloadCache.getLastBlock().getHeight();
-              if( cacheHeight > checkPointHeight && cacheHeight - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
+              if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, cacheHeight) && cacheHeight - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
                 logger.debug("GetMoreBlocks, skip download, wait for other threads to catch up");
                 return;
               }
@@ -302,7 +301,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 int height = lastBlock.getHeight() + 1;
                 blockData = JSON.getAsJsonObject(o);
                 try {
-                  if(height > checkPointHeight && height - blockchain.getHeight() > Constants.MAX_ROLLBACK) {
+                  if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && height - blockchain.getHeight() >= Constants.MAX_ROLLBACK) {
                     logger.debug("GetMoreBlocks, wait for other threads to catch up");
                     break;
                   }
