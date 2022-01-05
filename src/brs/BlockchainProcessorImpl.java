@@ -827,6 +827,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     }
     
     isConsistent.set(totalMined == totalEffectiveBalance);
+    
+    logger.debug("Database is consistent: {}", isConsistent.get());
     return Long.compare(totalMined, totalEffectiveBalance);
   }
 
