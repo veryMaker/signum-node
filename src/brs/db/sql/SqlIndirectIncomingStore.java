@@ -10,6 +10,7 @@ import org.jooq.Record;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,11 +54,15 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
             @Override
             void save(DSLContext ctx, Collection<IndirectIncoming> indirectIncomings) {
+              Iterator<IndirectIncoming> iterator = indirectIncomings.iterator();
+              while(iterator.hasNext()) {
+                // break into batches of 50k queries max
                 List<Query> queries = new ArrayList<>();
-                for (IndirectIncoming indirectIncoming: indirectIncomings) {
-                    queries.add(getQuery(ctx, indirectIncoming));
+                for (int i = 0; i < 50000 && iterator.hasNext(); i++) {
+                  queries.add(getQuery(ctx, iterator.next()));                  
                 }
-                ctx.batch(queries).execute();
+                ctx.batch(queries).execute();                
+              }
             }
         };
     }
