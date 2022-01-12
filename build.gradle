@@ -189,6 +189,7 @@ createExe {
     copyright = 'signum.network'
     companyName = 'https://signum.network'
     textVersion = details.lastTag
+    jvmOptions = ["-Xmx2048m"]
     
     //bundledJrePath = "./jre"
     //bundledJre64Bit = false
