@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'maven'
     id 'application'
-    id 'edu.sc.seis.launch4j' version '2.4.6'
+    id 'edu.sc.seis.launch4j' version '2.5.1'
     // id 'edu.sc.seis.macAppBundle' version '2.3.0'
     id "nebula.ospackage" version "8.2.0"
     id 'org.gradle.crypto.checksum' version '1.2.0'
@@ -189,7 +189,7 @@ createExe {
     copyright = 'signum.network'
     companyName = 'https://signum.network'
     textVersion = details.lastTag
-    jvmOptions = ["-Xmx2048m"]
+    maxHeapSize = 2048
     
     //bundledJrePath = "./jre"
     //bundledJre64Bit = false
