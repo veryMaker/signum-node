@@ -818,10 +818,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
     
-    for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
-      totalEffectiveBalance += escrow.getAmountNQT();
-    }
-    
     if(totalMined != totalEffectiveBalance) {
       logger.warn("Block height {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);
     }
