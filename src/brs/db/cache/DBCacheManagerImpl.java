@@ -28,7 +28,7 @@ public class DBCacheManagerImpl {
     this.statisticsManager = statisticsManager;
     statisticsEnabled = true;
 
-    caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.class, ResourcePoolsBuilder.heap(8192)).build());
+    caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.class, ResourcePoolsBuilder.heap(8192*4)).build());
 
     CacheManagerBuilder cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder();
     for (Map.Entry<String, CacheConfiguration<BurstKey, ?>> cache : caches.entrySet()) {
