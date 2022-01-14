@@ -50,8 +50,8 @@ public final class Burst {
   public static final String APPLICATION = "BRS";
 
   public static final String CONF_FOLDER = "./conf";
-  public static final String DEFAULT_PROPERTIES_NAME = "brs-default.properties";
-  public static final String PROPERTIES_NAME = "brs.properties";
+  public static final String DEFAULT_PROPERTIES_NAME = "node-default.properties";
+  public static final String PROPERTIES_NAME = "node.properties";
 
   public static final Option CONF_FOLDER_OPTION = Option.builder("c")
 		  .longOpt("config")

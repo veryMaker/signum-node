@@ -1,4 +1,4 @@
-package brs;
+package signum;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -7,12 +7,14 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import brs.Burst;
+
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 
-public class BurstLauncher {
+public class Launcher {
     public static void main(String[] args) {
-        Logger logger = LoggerFactory.getLogger(BurstLauncher.class);
+        Logger logger = LoggerFactory.getLogger(Launcher.class);
         boolean canRunGui = true;
         
         try {

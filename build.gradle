@@ -110,7 +110,7 @@ sourceSets {
 }
 
 // Define the main class for the application
-mainClassName = 'brs.BurstLauncher'
+mainClassName = 'signum.Launcher'
 
 description = 'Signum Node.'
 
