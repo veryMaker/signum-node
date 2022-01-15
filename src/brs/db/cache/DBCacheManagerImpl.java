@@ -2,8 +2,6 @@ package brs.db.cache;
 
 import brs.Account;
 import brs.db.BurstKey;
-import brs.props.PropertyService;
-import brs.props.Props;
 import brs.statistics.StatisticsManagerImpl;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -26,12 +24,12 @@ public class DBCacheManagerImpl {
 
   private final HashMap<String, CacheConfiguration<BurstKey, ?>> caches = new HashMap<>();
 
-  public DBCacheManagerImpl(StatisticsManagerImpl statisticsManager, PropertyService propertyService) {
+  public DBCacheManagerImpl(StatisticsManagerImpl statisticsManager) {
     this.statisticsManager = statisticsManager;
     statisticsEnabled = true;
 
     caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.class,
-        ResourcePoolsBuilder.heap((propertyService.getInt(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK) * 4)/3)).build());
+        ResourcePoolsBuilder.heap(8192*4)).build());
 
     CacheManagerBuilder<CacheManager> cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder();
     for (Map.Entry<String, CacheConfiguration<BurstKey, ?>> cache : caches.entrySet()) {

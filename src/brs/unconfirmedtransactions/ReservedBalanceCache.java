@@ -64,8 +64,8 @@ class ReservedBalanceCache {
       long totalAmountNQT = commitmentRemove.getAmountNQT();
 
       Blockchain blockchain = Burst.getBlockchain();
-      int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
-      long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight(), transaction);
+      int nBlocksMined = blockchain.getBlocksCount(senderAccount.getId(), blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
+      long amountCommitted = blockchain.getCommittedAmount(senderAccount.getId(), blockchain.getHeight(), blockchain.getHeight(), transaction);
       if (nBlocksMined > 0 || amountCommitted < totalAmountNQT ) {
         if (LOGGER.isInfoEnabled()) {
           LOGGER.debug("Transaction {}: Account {} commitment remove not allowed. Blocks mined {}, amount commitment {}, amount removing {}",

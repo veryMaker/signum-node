@@ -92,8 +92,6 @@ public class Props {
 
   public static final Prop<Boolean> DB_H2_DEFRAG_ON_SHUTDOWN = new Prop<>("Db.H2.DefragOnShutdown", false);
 
-  public static final Prop<Integer> MAX_ACCOUNT_CHANGES_PER_BLOCK = new Prop<>("node.maxAccountChangesPerBlock", 30_000);
-
   public static final Prop<Integer> BRS_BLOCK_CACHE_MB = new Prop<>("node.blockCacheMB", 40);
 
   // P2P options

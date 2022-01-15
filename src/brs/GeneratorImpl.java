@@ -37,14 +37,12 @@ public class GeneratorImpl implements Generator {
   private final BurstCrypto burstCrypto = BurstCrypto.getInstance();
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
-  private final AccountService accountService;
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
   
   public GeneratorImpl(Blockchain blockchain, DownloadCacheImpl downloadCache, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
     this.downloadCache = downloadCache;
-    this.accountService = accountService;
     this.timeService = timeService;
     this.fluxCapacitor = fluxCapacitor;
   }
@@ -336,57 +334,36 @@ public class GeneratorImpl implements Generator {
     }
     
     committedAmount = committedAmountOnCache;
-    Account account = accountService.getAccount(generatorId);
-    if (account == null) {
-      if(nBlocksMinedOnCache < 3) {
-        // Use more blocks in the past to make the estimation if that is necessary
-        if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
-          nBlocksMinedOnCache += nBlocksMinedOnCacheMid;
-          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MID;
-          
-          if(nBlocksMinedOnCache < 2) {
-            nBlocksMinedOnCache += nBlocksMinedOnCacheMax;
-            capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-          }
-        }
-        else {
-          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-          nBlocksMinedOnCache += nBlocksMinedOnCacheMax;
-        }
+    committedAmount += blockchain.getCommittedAmount(generatorId, height, endHeight, null);
+    if(committedAmount <= 0L) {
+      if(logger.isDebugEnabled()) {
+        logger.debug("Block {}, generator {}, no commitment", height, Convert.toUnsignedLong(generatorId));
       }
+      return 0L;
     }
-    else {
-      committedAmount += blockchain.getCommittedAmount(account, height, endHeight, null);
-      if(committedAmount <= 0L) {
-        if(logger.isDebugEnabled()) {
-          logger.debug("Block {}, generator {}, no commitment", height, Convert.toUnsignedLong(generatorId));
-        }
-        return 0L;
-      }
-      
-      // First we try to estimate the capacity using more recent blocks only
-      nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks, endHeight);
-      if(nBlocksMined + nBlocksMinedOnCache < 3) {
-        
-        if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
-          // Use more blocks in the past to make the estimation if that is necessary
-          capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MID;
-          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-              endHeight) + nBlocksMinedOnCacheMid;
-          
-          if(nBlocksMined + nBlocksMinedOnCache < 2) {
-            // Use even more blocks in the past to make the estimation if that is necessary
-            capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-            nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-                endHeight) + nBlocksMinedOnCacheMid + nBlocksMinedOnCacheMax;
-          }
-        }
-        else {
-          // Use more blocks in the past to make the estimation if that is necessary
+
+    // First we try to estimate the capacity using more recent blocks only
+    nBlocksMined = blockchain.getBlocksCount(generatorId, height - capacityEstimationBlocks, endHeight);
+    if(nBlocksMined + nBlocksMinedOnCache < 3) {
+
+      if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
+        // Use more blocks in the past to make the estimation if that is necessary
+        capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MID;
+        nBlocksMined = blockchain.getBlocksCount(generatorId, height - capacityEstimationBlocks,
+            endHeight) + nBlocksMinedOnCacheMid;
+
+        if(nBlocksMined + nBlocksMinedOnCache < 2) {
+          // Use even more blocks in the past to make the estimation if that is necessary
           capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
-          nBlocksMined = blockchain.getBlocksCount(account, height - capacityEstimationBlocks,
-              endHeight) + nBlocksMinedOnCacheMax;
+          nBlocksMined = blockchain.getBlocksCount(generatorId, height - capacityEstimationBlocks,
+              endHeight) + nBlocksMinedOnCacheMid + nBlocksMinedOnCacheMax;
         }
+      }
+      else {
+        // Use more blocks in the past to make the estimation if that is necessary
+        capacityEstimationBlocks = Constants.CAPACITY_ESTIMATION_BLOCKS_MAX;
+        nBlocksMined = blockchain.getBlocksCount(generatorId, height - capacityEstimationBlocks,
+            endHeight) + nBlocksMinedOnCacheMax;
       }
     }
     nBlocksMined += nBlocksMinedOnCache;

@@ -1041,7 +1041,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     for (Transaction transaction : block.getTransactions()) {
       if (!transactionService.applyUnconfirmed(transaction)) {
         throw new TransactionNotAcceptedException(
-            "Double spending transaction: " + transaction.getStringId(), transaction);
+            "Transaction not accepted: " + transaction.getStringId(), transaction);
       }
     }
     
@@ -1273,6 +1273,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           transactionsToBeIncluded = transactionsOrderedBySlot;
         }
 
+//        int maxAccountChanges = Burst.getPropertyService().getInt(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK);
         long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
         transactionService.startNewBlock();
         for (Map.Entry<Long, Transaction> entry : transactionsToBeIncluded.entrySet()) {
@@ -1282,13 +1283,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           if (blockSize <= 0 || payloadSize <= 0) {
             break;
           } else if (transaction.getSize() > payloadSize) {
-            continue;
-          }
-          
-          int batchedAccounts = accountService.getBatchedAccountsCount();
-          int remainingAccountChanges = propertyService.getInt(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK) - batchedAccounts;
-          // We estimate the number of accounts by the fee, relevant only for the distribution to asset holders
-          if (transaction.getFeeNQT() / (FEE_QUANT/10L) > remainingAccountChanges) {
             continue;
           }
 

@@ -46,8 +46,6 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club; 162.55.177.197");
     setProperty(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS, "1");
     
-    setProperty(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK, "900000");
-
     setProperty(Props.P2P_USE_PEERS_DB, "false");
     setProperty(Props.P2P_SAVE_PEERS, "false");
     

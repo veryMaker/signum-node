@@ -3,8 +3,6 @@ package brs.services.impl;
 import java.util.HashMap;
 
 import brs.*;
-import brs.fluxcapacitor.FluxValues;
-import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.TransactionService;
 
@@ -40,16 +38,6 @@ public class TransactionServiceImpl implements TransactionService {
     if (transaction.getFeeNQT() < minimumFeeNQT) {
       throw new BurstException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
           transaction.getFeeNQT(), minimumFeeNQT, blockchain.getHeight()));
-    }
-    
-    long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
-    int batchedAccounts = accountService.getBatchedAccountsCount();
-    int maxAccountChanges = Burst.getPropertyService().getInt(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK);
-    int remainingAccountChanges = maxAccountChanges - batchedAccounts;
-    // We estimate the number of accounts by the fee, relevant only for the distribution to asset holders
-    if (transaction.getFeeNQT() / (FEE_QUANT/10L) > remainingAccountChanges) {
-      throw new BurstException.NotCurrentlyValidException(String.format("Too many account updates, maximum set to %d",
-          maxAccountChanges));
     }
   }
   

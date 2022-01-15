@@ -107,8 +107,8 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
-  public int getBlocksCount(Account account, int from, int to) {
-    return blockchainStore.getBlocksCount(account, from, to);
+  public int getBlocksCount(long accountId, int from, int to) {
+    return blockchainStore.getBlocksCount(accountId, from, to);
   }
 
   @Override
@@ -242,7 +242,7 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
-  public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
-    return blockchainStore.getCommittedAmount(account, height, endHeight, skipTransaction);
+  public long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction) {
+    return blockchainStore.getCommittedAmount(accountId, height, endHeight, skipTransaction);
   }
 }

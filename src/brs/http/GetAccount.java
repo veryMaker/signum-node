@@ -53,7 +53,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     }
     
     if(parameterService.getAmountCommitted(req)) {
-      long committedAmount = Burst.getBlockchain().getCommittedAmount(account, height+Constants.COMMITMENT_WAIT, height, null);
+      long committedAmount = Burst.getBlockchain().getCommittedAmount(account.getId(), height+Constants.COMMITMENT_WAIT, height, null);
       response.addProperty(COMMITTED_NQT_RESPONSE, Convert.toUnsignedLong(committedAmount));
     }
     
