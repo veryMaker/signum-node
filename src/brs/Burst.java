@@ -202,7 +202,7 @@ public final class Burst {
       final DerivedTableManager derivedTableManager = new DerivedTableManager();
 
       final StatisticsManagerImpl statisticsManager = new StatisticsManagerImpl(timeService);
-      dbCacheManager = new DBCacheManagerImpl(statisticsManager, propertyService);
+      dbCacheManager = new DBCacheManagerImpl(statisticsManager);
 
       threadPool = new ThreadPool(propertyService);
 
