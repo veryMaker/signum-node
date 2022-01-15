@@ -1273,6 +1273,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           transactionsToBeIncluded = transactionsOrderedBySlot;
         }
 
+        long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
         transactionService.startNewBlock();
         for (Map.Entry<Long, Transaction> entry : transactionsToBeIncluded.entrySet()) {
           long slot = entry.getKey();
@@ -1283,11 +1284,18 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           } else if (transaction.getSize() > payloadSize) {
             continue;
           }
+          
+          int batchedAccounts = accountService.getBatchedAccountsCount();
+          int remainingAccountChanges = propertyService.getInt(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK) - batchedAccounts;
+          // We estimate the number of accounts by the fee, relevant only for the distribution to asset holders
+          if (transaction.getFeeNQT() / (FEE_QUANT/10L) > remainingAccountChanges) {
+            continue;
+          }
 
           long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_CIP3 : ONE_BURST;
           if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
             // we already got the list by priority, no need to check the fees again
-            slotFee = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
+            slotFee = FEE_QUANT;
           }
           if (transaction.getFeeNQT() >= slotFee) {
             if (transactionService.applyUnconfirmed(transaction)) {
