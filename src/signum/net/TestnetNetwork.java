@@ -50,7 +50,7 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.P2P_USE_PEERS_DB, "false");
     setProperty(Props.P2P_SAVE_PEERS, "false");
     
-    setProperty(Props.DB_URL, "jdbc:h2:file:./db/testnet.h2;DB_CLOSE_ON_EXIT=FALSE");
+    setProperty(Props.DB_URL, "jdbc:h2:file:./db/signum-testnet;DB_CLOSE_ON_EXIT=FALSE");
     
   }  
 }
