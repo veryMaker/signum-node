@@ -907,6 +907,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         long[] feeArray = new long[block.getTransactions().size()];
         int slotIdx = 0;
+        
+        int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+        int indirectsCount = 0;
 
         for (Transaction transaction : block.getTransactions()) {
           if (transaction.getTimestamp() > curTime + MAX_TIMESTAMP_DIFFERENCE) {
@@ -957,6 +960,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           if (transactionDuplicatesChecker.hasAnyDuplicate(transaction)) {
             throw new TransactionNotAcceptedException("Transaction is a duplicate: " + transaction.getStringId(), transaction);
           }
+          
+          int txIndirects = transaction.getType().getIndirectIncomings(transaction).size();
+          if(indirectsCount + txIndirects > maxIndirects) {
+            throw new TransactionNotAcceptedException("Maximum indirects limit of " + maxIndirects + " reached: " + transaction.getStringId(), transaction);
+          }
+          indirectsCount += txIndirects;
 
           try {
             transactionService.validate(transaction);
@@ -1273,7 +1282,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           transactionsToBeIncluded = transactionsOrderedBySlot;
         }
 
-//        int maxAccountChanges = Burst.getPropertyService().getInt(Props.MAX_ACCOUNT_CHANGES_PER_BLOCK);
+        int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+        int indirectsCount = 0;
         long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
         transactionService.startNewBlock();
         for (Map.Entry<Long, Transaction> entry : transactionsToBeIncluded.entrySet()) {
@@ -1285,6 +1295,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           } else if (transaction.getSize() > payloadSize) {
             continue;
           }
+          
+          int txIndirects = transaction.getType().getIndirectIncomings(transaction).size();
+          if(indirectsCount + txIndirects > maxIndirects) {
+            // skip this transaction, max indirects per block reached
+            continue;
+          }
+          indirectsCount += txIndirects;
 
           long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_CIP3 : ONE_BURST;
           if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
