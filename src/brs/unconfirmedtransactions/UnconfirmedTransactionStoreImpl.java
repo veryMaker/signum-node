@@ -8,13 +8,14 @@ import brs.db.TransactionDb;
 import brs.db.store.AccountStore;
 import brs.fluxcapacitor.FluxValues;
 import brs.peer.Peer;
-import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.transactionduplicates.TransactionDuplicationResult;
 import brs.util.StringUtils;
+import signum.net.NetworkParameters;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

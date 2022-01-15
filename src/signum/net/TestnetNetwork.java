@@ -1,14 +1,15 @@
-package brs.props;
+package signum.net;
 
 import java.util.Arrays;
 
 import brs.fluxcapacitor.FluxValue;
 import brs.fluxcapacitor.FluxValues;
 import brs.fluxcapacitor.HistoricalMoments;
+import brs.props.Props;
 
-public class NetworkParametersTestnet extends NetworkParametersBase {
+public class TestnetNetwork extends NetworkParametersBase {
   
-  public NetworkParametersTestnet() {
+  public TestnetNetwork() {
     
     setProperty(Props.NETWORK_NAME, "Signum-TESTNET");
 

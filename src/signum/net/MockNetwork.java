@@ -1,8 +1,10 @@
-package brs.props;
+package signum.net;
 
-public class NetworkParametersMock extends NetworkParametersTestnet {
+import brs.props.Props;
+
+public class MockNetwork extends TestnetNetwork {
   
-  public NetworkParametersMock() {
+  public MockNetwork() {
     
     setProperty(Props.NETWORK_NAME, "Signum-LOCAL-MOCK");
     setProperty(Props.GENESIS_BLOCK_ID, "7255460345239802627");

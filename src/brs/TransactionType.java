@@ -15,12 +15,12 @@ import brs.at.AtException;
 import brs.at.AtMachineState;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
-import brs.props.NetworkParameters;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
 import brs.util.JSON;
 import brs.util.TextUtils;
+import signum.net.NetworkParameters;
 
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;

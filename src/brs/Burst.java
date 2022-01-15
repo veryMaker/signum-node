@@ -19,7 +19,6 @@ import brs.http.API;
 import brs.http.APITransactionManager;
 import brs.http.APITransactionManagerImpl;
 import brs.peer.Peers;
-import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.PropertyServiceImpl;
 import brs.props.Props;
@@ -31,6 +30,7 @@ import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
 import burst.kit.util.BurstKitUtils;
+import signum.net.NetworkParameters;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;

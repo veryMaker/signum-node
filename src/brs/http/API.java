@@ -4,12 +4,12 @@ import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
 import brs.util.Subnet;
 import brs.util.ThreadPool;
+import signum.net.NetworkParameters;
 
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerList;

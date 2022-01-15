@@ -4,12 +4,13 @@ import brs.*;
 import brs.assetexchange.AssetExchange;
 import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
-import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.*;
 import brs.util.JSON;
 import brs.util.Subnet;
+import signum.net.NetworkParameters;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.jetty.http.HttpStatus;

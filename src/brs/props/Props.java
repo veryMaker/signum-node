@@ -24,7 +24,7 @@ public class Props {
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("node.blockLimitHeight", 972_000);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("node.blockLimitAmount", 100);
   
-  public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("node.networkParameters", null);
+  public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("node.network", null);
 
   // DEV options
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);

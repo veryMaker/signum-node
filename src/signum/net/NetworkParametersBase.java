@@ -1,4 +1,4 @@
-package brs.props;
+package signum.net;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import brs.fluxcapacitor.FluxValue;
 import brs.fluxcapacitor.FluxValue.ValueChange;
 import brs.fluxcapacitor.HistoricalMoments;
 import brs.http.APIServlet.HttpRequestHandler;
+import brs.props.Prop;
 import brs.http.APITransactionManager;
 import brs.services.AccountService;
 import brs.services.ParameterService;

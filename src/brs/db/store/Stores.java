@@ -3,11 +3,11 @@ package brs.db.store;
 import brs.db.TransactionDb;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.sql.*;
-import brs.props.NetworkParameters;
 import brs.props.PropertyService;
 import brs.services.TimeService;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStoreImpl;
+import signum.net.NetworkParameters;
 
 public class Stores {
   private final AccountStore accountStore;

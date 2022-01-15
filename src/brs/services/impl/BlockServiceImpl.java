@@ -4,7 +4,6 @@ import brs.*;
 import brs.BlockchainProcessor.BlockOutOfOrderException;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
-import brs.props.NetworkParameters;
 import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.BlockService;
@@ -12,6 +11,7 @@ import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
+import signum.net.NetworkParameters;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;

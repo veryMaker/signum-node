@@ -1,4 +1,4 @@
-package brs.props;
+package signum.net;
 
 import java.util.Map;
 
