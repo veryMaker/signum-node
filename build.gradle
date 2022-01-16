@@ -207,7 +207,7 @@ task dist(type: Zip) {
     rename {'signum-node.jar'}
    }
    from "${project.buildDir}/launch4j/${baseName}.exe"
-   into('conf') {from "conf/brs-default.properties"} 
+   into('conf') {from "conf/node-default.properties"} 
    into('conf') {from "conf/logging-default.properties"} 
    into('html') {from "html"}
    from "LICENSE.txt"
