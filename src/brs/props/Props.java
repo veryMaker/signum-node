@@ -82,7 +82,7 @@ public class Props {
 
   // DB options
   public static final Prop<Boolean> DB_SKIP_CHECK  = new Prop<>("DB.SkipCheck", false);
-  public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:h2:file:./burst_db/burst.h2;DB_CLOSE_ON_EXIT=FALSE");
+  public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:h2:file:./db/signum;DB_CLOSE_ON_EXIT=FALSE");
   public static final Prop<String> DB_USERNAME     = new Prop<>("DB.Username", "");
   public static final Prop<String> DB_PASSWORD     = new Prop<>("DB.Password", "");
   public static final Prop<Integer> DB_CONNECTIONS  = new Prop<>("DB.Connections", 30);
@@ -104,8 +104,10 @@ public class Props {
   public static final Prop<Boolean> P2P_UPNP        = new Prop<>("P2P.UPnP", true);
   public static final Prop<Boolean> P2P_SHARE_MY_ADDRESS = new Prop<>("P2P.shareMyAddress", true);
   public static final Prop<Boolean> P2P_ENABLE_TX_REBROADCAST = new Prop<>("P2P.enableTxRebroadcast", true);
-  public static final Prop<String> P2P_REBROADCAST_TO  = new Prop<>("P2P.rebroadcastTo", "");
-  public static final Prop<String> P2P_BOOTSTRAP_PEERS = new Prop<>("P2P.BootstrapPeers", "");
+  public static final Prop<String> P2P_REBROADCAST_TO  = new Prop<>("P2P.rebroadcastTo",
+      "77.66.65.240; 172.67.142.5; 216.128.181.211; 77.68.73.180");
+  public static final Prop<String> P2P_BOOTSTRAP_PEERS = new Prop<>("P2P.BootstrapPeers",
+      "212.98.92.236; 108.61.251.202; 177.153.50.43; 157.90.168.219; 212.98.92.236; 162.55.177.176; 190.15.195.118; 24.96.113.8; 88.64.234.237; 137.135.203.145; 70.108.6.237; 144.91.84.164; 213.32.102.141; 5.196.65.184; 89.163.239.219; 165.227.36.71");
   public static final Prop<Integer> P2P_NUM_BOOTSTRAP_CONNECTIONS = new Prop<>("P2P.NumBootstrapConnections", 4);
   public static final Prop<String> P2P_BLACKLISTED_PEERS = new Prop<>("P2P.BlacklistedPeers", "");
   public static final Prop<Integer> P2P_MAX_CONNECTIONS = new Prop<>("P2P.MaxConnections", 20);
