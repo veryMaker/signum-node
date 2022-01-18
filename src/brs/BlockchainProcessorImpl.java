@@ -824,7 +824,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     
     isConsistent.set(totalMined == totalEffectiveBalance);
     
-    logger.debug("Database is consistent: {}", isConsistent.get());
+    if(logger.isDebugEnabled()) {
+      logger.debug("Total mined {}, total effective {}", totalMined, totalEffectiveBalance);
+      logger.debug("Database is consistent: {}", isConsistent.get());
+    }
     return Long.compare(totalMined, totalEffectiveBalance);
   }
 
@@ -1172,7 +1175,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   public void generateBlock(String secretPhrase, byte[] publicKey, Long nonce) throws BlockNotAcceptedException {
     synchronized (downloadCache) {
       if(!isConsistent.get()) {
-        throw new BlockNotAcceptedException("block generation is not allowed with an inconsistent database");
+        logger.warn("block generation with an inconsistent database, might make you to mine alone in a fork");
       }
       downloadCache.lockCache(); //stop all incoming blocks.
       UnconfirmedTransactionStore unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
