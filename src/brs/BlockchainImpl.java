@@ -207,9 +207,12 @@ public class BlockchainImpl implements Blockchain {
     int blockMonth = 0;
     int rewardCycle = propertyService.getInt(Props.BLOCK_REWARD_CYCLE);
     int decreaseStopHeight = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_HEIGHT);
+    long ONE_COIN = propertyService.getInt(Props.ONE_COIN_NQT);
+    long LIMIT_AMOUNT = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * ONE_COIN;
+
     for (int i=1; i <= height; i++) {
       if (i >= decreaseStopHeight) {
-        blockReward = (long)propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * (long)propertyService.getInt(Props.ONE_COIN_NQT);
+        blockReward = LIMIT_AMOUNT;
       }
       else {
         int cycle = i / rewardCycle;
