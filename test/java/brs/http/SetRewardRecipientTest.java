@@ -78,6 +78,11 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
 
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockSenderAccount);
 
+    mockStatic(Burst.class);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
+    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    doReturn(false).when(fluxCapacitor).getValue(eq(FluxValues.SMART_TOKEN));
+
     assertEquals(8, JSONTestHelper.errorCode(t.processRequest(req)));
   }
 
@@ -89,6 +94,11 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
 
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockSenderAccount);
     when(accountServiceMock.getAccount(eq(123L))).thenReturn(mockRecipientAccount);
+    
+    mockStatic(Burst.class);
+    final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
+    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    doReturn(false).when(fluxCapacitor).getValue(eq(FluxValues.SMART_TOKEN));
 
     assertEquals(8, JSONTestHelper.errorCode(t.processRequest(req)));
   }
