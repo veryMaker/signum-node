@@ -2,12 +2,19 @@ package brs.http;
 
 import brs.Block;
 import brs.Blockchain;
+import brs.Burst;
+import brs.Constants;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.props.PropertyService;
+import brs.props.Props;
 import brs.services.BlockService;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,9 +23,13 @@ import static brs.http.common.Parameters.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class GetBlockTest {
 
   private GetBlock t;
@@ -30,6 +41,11 @@ public class GetBlockTest {
   public void setUp() {
     blockchainMock = mock(Blockchain.class);
     blockServiceMock = mock(BlockService.class);
+    
+    mockStatic(Burst.class);
+    PropertyService propertyService = mock(PropertyService.class);
+    when(Burst.getPropertyService()).thenReturn(propertyService);
+    doReturn((int)Constants.ONE_BURST).when(propertyService).getInt(eq(Props.ONE_COIN_NQT));
 
     t = new GetBlock(blockchainMock, blockServiceMock);
   }

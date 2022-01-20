@@ -28,6 +28,7 @@ final class GetRewardRecipient extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     JsonObject response = new JsonObject();
 

@@ -20,6 +20,7 @@ public final class GetAskOrder extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long orderId = ParameterParser.getOrderId(req);
     Order.Ask askOrder = assetExchange.getAskOrder(orderId);

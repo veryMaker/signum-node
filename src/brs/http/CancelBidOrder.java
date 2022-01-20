@@ -24,6 +24,7 @@ public final class CancelBidOrder extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long orderId = ParameterParser.getOrderId(req);
     Account account = parameterService.getSenderAccount(req);

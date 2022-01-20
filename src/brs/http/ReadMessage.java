@@ -33,6 +33,7 @@ final class ReadMessage extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String transactionIdString = Convert.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));
     if (transactionIdString == null) {

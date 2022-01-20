@@ -26,6 +26,7 @@ public final class GetAskOrderIds extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     long assetId = parameterService.getAsset(req).getId();

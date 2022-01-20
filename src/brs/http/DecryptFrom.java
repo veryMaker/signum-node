@@ -30,6 +30,7 @@ public final class DecryptFrom extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account account = parameterService.getAccount(req);
     if (account.getPublicKey() == null) {

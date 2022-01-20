@@ -1,6 +1,7 @@
 package brs.http;
 
 import brs.*;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.ParameterService;
 import brs.util.Convert;
 import brs.util.TextUtils;
@@ -18,17 +19,23 @@ public final class IssueAsset extends CreateTransaction {
 
   IssueAsset(ParameterService parameterService, Blockchain blockchain, APITransactionManager apiTransactionManager) {
     super(new APITag[]{APITag.AE, APITag.CREATE_TRANSACTION}, apiTransactionManager,
-        NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER);
+        NAME_PARAMETER, DESCRIPTION_PARAMETER, QUANTITY_QNT_PARAMETER, DECIMALS_PARAMETER, MINTABLE_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     String name = req.getParameter(NAME_PARAMETER);
     String description = req.getParameter(DESCRIPTION_PARAMETER);
     String decimalsValue = Convert.emptyToNull(req.getParameter(DECIMALS_PARAMETER));
+    boolean mintable = "true".equals(req.getParameter(MINTABLE_PARAMETER));
+    if(mintable && !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+      //only after the fork we are allowed to have a mintable assset
+      return JSONResponses.incorrect(MINTABLE_PARAMETER);
+    }
 
     if (name == null) {
       return MISSING_NAME;
@@ -61,7 +68,7 @@ public final class IssueAsset extends CreateTransaction {
 
     long quantityQNT = ParameterParser.getQuantityQNT(req);
     Account account = parameterService.getSenderAccount(req);
-    Attachment attachment = new Attachment.ColoredCoinsAssetIssuance(name, description, quantityQNT, decimals, blockchain.getHeight());
+    Attachment attachment = new Attachment.ColoredCoinsAssetIssuance(name, description, quantityQNT, decimals, blockchain.getHeight(), mintable);
     return createTransaction(req, account, attachment);
 
   }

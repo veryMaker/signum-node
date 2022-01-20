@@ -24,6 +24,7 @@ final class GetTransaction extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     String transactionIdString = Convert.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));

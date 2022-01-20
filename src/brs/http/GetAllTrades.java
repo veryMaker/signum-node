@@ -25,6 +25,7 @@ public final class GetAllTrades extends APIServlet.JsonRequestHandler {
   }
     
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final int timestamp = ParameterParser.getTimestamp(req);
     final int firstIndex = ParameterParser.getFirstIndex(req);

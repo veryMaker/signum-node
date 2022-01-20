@@ -14,6 +14,8 @@ import brs.services.TimeService;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.transactionduplicates.TransactionDuplicationResult;
 import brs.util.StringUtils;
+import signum.net.NetworkParameters;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +45,14 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private List<Transaction> unconfirmedFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
+  
+  private NetworkParameters params;
 
-  public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore, TransactionDb transactionDb) {
+  public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore, TransactionDb transactionDb,
+      NetworkParameters params) {
     this.timeService = timeService;
     this.transactionDb = transactionDb;
+    this.params = params;
 
     this.reservedBalanceCache = new ReservedBalanceCache(accountStore);
 
@@ -350,6 +356,10 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     if (hasUnconfirmedFullHash(transaction)) {
       unconfirmedFullHash.add(transaction);
     }
+    
+    if(params != null) {
+      params.unconfirmedTransactionAdded(transaction);
+    }
   }
 
   private List<Transaction> getOrCreateAmountSlotForTransaction(Transaction transaction) {
@@ -364,7 +374,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
 
   private long amountSlotForTransaction(Transaction transaction) {
-    long slot = transaction.getFeeNQT() / Constants.FEE_QUANT;
+    long slot = transaction.getFeeNQT() / Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // Using the 'slot' now as a priority measure, not exactly as before
       long transactionSize = transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES;
@@ -405,6 +415,9 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     totalSize--;
     transactionDuplicatesChecker.removeTransaction(transaction);
     unconfirmedFullHash.remove(transaction);
+    if(params != null) {
+      params.unconfirmedTransactionRemoved(transaction);
+    }
   }
 
   @Override

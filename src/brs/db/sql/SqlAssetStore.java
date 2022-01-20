@@ -47,6 +47,7 @@ public class SqlAssetStore implements AssetStore {
       set(ASSET.DESCRIPTION, asset.getDescription()).
       set(ASSET.QUANTITY, asset.getQuantityQNT()).
       set(ASSET.DECIMALS, asset.getDecimals()).
+      set(ASSET.MINTABLE, asset.getMintable()).
       set(ASSET.HEIGHT, Burst.getBlockchain().getHeight()).execute();
   }
 
@@ -74,7 +75,8 @@ public class SqlAssetStore implements AssetStore {
             record.get(ASSET.NAME),
             record.get(ASSET.DESCRIPTION),
             record.get(ASSET.QUANTITY),
-            record.get(ASSET.DECIMALS)
+            record.get(ASSET.DECIMALS),
+            record.get(ASSET.MINTABLE)
             );
     }
   }

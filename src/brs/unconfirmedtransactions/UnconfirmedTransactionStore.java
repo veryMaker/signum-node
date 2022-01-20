@@ -24,10 +24,6 @@ public interface UnconfirmedTransactionStore {
 
   void clear();
 
-  /**
-   * Review which transactions are still eligible to stay
-   * @return The list of removed transactions
-   */
   void resetAccountBalances();
 
   void markFingerPrintsOf(Peer peer, List<Transaction> transactions);

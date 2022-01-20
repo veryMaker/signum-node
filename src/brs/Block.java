@@ -180,10 +180,14 @@ public class Block {
 
   public List<Transaction> getTransactions() {
     if (blockTransactions.get() == null) {
-      this.blockTransactions.set(Collections.unmodifiableList(transactionDb().findBlockTransactions(getId())));
+      this.blockTransactions.set(Collections.unmodifiableList(transactionDb().findBlockTransactions(getId(), true)));
       this.blockTransactions.get().forEach(transaction -> transaction.setBlock(this));
     }
     return blockTransactions.get();
+  }
+  
+  public List<Transaction> getAllTransactions() {
+    return Collections.unmodifiableList(transactionDb().findBlockTransactions(getId(), false));
   }
 
   public long getBaseTarget() {

@@ -25,6 +25,7 @@ public final class GetBlock extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String blockValue = Convert.emptyToNull(req.getParameter(BLOCK_PARAMETER));
     String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));

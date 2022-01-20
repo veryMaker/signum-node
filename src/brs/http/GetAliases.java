@@ -27,6 +27,7 @@ public final class GetAliases extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final int timestamp = ParameterParser.getTimestamp(req);
     final long accountId = parameterService.getAccount(req).getId();

@@ -20,6 +20,7 @@ final class SendMoney extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long recipient = ParameterParser.getRecipientId(req);
     long amountNQT = ParameterParser.getAmountNQT(req);

@@ -28,6 +28,7 @@ public final class GetAccountEscrowTransactions extends APIServlet.JsonRequestHa
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getAccount(req);
 

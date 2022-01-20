@@ -63,12 +63,12 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
   
   @Override
-  public int getBlocksCount(Account account, int from, int to) {
+  public int getBlocksCount(long accountId, int from, int to) {
     if(from >  to) {
       return 0;
     }
     return Db.useDSLContext(ctx -> {
-      SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(account.getId()))
+      SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK).where(BLOCK.GENERATOR_ID.eq(accountId))
     		  .and(BLOCK.HEIGHT.between(from).and(to));
       
       return ctx.fetchCount(query);
@@ -142,7 +142,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       return ctx.select(DSL.sum(TRANSACTION.AMOUNT)).from(TRANSACTION)
           .where(TRANSACTION.RECIPIENT_ID.isNull())
           .and(TRANSACTION.AMOUNT.gt(0L))
-          .and(TRANSACTION.TYPE.equal(TransactionType.TYPE_AUTOMATED_TRANSACTIONS))
+          .and(TRANSACTION.TYPE.equal(TransactionType.TYPE_AUTOMATED_TRANSACTIONS.getType()))
           .fetchOneInto(long.class);
     });
   }
@@ -170,10 +170,12 @@ public class SqlBlockchainStore implements BlockchainStore {
       }
 
       SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions).and(
-              TRANSACTION.RECIPIENT_ID.eq(account.getId()).and(
+          account == null ? TRANSACTION.RECIPIENT_ID.isNull() :
+            TRANSACTION.RECIPIENT_ID.eq(account.getId()).and(
                       TRANSACTION.SENDER_ID.ne(account.getId())
               )
       ).unionAll(
+          account == null ? null :
               ctx.selectFrom(TRANSACTION).where(conditions).and(
                       TRANSACTION.SENDER_ID.eq(account.getId())
               )
@@ -228,24 +230,24 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
   
   @Override
-  public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
+  public long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction) {
     int commitmentWait = Burst.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
     int commitmentHeight = Math.min(height - commitmentWait, endHeight);
     
     Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
-      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
           .and(TRANSACTION.HEIGHT.le(commitmentHeight));
-      if(account != null)
-        select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
+      if(accountId != 0L)
+        select = select.and(TRANSACTION.SENDER_ID.equal(accountId));
       return getTransactions(ctx, select.fetch());
     });
     Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
-      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING))
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
           .and(TRANSACTION.HEIGHT.le(endHeight));
-      if(account != null)
-        select = select.and(TRANSACTION.SENDER_ID.equal(account.getId()));
+      if(accountId != 0L)
+        select = select.and(TRANSACTION.SENDER_ID.equal(accountId));
       return getTransactions(ctx, select.fetch());
     });
     
@@ -310,6 +312,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       SelectQuery<TransactionRecord> selectQuery = selectOrder
               .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())
               .getQuery();
+
+      DbUtils.applyLimits(selectQuery, from, to);
 
       return selectQuery.fetch(TRANSACTION.ID, Long.class);
     });
