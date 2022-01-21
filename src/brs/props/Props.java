@@ -162,7 +162,7 @@ public class Props {
   public static final Prop<String> JETTY_API_DOS_FILTER_TRACK_SESSIONS = new Prop<>("JETTY.API.DoSFilter.trackSessions", "false");
   public static final Prop<String> JETTY_API_DOS_FILTER_INSERT_HEADERS = new Prop<>("JETTY.API.DoSFilter.insertHeaders", "true");
   public static final Prop<String> JETTY_API_DOS_FILTER_REMOTE_PORT = new Prop<>("JETTY.API.DoSFilter.remotePort", "false");
-  public static final Prop<String> JETTY_API_DOS_FILTER_IP_WHITELIST = new Prop<>("JETTY.API.DoSFilter.ipWhitelist", "");
+  public static final Prop<String> JETTY_API_DOS_FILTER_IP_WHITELIST = new Prop<>("JETTY.API.DoSFilter.ipWhitelist", "127.0.0.1,localhost");
   public static final Prop<String> JETTY_API_DOS_FILTER_MANAGED_ATTR = new Prop<>("JETTY.API.DoSFilter.managedAttr", "true");
 
   public static final Prop<Boolean> JETTY_P2P_GZIP_FILTER               = new Prop<>("JETTY.P2P.GZIPFilter", true);
