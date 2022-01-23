@@ -179,7 +179,7 @@ public class Props {
   public static final Prop<String> JETTY_P2P_DOS_FILTER_TRACK_SESSIONS = new Prop<>("JETTY.P2P.DoSFilter.trackSessions", "false");
   public static final Prop<String> JETTY_P2P_DOS_FILTER_INSERT_HEADERS = new Prop<>("JETTY.P2P.DoSFilter.insertHeaders", "true");
   public static final Prop<String> JETTY_P2P_DOS_FILTER_REMOTE_PORT = new Prop<>("JETTY.P2P.DoSFilter.remotePort", "false");
-  public static final Prop<String> JETTY_P2P_DOS_FILTER_IP_WHITELIST = new Prop<>("JETTY.P2P.DoSFilter.ipWhitelist", "");
+  public static final Prop<String> JETTY_P2P_DOS_FILTER_IP_WHITELIST = new Prop<>("JETTY.P2P.DoSFilter.ipWhitelist", "127.0.0.1,localhost");
   public static final Prop<String> JETTY_P2P_DOS_FILTER_MANAGED_ATTR = new Prop<>("JETTY.P2P.DoSFilter.managedAttr", "true");
 
   public static final Prop<Boolean> INDIRECT_INCOMING_SERVICE_ENABLE = new Prop<>("node.indirectIncomingService.enable", false);
