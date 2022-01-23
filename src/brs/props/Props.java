@@ -107,7 +107,7 @@ public class Props {
   public static final Prop<String> P2P_REBROADCAST_TO  = new Prop<>("P2P.rebroadcastTo",
       "157.90.168.219; 162.55.177.176; 162.55.177.197; 177.153.50.43; 77.68.79.251; 51.79.166.253; 158.69.63.213; 139.99.196.163; 45.77.94.168; 188.34.159.176; 5.161.75.89");
   public static final Prop<String> P2P_BOOTSTRAP_PEERS = new Prop<>("P2P.BootstrapPeers",
-      "212.98.92.236; 108.61.251.202; 157.90.168.219; 212.98.92.236; 162.55.177.176; 190.15.195.118; 24.96.113.8; 88.64.234.237; 137.135.203.145; 70.108.6.237; 144.91.84.164; 213.32.102.141; 5.196.65.184; 89.163.239.219; 165.227.36.71");
+      "212.98.92.236; 108.61.251.202; 190.15.195.118; 24.96.113.8; 88.64.234.237; 137.135.203.145; 70.108.6.237; 144.91.84.164; 213.32.102.141; 5.196.65.184; 89.163.239.219; 165.227.36.71");
   public static final Prop<Integer> P2P_NUM_BOOTSTRAP_CONNECTIONS = new Prop<>("P2P.NumBootstrapConnections", 4);
   public static final Prop<String> P2P_BLACKLISTED_PEERS = new Prop<>("P2P.BlacklistedPeers", "");
   public static final Prop<Integer> P2P_MAX_CONNECTIONS = new Prop<>("P2P.MaxConnections", 20);
