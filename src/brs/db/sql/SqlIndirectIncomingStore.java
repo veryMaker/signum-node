@@ -39,9 +39,10 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
             }
 
             private Query getQuery(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                return ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
+                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
                     INDIRECT_INCOMING.AMOUNT, INDIRECT_INCOMING.QUANTITY,
                     INDIRECT_INCOMING.HEIGHT)
+                    .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
                             indirectIncoming.getHeight());
