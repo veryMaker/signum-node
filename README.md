@@ -156,6 +156,7 @@ In order to run a testnet node adjust your `conf/node.properties` to:
 node.network = signum.net.TestnetNetwork
 ```
 
+For a MariaDB setup you need to configure a testnet isntance in the config file. The H2 file will be created with a separate name in an automated way.
 
 ### Private Chains
 
