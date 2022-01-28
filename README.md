@@ -82,6 +82,7 @@ All default/recommended parameters are defined in code by the signum-node but yo
 #### Configuration Hints
 
 **H2/MariaDB**
+
 By default the Signum-Node is using H2. 
 If you like to use MariaDB you will need to adjust your `conf/node.properties`:
 
@@ -94,6 +95,7 @@ DB.Password=
 Please modify the `DB.Url` to your own specifications (port 3306 is the standard port from MariaDB) and also set the `DB.Username` and `DB.Password`accorrdently to your setup for the created DB-Instance.
 
 **UPnP-Portforwarding**
+
 By default the UPnP port forwarding is activated. 
 If you run the node on a VPS you can deactivate this by setting it to "no".
 ```properties
@@ -104,6 +106,7 @@ P2P.UPnP = no
 ```
 
 **Enable SNR**
+
 If you set on the `P2P.myPlatform` a valid Signum address and you fulfill the SNR requirements your node aka the set Signum address will be rewarded with the SNR.
 The SNR ( Signum Network Reward) is a community driven bounty paid to all node-operators which run continuous ( uptime > 80%) and with the newest release a Signum node.
 ```properties
@@ -122,6 +125,7 @@ The specifications for the hardware is as follows:
 -   Recommendation : 2 vCPU, 2 GB RAM, 20 GB HD, Minimum Swapfile 4GB (Linux)
 
 **Tuning options**
+
 If you run the minimum requirement you can turn off the`indirectIncomingService`  in the config file to reduce CPU and file usage. By default this parameter is activated.
 ```properties
 ## Enable the indirect incoming tracker service. This allows you to see transactions where you are paid
