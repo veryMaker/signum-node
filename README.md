@@ -55,10 +55,10 @@ If you do not have Java installed, download it from [Oracle's Website](https://w
 [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
 
 The MariaDb installation will ask to setup a password for the root user. 
-Add this password to the `brs.properties` file you will create when installing BRS:
+Add this password to the `node.properties` file you will create when installing BRS:
 
 ```properties
-DB.Url=jdbc:mariadb://localhost:3306/brs_master
+DB.Url=jdbc:mariadb://localhost:3306/signum
 DB.Username=root
 DB.Password=YOUR_PASSWORD
 ```
@@ -67,7 +67,7 @@ DB.Password=YOUR_PASSWORD
 
 Grab the latest [release](https://github.com/signum-network/signum-node/releases) (or, if you prefer, compile yourself using the instructions below)
 
-In the `conf` directory, copy `brs-default.properties` into a new file named `brs.properties` and modify this file to suit your needs (See "Configuration" section below)
+In the `conf` directory, copy `node-default.properties` into a new file named `node.properties` and modify this file to suit your needs (See "Configuration" section below)
 
 To run the node, double click on `signum-node.exe` (if on Windows) or run `java -jar signum-node.jar`.
 On most systems this will show you a monitoring window and will create a tray icon to show that Signum node is running. To disable this, instead run `java -jar signum-node.jar --headless`.
@@ -76,23 +76,82 @@ On most systems this will show you a monitoring window and will create a tray ic
 
 ### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
 
-There is no need to change any configuration. Optionally, if you want to use mariadb (see above), you will need to adjust your `conf/brs.properties`:
+Starting with the release version 3.3.0 and higher the concept of the config file changed.
+All default/recommended parameters are defined in code by the signum-node but you can overwrite the parameter within the config file for your needs. The default settings are shown in the config file as commented out. 
+
+#### Configuration Hints
+
+**H2/MariaDB**
+By default the Signum-Node is using H2. 
+If you like to use MariaDB you will need to adjust your `conf/node.properties`:
 
 ```properties
-DB.Url=jdbc:mariadb://localhost:3306/brs_master
-DB.Username=brs_user
-DB.Password=yourpassword
+#### DATABASE ####
+DB.Url=jdbc:mariadb://localhost:3306/signum
+DB.Username=
+DB.Password=
 ```
+Please modify the `DB.Url` to your own specifications (port 3306 is the standard port from MariaDB) and also set the `DB.Username` and `DB.Password`accorrdently to your setup for the created DB-Instance.
 
-Also look through the existing properties if there is anything you want to change.
-
-### Testnet
-
-In order to run a testnet node adjust your `conf/brs.properties` to:
-
+**UPnP-Portforwarding**
+By default the UPnP port forwarding is activated. 
+If you run the node on a VPS you can deactivate this by setting it to "no".
 ```properties
-DEV.TestNet = yes
+## Port for incoming peer to peer networking requests, if enabled.
+# P2P.Port = 8123
+## Use UPnP-Portforwarding
+P2P.UPnP = no
 ```
+
+**Enable SNR**
+If you set on the `P2P.myPlatform` a valid Signum address and you fulfill the SNR requirements your node aka the set Signum address will be rewarded with the SNR.
+The SNR ( Signum Network Reward) is a community driven bounty paid to all node-operators which run continuous ( uptime > 80%) and with the newest release a Signum node.
+```properties
+## My platform, to be announced to peers.
+## Enter your Signum address here for SNR rewards, see here: https://signum.community/signum-snr-awards/
+P2P.myPlatform = S-ABCD-EFGH-IJKL-MNOP
+```
+You can check you node here [Signum-Network](https://explorer.signum.network/peers/)
+
+## Hardware Requirements
+
+The Signum Node is not hardware demanding nor it needs a fast internet connection.
+The specifications for the hardware is as follows:
+
+-   Minimum : 1 vCPU, 1 GB RAM, 20 GB HD,  Minimum Swapfile 2GB(Linux)
+-   Recommendation : 2 vCPU, 2 GB RAM, 20 GB HD, Minimum Swapfile 4GB (Linux)
+
+**Tuning options**
+If you run the minimum requirement you can turn off the`indirectIncomingService`  in the config file to reduce CPU and file usage. By default this parameter is activated.
+```properties
+## Enable the indirect incoming tracker service. This allows you to see transactions where you are paid
+## but are not the direct recipient eg. Multi-Outs.
+node.indirectIncomingService.enable = false
+```
+
+## Upgrade from 3.21 to 3.30 or higher
+
+If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup needs **no** adjustments.
+
+ 1. Install the new Signum-node as described above
+ 2. Setup your config file `node.properties` as described above
+ 3. Move the existing H2 file from the folder `/burst_db` to a new folder `/db` 
+ 4. Rename the current name of the DB file from `burst.h2.mv.db`to `signum.mv.db`
+ 5. Start the node
+
+
+## Testnet
+
+Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node an can be activated by pointing to the other chain aka universe int the config file.
+No additional setting is needed. 
+
+In order to run a testnet node adjust your `conf/node.properties` to:
+```properties
+## Run with a different network
+# Testnet network
+node.network = signum.net.TestnetNetwork
+```
+
 
 ### Private Chains
 
