@@ -79,7 +79,7 @@ On most systems this will show you a monitoring window and will create a tray ic
 Starting with the release version 3.3.0 and higher the concept of the config file changed.
 All default/recommended parameters are defined in code by the signum-node but you can overwrite the parameter within the config file for your needs. The default settings are shown in the config file as commented out. 
 
-#### Configuration Hints
+### Configuration Hints
 
 **H2/MariaDB**
 
