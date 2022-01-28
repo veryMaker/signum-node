@@ -133,7 +133,7 @@ If you run the minimum requirement you can turn off the`indirectIncomingService`
 node.indirectIncomingService.enable = false
 ```
 
-## Upgrade from 3.21 to 3.30 or higher
+## Upgrade from 3.2.1 to 3.30 or higher
 
 If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup needs **no** adjustments.
 
