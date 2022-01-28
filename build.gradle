@@ -172,7 +172,7 @@ flywayMigrate.onlyIf {System.getProperty("generateSchema") == "true"}
 def details = versionDetails()
 
 jar {
-	// Needed by the loggin library
+    // Needed by the logging library
     manifest {
         attributes 'Multi-Release': 'true'
     }
@@ -213,16 +213,13 @@ task dist(type: Zip) {
    into('html') {from "html"}
    from "LICENSE.txt"
    from "README.md"
-   archiveName "${baseName}-${details.lastTag}.zip"
+   archiveName "${baseName}.zip"
 }
 
 import org.gradle.crypto.checksum.Checksum
 
-task release(type: Checksum, dependsOn: [shadowJar, dist
-	//createInstaller
-	]) {
-    files = project.tasks.shadowJar.outputs.files
-    //.plus(files(['build/distributions/signum-node-win_x64.zip', ]))
+task release(type: Checksum, dependsOn: [test, dist]) {
+    files = files(['build/distributions/signum-node.zip', ])
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
