@@ -108,7 +108,7 @@ P2P.UPnP = no
 **Enable SNR**
 
 If you set on the `P2P.myPlatform` a valid Signum address and you fulfill the SNR requirements your node aka the set Signum address will be rewarded with the SNR.
-The SNR ( Signum Network Reward) is a community driven bounty paid to all node-operators which run continuous ( uptime > 80%) and with the newest release a Signum node.
+The SNR (Signum Network Reward) is a community driven bounty paid to all node-operators which run continuous ( uptime > 80%) and with the newest release a Signum node.
 ```properties
 ## My platform, to be announced to peers.
 ## Enter your Signum address here for SNR rewards, see here: https://signum.community/signum-snr-awards/
@@ -121,7 +121,7 @@ You can check you node here [Signum-Network](https://explorer.signum.network/pee
 The Signum Node is not hardware demanding nor it needs a fast internet connection.
 The specifications for the hardware is as follows:
 
--   Minimum : 1 vCPU, 1 GB RAM, 20 GB HD,  Minimum Swapfile 2GB(Linux)
+-   Minimum : 1 vCPU, 1 GB RAM, 20 GB HD,  Minimum Swapfile 2GB (Linux)
 -   Recommendation : 2 vCPU, 2 GB RAM, 20 GB HD, Minimum Swapfile 4GB (Linux)
 
 **Tuning options**
@@ -135,7 +135,7 @@ node.indirectIncomingService.enable = false
 
 ## Upgrade from 3.2.1 to 3.30 or higher
 
-If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup needs **no** adjustments.
+If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup need **no** adjustments.
 
  1. Install the new Signum-node as described above
  2. Setup your config file `node.properties` as described above
@@ -146,7 +146,7 @@ If you run a Signum node with a version of 3.2.1 you need to do the following st
 
 ## Testnet
 
-Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node an can be activated by pointing to the other chain aka universe int the config file.
+Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node an can be activated by pointing to the other chain aka universe in the config file.
 No additional setting is needed. 
 
 In order to run a testnet node adjust your `conf/node.properties` to:
