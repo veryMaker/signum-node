@@ -30,7 +30,7 @@ The two supported database backends are:
 - Decentralized Peer-to-Peer network with spam protection
 - Built in Java - runs anywhere, from a Raspberry Pi to a Phone
 - Fast sync with multithreaded CPU or, optionally, an OpenCL GPU
-- HTTP and gRPC API for clients to interact with network
+- HTTP API for clients to interact with network
 
 # Installation
 
