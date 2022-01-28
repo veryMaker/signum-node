@@ -74,16 +74,19 @@ On most systems this will show you a monitoring window and will create a tray ic
 
 ## Configuration
 
-### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
+### Running on mainnet
 
 Starting with the release version 3.3.0 and higher the concept of the config file changed.
-All default/recommended parameters are defined in code by the signum-node but you can overwrite the parameter within the config file for your needs. The default settings are shown in the config file as commented out. 
+To run the node for mainnet with the default options, no configuration change is needed.
+
+All default/recommended parameters are defined in code by the Signum Node but you can overwrite the parameter within the config file to suit your needs.
+The default values for the available settings are shown in the config file as commented out. 
 
 ### Configuration Hints
 
 **H2/MariaDB**
 
-By default the Signum-Node is using H2. 
+By default Signum Node is using H2 (file based) as database. 
 If you like to use MariaDB you will need to adjust your `conf/node.properties`:
 
 ```properties
@@ -92,7 +95,8 @@ DB.Url=jdbc:mariadb://localhost:3306/signum
 DB.Username=
 DB.Password=
 ```
-Please modify the `DB.Url` to your own specifications (port 3306 is the standard port from MariaDB) and also set the `DB.Username` and `DB.Password`accorrdently to your setup for the created DB-Instance.
+
+Please modify the `DB.Url` to your own specifications (port 3306 is the standard port from MariaDB) and also set the `DB.Username` and `DB.Password` according your setup for the created database.
 
 **UPnP-Portforwarding**
 
@@ -108,13 +112,13 @@ P2P.UPnP = no
 **Enable SNR**
 
 If you set on the `P2P.myPlatform` a valid Signum address and you fulfill the SNR requirements your node aka the set Signum address will be rewarded with the SNR.
-The SNR (Signum Network Reward) is a community driven bounty paid to all node-operators which run continuous ( uptime > 80%) and with the newest release a Signum node.
+The SNR ([Signum Network Reward](https://signum.community/signum-snr-awards/)) is a community driven bounty paid to all node-operators which run continuous (uptime > 80%) and with the newest release a Signum node.
 ```properties
 ## My platform, to be announced to peers.
 ## Enter your Signum address here for SNR rewards, see here: https://signum.community/signum-snr-awards/
 P2P.myPlatform = S-ABCD-EFGH-IJKL-MNOP
 ```
-You can check you node here [Signum-Network](https://explorer.signum.network/peers/)
+You can check you node using the [explorer](https://explorer.signum.network/peers/).
 
 ## Hardware Requirements
 
@@ -122,11 +126,11 @@ The Signum Node is not hardware demanding nor it needs a fast internet connectio
 The specifications for the hardware is as follows:
 
 -   Minimum : 1 vCPU, 1 GB RAM, 20 GB HD,  Minimum Swapfile 2GB (Linux)
--   Recommendation : 2 vCPU, 2 GB RAM, 20 GB HD, Minimum Swapfile 4GB (Linux)
+-   Recommended : 2 vCPU, 2 GB RAM, 20 GB HD, Minimum Swapfile 4GB (Linux)
 
 **Tuning options**
 
-If you run the minimum requirement you can turn off the`indirectIncomingService`  in the config file to reduce CPU and file usage. By default this parameter is activated.
+If you run the minimum requirement you can turn off the `indirectIncomingService` in the config file to reduce CPU and file usage. By default this parameter is activated.
 ```properties
 ## Enable the indirect incoming tracker service. This allows you to see transactions where you are paid
 ## but are not the direct recipient eg. Multi-Outs.
@@ -160,31 +164,14 @@ For a MariaDB setup you need to configure a testnet isntance in the config file.
 
 ### Private Chains
 
-In order to run a private chain, you need the following properties:
+In order to run a private (local) chain with *mock* mining just select the network:
 
 ```properties
-API.Listen = 0.0.0.0
-API.allowed = *
-DEV.TestNet = yes
-DEV.Offline = yes
-DEV.digitalGoodsStore.startBlock = 0
-DEV.automatedTransactions.startBlock = 0
-DEV.atFixBlock2.startBlock = 0
-DEV.atFixBlock3.startBlock = 0
-DEV.atFixBlock4.startBlock = 0
-DEV.prePoc2.startBlock = 0
-DEV.poc2.startBlock = 0
-DEV.rewardRecipient.startBlock = 0
+node.network = signum.net.MockNetwork
 ```
 
-Optionally, if you want to be able to forge blocks faster, you can add the following properties:
-
-```properties
-DEV.mockMining = true
-DEV.mockMining.deadline = 10
-```
-
-This will cause a block to be forged every 10 seconds. Note that P2P is disabled when running a private chain and is incompatible with mock mining.
+This will allow you to forge new blocks as soon as you submit a new nonce.
+Note that P2P is disabled when running in this mode.
 
 # Building
 
