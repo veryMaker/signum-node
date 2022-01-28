@@ -4,7 +4,7 @@
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
-and fair Proof-of-Commitment (PoC+) consensus algorithm.
+and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 2014.
 
 The two supported database backends are:
 
