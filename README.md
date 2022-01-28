@@ -182,10 +182,10 @@ Run these commands (`master` is always the latest stable release):
 ```bash
 git clone https://github.com/signum-network/signum-node.git
 cd signum-node
-mvn package
+./gradlew dist
 ```
 
-Your packaged release will now be available in the `dist` directory.
+Your packaged release will now be available in the `build/distribution` directory.
 
 ## Building the latest development version
 
