@@ -27,6 +27,7 @@ final class BackupDB extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     JsonObject response = new JsonObject();

@@ -3,12 +3,11 @@ package brs.feesuggestions;
 import brs.Block;
 import brs.BlockchainProcessor;
 import brs.Burst;
+import brs.fluxcapacitor.FluxValues;
 import brs.BlockchainProcessor.Event;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
 
 import java.util.concurrent.atomic.AtomicReference;
-
-import static brs.Constants.FEE_QUANT;
 
 public class FeeSuggestionCalculator {
 
@@ -32,6 +31,7 @@ public class FeeSuggestionCalculator {
       }
     }
     
+    long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     feeSuggestion.set(new FeeSuggestion(cheap * FEE_QUANT, standard * FEE_QUANT, priority * FEE_QUANT));
   }
 
@@ -55,6 +55,7 @@ public class FeeSuggestionCalculator {
       priority = standard + 1;
     }
 
+    long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     long cheapFee = cheap * FEE_QUANT;
     long standardFee = standard * FEE_QUANT;
     long priorityFee = priority * FEE_QUANT;

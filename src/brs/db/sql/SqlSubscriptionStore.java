@@ -8,6 +8,7 @@ import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Query;
 import org.jooq.Record;
 import org.jooq.SortField;
 
@@ -37,7 +38,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
 
       @Override
       protected void save(DSLContext ctx, Subscription subscription) {
-        saveSubscription(ctx, subscription);
+        insertSubscription(ctx, subscription).execute();
       }
 
       @Override
@@ -88,13 +89,11 @@ public class SqlSubscriptionStore implements SubscriptionStore {
     return subscriptionTable.getManyBy(getUpdateOnBlockClause(timestamp), 0, -1);
   }
 
-  private void saveSubscription(DSLContext ctx, Subscription subscription) {
-    ctx.mergeInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .key(SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true)
-            .execute();
+  private Query insertSubscription(DSLContext ctx, Subscription subscription) {
+    return ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
+            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true);
   }
-
+  
   private class SqlSubscription extends Subscription {
     SqlSubscription(Record record) {
       super(

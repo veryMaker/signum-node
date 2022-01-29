@@ -108,7 +108,7 @@ public class At extends TableImpl<AtRecord> {
     /**
      * The column <code>DB.at.ap_code</code>.
      */
-    public final TableField<AtRecord, byte[]> AP_CODE = createField(DSL.name("ap_code"), SQLDataType.BLOB.nullable(false), this, "");
+    public final TableField<AtRecord, byte[]> AP_CODE = createField(DSL.name("ap_code"), SQLDataType.BLOB.defaultValue(DSL.field("NULL", SQLDataType.BLOB)), this, "");
 
     /**
      * The column <code>DB.at.height</code>.

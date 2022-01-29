@@ -1,7 +1,6 @@
 package brs;
 
 import brs.db.BurstKey;
-import brs.grpc.proto.BrsApi;
 
 import java.util.Collection;
 
@@ -68,36 +67,6 @@ public class Escrow {
       case 2:
         return DecisionType.REFUND;
       case 3:
-        return DecisionType.SPLIT;
-      default:
-        return null;
-    }
-  }
-
-  public static BrsApi.EscrowDecisionType decisionToProtobuf(DecisionType decision) {
-    switch (decision) {
-      case UNDECIDED:
-        return BrsApi.EscrowDecisionType.UNDECIDED;
-      case RELEASE:
-        return BrsApi.EscrowDecisionType.RELEASE;
-      case REFUND:
-        return BrsApi.EscrowDecisionType.REFUND;
-      case SPLIT:
-        return BrsApi.EscrowDecisionType.SPLIT;
-      default:
-        return BrsApi.EscrowDecisionType.EscrowDecisionType_UNSET;
-    }
-  }
-
-  public static DecisionType protoBufToDecision(BrsApi.EscrowDecisionType decision) {
-    switch (decision) {
-      case UNDECIDED:
-        return DecisionType.UNDECIDED;
-      case RELEASE:
-        return DecisionType.RELEASE;
-      case REFUND:
-        return DecisionType.REFUND;
-      case SPLIT:
         return DecisionType.SPLIT;
       default:
         return null;

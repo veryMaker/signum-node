@@ -30,6 +30,7 @@ public final class SetAlias extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
     String aliasURI = Convert.nullToEmpty(req.getParameter(ALIAS_URI_PARAMETER));

@@ -1,6 +1,7 @@
 package brs.db.store;
 
 import brs.Account;
+import brs.Asset;
 import brs.db.BurstKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
@@ -24,7 +25,9 @@ public interface AccountStore {
 
   VersionedEntityTable<Account.AccountAsset> getAccountAssetTable();
 
-  int getAssetAccountsCount(long assetId);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
+
+  long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury);
 
   BurstKey.LongKeyFactory<Account> getAccountKeyFactory();
 
@@ -32,9 +35,8 @@ public interface AccountStore {
 
   Collection<Account.AccountAsset> getAssets(int from, int to, Long id);
 
-  Collection<Account.AccountAsset> getAssetAccounts(long assetId, int from, int to);
+  Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to);
 
-  Collection<Account.AccountAsset> getAssetAccounts(long assetId, int height, int from, int to);
   // returns true iff:
   // this.publicKey is set to null (in which case this.publicKey also gets set to key)
   // or

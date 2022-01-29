@@ -19,6 +19,7 @@ final class GetPeer extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     String peerAddress = req.getParameter(PEER_PARAMETER);

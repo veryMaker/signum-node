@@ -4,8 +4,6 @@ import brs.Account;
 import brs.Blockchain;
 import brs.Generator;
 import brs.crypto.Crypto;
-import brs.grpc.handlers.SubmitNonceHandler;
-import brs.grpc.proto.ApiException;
 import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.AccountService;
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
 import static brs.http.common.Parameters.*;
 
 
-final class SubmitNonce extends APIServlet.JsonRequestHandler {
+public final class SubmitNonce extends APIServlet.JsonRequestHandler {
 
   private final Map<Long, String> passphrases;
   private final boolean allowOtherSoloMiners;
@@ -41,8 +39,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
             .stream()
             .collect(Collectors.toMap(passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
     this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
-    this.checkPointHeight = propertyService.getInt(propertyService.getBoolean(Props.DEV_TESTNET) ?
-    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+    this.checkPointHeight = propertyService.getInt(Props.BRS_CHECKPOINT_HEIGHT);
 
     this.accountService = accountService;
     this.blockchain = blockchain;
@@ -50,6 +47,7 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String secret = req.getParameter(SECRET_PHRASE_PARAMETER);
     long nonce = Convert.parseUnsignedLong(req.getParameter(NONCE_PARAMETER));
@@ -102,8 +100,8 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     Account secretAccount = accountService.getAccount(secretPublicKey);
     if(secretAccount != null) {
       try {
-        SubmitNonceHandler.verifySecretAccount(accountService, blockchain, secretAccount, Convert.parseUnsignedLong(accountId));
-      } catch (ApiException e) {
+        verifySecretAccount(accountService, blockchain, secretAccount, Convert.parseUnsignedLong(accountId));
+      } catch (Exception e) {
         response.addProperty("result", e.getMessage());
         return response;
       }
@@ -133,6 +131,34 @@ final class SubmitNonce extends APIServlet.JsonRequestHandler {
     response.addProperty("deadline", generatorState.getDeadlineLegacy());
 
     return response;
+  }
+  
+  public static void verifySecretAccount(AccountService accountService, Blockchain blockchain, Account secretAccount, long accountId) throws Exception {
+    Account genAccount;
+    if (accountId != 0) {
+      genAccount = accountService.getAccount(accountId);
+    }
+    else {
+      genAccount = secretAccount;
+    }
+
+    if (genAccount != null) {
+      Account.RewardRecipientAssignment assignment = accountService.getRewardRecipientAssignment(genAccount);
+      long rewardId;
+      if (assignment == null) {
+        rewardId = genAccount.getId();
+      } else if (assignment.getFromHeight() > blockchain.getLastBlock().getHeight() + 1) {
+        rewardId = assignment.getPrevRecipientId();
+      } else {
+        rewardId = assignment.getRecipientId();
+      }
+      if (rewardId != secretAccount.getId()) {
+        throw new Exception("Passphrase does not match reward recipient");
+      }
+    }
+    else {
+      throw new Exception("Passphrase is for a different account");
+    }
   }
 
   @Override

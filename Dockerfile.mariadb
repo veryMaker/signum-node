@@ -29,8 +29,8 @@ COPY --from=builder /app/dist/tmp/signum-node.jar .
 COPY --from=docbuilder /app/html html
 VOLUME ["/conf"]
 RUN ln -s /conf /app/conf
-COPY conf/brs.properties.mariadb /app/conf/brs.properties
-COPY conf/brs-default.properties /app/conf/brs-default.properties
+COPY conf/node.properties.mariadb /app/conf/node.properties
+COPY conf/node-default.properties /app/conf/node-default.properties
 COPY conf/logging-default.properties /app/conf/logging-default.properties
 COPY docker-scripts/update-phoenix.sh update-phoenix.sh
 RUN chmod +x update-phoenix.sh

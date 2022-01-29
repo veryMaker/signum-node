@@ -40,6 +40,8 @@ public interface AccountService {
   void flushAccountTable();
 
   int getCount();
+  
+  int getBatchedAccountsCount();
 
   void addToForgedBalanceNQT(Account account, long amountNQT);
 

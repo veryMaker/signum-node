@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Release BRS
+name: Draft release for Signum Node
 
 on:
   workflow_dispatch:
@@ -10,12 +10,12 @@ on:
       - 'v*'
 
 jobs:
-  release:
+  build:
+    name: Create Release Draft
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{github.ref}}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Update Phoenix Wallet
         run: |
           cd ./ci
@@ -24,32 +24,43 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Cache Maven packages
-        uses: actions/cache@v2
+      - name: Build All
+        run: ./gradlew release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml -U
-      - name: Get SHA256 Hash 
-        id: hash
-        run: |
-          cd ./dist
-          echo "::set-output name=SHA256::$(sha256sum *.zip)"
-      - name: Cut Pre-Release with Assets
-        uses: svenstaro/upload-release-action@v2
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Get the version number
+        id: get_version_number
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        
+      - name: Upload Release Asset - Zip
+        id: upload-release-asset-zip
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*.zip
-          file_glob: true
-          asset_name: Signum Node ${{github.ref}}
-          tag: ${{ github.ref }}
-          overwrite: true
-          prerelease: true
-          body: |
-            Signum node auto-generated pre-release from Github Actions ${{github.ref}}
-
-            SHA-256: `${{ steps.hash.outputs.SHA256 }}`
-
-            New features: <Add here>
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./build/distributions/signum-node.zip
+          asset_name: signum-node-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset - Zip checksum
+        id: upload-release-asset-zip-checksum
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./build/checksums/signum-node.zip.sha256
+          asset_name: signum-node-${{ steps.get_version.outputs.VERSION }}.zip.sha256
+          asset_content_type: text/plain
+          

@@ -3,9 +3,11 @@ package brs;
 import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
-import brs.services.impl.BlockServiceImpl;
+import brs.props.PropertyService;
+import brs.props.Props;
 import brs.util.StampedLockUtils;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.StampedLock;
@@ -16,13 +18,15 @@ public class BlockchainImpl implements Blockchain {
   private final TransactionDb transactionDb;
   private final BlockDb blockDb;
   private final BlockchainStore blockchainStore;
+  private final PropertyService propertyService;
   
   private final StampedLock bcsl;
   
-  BlockchainImpl(TransactionDb transactionDb, BlockDb blockDb, BlockchainStore blockchainStore) {
+  BlockchainImpl(TransactionDb transactionDb, BlockDb blockDb, BlockchainStore blockchainStore, PropertyService propertyService) {
     this.transactionDb = transactionDb;
     this.blockDb = blockDb;
     this.blockchainStore = blockchainStore;
+    this.propertyService = propertyService;
     this.bcsl = new StampedLock();
   }
 
@@ -103,8 +107,8 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
-  public int getBlocksCount(Account account, int from, int to) {
-    return blockchainStore.getBlocksCount(account, from, to);
+  public int getBlocksCount(long accountId, int from, int to) {
+    return blockchainStore.getBlocksCount(accountId, from, to);
   }
 
   @Override
@@ -177,20 +181,44 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
+  public long getBlockReward(int height) {
+    if (height == 0) {
+      return 0;
+    }
+    
+    long ONE_COIN = propertyService.getInt(Props.ONE_COIN_NQT);
+    
+    if (height >= propertyService.getInt(Props.BLOCK_REWARD_LIMIT_HEIGHT)) {
+      // Minimum incentive, lower than 0.6 % per year
+      return propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * ONE_COIN;
+    }
+    int month = height / propertyService.getInt(Props.BLOCK_REWARD_CYCLE);
+    int percentage = propertyService.getInt(Props.BLOCK_REWARD_CYCLE_PERCENTAGE);
+    int start = propertyService.getInt(Props.BLOCK_REWARD_START);
+    return BigInteger.valueOf(start).multiply(BigInteger.valueOf(percentage).pow(month))
+      .divide(BigInteger.valueOf(100).pow(month)).longValue() * ONE_COIN;
+  }
+  
+  @Override
   public long getTotalMined() {
     long totalMined = 0;
     int height = getHeight();
-    long blockReward = BlockServiceImpl.getBlockReward(1);
+    long blockReward = getBlockReward(1);
     int blockMonth = 0;
+    int rewardCycle = propertyService.getInt(Props.BLOCK_REWARD_CYCLE);
+    int decreaseStopHeight = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_HEIGHT);
+    long ONE_COIN = propertyService.getInt(Props.ONE_COIN_NQT);
+    long LIMIT_AMOUNT = propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * ONE_COIN;
+
     for (int i=1; i <= height; i++) {
-      if (i >= 972_000) {
-        blockReward = 100 * Constants.ONE_BURST;
+      if (i >= decreaseStopHeight) {
+        blockReward = LIMIT_AMOUNT;
       }
       else {
-        int month = i / 10800;
-        if(month != blockMonth) {
-          blockReward = BlockServiceImpl.getBlockReward(i);
-          blockMonth = month;
+        int cycle = i / rewardCycle;
+        if(cycle != blockMonth) {
+          blockReward = getBlockReward(i);
+          blockMonth = cycle;
         }
       }
       totalMined += blockReward;
@@ -217,7 +245,7 @@ public class BlockchainImpl implements Blockchain {
   }
   
   @Override
-  public long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction) {
-    return blockchainStore.getCommittedAmount(account, height, endHeight, skipTransaction);
+  public long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction) {
+    return blockchainStore.getCommittedAmount(accountId, height, endHeight, skipTransaction);
   }
 }

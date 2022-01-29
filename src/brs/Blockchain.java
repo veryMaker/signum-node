@@ -24,7 +24,7 @@ public interface Blockchain {
 
   Collection<Block> getBlocks(Account account, int timestamp, int from, int to);
 
-  int getBlocksCount(Account account, int from, int to);
+  int getBlocksCount(long accountId, int from, int to);
 
   Collection<Long> getBlockIdsAfter(long blockImplId, int limit);
 
@@ -48,11 +48,13 @@ public interface Blockchain {
   
   public long getTotalMined();
 
+  long getBlockReward(int height);
+  
   Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockImplTimestamp, boolean includeIndirectIncoming);
 
   Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockImplTimestamp, int from, int to, boolean includeIndirectIncoming);
   
   Collection<Long> getTransactionIds(Long sender, Long recipient, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming);
   
-  long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction);
+  long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction);
 }

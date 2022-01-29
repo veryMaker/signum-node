@@ -1,6 +1,7 @@
 package brs.assetexchange;
 
 import brs.Account.AccountAsset;
+import brs.Asset;
 import brs.db.store.AccountStore;
 
 import java.util.Collection;
@@ -13,19 +14,16 @@ class AssetAccountServiceImpl {
     this.accountStore = accountStore;
   }
 
-  public Collection<AccountAsset> getAssetAccounts(long assetId, int from, int to) {
-    return accountStore.getAssetAccounts(assetId, from, to);
+  public Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to) {
+    return accountStore.getAssetAccounts(asset, ignoreTreasury, minimumQuantity, from, to);
   }
 
-  public Collection<AccountAsset> getAssetAccounts(long assetId, int height, int from, int to) {
-    if (height < 0) {
-      return getAssetAccounts(assetId, from, to);
-    }
-    return accountStore.getAssetAccounts(assetId, height, from, to);
+  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury) {
+    return accountStore.getAssetAccountsCount(asset, minimumQuantity, ignoreTreasury);
   }
-
-  public int getAssetAccountsCount(long assetId) {
-    return accountStore.getAssetAccountsCount(assetId);
+  
+  public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
+    return accountStore.getAssetCirculatingSupply(asset, ignoreTreasury);
   }
 
 }

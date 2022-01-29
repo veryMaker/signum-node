@@ -22,6 +22,7 @@ final class GetSubscription extends APIServlet.JsonRequestHandler {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     long subscriptionId;
     try {

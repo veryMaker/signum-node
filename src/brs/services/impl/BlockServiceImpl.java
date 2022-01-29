@@ -11,6 +11,7 @@ import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
+import signum.net.NetworkParameters;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class BlockServiceImpl implements BlockService {
 
@@ -28,17 +30,20 @@ public class BlockServiceImpl implements BlockService {
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
   private final Generator generator;
+  private NetworkParameters networkParameters;
   
   private final List<Block> watchedBlocks = new ArrayList<>();
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 
-  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache, Generator generator) {
+  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache,
+      Generator generator, NetworkParameters networkParameters) {
     this.accountService = accountService;
     this.transactionService = transactionService;
     this.blockchain = blockchain;
     this.downloadCache = downloadCache;
     this.generator = generator;
+    this.networkParameters = networkParameters;
   }
 
   @Override
@@ -137,9 +142,7 @@ public class BlockServiceImpl implements BlockService {
       return;
     }
     
-    int checkPointHeight = Burst.getPropertyService().getInt(
-    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+    int checkPointHeight = Burst.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
     try {
       if(block.getHeight() < checkPointHeight) {
         // do not verify the nonce up to the checkpoint block
@@ -147,9 +150,7 @@ public class BlockServiceImpl implements BlockService {
       }
       else {
     	if(block.getHeight() == checkPointHeight) {
-       	    String checkPointHash = Burst.getPropertyService().getString(
-    	    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-    	    				Props.DEV_CHECKPOINT_HASH : Props.BRS_CHECKPOINT_HASH);
+       	    String checkPointHash = Burst.getPropertyService().getString(Props.BRS_CHECKPOINT_HASH);
 
        	    String receivedHash = Hex.toHexString(block.getPreviousBlockHash()); 
     		if(!receivedHash.equals(checkPointHash)) {
@@ -188,36 +189,41 @@ public class BlockServiceImpl implements BlockService {
   public void apply(Block block) {
     Account generatorAccount = accountService.getOrAddAccount(block.getGeneratorId());
     generatorAccount.apply(block.getGeneratorPublicKey(), block.getHeight());
+
+    long blockReward = getBlockReward(block);
+    long blockRewardTotal = blockReward;
+    Map<Long, Integer> blockDistribution = networkParameters != null ? networkParameters.getBlockRewardDistribution(block.getHeight()) : null;
+    if(blockDistribution != null) {
+      for(Long distAccountID : blockDistribution.keySet()) {
+        Account distAccount = accountService.getOrAddAccount(distAccountID);
+        if(distAccount != null) {
+          long distAmount = (blockRewardTotal * blockDistribution.get(distAccountID))/1000L;
+          blockReward -= distAmount;
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(distAccount, distAmount);
+          accountService.addToForgedBalanceNQT(distAccount, distAmount);
+        }
+      }
+    }
     if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
+      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
     } else {
       Account rewardAccount = getRewardAccount(block);
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + blockReward);
+      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + blockReward);
     }
 
     for(Transaction transaction : block.getTransactions()) {
       transactionService.apply(transaction);
+      if (networkParameters != null) {
+        networkParameters.transactionApplied(transaction);
+      }
     }
   }
 
   @Override
   public long getBlockReward(Block block) {
-    return getBlockReward(block.getHeight());
-  }
-
-  public static long getBlockReward(int height) {
-    if (height == 0) {
-      return 0;
-    }
-    if (height >= 972_000) {
-      // Minimum incentive, lower than 0.6 % per year
-      return 100 * Constants.ONE_BURST;
-    }
-	int month = height / 10800;
-	return BigInteger.valueOf(10000).multiply(BigInteger.valueOf(95).pow(month))
-	  .divide(BigInteger.valueOf(100).pow(month)).longValue() * Constants.ONE_BURST;
+    return blockchain.getBlockReward(block.getHeight());
   }
 
   @Override
@@ -243,6 +249,8 @@ public class BlockServiceImpl implements BlockService {
 
   @Override
   public void calculateBaseTarget(Block block, Block previousBlock) throws BlockOutOfOrderException {
+    long blockTime = Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME);
+    
     if (block.getId() == Genesis.GENESIS_BLOCK_ID && block.getPreviousBlockId() == 0) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
       block.setCumulativeDifficulty(BigInteger.ZERO);
@@ -261,7 +269,7 @@ public class BlockServiceImpl implements BlockService {
 
       long curBaseTarget = avgBaseTarget.longValue();
       long newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-          .divide(BigInteger.valueOf(Constants.BURST_BLOCK_TIME * 4)).longValue();
+          .divide(BigInteger.valueOf(blockTime * 4)).longValue();
       if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
         newBaseTarget = Constants.MAX_BASE_TARGET;
       }
@@ -286,6 +294,9 @@ public class BlockServiceImpl implements BlockService {
       int blockCounter = 1;
       do {
         int previousHeight = itBlock.getHeight();
+        if(previousHeight < 1) {
+          break;
+        }
         itBlock = downloadCache.getBlock(itBlock.getPreviousBlockId());
         if (itBlock == null) {
           throw new BlockOutOfOrderException("Previous block does no longer exist for block height " + previousHeight);
@@ -296,7 +307,7 @@ public class BlockServiceImpl implements BlockService {
             .divide(BigInteger.valueOf(blockCounter + 1L));
       } while (blockCounter < 24);
       long difTime = (long) block.getTimestamp() - itBlock.getTimestamp();
-      long targetTimespan = 24L * Constants.BURST_BLOCK_TIME;
+      long targetTimespan = blockCounter * blockTime;
 
       if (difTime < targetTimespan / 2) {
         difTime = targetTimespan / 2;
@@ -347,17 +358,23 @@ public class BlockServiceImpl implements BlockService {
           newAvgCommitment = curCommitment * 12 / 10;
         }
         
-        // assuming a minimum value of 1 BURST
-        newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
+        // assuming a minimum value of 1 coin
+        newAvgCommitment = Math.max(newAvgCommitment, Burst.getPropertyService().getInt(Props.ONE_COIN_NQT));
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
         
         if(block.getPeer()!=null && peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
+          if(logger.isDebugEnabled()) {
+            logger.debug("Peer base target mismatch, height {}, id {}, generator id {}, cap bt {}, avg com. {}", block.getHeight(),
+                Convert.toUnsignedLong(block.getId()), Convert.toUnsignedLong(block.getGeneratorId()),
+                newBaseTarget, newAvgCommitment);
+          }
           // peer sent the base target and we do not agree with it
           throw new RuntimeException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget() + ", peer " +
               block.getPeer().getAnnouncedAddress());
         }
         
-        Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
+        int pastBlockHeight = Math.max(0,  block.getHeight() - Constants.MAX_ROLLBACK);
+        Block pastBlock = blockchain.getBlockAtHeight(pastBlockHeight);
         
         long pastAverageCommitment = pastBlock.getAverageCommitment();
         if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY, block.getHeight())) {

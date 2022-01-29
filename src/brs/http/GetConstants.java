@@ -26,6 +26,7 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
     }
     
     @Override
+    protected
     JsonElement processRequest(HttpServletRequest req) {
         JsonObject response = new JsonObject();
         response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
@@ -35,16 +36,17 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         response.addProperty("ordinaryTransactionLength", Constants.ORDINARY_TRANSACTION_BYTES);
         response.addProperty("addressPrefix", BurstKitUtils.getAddressPrefix());
         response.addProperty("valueSuffix", BurstKitUtils.getValueSuffix());
-        response.addProperty("blockTime", Constants.BURST_BLOCK_TIME);
-        response.addProperty("networkName", Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-            "SignumTESTNET" : "Signum");
+        response.addProperty("blockTime", Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
+        response.addProperty("decimalPlaces", Burst.getPropertyService().getInt(Props.DECIMAL_PLACES));
+        response.addProperty("networkName", Burst.getPropertyService().getString(Props.NETWORK_NAME));
+        response.addProperty("feeQuantNQT", Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT));
 
         JsonArray transactionTypes = new JsonArray();
         TransactionType.getTransactionTypes()
                 .forEach((key, value) -> {
                     JsonObject transactionType = new JsonObject();
-                    transactionType.addProperty("value", key);
-                    transactionType.addProperty("description", TransactionType.getTypeDescription(key));
+                    transactionType.addProperty("value", key.getType());
+                    transactionType.addProperty("description", key.getDescription());
                     JsonArray transactionSubtypes = new JsonArray();
                     transactionSubtypes.addAll(value.entrySet().stream()
                             .map(entry -> {

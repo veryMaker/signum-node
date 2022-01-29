@@ -1,10 +1,10 @@
 # Signum Node
-[![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
+[![Node Build](https://github.com/signum-network/signum-node/actions/workflows/build.yml/badge.svg)](https://github.com/signum-network/signum-node/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
-and fair Proof-of-Commitment (PoC+) consensus algorithm.
+and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 2014.
 
 The two supported database backends are:
 
@@ -30,7 +30,7 @@ The two supported database backends are:
 - Decentralized Peer-to-Peer network with spam protection
 - Built in Java - runs anywhere, from a Raspberry Pi to a Phone
 - Fast sync with multithreaded CPU or, optionally, an OpenCL GPU
-- HTTP and gRPC API for clients to interact with network
+- HTTP API for clients to interact with network
 
 # Installation
 
@@ -55,10 +55,10 @@ If you do not have Java installed, download it from [Oracle's Website](https://w
 [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
 
 The MariaDb installation will ask to setup a password for the root user. 
-Add this password to the `brs.properties` file you will create when installing BRS:
+Add this password to the `node.properties` file you will create when installing BRS:
 
 ```properties
-DB.Url=jdbc:mariadb://localhost:3306/brs_master
+DB.Url=jdbc:mariadb://localhost:3306/signum
 DB.Username=root
 DB.Password=YOUR_PASSWORD
 ```
@@ -67,60 +67,111 @@ DB.Password=YOUR_PASSWORD
 
 Grab the latest [release](https://github.com/signum-network/signum-node/releases) (or, if you prefer, compile yourself using the instructions below)
 
-In the `conf` directory, copy `brs-default.properties` into a new file named `brs.properties` and modify this file to suit your needs (See "Configuration" section below)
+In the `conf` directory, copy `node-default.properties` into a new file named `node.properties` and modify this file to suit your needs (See "Configuration" section below)
 
 To run the node, double click on `signum-node.exe` (if on Windows) or run `java -jar signum-node.jar`.
 On most systems this will show you a monitoring window and will create a tray icon to show that Signum node is running. To disable this, instead run `java -jar signum-node.jar --headless`.
 
 ## Configuration
 
-### Running on mainnet (unless you are developing or running on testnet, you will probably want this)
+### Running on mainnet
 
-There is no need to change any configuration. Optionally, if you want to use mariadb (see above), you will need to adjust your `conf/brs.properties`:
+Starting with the release version 3.3.0 and higher the concept of the config file changed.
+To run the node for mainnet with the default options, no configuration change is needed.
+
+All default/recommended parameters are defined in code by the Signum Node but you can overwrite the parameter within the config file to suit your needs.
+The default values for the available settings are shown in the config file as commented out. 
+
+### Configuration Hints
+
+**H2/MariaDB**
+
+By default Signum Node is using H2 (file based) as database. 
+If you like to use MariaDB you will need to adjust your `conf/node.properties`:
 
 ```properties
-DB.Url=jdbc:mariadb://localhost:3306/brs_master
-DB.Username=brs_user
-DB.Password=yourpassword
+#### DATABASE ####
+DB.Url=jdbc:mariadb://localhost:3306/signum
+DB.Username=
+DB.Password=
 ```
 
-Also look through the existing properties if there is anything you want to change.
+Please modify the `DB.Url` to your own specifications (port 3306 is the standard port from MariaDB) and also set the `DB.Username` and `DB.Password` according your setup for the created database.
 
-### Testnet
+**UPnP-Portforwarding**
 
-In order to run a testnet node adjust your `conf/brs.properties` to:
-
+By default the UPnP port forwarding is activated. 
+If you run the node on a VPS you can deactivate this by setting it to "no".
 ```properties
-DEV.TestNet = yes
+## Port for incoming peer to peer networking requests, if enabled.
+# P2P.Port = 8123
+## Use UPnP-Portforwarding
+P2P.UPnP = no
 ```
+
+**Enable SNR**
+
+If you set on the `P2P.myPlatform` a valid Signum address and you fulfill the SNR requirements your node aka the set Signum address will be rewarded with the SNR.
+The SNR ([Signum Network Reward](https://signum.community/signum-snr-awards/)) is a community driven bounty paid to all node-operators which run continuous (uptime > 80%) and with the newest release a Signum node.
+```properties
+## My platform, to be announced to peers.
+## Enter your Signum address here for SNR rewards, see here: https://signum.community/signum-snr-awards/
+P2P.myPlatform = S-ABCD-EFGH-IJKL-MNOP
+```
+You can check you node using the [explorer](https://explorer.signum.network/peers/).
+
+## Hardware Requirements
+
+The Signum Node is not hardware demanding nor it needs a fast internet connection.
+The specifications for the hardware is as follows:
+
+-   Minimum : 1 vCPU, 1 GB RAM, 20 GB HD,  Minimum Swapfile 2GB (Linux)
+-   Recommended : 2 vCPU, 2 GB RAM, 20 GB HD, Minimum Swapfile 4GB (Linux)
+
+**Tuning options**
+
+If you run the minimum requirement you can turn off the `indirectIncomingService` in the config file to reduce CPU and file usage. By default this parameter is activated.
+```properties
+## Enable the indirect incoming tracker service. This allows you to see transactions where you are paid
+## but are not the direct recipient eg. Multi-Outs.
+node.indirectIncomingService.enable = false
+```
+
+## Upgrade from 3.2.1 to 3.30 or higher
+
+If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup need **no** adjustments.
+
+ 1. Install the new Signum-node as described above
+ 2. Setup your config file `node.properties` as described above
+ 3. Move the existing H2 file from the folder `/burst_db` to a new folder `/db` 
+ 4. Rename the current name of the DB file from `burst.h2.mv.db`to `signum.mv.db`
+ 5. Start the node
+
+
+## Testnet
+
+Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node an can be activated by pointing to the other chain aka universe in the config file.
+No additional setting is needed. 
+
+In order to run a testnet node adjust your `conf/node.properties` to:
+```properties
+## Run with a different network
+# Testnet network
+node.network = signum.net.TestnetNetwork
+```
+
+For a MariaDB setup you need to configure a testnet isntance in the config file. The H2 file will be created with a separate name in an automated way.
 
 ### Private Chains
 
-In order to run a private chain, you need the following properties:
+In order to run a private (local) chain with *mock* mining just select the network:
 
 ```properties
-API.Listen = 0.0.0.0
-API.allowed = *
-DEV.TestNet = yes
-DEV.Offline = yes
-DEV.digitalGoodsStore.startBlock = 0
-DEV.automatedTransactions.startBlock = 0
-DEV.atFixBlock2.startBlock = 0
-DEV.atFixBlock3.startBlock = 0
-DEV.atFixBlock4.startBlock = 0
-DEV.prePoc2.startBlock = 0
-DEV.poc2.startBlock = 0
-DEV.rewardRecipient.startBlock = 0
+node.network = signum.net.MockNetwork
 ```
 
-Optionally, if you want to be able to forge blocks faster, you can add the following properties:
-
-```properties
-DEV.mockMining = true
-DEV.mockMining.deadline = 10
-```
-
-This will cause a block to be forged every 10 seconds. Note that P2P is disabled when running a private chain and is incompatible with mock mining.
+This will allow you to forge new blocks as soon as you submit a new nonce.
+Note that P2P is disabled when running in this mode.
 
 # Building
 
@@ -131,10 +182,10 @@ Run these commands (`master` is always the latest stable release):
 ```bash
 git clone https://github.com/signum-network/signum-node.git
 cd signum-node
-mvn package
+./gradlew dist
 ```
 
-Your packaged release will now be available in the `dist` directory.
+Your packaged release will now be available in the `build/distribution` directory.
 
 ## Building the latest development version
 

@@ -22,6 +22,7 @@ final class GetEscrowTransaction extends APIServlet.JsonRequestHandler {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     long escrowId;
     try {

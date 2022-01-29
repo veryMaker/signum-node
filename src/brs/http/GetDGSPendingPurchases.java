@@ -23,6 +23,7 @@ public final class GetDGSPendingPurchases extends APIServlet.JsonRequestHandler 
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     long sellerId = ParameterParser.getSellerId(req);
 

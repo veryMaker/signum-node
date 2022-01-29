@@ -23,6 +23,7 @@ public final class GetAlias extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws ParameterException {
     final Alias alias = parameterService.getAlias(req);
     final Offer offer = aliasService.getOffer(alias);

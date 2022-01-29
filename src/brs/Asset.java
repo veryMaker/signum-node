@@ -11,8 +11,9 @@ public class Asset {
   private final String description;
   private final long quantityQNT;
   private final byte decimals;
+  private final boolean mintable;
 
-  protected Asset(long assetId, BurstKey dbKey, long accountId, String name, String description, long quantityQNT, byte decimals) {
+  protected Asset(long assetId, BurstKey dbKey, long accountId, String name, String description, long quantityQNT, byte decimals, boolean mintable) {
     this.assetId = assetId;
     this.dbKey = dbKey;
     this.accountId = accountId;
@@ -20,6 +21,7 @@ public class Asset {
     this.description = description;
     this.quantityQNT = quantityQNT;
     this.decimals = decimals;
+    this.mintable = mintable;
   }
 
   public Asset(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsAssetIssuance attachment) {
@@ -30,6 +32,7 @@ public class Asset {
     this.description = attachment.getDescription();
     this.quantityQNT = attachment.getQuantityQNT();
     this.decimals = attachment.getDecimals();
+    this.mintable = attachment.getMintable();
   }
 
   public long getId() {
@@ -54,6 +57,10 @@ public class Asset {
 
   public byte getDecimals() {
     return decimals;
+  }
+  
+  public boolean getMintable() {
+    return mintable;
   }
 
 }

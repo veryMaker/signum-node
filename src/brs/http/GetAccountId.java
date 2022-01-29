@@ -25,6 +25,7 @@ public final class GetAccountId extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     BurstAddress address;

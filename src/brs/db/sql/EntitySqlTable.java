@@ -49,7 +49,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
   void save(DSLContext ctx, T t) {
   }
 
-  void save(DSLContext ctx, T[] ts) {
+  void save(DSLContext ctx, Collection<T> ts) {
     for (T t : ts) {
       save(ctx, t);
     }

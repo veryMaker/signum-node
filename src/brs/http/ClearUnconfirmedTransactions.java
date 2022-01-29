@@ -30,6 +30,7 @@ public final class ClearUnconfirmedTransactions extends APIServlet.JsonRequestHa
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String apiKey = req.getParameter(API_KEY_PARAMETER);
     if(!apiAdminKeyList.contains(apiKey)) {
