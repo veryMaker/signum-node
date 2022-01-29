@@ -222,10 +222,6 @@ public final class API {
     process.waitFor();
   }
 
-//  private String regexpEscapeUrl(String url) {
-//    return url.replace("/", "\\/");
-//  }
-
   public void shutdown() {
     if (apiServer != null) {
       try {
@@ -235,19 +231,4 @@ public final class API {
       }
     }
   }
-
-//  private static class RegexOrExistsRewriteRule extends RewriteRegexRule {
-//
-//    private final File baseDirectory;
-//
-//    RegexOrExistsRewriteRule(File baseDirectory, String regex, String replacement) {
-//      super(regex, replacement);
-//      this.baseDirectory = baseDirectory;
-//    }
-//
-//    @Override
-//    public String apply(String target, HttpServletRequest request, HttpServletResponse response, Matcher matcher) throws IOException {
-//      return new File(baseDirectory, target).exists() ? target : super.apply(target, request, response, matcher);
-//    }
-//  }
 }

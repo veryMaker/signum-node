@@ -277,8 +277,6 @@ public class APITestServlet extends HttpServlet {
       buf.append("\" target=\"_blank\" style=\"font-weight:normal;font-size:14px;color:#777;\"><span class=\"glyphicon glyphicon-new-window\"></span></a>");
       buf.append(" &nbsp;&nbsp;");
     }
-    //buf.append("<a style=\"font-weight:normal;font-size:14px;color:#777;\" href=\"/doc/");
-    //buf.append(className.replace('.','/')).append(".html\" target=\"_blank\">javadoc</a>");
     buf.append("</span>");
     buf.append("</h4>");
     buf.append("</div>");

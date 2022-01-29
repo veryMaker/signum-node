@@ -4,8 +4,6 @@ plugins {
     id 'maven'
     id 'application'
     id 'edu.sc.seis.launch4j' version '2.5.1'
-    // id 'edu.sc.seis.macAppBundle' version '2.3.0'
-    id "nebula.ospackage" version "8.2.0"
     id 'org.gradle.crypto.checksum' version '1.2.0'
     id 'com.palantir.git-version' version '0.12.2'
     id 'io.spring.dependency-management' version '1.0.1.RELEASE' //for logging - log4j
@@ -69,8 +67,8 @@ dependencies {
     compile 'com.github.jiconfont:jiconfont-font_awesome:4.7.0.1'
 
     //logging
-    compile 'org.apache.logging.log4j:log4j-api:2.16.0'
-    compile 'org.apache.logging.log4j:log4j-core:2.16.0'
+    compile 'org.apache.logging.log4j:log4j-api:2.17.1'
+    compile 'org.apache.logging.log4j:log4j-core:2.17.1'
 
     // Use JUnit test framework
     testImplementation("org.junit.platform:junit-platform-engine:1.5.1")
