@@ -118,7 +118,7 @@ The SNR ([Signum Network Reward](https://signum.community/signum-snr-awards/)) i
 ## Enter your Signum address here for SNR rewards, see here: https://signum.community/signum-snr-awards/
 P2P.myPlatform = S-ABCD-EFGH-IJKL-MNOP
 ```
-You can check you node using the [explorer](https://explorer.signum.network/peers/).
+You can check your node using the [explorer](https://explorer.signum.network/peers/).
 
 ## Hardware Requirements
 
@@ -150,7 +150,7 @@ If you run a Signum node with a version of 3.2.1 you need to do the following st
 
 ## Testnet
 
-Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node an can be activated by pointing to the other chain aka universe in the config file.
+Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node and can be activated by pointing to the other chain aka universe in the config file.
 No additional setting is needed. 
 
 In order to run a testnet node adjust your `conf/node.properties` to:
@@ -160,7 +160,8 @@ In order to run a testnet node adjust your `conf/node.properties` to:
 node.network = signum.net.TestnetNetwork
 ```
 
-For a MariaDB setup you need to configure a testnet isntance in the config file. The H2 file will be created with a separate name in an automated way.
+If no custom DB is set, a H2 file will be created as `db/signum-testnet.mv.db`.
+For a MariaDB setup you need to configure a testnet instance in the config file.
 
 ### Private Chains
 
@@ -229,7 +230,7 @@ See DOCKER.md for information on running and building docker images.
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)
 Frequent Contributors: 
 - [ohager](https://github.com/ohager). Donation address: [S-9K9L-4CB5-88Y5-F5G4Z](https://explorer.signum.network/?action=account&account=16107620026796983538)
-- [damccull](https://github.com/damccull). Donation address: ???
+- [damccull](https://github.com/damccull).
 
 For more information, see [Credits](doc/Credits.md)
 
