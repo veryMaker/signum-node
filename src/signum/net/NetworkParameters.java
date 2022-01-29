@@ -46,4 +46,11 @@ public interface NetworkParameters {
    */
   void unconfirmedTransactionRemoved(Transaction transaction);
 
+  /**
+   * A new transaction was applied (due to a block being applied)
+   * 
+   * @param transaction
+   */
+  void transactionApplied(Transaction transaction);
+
 }

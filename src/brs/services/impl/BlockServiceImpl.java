@@ -215,6 +215,9 @@ public class BlockServiceImpl implements BlockService {
 
     for(Transaction transaction : block.getTransactions()) {
       transactionService.apply(transaction);
+      if (networkParameters != null) {
+        networkParameters.transactionApplied(transaction);
+      }
     }
   }
 

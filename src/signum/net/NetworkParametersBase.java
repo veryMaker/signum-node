@@ -67,4 +67,8 @@ public class NetworkParametersBase implements NetworkParameters {
   public void unconfirmedTransactionRemoved(Transaction transaction) {
   }
   
+  @Override
+  public void transactionApplied(Transaction transaction) {
+  }
+  
 }
