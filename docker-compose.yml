@@ -11,4 +11,3 @@ services:
     volumes:
       - "./conf:/conf"
       - "./db:/db"
-
