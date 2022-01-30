@@ -6,9 +6,9 @@ services:
       replicas: 1
     restart: always
     ports:
-      - "8121:8121"
       - "8123:8123"
       - "8125:8125"
     volumes:
       - "./conf:/conf"
+      - "./db:/db"
 
