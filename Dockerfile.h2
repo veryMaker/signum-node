@@ -1,38 +1,25 @@
-# This Dockerfile uses two nearly identical builder intermediate images to run the two tasks in parallel
-# and save build time. Please do not delete one thinking it is there erroneously.
-
-FROM maven:3-jdk-8-slim as builder
+FROM gradle:6.2.2-jdk8 as builder
 WORKDIR /app
-# These next two lines copy the pom.xml file only, then force maven to download the depenedencies it uses
-# This caches all the dependencies via docker layer caching and will increase subsequent docker builds
-# unless pom.xml changes
-COPY pom.xml pom.xml
-RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "verify", "clean", "--fail-never"]
 COPY . .
-RUN mvn -DskipTests=true -P headless package
-
-FROM maven:3-jdk-8-slim as docbuilder
-WORKDIR /app
-# These next two lines copy the pom.xml file only, then force maven to download the depenedencies it uses
-# This caches all the dependencies via docker layer caching and will increase subsequent docker builds
-# unless pom.xml changes
-COPY pom.xml pom.xml
-RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "verify", "clean", "--fail-never"]
-COPY . .
-RUN mkdir -p html/ui/doc && mvn javadoc:javadoc-no-fork && cp -r target/site/apidocs/* html/ui/doc
-
+RUN gradle dist --no-daemon
 
 FROM openjdk:8-jre-alpine
 RUN apk update && apk upgrade && apk add --no-cache bash curl wget unzip
+LABEL name="Signum Node H2"
+LABEL description="This is the official Signum Node using H2 file database"
 WORKDIR /app
-COPY --from=builder /app/dist/tmp/signum-node.jar .
-COPY --from=docbuilder /app/html html
+COPY --from=builder /app/build/distributions .
 VOLUME ["/conf", "/db"]
 RUN ln -s /conf /app/conf
+RUN ln -s /db /app/db
 COPY conf/node.properties.h2 /app/conf/node.properties
 COPY conf/node-default.properties /app/conf/node-default.properties
 COPY conf/logging-default.properties /app/conf/logging-default.properties
-COPY docker-scripts/update-phoenix.sh update-phoenix.sh
+COPY update-phoenix.sh /app/update-phoenix.sh
 RUN chmod +x update-phoenix.sh
-EXPOSE 8125 8123 8121
-ENTRYPOINT [ "/app/update-phoenix.sh" ]
+RUN ./update-phoenix.sh
+# Clean up
+RUN rm signum-node.exe
+RUN rm signum-node.zip
+EXPOSE 8125 8123
+ENTRYPOINT [ "java", "-XX:MaxRAMPercentage=75.0", "-jar", "signum-node.jar" ]
