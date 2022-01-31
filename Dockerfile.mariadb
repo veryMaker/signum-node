@@ -24,7 +24,6 @@ COPY update-phoenix.sh /app/update-phoenix.sh
 RUN chmod +x update-phoenix.sh
 COPY docker/start-node.sh /app/start-node.sh
 RUN chmod +x start-node.sh
-RUN ./update-phoenix.sh
 
 # Clean up
 RUN rm signum-node.exe
