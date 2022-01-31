@@ -10,6 +10,11 @@ LABEL description="This is the official Signum Node using H2 file database"
 WORKDIR /app
 COPY --from=builder /app/build/distributions .
 RUN unzip -o signum-node.zip
+RUN rm -rf conf
+
+VOLUME ["/conf", "/db"]
+RUN ln -s /conf /app/conf
+RUN ln -s /db /app/db
 
 # We use the bootstrap folder to copy the config files to the host machin in the start-node.sh script
 COPY conf/logging-default.properties /app/bootstrap/logging-default.properties
@@ -26,8 +31,5 @@ RUN rm signum-node.exe
 RUN rm signum-node.zip
 RUN rm -rf tmp
 
-VOLUME ["/conf", "/db"]
-RUN ln -s /conf /app/conf
-RUN ln -s /db /app/db
 EXPOSE 8125 8123
 ENTRYPOINT [ "./start-node.sh" ]
