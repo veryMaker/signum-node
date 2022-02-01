@@ -36,19 +36,22 @@ The two supported database backends are:
 
 ## Prerequisites (All Platforms)
 
-### Java 64-bit 8 (Recommended) or higher
+### Java 64-bit 11 (Recommended) or higher
 
-You need Java 64-bit 8 (recommended) or higher installed. To check your java version, run `java -version`. You should get an output similar to the following:
+You need Java 64-bit 11 (recommended) or higher installed. To check your java version, run `java -version`. You should get an output similar to the following:
 
 ```text
-java version "1.8.0_181"
-Java(TM) SE Runtime Environment (build 1.8.0_181-b13)
-Java HotSpot(TM) 64-Bit Server VM (build 25.181-b13, mixed mode)
+openjdk version "11.0.13" 2021-10-19
+OpenJDK Runtime Environment (build 11.0.13+8-Ubuntu-0ubuntu1.20.04)
+OpenJDK 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 ```
 
-The important part is that the Java version starts with `1.8` (Java 8)
+The important part is that the Java version starts with `11.` (Java 11)
 
-If you do not have Java installed, download it from [Oracle's Website](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
+If you do not have Java installed:
+ - Linux: install the `openjdk-11-jre` package
+ - Others: download Java 11 or better from [Oracle's Website](https://www.oracle.com/java/technologies/downloads/#java11)
+ - A Windows 10 guide is [available here](https://www.shaileshjha.com/download-and-install-latest-java-jdk-on-windows-10/)
 
 ### MariaDB (Optional)
 
