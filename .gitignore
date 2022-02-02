@@ -4,8 +4,10 @@
 .idea
 brs.log
 brs.log.*
+node.log*
 /conf/logging.properties
 /conf/brs.properties
+/conf/node.properties
 _config.yml
 /html/ui/doc/*
 /html/ui/phoenix/*
@@ -14,8 +16,10 @@ target
 .project
 .classpath
 /burst_db/*
+/db/*
 /conf-tests/
 *.zip
+*.jar
 
 /.gradle/
 /build/

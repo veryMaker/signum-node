@@ -1,10 +1,10 @@
-FROM gradle:6.2.2-jdk8 as builder
+FROM gradle:6.2.2-jdk11 as builder
 WORKDIR /app
 COPY . .
 RUN gradle dist --no-daemon
 
-FROM openjdk:8-jre-alpine
-RUN apk update && apk upgrade && apk add --no-cache bash curl wget unzip
+FROM openjdk:11-jre-slim
+RUN apt-get update && apt-get install -y bash curl wget unzip
 LABEL name="Signum Node H2"
 LABEL description="This is the official Signum Node using H2 file database"
 WORKDIR /app
