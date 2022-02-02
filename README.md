@@ -177,11 +177,11 @@ node.network = signum.net.MockNetwork
 This will allow you to forge new blocks as soon as you submit a new nonce.
 Note that P2P is disabled when running in this mode.
 
-# Building
+# Building from sources
 
 ## Building the latest stable release
 
-Run these commands (`master` is always the latest stable release):
+Run these commands (the `main` branch is always the latest stable release):
 
 ```bash
 git clone https://github.com/signum-network/signum-node.git
@@ -197,13 +197,20 @@ Clone the repository as instructed above and run these commands:
 
 ```bash
 git switch develop
-mvn package
+./gradlew dist
 ```
 
-Your packaged release will now be available in the `dist` directory.
+Your packaged release will now be available in the `build/distribution` directory.
 
 **Please note that development builds will refuse to run outside of testnet or a private chain**
 
+## Running the automated tests
+
+Clone the repository as instructed above and run:
+
+```bash
+./gradlew test
+```
 
 ## Updating the Phoenix Wallet
 
