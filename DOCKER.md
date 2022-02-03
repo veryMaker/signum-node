@@ -32,6 +32,8 @@ version: "3.8"
 services:
   signum:
     image: signumnetwork/node:latest-h2
+    init: true
+    stop_grace_period: 2m
     deploy:
       replicas: 1
     restart: always
