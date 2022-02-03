@@ -36,6 +36,10 @@ The two supported database backends are:
 
 ## Prerequisites
 
+### Windows
+
+Any recent 64 bit Windows should suffice (a Java 11 is embedded in the windows package).
+
 ### Linux and Mac, Java 64-bit 11 (Recommended) or higher
 
 You need Java 64-bit 11 (recommended) or higher installed.
@@ -49,10 +53,6 @@ OpenJDK 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sha
 ```
 
 The important part is that the Java version starts with `11.` (Java 11)
-
-### Windows
-
-Any recent 64 bit Windows should suffice (a Java 11 is embedded in the windows package).
 
 ### MariaDB (Optional)
 
