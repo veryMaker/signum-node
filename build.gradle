@@ -183,23 +183,47 @@ shadowJar{
 createExe {
     outfile = 'signum-node.exe'
     icon = "${projectDir}/resources/images/signum_overlay_logo.ico"
-    jreMinVersion = '1.8.9'
     copyright = 'signum.network'
     companyName = 'https://signum.network'
     textVersion = details.lastTag
     maxHeapSize = 2048
 
-    bundledJrePath = '%JAVA_HOME%'
-    //bundledJre64Bit = false
-    dontWrapJar = true
+    bundledJrePath = 'jre/'
 
+    dontWrapJar = true
     mainClassName = project.mainClassName
     copyConfigurable = project.tasks.shadowJar.outputs.files
     jar = "signum-node.jar"
 }
 
 task dist(type: Zip) {
+   from (project.tasks.shadowJar.outputs.files){
+    include 'signum-node-all.jar'
+    rename {'signum-node.jar'}
+   }
+   into('conf') {from "conf/node-default.properties"}
+   into('conf') {from "conf/logging-default.properties"}
+   into('html') {from "html"}
+   from "LICENSE.txt"
+   from "README.md"
+   archiveName "${baseName}.zip"
+}
+
+def jdkVersion = 'zulu11.54.23-ca-jre11.0.14'
+import de.undercouch.gradle.tasks.download.Download
+
+task downloadWindowsJDK(type: Download) {
+    src "https://cdn.azul.com/zulu/bin/${jdkVersion}-win_x64.zip"
+    dest "build/distributions/${jdkVersion}-win_x64.zip"
+}
+task unzipWindowsJDK(type: Copy, dependsOn: downloadWindowsJDK) {
+    from(zipTree("build/distributions/${jdkVersion}-win_x64.zip"))
+    into "build/distributions/"
+}
+
+task windowsZip(type: Zip) {
    dependsOn createExe
+   dependsOn unzipWindowsJDK
    from (project.tasks.shadowJar.outputs.files){
     include 'signum-node-all.jar'
     rename {'signum-node.jar'}
@@ -210,13 +234,17 @@ task dist(type: Zip) {
    into('html') {from "html"}
    from "LICENSE.txt"
    from "README.md"
-   archiveName "${baseName}.zip"
+
+   into('jre'){
+   	from "build/distributions/${jdkVersion}-win_x64/"
+   }
+   archiveName "${baseName}-win_x64.zip"
 }
 
 import org.gradle.crypto.checksum.Checksum
 
 task release(type: Checksum, dependsOn: [test, dist]) {
-    files = files(['build/distributions/signum-node.zip', ])
+    files = files(['build/distributions/signum-node.zip', 'build/distributions/signum-node-win_x64.zip' ])
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
