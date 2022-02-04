@@ -243,7 +243,7 @@ task windowsZip(type: Zip) {
 
 import org.gradle.crypto.checksum.Checksum
 
-task release(type: Checksum, dependsOn: [test, dist]) {
+task release(type: Checksum, dependsOn: [test, dist, windowsZip]) {
     files = files(['build/distributions/signum-node.zip', 'build/distributions/signum-node-win_x64.zip' ])
 }
 
