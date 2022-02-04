@@ -38,7 +38,7 @@ dependencies {
     compile 'org.ehcache:ehcache:3.9.9'
     compile 'org.flywaydb:flyway-core:8.2.0'
     compile 'com.google.code.gson:gson:2.8.9'
-    compile 'com.h2database:h2:1.4.200'
+    compile 'com.h2database:h2:1.4.199'
     compile 'commons-cli:commons-cli:1.4'
     compile 'com.zaxxer:HikariCP:5.0.1'
     compile 'org.jocl:jocl:2.0.1'
