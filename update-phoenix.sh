@@ -47,6 +47,6 @@ echo "🛀 Cleaning up..."
 # Go back to original directory
 popd > /dev/null
 
-rm -rf $TEMPDIR
+rm -rf $TMPDIR
 
 echo "✅ Phoenix Wallet has been updated."
