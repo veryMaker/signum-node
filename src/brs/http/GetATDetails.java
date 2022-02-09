@@ -19,6 +19,7 @@ class GetATDetails extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     return JSONData.at(parameterService.getAT(req));
   }

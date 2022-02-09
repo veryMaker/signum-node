@@ -55,6 +55,7 @@ public class ResultFields {
   public static final String BLOCK_REWARD_RESPONSE = "blockReward";
   public static final String BLOCK_REWARD_NQT_RESPONSE = "blockRewardNQT";
   public static final String LAST_BLOCK_REWARD_RESPONSE = "lastBlockReward";
+  public static final String LAST_BLOCK_REWARD_NQT_RESPONSE = "lastBlockRewardNQT";
   public static final String PAYLOAD_LENGTH_RESPONSE = "payloadLength";
   public static final String VERSION_RESPONSE = "version";
   public static final String BASE_TARGET_RESPONSE = "baseTarget";
@@ -72,9 +73,11 @@ public class ResultFields {
   public static final String SUBTYPE_RESPONSE = "subtype";
   public static final String ORDER_RESPONSE = "order";
   public static final String QUANTITY_QNT_RESPONSE = "quantityQNT";
+  public static final String QUANTITY_CIRCULATING_QNT_RESPONSE = "quantityCirculatingQNT";
   public static final String UNCONFIRMED_QUANTITY_QNT_RESPONSE = "unconfirmedQuantityQNT";
   public static final String PRICE_NQT_RESPONSE = "priceNQT";
   public static final String DECIMALS_RESPONSE = "decimals";
+  public static final String MINTABLE_RESPONSE = "mintable";
   public static final String NUMBER_OF_TRADES_RESPONSE = "numberOfTrades";
   public static final String NUMBER_OF_TRANSFERS_RESPONSE = "numberOfTransfers";
   public static final String NUMBER_OF_ACCOUNTS_RESPONSE = "numberOfAccounts";
@@ -127,6 +130,7 @@ public class ResultFields {
   public static final String SENDER_PUBLIC_KEY_RESPONSE = "senderPublicKey";
   public static final String REFERENCED_TRANSACTION_FULL_HASH_RESPONSE = "referencedTransactionFullHash";
   public static final String ATTACHMENT_RESPONSE = "attachment";
+  public static final String ATTACHMENT_BYTES_RESPONSE = "attachmentBytes";
   public static final String EC_BLOCK_ID_RESPONSE = "ecBlockId";
   public static final String EC_BLOCK_HEIGHT_RESPONSE = "ecBlockHeight";
   public static final String FREQUENCY_RESPONSE = "frequency";

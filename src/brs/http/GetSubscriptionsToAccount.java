@@ -25,6 +25,7 @@ final class GetSubscriptionsToAccount extends APIServlet.JsonRequestHandler {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getAccount(req);
 		

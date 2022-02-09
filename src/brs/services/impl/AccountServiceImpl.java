@@ -146,6 +146,11 @@ public class AccountServiceImpl implements AccountService {
   public int getCount() {
     return accountTable.getCount();
   }
+  
+  @Override
+  public int getBatchedAccountsCount() {
+    return accountTable.getBatch().size();
+  }
 
   @Override
   public void addToForgedBalanceNQT(Account account, long amountNQT) {

@@ -17,15 +17,16 @@ public class APITestServlet extends HttpServlet {
 
   private static final Logger logger = LoggerFactory.getLogger(APITestServlet.class);
 
-  private static final String HEADER_1 =
+  private static final String HEADER_1_a =
       "<!DOCTYPE html>\n"
       + "<html>\n"
       + "<head>\n"
       + "    <meta charset=\"UTF-8\"/>\n"
       + "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
-      + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-      + "    <title>Signum node API</title>\n"
-      + "    <link href=\"/css/bootstrap.min.css\" rel=\"stylesheet\" type=\"text/css\" />"
+      + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">";
+  
+  private static final String HEADER_1_b =
+      "    <link href=\"/css/bootstrap.min.css\" rel=\"stylesheet\" type=\"text/css\" />"
       + "    <style type=\"text/css\">\n"
       + "        table {border-collapse: collapse;}\n"
       + "        td {padding: 10px;}\n"
@@ -80,15 +81,15 @@ public class APITestServlet extends HttpServlet {
       + "<body>\n"
       + "<div class=\"navbar navbar-default\" role=\"navigation\">"
       + "   <div class=\"container\" style=\"min-width: 90%;\">"
-      + "       <div class=\"navbar-header\">"
-      + "           <a class=\"navbar-brand\" href=\"" + API.API_TEST_PATH + "\">Signum node API</a>"
-      + "       </div>"
+      + "       <div class=\"navbar-header\">";
+  private static final String HEADER_1_c =
+      "       </div>"
       + "       <div class=\"navbar-collapse collapse\">"
       + "           <ul class=\"nav navbar-nav navbar-right\">"
       + "               <li><input type=\"text\" class=\"form-control\" id=\"search\" "
       + "                    placeholder=\"Search\" style=\"margin-top:8px;\"></li>\n"
-      + "               <li><a href=\"https://burstwiki.org/en/the-burst-api/\" target=\"_blank\" style=\"margin-left:20px;\">Wiki Docs</a></li>"
-      + "               <li><a href=\"/doc/index.html\" target=\"_blank\" style=\"margin-left:20px;\">Javadoc Index</a></li>"
+      + "               <li><a href=\"https://signum.community/\" target=\"_blank\" style=\"margin-left:20px;\">Community Docs</a></li>"
+      + "               <!-- <li><a href=\"/doc/index.html\" target=\"_blank\" style=\"margin-left:20px;\">Javadoc Index</a></li> -->"
       + "           </ul>"
       + "       </div>"
       + "   </div>"
@@ -159,9 +160,11 @@ public class APITestServlet extends HttpServlet {
   private final List<String> requestTypes;
   private final Map<String, APIServlet.HttpRequestHandler> apiRequestHandlers = new HashMap<String, APIServlet.HttpRequestHandler>();
   private final SortedMap<String, SortedSet<String>> requestTags;
+  private final String networkName;
 
-  public APITestServlet(APIServlet apiServlet, Set<Subnet> allowedBotHosts) {
+  public APITestServlet(APIServlet apiServlet, Set<Subnet> allowedBotHosts, String networkName) {
     this.allowedBotHosts = allowedBotHosts;
+    this.networkName = networkName;
     apiRequestHandlers.putAll(apiServlet.apiRequestHandlers);
     requestTags = buildRequestTags();
     requestTypes = new ArrayList<>(apiRequestHandlers.keySet());
@@ -222,7 +225,13 @@ public class APITestServlet extends HttpServlet {
 
     try {
       try (PrintWriter writer = resp.getWriter()) {
-        writer.print(HEADER_1);
+        writer.print(HEADER_1_a);
+        writer.print("    <title>" + this.networkName + " node API</title>\n");
+        writer.print(HEADER_1_b);
+        writer.print("           <a class=\"navbar-brand\" href=\"" + API.API_TEST_PATH + "\">" +
+            this.networkName + " node API</a>");
+        writer.print(HEADER_1_c);
+
         writer.print(buildLinks(req));
         writer.print(HEADER_2);
         String requestType = Convert.nullToEmpty(Encode.forHtml(req.getParameter("requestType")));
@@ -268,8 +277,6 @@ public class APITestServlet extends HttpServlet {
       buf.append("\" target=\"_blank\" style=\"font-weight:normal;font-size:14px;color:#777;\"><span class=\"glyphicon glyphicon-new-window\"></span></a>");
       buf.append(" &nbsp;&nbsp;");
     }
-    buf.append("<a style=\"font-weight:normal;font-size:14px;color:#777;\" href=\"/doc/");
-    buf.append(className.replace('.','/')).append(".html\" target=\"_blank\">javadoc</a>");
     buf.append("</span>");
     buf.append("</h4>");
     buf.append("</div>");

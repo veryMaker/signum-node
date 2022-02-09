@@ -18,7 +18,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row4;
+import org.jooq.Row6;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -69,6 +69,16 @@ public class IndirectIncoming extends TableImpl<IndirectIncomingRecord> {
      * The column <code>DB.indirect_incoming.height</code>.
      */
     public final TableField<IndirectIncomingRecord, Integer> HEIGHT = createField(DSL.name("height"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>DB.indirect_incoming.amount</code>.
+     */
+    public final TableField<IndirectIncomingRecord, Long> AMOUNT = createField(DSL.name("amount"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
+
+    /**
+     * The column <code>DB.indirect_incoming.quantity</code>.
+     */
+    public final TableField<IndirectIncomingRecord, Long> QUANTITY = createField(DSL.name("quantity"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
 
     private IndirectIncoming(Name alias, Table<IndirectIncomingRecord> aliased) {
         this(alias, aliased, null);
@@ -155,11 +165,11 @@ public class IndirectIncoming extends TableImpl<IndirectIncomingRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row4 type methods
+    // Row6 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row4<Long, Long, Long, Integer> fieldsRow() {
-        return (Row4) super.fieldsRow();
+    public Row6<Long, Long, Long, Integer, Long, Long> fieldsRow() {
+        return (Row6) super.fieldsRow();
     }
 }

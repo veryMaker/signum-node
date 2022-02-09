@@ -30,6 +30,7 @@ public final class FullReset extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String apiKey = req.getParameter(API_KEY_PARAMETER);
     if(!apiAdminKeyList.contains(apiKey)) {

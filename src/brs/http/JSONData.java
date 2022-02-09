@@ -7,7 +7,9 @@ import brs.at.AtApiHelper;
 import brs.at.AtMachineState;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
+import brs.db.sql.SqlTransactionDb;
 import brs.peer.Peer;
+import brs.props.Props;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -15,6 +17,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import static brs.http.common.ResultFields.*;
+
+import java.util.List;
 
 public final class JSONData {
 
@@ -52,13 +56,15 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject asset(Asset asset, int tradeCount, int transferCount, int assetAccountsCount) {
+  static JsonObject asset(Asset asset, int tradeCount, int transferCount, int assetAccountsCount, long circulatingSupply) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, asset.getAccountId());
     json.addProperty(NAME_RESPONSE, asset.getName());
     json.addProperty(DESCRIPTION_RESPONSE, asset.getDescription());
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
+    json.addProperty(MINTABLE_RESPONSE, asset.getMintable());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQNT()));
+    json.addProperty(QUANTITY_CIRCULATING_QNT_RESPONSE, String.valueOf(circulatingSupply));
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(asset.getId()));
     json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount);
     json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount);
@@ -100,6 +106,7 @@ public final class JSONData {
 
   static JsonObject block(Block block, boolean includeTransactions, int currentBlockchainHeight, long blockReward, int scoopNum) {
     JsonObject json = new JsonObject();
+    List<Transaction> allBlockTransactions = block.getAllTransactions();
     json.addProperty(BLOCK_RESPONSE, block.getStringId());
     json.addProperty(HEIGHT_RESPONSE, block.getHeight());
     putAccount(json, GENERATOR_RESPONSE, block.getGeneratorId());
@@ -107,11 +114,11 @@ public final class JSONData {
     json.addProperty(NONCE_RESPONSE, Convert.toUnsignedLong(block.getNonce()));
     json.addProperty(SCOOP_NUM_RESPONSE, scoopNum);
     json.addProperty(TIMESTAMP_RESPONSE, block.getTimestamp());
-    json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, block.getTransactions().size());
+    json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, allBlockTransactions.size());
     json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
     json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
-    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Constants.ONE_BURST));
+    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Burst.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
     json.addProperty(VERSION_RESPONSE, block.getVersion());
     json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.getCapacityBaseTarget()));
@@ -135,7 +142,7 @@ public final class JSONData {
     json.addProperty(BLOCK_SIGNATURE_RESPONSE, Convert.toHexString(block.getBlockSignature()));
 
     JsonArray transactions = new JsonArray();
-    for (Transaction transaction : block.getTransactions()) {
+    for (Transaction transaction : allBlockTransactions) {
       if (includeTransactions) {
         transactions.add(transaction(transaction, currentBlockchainHeight));
       } else {
@@ -346,6 +353,10 @@ public final class JSONData {
     if (attachmentJSON.size() > 0) {
       modifyAttachmentJSON(attachmentJSON);
       json.add(ATTACHMENT_RESPONSE, attachmentJSON);
+    }
+    byte[] attachmentBytes = SqlTransactionDb.getAttachmentBytes(transaction);
+    if (attachmentBytes != null) {
+      json.addProperty(ATTACHMENT_BYTES_RESPONSE, Convert.toHexString(attachmentBytes));
     }
     putAccount(json, SENDER_RESPONSE, transaction.getSenderId());
     json.addProperty(HEIGHT_RESPONSE, transaction.getHeight());

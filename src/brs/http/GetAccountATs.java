@@ -30,6 +30,7 @@ public final class GetAccountATs extends APIServlet.JsonRequestHandler {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     Account account = parameterService.getAccount(req); // TODO this is super redundant
     

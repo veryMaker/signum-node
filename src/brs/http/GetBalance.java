@@ -17,6 +17,7 @@ public final class GetBalance extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     return JSONData.accountBalance(parameterService.getAccount(req));
   }

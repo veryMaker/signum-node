@@ -34,7 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
     for (Appendix.AbstractAppendix appendage : transaction.getAppendages()) {
       appendage.validate(transaction);
     }
-    long minimumFeeNQT = transaction.getType().minimumFeeNQT(blockchain.getHeight(), transaction.getAppendagesSize());
+    long minimumFeeNQT = transaction.getType().minimumFeeNQT(blockchain.getHeight(), transaction);
     if (transaction.getFeeNQT() < minimumFeeNQT) {
       throw new BurstException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
           transaction.getFeeNQT(), minimumFeeNQT, blockchain.getHeight()));

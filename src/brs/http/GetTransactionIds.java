@@ -27,7 +27,7 @@ final class GetTransactionIds extends APIServlet.JsonRequestHandler {
   }
 
   @Override
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  public JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     Long senderId = null, recipientId = null;
     String senderParameter = Convert.emptyToNull(req.getParameter(SENDER_PARAMETER));

@@ -9,6 +9,8 @@ import brs.props.Props;
 import brs.services.*;
 import brs.util.JSON;
 import brs.util.Subnet;
+import signum.net.NetworkParameters;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.jetty.http.HttpStatus;
@@ -38,7 +40,7 @@ public final class APIServlet extends HttpServlet {
                     EscrowService escrowService, DGSGoodsStoreService digitalGoodsStoreService,
                     SubscriptionService subscriptionService, ATService atService, TimeService timeService, EconomicClustering economicClustering, TransactionService transactionService,
                     BlockService blockService, Generator generator, PropertyService propertyService, APITransactionManager apiTransactionManager, FeeSuggestionCalculator feeSuggestionCalculator,
-                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts) {
+                    DeeplinkQRCodeGenerator deeplinkQRCodeGenerator, IndirectIncomingService indirectIncomingService, Set<Subnet> allowedBotHosts, NetworkParameters params) {
 
     enforcePost = propertyService.getBoolean(Props.API_SERVER_ENFORCE_POST);
     allowedOrigins = propertyService.getString(Props.API_ALLOWED_ORIGINS);
@@ -121,6 +123,9 @@ public final class APIServlet extends HttpServlet {
     map.put("getBidOrders", new GetBidOrders(parameterService, assetExchange));
     map.put("suggestFee", new SuggestFee(feeSuggestionCalculator));
     map.put("issueAsset", new IssueAsset(parameterService, blockchain, apiTransactionManager));
+    map.put("mintAsset", new MintAsset(parameterService, blockchain, apiTransactionManager, assetExchange));
+    map.put("distributeToAssetHolders", new DistributeToAssetHolders(parameterService, blockchain, apiTransactionManager, assetExchange, accountService));
+    map.put("addAssetTreasuryAccount", new AddAssetTreasuryAccount(parameterService, blockchain, apiTransactionManager, accountService));
     map.put("longConvert", LongConvert.instance);
     map.put("parseTransaction", new ParseTransaction(parameterService, transactionService));
     map.put("placeAskOrder", new PlaceAskOrder(parameterService, blockchain, apiTransactionManager, accountService));
@@ -166,13 +171,18 @@ public final class APIServlet extends HttpServlet {
     map.put("fullReset", new FullReset(blockchainProcessor, propertyService));
     map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService, propertyService));
     map.put("backupDB", new BackupDB(propertyService));
+    
+    // Extra api for the custom network parameters
+    if(params != null) {
+      params.adjustAPIs(map);
+    }
 
     apiRequestHandlers = Collections.unmodifiableMap(map);
   }
 
-  abstract static class JsonRequestHandler extends HttpRequestHandler {
+  public abstract static class JsonRequestHandler extends HttpRequestHandler {
 
-    JsonRequestHandler(APITag[] apiTags, String... parameters) {
+    public JsonRequestHandler(APITag[] apiTags, String... parameters) {
       super(apiTags, parameters);
     }
 
@@ -197,10 +207,10 @@ public final class APIServlet extends HttpServlet {
       writeJsonToResponse(resp, response);
     }
 
-    abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
+    protected abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
   }
 
-  abstract static class HttpRequestHandler {
+  public abstract static class HttpRequestHandler {
 
     private final List<String> parameters;
     private final Set<APITag> apiTags;

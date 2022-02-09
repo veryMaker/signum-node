@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 public class IndirectIncomingServiceImplTest {
-    private final AtomicReference<Consumer<List<IndirectIncomingStore.IndirectIncoming>>> addIndirectIncomingsRunnable = new AtomicReference<>();
+    private final AtomicReference<Consumer<List<IndirectIncoming>>> addIndirectIncomingsRunnable = new AtomicReference<>();
     private IndirectIncomingServiceImpl indirectIncomingService;
 
     @Before

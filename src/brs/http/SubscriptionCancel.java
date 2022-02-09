@@ -27,6 +27,7 @@ public final class SubscriptionCancel extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account sender = parameterService.getSenderAccount(req);
 

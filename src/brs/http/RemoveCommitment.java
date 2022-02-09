@@ -27,17 +27,18 @@ public final class RemoveCommitment extends CreateTransaction {
   }
 	
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final Account account = parameterService.getSenderAccount(req);
     long amountNQT = ParameterParser.getAmountNQT(req);
     
-    int nBlocksMined = blockchain.getBlocksCount(account, blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
+    int nBlocksMined = blockchain.getBlocksCount(account.getId(), blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
     if(nBlocksMined > 0) {
       // need to wait since the last block mined to remove any commitment
       return ERROR_NOT_ALLOWED;
     }
     
-    long committedAmountNQT = blockchain.getCommittedAmount(account, blockchain.getHeight(), blockchain.getHeight(), null);
+    long committedAmountNQT = blockchain.getCommittedAmount(account.getId(), blockchain.getHeight(), blockchain.getHeight(), null);
     if (committedAmountNQT < amountNQT) {
       return NOT_ENOUGH_FUNDS;
     }

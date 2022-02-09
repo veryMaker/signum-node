@@ -22,6 +22,7 @@ final class GenerateToken extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     String secretPhrase = req.getParameter(SECRET_PHRASE_PARAMETER);

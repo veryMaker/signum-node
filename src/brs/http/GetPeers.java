@@ -21,6 +21,7 @@ final class GetPeers extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     boolean active = "true".equalsIgnoreCase(req.getParameter(ACTIVE_PARAMETER));

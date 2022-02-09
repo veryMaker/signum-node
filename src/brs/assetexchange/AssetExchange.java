@@ -23,7 +23,9 @@ public interface AssetExchange {
 
   int getTransferCount(long id);
 
-  int getAssetAccountsCount(long id);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
+  
+  long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury);
 
   void addTradeListener(Listener<Trade> listener, Event trade);
 
@@ -51,7 +53,7 @@ public interface AssetExchange {
 
   Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
 
-  Collection<AccountAsset> getAccountAssetsOverview(long accountId, int height, int from, int to);
+  Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to);
 
   Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to);
 

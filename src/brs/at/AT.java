@@ -200,22 +200,13 @@ public class AT extends AtMachineState {
     }
 
     public void saveState() {
-        ATState state = atStateTable().get(atStateDbKeyFactory().newKey(AtApiHelper.getLong(this.getId())));
         int prevHeight = Burst.getBlockchain().getHeight();
         int newNextHeight = prevHeight + getWaitForNumberOfBlocks();
-        if (state != null) {
-            state.setState(getState());
-            state.setPrevHeight(prevHeight);
-            state.setNextHeight(newNextHeight);
-            state.setSleepBetween(getSleepBetween());
-            state.setPrevBalance(getpBalance());
-            state.setFreezeWhenSameBalance(freezeOnSameBalance());
-            state.setMinActivationAmount(minActivationAmount());
-        } else {
-            state = new ATState(AtApiHelper.getLong(this.getId()),
-                    getState(), newNextHeight, getSleepBetween(),
-                    getpBalance(), freezeOnSameBalance(), minActivationAmount());
-        }
+        ATState state = new ATState(AtApiHelper.getLong(this.getId()),
+            getState(), newNextHeight, getSleepBetween(),
+            getpBalance(), freezeOnSameBalance(), minActivationAmount());
+        state.setPrevHeight(prevHeight);
+
         atStateTable().insert(state);
     }
 

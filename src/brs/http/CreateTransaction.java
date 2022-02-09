@@ -10,11 +10,9 @@ import com.google.gson.JsonElement;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
-import static brs.Constants.FEE_QUANT;
-import static brs.Constants.ONE_BURST;
 import static brs.http.common.Parameters.*;
 
-abstract class CreateTransaction extends APIServlet.JsonRequestHandler {
+public abstract class CreateTransaction extends APIServlet.JsonRequestHandler {
 
   private static final String[] commonParameters = new String[] {
     SECRET_PHRASE_PARAMETER, PUBLIC_KEY_PARAMETER, FEE_NQT_PARAMETER,
@@ -32,27 +30,27 @@ abstract class CreateTransaction extends APIServlet.JsonRequestHandler {
     return result;
   }
 
-  CreateTransaction(APITag[] apiTags, APITransactionManager apiTransactionManager, boolean replaceParameters, String... parameters) {
+  protected CreateTransaction(APITag[] apiTags, APITransactionManager apiTransactionManager, boolean replaceParameters, String... parameters) {
     super(apiTags, replaceParameters ? parameters : addCommonParameters(parameters));
     this.apiTransactionManager = apiTransactionManager;
   }
 
-  CreateTransaction(APITag[] apiTags, APITransactionManager apiTransactionManager, String... parameters) {
+  protected CreateTransaction(APITag[] apiTags, APITransactionManager apiTransactionManager, String... parameters) {
     super(apiTags, addCommonParameters(parameters));
     this.apiTransactionManager = apiTransactionManager;
   }
 
-  final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Attachment attachment)
+  public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Attachment attachment)
     throws BurstException {
     return createTransaction(req, senderAccount, null, 0, attachment);
   }
 
-  final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT)
+  public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT)
     throws BurstException {
     return createTransaction(req, senderAccount, recipientId, amountNQT, Attachment.ORDINARY_PAYMENT);
   }
 
-  final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT, Attachment attachment) throws BurstException {
+  public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT, Attachment attachment) throws BurstException {
     return apiTransactionManager.createTransaction(req, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT());
   }
 
@@ -62,7 +60,7 @@ abstract class CreateTransaction extends APIServlet.JsonRequestHandler {
   }
 
   private long minimumFeeNQT() {
-    return Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? FEE_QUANT : ONE_BURST;
+    return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
   }
 
 }

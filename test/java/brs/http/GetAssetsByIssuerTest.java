@@ -71,7 +71,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
     when(mockAssetExchange.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator);
-    when(mockAssetExchange.getAssetAccountsCount(eq(mockAssetId))).thenReturn(1);
+    when(mockAssetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true))).thenReturn(1);
     when(mockAssetExchange.getTransferCount(eq(mockAssetId))).thenReturn(2);
     when(mockAssetExchange.getTradeCount(eq(mockAssetId))).thenReturn(3);
 

@@ -21,6 +21,7 @@ public final class GetAllOpenBidOrders extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
 
     JsonObject response = new JsonObject();

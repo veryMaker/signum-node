@@ -28,6 +28,7 @@ public final class DGSDelivery extends CreateTransaction {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
     Account sellerAccount = parameterService.getSenderAccount(req);

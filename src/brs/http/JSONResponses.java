@@ -219,7 +219,7 @@ public final class JSONResponses {
     HEIGHT_NOT_AVAILABLE = response;
   }
 
-  private static JsonElement missing(String... paramNames) {
+  public static JsonElement missing(String... paramNames) {
     JsonObject response = new JsonObject();
     response.addProperty(ERROR_CODE_RESPONSE, 3);
     if (paramNames.length == 1) {
@@ -230,7 +230,7 @@ public final class JSONResponses {
     return response;
   }
 
-  private static JsonElement incorrect(String paramName) {
+  public static JsonElement incorrect(String paramName) {
     return incorrect(paramName, null);
   }
 

@@ -10,7 +10,10 @@ public final class Parameters {
   public static final String FEE_NQT_PARAMETER = "feeNQT";
   public static final String PRICE_NQT_PARAMETER = "priceNQT";
   public static final String QUANTITY_QNT_PARAMETER = "quantityQNT";
+  public static final String QUANTITY_MININUM_QNT_PARAMETER = "quantityMinimumQNT";
   public static final String ASSET_PARAMETER = "asset";
+  public static final String ASSET_TO_DISTRIBUTE_PARAMETER = "assetToDistribute";
+  public static final String ASSET_IGNORE_TREASURY_PARAMETER = "ignoreTreasury";
   public static final String ASSETS_PARAMETER = "assets";
   public static final String GOODS_PARAMETER = "goods";
   public static final String ORDER_PARAMETER = "order";
@@ -70,6 +73,7 @@ public final class Parameters {
   public static final String ESCROW_PARAMETER = "escrow";
   public static final String DECISION_PARAMETER = "decision";
   public static final String DECIMALS_PARAMETER = "decimals";
+  public static final String MINTABLE_PARAMETER = "mintable";
   public static final String PERIOD_PARAMETER = "period";
   public static final String ESCROW_DEADLINE_PARAMETER = "escrowDeadline";
   public static final String DEADLINE_ACTION_PARAMETER = "deadlineAction";

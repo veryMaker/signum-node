@@ -19,6 +19,7 @@ final class LongConvert extends APIServlet.JsonRequestHandler {
   }
 
   @Override
+  protected
   JsonElement processRequest(HttpServletRequest req) {
     String id = Convert.emptyToNull(req.getParameter(ID_PARAMETER));
     if (id == null) {

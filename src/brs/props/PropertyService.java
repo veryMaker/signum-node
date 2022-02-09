@@ -2,6 +2,8 @@ package brs.props;
 
 import java.util.List;
 
+import signum.net.NetworkParameters;
+
 public interface PropertyService {
 
   Boolean getBoolean(String propName, boolean assume);
@@ -13,4 +15,6 @@ public interface PropertyService {
   String getString(Prop<String> name);
 
   List<String> getStringList(Prop<String> name);
+  
+  void setNetworkParameters(NetworkParameters params);
 }
