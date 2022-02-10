@@ -352,15 +352,13 @@ public class Transaction implements Comparable<Transaction> {
         throw new IllegalStateException("Transaction is not signed yet");
       }
       byte[] hash;
-      if (useNQT()) {
-        byte[] data = zeroSignature(getBytes());
-        byte[] signatureHash = Crypto.sha256().digest(signature.get() != null ? signature.get() : new byte[64]);
-        MessageDigest digest = Crypto.sha256();
-        digest.update(data);
-        hash = digest.digest(signatureHash);
-      } else {
-        hash = Crypto.sha256().digest(getBytes());
-      }
+
+      byte[] data = zeroSignature(getBytes());
+      byte[] signatureHash = Crypto.sha256().digest(signature.get() != null ? signature.get() : new byte[64]);
+      MessageDigest digest = Crypto.sha256();
+      digest.update(data);
+      hash = digest.digest(signatureHash);
+
       long longId = Convert.fullHashToId(hash);
       id.set(longId);
       stringId.set(Convert.toUnsignedLong(longId));
@@ -424,22 +422,12 @@ public class Transaction implements Comparable<Transaction> {
         buffer.put(new byte[24]);
       }
       buffer.putLong(type.hasRecipient() ? recipientId : Genesis.CREATOR_ID);
-      if (useNQT()) {
-        buffer.putLong(amountNQT);
-        buffer.putLong(feeNQT);
-        if (referencedTransactionFullHash != null) {
-          buffer.put(Convert.parseHexString(referencedTransactionFullHash));
-        } else {
-          buffer.put(new byte[32]);
-        }
+      buffer.putLong(amountNQT);
+      buffer.putLong(feeNQT);
+      if (referencedTransactionFullHash != null) {
+        buffer.put(Convert.parseHexString(referencedTransactionFullHash));
       } else {
-        buffer.putInt((int) (amountNQT / Constants.ONE_BURST));
-        buffer.putInt((int) (feeNQT / Constants.ONE_BURST));
-        if (referencedTransactionFullHash != null) {
-          buffer.putLong(Convert.fullHashToId(Convert.parseHexString(referencedTransactionFullHash)));
-        } else {
-          buffer.putLong(0L);
-        }
+        buffer.put(new byte[32]);
       }
       buffer.put(signature.get() != null ? signature.get() : new byte[64]);
       if (version > 0) {
@@ -619,7 +607,7 @@ public class Transaction implements Comparable<Transaction> {
       return false;
     }
     byte[] data = zeroSignature(getBytes());
-    return Crypto.verify(signature.get(), data, senderPublicKey, useNQT());
+    return Crypto.verify(signature.get(), data, senderPublicKey, true);
   }
 
   public int getSize() {
@@ -631,13 +619,7 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   private int signatureOffset() {
-    return 1 + 1 + 4 + 2 + 32 + 8 + (useNQT() ? 8 + 8 + 32 : 4 + 4 + 8);
-  }
-
-  private boolean useNQT() {
-    return this.height.get() > Constants.NQT_BLOCK
-        && (this.height.get() < Integer.MAX_VALUE
-            || Burst.getBlockchain().getHeight() >= Constants.NQT_BLOCK);
+    return 1 + 1 + 4 + 2 + 32 + 8 + 8 + 8 + 32;
   }
 
   private byte[] zeroSignature(byte[] data) {
