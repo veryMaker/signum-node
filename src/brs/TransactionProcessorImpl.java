@@ -293,9 +293,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 	  if (blockchain.getLastBlock().getTimestamp() < timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
       return new ArrayList<>();
     }
-    if (blockchain.getHeight() <= Constants.NQT_BLOCK) {
-      return new ArrayList<>();
-    }
+
     List<Transaction> transactions = new ArrayList<>();
     for (JsonElement transactionData : transactionsData) {
       try {
@@ -335,9 +333,6 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
           try {
             stores.beginTransaction();
-            if (blockchain.getHeight() < Constants.NQT_BLOCK) {
-              break; // not ready to process transactions
-            }
 
             if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || unconfirmedTransactionStore.exists(transaction.getId())) {
               stores.commitTransaction();
