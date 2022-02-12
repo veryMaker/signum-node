@@ -55,7 +55,7 @@ public class BurstGUI extends JFrame {
     private static final String ICON_LOCATION = "/images/signum_overlay_logo.png";
     private static final String FAILED_TO_START_MESSAGE = "Signum caught exception while starting";
     private static final String UNEXPECTED_EXIT_MESSAGE = "Signum Quit unexpectedly! Exit code ";
-    
+
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss yyyy-MM-dd");
 
     private static final int OUTPUT_MAX_LINES = 500;
@@ -112,7 +112,7 @@ public class BurstGUI extends JFrame {
             UIManager.put( "nimbusSelectionBackground", new Color( 104, 93, 156) );
             UIManager.put( "text", new Color( 230, 230, 230) );
             LookAndFeel laf = (LookAndFeel) lafc.getConstructor().newInstance();
-            UIManager.setLookAndFeel(laf);                          
+            UIManager.setLookAndFeel(laf);
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -123,30 +123,30 @@ public class BurstGUI extends JFrame {
         	@Override
         	public void append(String str) {
         		super.append(str);
-        		
+
                 while(getText().split("\n", -1).length > OUTPUT_MAX_LINES) {
                     int fle = getText().indexOf('\n');
                     super.replaceRange("", 0, fle+1);
                 }
                 JScrollBar vertical = textScrollPane.getVerticalScrollBar();
-                vertical.setValue( vertical.getMaximum() );        		
+                vertical.setValue( vertical.getMaximum() );
         	}
         };
         iconColor = textArea.getForeground();
         textArea.setEditable(false);
         sendJavaOutputToTextArea(textArea);
-        textScrollPane = new JScrollPane(textArea);        
+        textScrollPane = new JScrollPane(textArea);
         JPanel content = new JPanel(new BorderLayout());
         setContentPane(content);
         content.add(textScrollPane, BorderLayout.CENTER);
-        
+
         toolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         content.add(toolBar, BorderLayout.PAGE_START);
-        
+
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         content.add(bottomPanel, BorderLayout.PAGE_END);
-        
+
         syncProgressBar = new JProgressBar(0, 100);
         syncProgressBar.setStringPainted(true);
         infoLable = new JLabel("Latest block info");
@@ -168,8 +168,8 @@ public class BurstGUI extends JFrame {
         	@Override
         	public void windowClosing(WindowEvent e) {
         		if(trayIcon == null) {
-        			if (JOptionPane.showConfirmDialog(BurstGUI.this, 
-        					"This will stop the node. Are you sure?", "Exit and stop node", 
+        			if (JOptionPane.showConfirmDialog(BurstGUI.this,
+        					"This will stop the node. Are you sure?", "Exit and stop node",
         					JOptionPane.YES_NO_OPTION,
         					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
         				shutdown();
@@ -181,7 +181,7 @@ public class BurstGUI extends JFrame {
         		}
         	}
         });
-        
+
         showWindow();
         new Timer(5000, e -> {
         	try {
@@ -190,7 +190,7 @@ public class BurstGUI extends JFrame {
         			Block block = blockChain.getLastBlock();
         			if(block != null) {
         				Date blockDate = Convert.fromEpochTime(block.getTimestamp());
-        				infoLable.setText("Latest block: " + block.getHeight() + 
+        				infoLable.setText("Latest block: " + block.getHeight() +
         						" Timestamp: " + DATE_FORMAT.format(blockDate));
 
         				Date now = new Date();
@@ -207,7 +207,7 @@ public class BurstGUI extends JFrame {
 				// do nothing on error here
 			}
         }).start();
-        
+
         // Start BRS
         new Thread(this::runBrs).start();
     }
@@ -228,7 +228,7 @@ public class BurstGUI extends JFrame {
 
     private TrayIcon createTrayIcon() {
     	PopupMenu popupMenu = new PopupMenu();
-    	
+
         MenuItem openPheonixWalletItem = new MenuItem("Phoenix Wallet");
         MenuItem openClassicWalletItem = new MenuItem("Classic Wallet");
         MenuItem openApiItem = new MenuItem("API doc");
@@ -243,7 +243,7 @@ public class BurstGUI extends JFrame {
         JButton popOff100Button = new JButton("Pop off 100 blocks", IconFontSwing.buildIcon(FontAwesome.BACKWARD, 18, iconColor));
         // TODO: find a way to actually store permanently the max block available to pop-off, otherwise we can break it
         // JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
-    	
+
         openPhoenixButton.addActionListener(e -> openWebUi("/phoenix"));
         openClassicButton.addActionListener(e -> openWebUi("/classic.html"));
         openApiButton.addActionListener(e -> openWebUi("/api-doc"));
@@ -276,11 +276,11 @@ public class BurstGUI extends JFrame {
     	popupMenu.add(openClassicWalletItem);
     	popupMenu.add(showItem);
     	popupMenu.add(shutdownItem);
-    	
+
     	getContentPane().validate();
 
     	try {
-    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Burst Reference Software", popupMenu);
+    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Signum Node", popupMenu);
     		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
     		if(phoenixIndex.isFile() && phoenixIndex.exists()) {
     		  newTrayIcon.addActionListener(e -> openWebUi("/phoenix"));
@@ -288,9 +288,9 @@ public class BurstGUI extends JFrame {
 
     		SystemTray systemTray = SystemTray.getSystemTray();
     		systemTray.add(newTrayIcon);
-    		
+
     		newTrayIcon.displayMessage("Signum Running", "Signum is running on background, use this icon to interact with it.", MessageType.INFO);
-    		
+
     		return newTrayIcon;
     	} catch (Exception e) {
     		LOGGER.info("Could not create tray icon");
@@ -301,13 +301,13 @@ public class BurstGUI extends JFrame {
     private void showWindow() {
     	setVisible(true);
     }
-    
+
     private void popOff(int blocks) {
     	LOGGER.info("Pop off requested, this can take a while...");
     	int height = blocks > 0 ? Burst.getBlockchain().getLastBlock().getHeight() - blocks : Burst.getBlockchainProcessor().getMinRollbackHeight();
     	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(height)).start();
     }
-    
+
     private void editConf() {
     	File file = new File(Burst.CONF_FOLDER, Burst.PROPERTIES_NAME);
     	if(!file.exists()) {
@@ -316,7 +316,7 @@ public class BurstGUI extends JFrame {
         		file = new File(Burst.DEFAULT_PROPERTIES_NAME);
         	}
     	}
-    	
+
     	if(!file.exists()) {
     		JOptionPane.showMessageDialog(this, "Could not find conf file: " + Burst.DEFAULT_PROPERTIES_NAME, "File not found", JOptionPane.ERROR_MESSAGE);
     		return;
@@ -351,7 +351,7 @@ public class BurstGUI extends JFrame {
             Burst.main(args);
             try {
             	SwingUtilities.invokeLater(() -> showTrayIcon());
-            	
+
                 updateTitle();
                 if (Burst.getBlockchain() == null)
                 	onBrsStopped();

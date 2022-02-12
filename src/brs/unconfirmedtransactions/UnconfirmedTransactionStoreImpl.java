@@ -45,7 +45,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private List<Transaction> unconfirmedFullHash;
   private final int maxPercentageUnconfirmedTransactionsFullHash;
-  
+
   private NetworkParameters params;
 
   public UnconfirmedTransactionStoreImpl(TimeService timeService, PropertyService propertyService, AccountStore accountStore, TransactionDb transactionDb,
@@ -238,7 +238,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   private boolean transactionIsCurrentlyInCache(Transaction transaction) {
     return getTransactionInCache(transaction.getId()) != null;
   }
-  
+
   private Transaction getTransactionInCache(Long transactionId) {
     for (List<Transaction> amountSlot : internalStore.values()) {
       for (Transaction t : amountSlot) {
@@ -247,9 +247,9 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
         }
       }
     }
-    return null;    
+    return null;
   }
-  
+
   private Transaction getTransactionInChache(String fullHash) {
     for (List<Transaction> amountSlot : internalStore.values()) {
       for (Transaction t : amountSlot) {
@@ -258,7 +258,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
         }
       }
     }
-    return null;    
+    return null;
   }
 
   private boolean transactionCanBeAddedToCache(Transaction transaction) {
@@ -287,7 +287,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
     return false;
   }
-  
+
   private boolean hasUnconfirmedFullHash(Transaction transaction) {
     if (!StringUtils.isEmpty(transaction.getReferencedTransactionFullHash())) {
       // When a transaction has a reference hash, assume as a regular transaction if the reference was already confirmed
@@ -304,7 +304,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       return true;
     }
 
-    return false;    
+    return false;
   }
 
   private boolean tooManyTransactionsWithReferencedFullHash(Transaction transaction) {
@@ -356,7 +356,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     if (hasUnconfirmedFullHash(transaction)) {
       unconfirmedFullHash.add(transaction);
     }
-    
+
     if(params != null) {
       params.unconfirmedTransactionAdded(transaction);
     }
@@ -380,7 +380,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       long transactionSize = transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES;
       slot /= transactionSize;
     }
-    
+
     return slot;
   }
 
@@ -403,7 +403,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
       List<Transaction> amountSlot = internalStore.get(amountSlotNumber);
       if(amountSlot.contains(transaction)) {
         amountSlot.remove(transaction);
-        
+
         if (amountSlot.isEmpty()) {
           this.internalStore.remove(amountSlotNumber);
         }
@@ -424,14 +424,13 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
   public long getFreeSlot(int numberOfBlocks) {
     long slotsAvailable = 0;
     long freeSlot = 1;
-    
+
     long txsPerSlot = 1;
     if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // transactions per slot, we assume transactions can occupy up to 2 times the ordinary size
-      txsPerSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, Burst.getBlockchain().getHeight())
-          /(2 * Constants.ORDINARY_TRANSACTION_BYTES);
+      txsPerSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, Burst.getBlockchain().getHeight())/2;
     }
-    
+
     synchronized (internalStore) {
 
       for (Long currentSlot : internalStore.keySet()) {
@@ -441,7 +440,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
           slotsAvailable += numberOfBlocks*currentSlot - txInSlot.size();
         }
         else {
-          // In this mode the slots are per transaction size, so they occupy more bytes and we have less per 
+          // In this mode the slots are per transaction size, so they occupy more bytes and we have less per
           slotsAvailable += numberOfBlocks*txsPerSlot/currentSlot - txInSlot.size();
         }
 

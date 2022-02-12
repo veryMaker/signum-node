@@ -34,21 +34,25 @@ The two supported database backends are:
 
 # Installation
 
-## Prerequisites (All Platforms)
+## Prerequisites
 
-### Java 64-bit 8 (Recommended) or higher
+### Windows
 
-You need Java 64-bit 8 (recommended) or higher installed. To check your java version, run `java -version`. You should get an output similar to the following:
+Any recent 64 bit Windows should suffice (a Java 11 is embedded in the windows package).
+
+### Linux and Mac, Java 64-bit 11 (Recommended) or higher
+
+You need Java 64-bit 11 (recommended) or higher installed.
+Install the `openjdk-11-jre` package or similar for your distribution.
+To check your java version, run `java -version`. You should get an output similar to the following:
 
 ```text
-java version "1.8.0_181"
-Java(TM) SE Runtime Environment (build 1.8.0_181-b13)
-Java HotSpot(TM) 64-Bit Server VM (build 25.181-b13, mixed mode)
+openjdk version "11.0.13" 2021-10-19
+OpenJDK Runtime Environment (build 11.0.13+8-Ubuntu-0ubuntu1.20.04)
+OpenJDK 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 ```
 
-The important part is that the Java version starts with `1.8` (Java 8)
-
-If you do not have Java installed, download it from [Oracle's Website](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
+The important part is that the Java version starts with `11.` (Java 11)
 
 ### MariaDB (Optional)
 
@@ -118,7 +122,7 @@ The SNR ([Signum Network Reward](https://signum.community/signum-snr-awards/)) i
 ## Enter your Signum address here for SNR rewards, see here: https://signum.community/signum-snr-awards/
 P2P.myPlatform = S-ABCD-EFGH-IJKL-MNOP
 ```
-You can check you node using the [explorer](https://explorer.signum.network/peers/).
+You can check your node using the [explorer](https://explorer.signum.network/peers/).
 
 ## Hardware Requirements
 
@@ -137,7 +141,7 @@ If you run the minimum requirement you can turn off the `indirectIncomingService
 node.indirectIncomingService.enable = false
 ```
 
-## Upgrade from 3.2.1 to 3.30 or higher
+## Upgrade from 3.2.1 to 3.3.0 or higher
 
 If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup need **no** adjustments.
 
@@ -150,7 +154,7 @@ If you run a Signum node with a version of 3.2.1 you need to do the following st
 
 ## Testnet
 
-Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node an can be activated by pointing to the other chain aka universe in the config file.
+Starting with the Signum node version 3.3.0 and higher the node is able to handle different chains in a multiverse manner. All parameters for a different chain are set in the code section of the node and can be activated by pointing to the other chain aka universe in the config file.
 No additional setting is needed. 
 
 In order to run a testnet node adjust your `conf/node.properties` to:
@@ -160,7 +164,8 @@ In order to run a testnet node adjust your `conf/node.properties` to:
 node.network = signum.net.TestnetNetwork
 ```
 
-For a MariaDB setup you need to configure a testnet isntance in the config file. The H2 file will be created with a separate name in an automated way.
+If no custom DB is set, a H2 file will be created as `db/signum-testnet.mv.db`.
+For a MariaDB setup you need to configure a testnet instance in the config file.
 
 ### Private Chains
 
@@ -173,11 +178,11 @@ node.network = signum.net.MockNetwork
 This will allow you to forge new blocks as soon as you submit a new nonce.
 Note that P2P is disabled when running in this mode.
 
-# Building
+# Building from sources
 
 ## Building the latest stable release
 
-Run these commands (`master` is always the latest stable release):
+Run these commands (the `main` branch is always the latest stable release):
 
 ```bash
 git clone https://github.com/signum-network/signum-node.git
@@ -193,13 +198,20 @@ Clone the repository as instructed above and run these commands:
 
 ```bash
 git switch develop
-mvn package
+./gradlew dist
 ```
 
-Your packaged release will now be available in the `dist` directory.
+Your packaged release will now be available in the `build/distribution` directory.
 
 **Please note that development builds will refuse to run outside of testnet or a private chain**
 
+## Running the automated tests
+
+Clone the repository as instructed above and run:
+
+```bash
+./gradlew test
+```
 
 ## Updating the Phoenix Wallet
 
@@ -229,7 +241,7 @@ See DOCKER.md for information on running and building docker images.
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)
 Frequent Contributors: 
 - [ohager](https://github.com/ohager). Donation address: [S-9K9L-4CB5-88Y5-F5G4Z](https://explorer.signum.network/?action=account&account=16107620026796983538)
-- [damccull](https://github.com/damccull). Donation address: ???
+- [damccull](https://github.com/damccull).
 
 For more information, see [Credits](doc/Credits.md)
 

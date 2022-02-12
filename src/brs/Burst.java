@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.3.0");
+  public static final Version VERSION = Version.parse("v3.3.3");
   public static final String APPLICATION = "BRS";
 
   public static final String CONF_FOLDER = "./conf";
@@ -91,7 +91,7 @@ public final class Burst {
 
   private static PropertyService loadProperties(String confFolder) {
     logger.info("Initializing Signum Node version {}", VERSION);
-    
+
     logger.info("Configurations from folder {}", confFolder);
     Properties defaultProperties = new Properties();
     try (InputStream is = new FileInputStream(new File(confFolder, DEFAULT_PROPERTIES_NAME))) {
@@ -108,7 +108,7 @@ public final class Burst {
     } catch (IOException e) {
       logger.info("Custom user properties file {} not loaded", PROPERTIES_NAME);
     }
-    
+
     return new PropertyServiceImpl(properties);
   }
 
@@ -160,7 +160,7 @@ public final class Burst {
     }
     return true;
   }
-  
+
   public static void init(Properties customProperties) {
     loadWallet(new PropertyServiceImpl(customProperties));
   }
@@ -185,13 +185,13 @@ public final class Burst {
         System.exit(1);
       }
     }
-    
+
 	if(!validateVersionNotDev(propertyService))
 		return;
 
     try {
       long startTime = System.currentTimeMillis();
-      
+
       // Address prefix and coin name
       BurstKitUtils.setAddressPrefix(propertyService.getString(Props.ADDRESS_PREFIX));
       BurstKitUtils.addAddressPrefix("BURST");
@@ -267,7 +267,7 @@ public final class Burst {
         params.initialize(parameterService, accountService, apiTransactionManager);
         TransactionType.setNetworkParameters(params);
       }
-      
+
       final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
 
       api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,
@@ -275,7 +275,7 @@ public final class Burst {
           subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
           transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator,
           deepLinkQRCodeGenerator, indirectIncomingService, params);
-      
+
       if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED))
         DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
 
