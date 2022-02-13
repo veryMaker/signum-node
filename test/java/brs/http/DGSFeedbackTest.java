@@ -71,7 +71,7 @@ public class DGSFeedbackTest extends AbstractTransactionTest {
     mockStatic(Burst.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
-    doReturn(Constants.FEE_QUANT_CIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
+    doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.DigitalGoodsFeedback attachment = (Attachment.DigitalGoodsFeedback) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
     assertNotNull(attachment);

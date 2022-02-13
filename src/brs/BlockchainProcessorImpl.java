@@ -48,7 +48,7 @@ import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static brs.Constants.FEE_QUANT_CIP3;
+import static brs.Constants.FEE_QUANT_SIP3;
 import static brs.Constants.ONE_BURST;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
@@ -90,7 +90,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final AtomicBoolean getMoreBlocks = new AtomicBoolean(true);
 
   private final AtomicBoolean isScanning = new AtomicBoolean(false);
-  
+
   private final AtomicBoolean isConsistent = new AtomicBoolean(false);
 
   private final boolean autoPopOffEnabled;
@@ -153,13 +153,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     }, Event.BLOCK_PUSHED);
 
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
-    if (trimDerivedTables) {    
-      blockListeners.addListener(block -> { 
+    if (trimDerivedTables) {
+      blockListeners.addListener(block -> {
         if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {
           logger.debug("Trimming derived tables...");
-          this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get())); 
-        }   
-      }, Event.AFTER_BLOCK_APPLY);  
+          this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
+        }
+      }, Event.AFTER_BLOCK_APPLY);
     }
     addGenesisBlock();
     if(Boolean.FALSE.equals(propertyService.getBoolean(Props.DB_SKIP_CHECK)) && checkDatabaseState() != 0) {
@@ -189,7 +189,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               if (downloadCache.isFull()) {
                 return;
               }
-              
+
               // Keep the download cache below the rollback limit
               int cacheHeight = downloadCache.getLastBlock().getHeight();
               if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, cacheHeight) && cacheHeight - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
@@ -230,7 +230,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 betterCumulativeDifficulty = new BigInteger(peerCumulativeDifficulty);
               }
               while(betterCumulativeDifficulty.compareTo(curCumulativeDifficulty) <= 0);
-              
+
               logger.trace("Got a better cumulative difficulty {} than current {}.", betterCumulativeDifficulty, curCumulativeDifficulty);
 
               long commonBlockId = Genesis.GENESIS_BLOCK_ID;
@@ -244,7 +244,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   return;
                 }
               }
-              
+
               // unlocking cache for writing.
               // This must be done before we query where to add blocks.
               // We sync the cache in event of pop off
@@ -526,12 +526,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 if (blockchain.getLastBlock().getId() == block.getPreviousBlockId()) {
                   try {
                     blockService.preVerify(block, blockchain.getLastBlock());
-                    
+
                     logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
                     logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                         block.getCumulativeDifficulty(), block.getCommitment());
-                    
+
                     pushBlock(block);
                     pushedForkBlocks += 1;
                   } catch (InterruptedException e) {
@@ -811,19 +811,19 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockchainStore.addBlock(block);
     blockchain.setLastBlock(block);
   }
-  
+
   private int checkDatabaseState() {
     logger.debug("Block height {}, checking database state...", blockchain.getHeight());
     long totalMined = blockchain.getTotalMined();
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
-    
+
     if(totalMined != totalEffectiveBalance) {
       logger.warn("Block height {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);
     }
-    
+
     isConsistent.set(totalMined == totalEffectiveBalance);
-    
+
     if(logger.isDebugEnabled()) {
       logger.debug("Total mined {}, total effective {}", totalMined, totalEffectiveBalance);
       logger.debug("Database is consistent: {}", isConsistent.get());
@@ -869,7 +869,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       try {
 
         previousLastBlock = blockchain.getLastBlock();
-        
+
         if (previousLastBlock.getId() != block.getPreviousBlockId()) {
           throw new BlockOutOfOrderException(
               "Previous block id doesn't match for block " + block.getHeight()
@@ -910,7 +910,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         long[] feeArray = new long[block.getTransactions().size()];
         int slotIdx = 0;
-        
+
         int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
         int indirectsCount = 0;
 
@@ -963,7 +963,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           if (transactionDuplicatesChecker.hasAnyDuplicate(transaction)) {
             throw new TransactionNotAcceptedException("Transaction is a duplicate: " + transaction.getStringId(), transaction);
           }
-          
+
           int txIndirects = transaction.getType().getIndirectIncomings(transaction).size();
           if(indirectsCount + txIndirects > maxIndirects) {
             throw new TransactionNotAcceptedException("Maximum indirects limit of " + maxIndirects + " reached: " + transaction.getStringId(), transaction);
@@ -992,7 +992,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
-            if (feeArray[i] < Constants.FEE_QUANT_CIP3 * (i + 1)) {
+            if (feeArray[i] < Constants.FEE_QUANT_SIP3 * (i + 1)) {
               throw new BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.getHeight());
             }
           }
@@ -1056,7 +1056,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             "Transaction not accepted: " + transaction.getStringId(), transaction);
       }
     }
-    
+
     long calculatedRemainingAmount = 0;
     long calculatedRemainingFee = 0;
     // ATs
@@ -1094,7 +1094,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private List<Block> popOffTo(Block commonBlock, List<Block> forkBlocks) {
-  
+
     if (commonBlock.getHeight() < getMinRollbackHeight()) {
         throw new IllegalArgumentException("Rollback to height " + commonBlock.getHeight() + " not suppported, " + "current height " + blockchain.getHeight());
     }
@@ -1202,12 +1202,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         ToLongFunction<Transaction> priorityCalculator = transaction -> {
           int age = blockTimestamp + 1 - transaction.getTimestamp();
           if (age < 0) age = 1;
-          
+
           long feePriority = transaction.getFeeNQT() * (transaction.getSize()/Constants.ORDINARY_TRANSACTION_BYTES);
           // So the age has less priority (60 minutes to increase the priority to the next level)
           // TODO: consider giving priority based on the last sent transaction and not transaction age to improve spam protection
           long priority = (feePriority * 60) + Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT)*age;
-          
+
           return priority;
         };
 
@@ -1228,7 +1228,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
-            long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_CIP3)) / FEE_QUANT_CIP3;
+            long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_SIP3)) / FEE_QUANT_SIP3;
             slot = Math.min(Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
             TreeMap<Long, Transaction> utxInSlot = unconfirmedTransactionsOrderedBySlotThenPriority.get(slot);
             if(utxInSlot == null) {
@@ -1242,7 +1242,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             }
             utxInSlot.put(priority, transaction);
           });
-        
+
           // Fill the unconfirmed transactions to be included from top to bottom
           Map<Long, Transaction> slotTransactionsToBeincluded = new HashMap<>();
           int maxSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
@@ -1298,7 +1298,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           } else if (transaction.getSize() > payloadSize) {
             continue;
           }
-          
+
           int txIndirects = transaction.getType().getIndirectIncomings(transaction).size();
           if(indirectsCount + txIndirects > maxIndirects) {
             // skip this transaction, max indirects per block reached
@@ -1306,7 +1306,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
           indirectsCount += txIndirects;
 
-          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_CIP3 : ONE_BURST;
+          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_SIP3 : ONE_BURST;
           if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
             // we already got the list by priority, no need to check the fees again
             slotFee = FEE_QUANT;

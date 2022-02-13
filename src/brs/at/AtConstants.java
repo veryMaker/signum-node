@@ -51,11 +51,11 @@ public class AtConstants {
 
         // constants for AT version 2
         MIN_FEE.put((short) 2, 1000L);
-        STEP_FEE.put((short) 2, Constants.FEE_QUANT_CIP3 / 10L);
+        STEP_FEE.put((short) 2, Constants.FEE_QUANT_SIP3 / 10L);
         MAX_STEPS.put((short) 2, 100_000L);
         API_STEP_MULTIPLIER.put((short) 2, 10L);
 
-        COST_PER_PAGE.put((short) 2, Constants.FEE_QUANT_CIP3 * 10);
+        COST_PER_PAGE.put((short) 2, Constants.FEE_QUANT_SIP3 * 10);
 
         MAX_WAIT_FOR_NUM_OF_BLOCKS.put((short) 2, 31536000L);
         MAX_SLEEP_BETWEEN_BLOCKS.put((short) 2, 31536000L);
