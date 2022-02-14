@@ -51,6 +51,7 @@ public class Transaction implements Comparable<Transaction> {
     private String fullHash;
     private int ecBlockHeight;
     private long ecBlockId;
+    private long cashBackId;
 
     public Builder(byte version, byte[] senderPublicKey, long amountNQT, long feeNQT, int timestamp, short deadline,
                        Attachment.AbstractAttachment attachment) {
@@ -70,6 +71,11 @@ public class Transaction implements Comparable<Transaction> {
 
     public Builder recipientId(long recipientId) {
       this.recipientId = recipientId;
+      return this;
+    }
+
+    public Builder cashBackId(long cashBackId) {
+      this.cashBackId = cashBackId;
       return this;
     }
 
@@ -168,6 +174,7 @@ public class Transaction implements Comparable<Transaction> {
   private final TransactionType type;
   private final int ecBlockHeight;
   private final long ecBlockId;
+  private final long cashBackId;
   private final byte version;
   private final int timestamp;
   private final Attachment.AbstractAttachment attachment;
@@ -208,6 +215,7 @@ public class Transaction implements Comparable<Transaction> {
     this.fullHash.set(builder.fullHash);
     this.ecBlockHeight = builder.ecBlockHeight;
     this.ecBlockId = builder.ecBlockId;
+    this.cashBackId = builder.cashBackId;
 
     List<Appendix.AbstractAppendix> list = new ArrayList<>();
     if ((this.attachment = builder.attachment) != null) {
@@ -278,7 +286,7 @@ public class Transaction implements Comparable<Transaction> {
   public long getFeeNQT() {
     return feeNQT;
   }
-  
+
   public long getFeeNQTPerByte() {
     return feeNQT/getSize();
   }
@@ -434,6 +442,9 @@ public class Transaction implements Comparable<Transaction> {
         buffer.putInt(getFlags());
         buffer.putInt(ecBlockHeight);
         buffer.putLong(ecBlockId);
+        if (version > 1) {
+          buffer.putLong(cashBackId);
+        }
       }
       appendages.forEach(appendage -> appendage.putBytes(buffer));
       return buffer.array();
@@ -472,10 +483,14 @@ public class Transaction implements Comparable<Transaction> {
       int flags = 0;
       int ecBlockHeight = 0;
       long ecBlockId = 0;
+      long cashBackId = 0;
       if (version > 0) {
         flags = buffer.getInt();
         ecBlockHeight = buffer.getInt();
         ecBlockId = buffer.getLong();
+        if (version > 1){
+          cashBackId = buffer.getLong();
+        }
       }
       TransactionType transactionType = TransactionType.findTransactionType(type, subtype);
       Transaction.Builder builder = new Transaction.Builder(version, senderPublicKey, amountNQT, feeNQT,
@@ -483,7 +498,8 @@ public class Transaction implements Comparable<Transaction> {
           .referencedTransactionFullHash(referencedTransactionFullHash)
           .signature(signature)
           .ecBlockHeight(ecBlockHeight)
-          .ecBlockId(ecBlockId);
+          .ecBlockId(ecBlockId)
+          .cashBackId(cashBackId);
       if (transactionType.hasRecipient()) {
         builder.recipientId(recipientId);
       }
@@ -520,6 +536,7 @@ public class Transaction implements Comparable<Transaction> {
     }
     json.addProperty("ecBlockHeight", ecBlockHeight);
     json.addProperty("ecBlockId", Convert.toUnsignedLong(ecBlockId));
+    json.addProperty("cashBackId", Convert.toUnsignedLong(cashBackId));
     json.addProperty("signature", Convert.toHexString(signature.get()));
     JsonObject attachmentJSON = new JsonObject();
     appendages.forEach(appendage -> JSON.addAll(attachmentJSON, appendage.getJsonObject()));
@@ -562,6 +579,9 @@ public class Transaction implements Comparable<Transaction> {
       if (version > 0) {
         builder.ecBlockHeight(JSON.getAsInt(transactionData.get("ecBlockHeight")));
         builder.ecBlockId(Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("ecBlockId"))));
+        if (version > 1) {
+          builder.cashBackId(Convert.parseUnsignedLong(JSON.getAsString(transactionData.get("cashBackId"))));
+        }
       }
       return builder.build();
     } catch (BurstException.NotValidException|RuntimeException e) {
@@ -579,6 +599,10 @@ public class Transaction implements Comparable<Transaction> {
 
   public long getECBlockId() {
     return ecBlockId;
+  }
+
+  public long getCashBackId() {
+    return cashBackId;
   }
 
   public void sign(String secretPhrase) {
@@ -611,7 +635,7 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public int getSize() {
-    return signatureOffset() + 64  + (version > 0 ? 4 + 4 + 8 : 0) + appendagesSize;
+    return signatureOffset() + 64  + (version > 0 ? 4 + 4 + 8 + (version > 1 ? 8 : 0) : 0) + appendagesSize;
   }
 
   public int getAppendagesSize() {

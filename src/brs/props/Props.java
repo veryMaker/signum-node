@@ -3,10 +3,10 @@ package brs.props;
 import brs.Burst;
 
 public class Props {
-  
+
   public static final Prop<String> APPLICATION = new Prop<>("node.application", Burst.APPLICATION);
   public static final Prop<String> VERSION = new Prop<>("node.version", Burst.VERSION.toString());
-  
+
   // Structural parameters
   public static final Prop<Integer> BLOCK_TIME = new Prop<>("node.blockTime", 240);
   public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("node.decimalPlaces", 8);
@@ -23,7 +23,11 @@ public class Props {
   public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("node.blockRewardCycle", 95);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("node.blockLimitHeight", 972_000);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("node.blockLimitAmount", 100);
-  
+
+  // Transaction fee cash back options
+  public static final Prop<String> CASH_BACK_ID = new Prop<>("node.cashBackId", "8952122635653861124");
+  public static final Prop<Integer> CASH_BACK_NUMERATOR = new Prop<>("node.cashBackNumerator", 4);
+
   public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("node.network", null);
 
   // DEV options
@@ -47,7 +51,7 @@ public class Props {
   public static final Prop<Integer> POC_PLUS_HEIGHT = new Prop<>("brs.pocPlus.startBlock", -1);
   public static final Prop<Integer> SPEEDWAY_HEIGHT = new Prop<>("brs.speedway.startBlock", -1);
   public static final Prop<Integer> SMART_TOKEN_HEIGHT = new Prop<>("brs.smartToken.startBlock", -1);
-  
+
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
@@ -60,7 +64,7 @@ public class Props {
   public static final Prop<Integer> BRS_COMMUNICATION_LOGGING_MASK = new Prop<>("brs.communicationLoggingMask", 0);
 
   public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("node.shutdownTimeout", 180);
-  
+
   public static final Prop<Integer> MAX_INDIRECTS_PER_BLOCK = new Prop<>("node.maxIndirectsPerBlock", 1_200_000);
 
   // Checkpoint block for faster sync from empty database
