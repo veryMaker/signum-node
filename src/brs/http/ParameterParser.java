@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.bouncycastle.util.encoders.Hex;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -228,12 +227,17 @@ public final class ParameterParser {
     try {
       String creationBytes = req.getParameter(CREATION_BYTES_PARAMETER);
       if(creationBytes == null) {
-        // Check the body for the creationBytes as an alternative
-        creationBytes = req.getReader().readLine();
-        creationBytes = creationBytes.replace("\"", "");
+        // Check the body for the creationBytes as an optional alternative
+        try {
+          creationBytes = req.getReader().readLine();
+          creationBytes = creationBytes.replace("\"", "");
+        }
+        catch (Exception ignored){
+          return null;
+        }
       }
       return Convert.parseHexString(creationBytes);
-    } catch (RuntimeException | IOException e) {
+    } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_CREATION_BYTES);
     }
   }
