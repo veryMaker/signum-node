@@ -57,18 +57,14 @@ final class CreateATProgram extends CreateTransaction {
       return INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION;
     }
 
-    byte[] creationBytes = null;
-
-    if (req.getParameter(CREATION_BYTES_PARAMETER) != null) {
-      creationBytes = ParameterParser.getCreationBytes(req);
-    }
-    else {
+    byte[] creationBytes = ParameterParser.getCreationBytes(req);
+    if(creationBytes == null) {
       try {
         String code = req.getParameter(CODE_PARAMETER);
         if (code!=null && (code.length() & 1) != 0) {
           throw new IllegalArgumentException();
         }
-        
+
         short version = AtConstants.getInstance().atVersion(blockchain.getHeight());
         int cpages = 0;
         int dpages = 0;
