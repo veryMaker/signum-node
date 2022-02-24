@@ -195,12 +195,12 @@ public class Purchase extends TableImpl<PurchaseRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.PURCHASE_PURCHASE_BUYER_ID_HEIGHT_IDX, Indexes.PURCHASE_PURCHASE_DEADLINE_IDX, Indexes.PURCHASE_PURCHASE_SELLER_ID_HEIGHT_IDX, Indexes.PURCHASE_PURCHASE_TIMESTAMP_IDX);
+        return Arrays.asList(Indexes.PURCHASE_PURCHASE_BUYER_ID_HEIGHT_IDX, Indexes.PURCHASE_PURCHASE_DEADLINE_IDX, Indexes.PURCHASE_PURCHASE_SELLER_ID_HEIGHT_IDX, Indexes.PURCHASE_PURCHASE_TIMESTAMP_IDX);
     }
 
     @Override
@@ -214,8 +214,8 @@ public class Purchase extends TableImpl<PurchaseRecord> {
     }
 
     @Override
-    public List<UniqueKey<PurchaseRecord>> getKeys() {
-        return Arrays.<UniqueKey<PurchaseRecord>>asList(Keys.KEY_PURCHASE_PRIMARY, Keys.KEY_PURCHASE_PURCHASE_ID_HEIGHT_IDX);
+    public List<UniqueKey<PurchaseRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_PURCHASE_PURCHASE_ID_HEIGHT_IDX);
     }
 
     @Override

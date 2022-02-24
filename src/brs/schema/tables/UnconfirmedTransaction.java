@@ -125,12 +125,12 @@ public class UnconfirmedTransaction extends TableImpl<UnconfirmedTransactionReco
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.UNCONFIRMED_TRANSACTION_UNCONFIRMED_TRANSACTION_HEIGHT_FEE_TIMESTAMP_IDX);
+        return Arrays.asList(Indexes.UNCONFIRMED_TRANSACTION_UNCONFIRMED_TRANSACTION_HEIGHT_FEE_TIMESTAMP_IDX);
     }
 
     @Override
@@ -144,8 +144,8 @@ public class UnconfirmedTransaction extends TableImpl<UnconfirmedTransactionReco
     }
 
     @Override
-    public List<UniqueKey<UnconfirmedTransactionRecord>> getKeys() {
-        return Arrays.<UniqueKey<UnconfirmedTransactionRecord>>asList(Keys.KEY_UNCONFIRMED_TRANSACTION_PRIMARY, Keys.KEY_UNCONFIRMED_TRANSACTION_UNCONFIRMED_TRANSACTION_ID_IDX);
+    public List<UniqueKey<UnconfirmedTransactionRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_UNCONFIRMED_TRANSACTION_UNCONFIRMED_TRANSACTION_ID_IDX);
     }
 
     @Override

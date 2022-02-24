@@ -101,6 +101,9 @@ public class SqlTransactionDb implements TransactionDb {
       builder.ecBlockHeight(tr.getEcBlockHeight());
       builder.ecBlockId(Optional.ofNullable(tr.getEcBlockId()).orElse(0L));
     }
+    if (tr.getVersion() > 1) {
+      builder.cashBackId(tr.getCashBackId());
+    }
 
     return builder.build();
   }

@@ -130,12 +130,12 @@ public class BidOrder extends TableImpl<BidOrderRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.BID_ORDER_BID_ORDER_ACCOUNT_ID_IDX, Indexes.BID_ORDER_BID_ORDER_ASSET_ID_PRICE_IDX, Indexes.BID_ORDER_BID_ORDER_CREATION_IDX);
+        return Arrays.asList(Indexes.BID_ORDER_BID_ORDER_ACCOUNT_ID_IDX, Indexes.BID_ORDER_BID_ORDER_ASSET_ID_PRICE_IDX, Indexes.BID_ORDER_BID_ORDER_CREATION_IDX);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class BidOrder extends TableImpl<BidOrderRecord> {
     }
 
     @Override
-    public List<UniqueKey<BidOrderRecord>> getKeys() {
-        return Arrays.<UniqueKey<BidOrderRecord>>asList(Keys.KEY_BID_ORDER_PRIMARY, Keys.KEY_BID_ORDER_BID_ORDER_ID_HEIGHT_IDX);
+    public List<UniqueKey<BidOrderRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_BID_ORDER_BID_ORDER_ID_HEIGHT_IDX);
     }
 
     @Override

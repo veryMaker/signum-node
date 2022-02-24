@@ -191,7 +191,7 @@ public class Db extends SchemaImpl {
 
     @Override
     public final List<Table<?>> getTables() {
-        return Arrays.<Table<?>>asList(
+        return Arrays.asList(
             Account.ACCOUNT,
             AccountAsset.ACCOUNT_ASSET,
             Alias.ALIAS,
@@ -216,6 +216,7 @@ public class Db extends SchemaImpl {
             Subscription.SUBSCRIPTION,
             Trade.TRADE,
             Transaction.TRANSACTION,
-            UnconfirmedTransaction.UNCONFIRMED_TRANSACTION);
+            UnconfirmedTransaction.UNCONFIRMED_TRANSACTION
+        );
     }
 }

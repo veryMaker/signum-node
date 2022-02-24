@@ -140,12 +140,12 @@ public class AtState extends TableImpl<AtStateRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.AT_STATE_AT_STATE_ID_NEXT_HEIGHT_HEIGHT_IDX);
+        return Arrays.asList(Indexes.AT_STATE_AT_STATE_ID_NEXT_HEIGHT_HEIGHT_IDX);
     }
 
     @Override
@@ -159,8 +159,8 @@ public class AtState extends TableImpl<AtStateRecord> {
     }
 
     @Override
-    public List<UniqueKey<AtStateRecord>> getKeys() {
-        return Arrays.<UniqueKey<AtStateRecord>>asList(Keys.KEY_AT_STATE_PRIMARY, Keys.KEY_AT_STATE_AT_STATE_AT_ID_HEIGHT_IDX);
+    public List<UniqueKey<AtStateRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_AT_STATE_AT_STATE_AT_ID_HEIGHT_IDX);
     }
 
     @Override

@@ -120,12 +120,12 @@ public class RewardRecipAssign extends TableImpl<RewardRecipAssignRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_RECIP_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_RECIP_ID_HEIGHT_IDX);
     }
 
     @Override
@@ -139,8 +139,8 @@ public class RewardRecipAssign extends TableImpl<RewardRecipAssignRecord> {
     }
 
     @Override
-    public List<UniqueKey<RewardRecipAssignRecord>> getKeys() {
-        return Arrays.<UniqueKey<RewardRecipAssignRecord>>asList(Keys.KEY_REWARD_RECIP_ASSIGN_PRIMARY, Keys.KEY_REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_ACCOUNT_ID_HEIGHT_IDX);
+    public List<UniqueKey<RewardRecipAssignRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_ACCOUNT_ID_HEIGHT_IDX);
     }
 
     @Override

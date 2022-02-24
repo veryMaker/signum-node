@@ -130,12 +130,12 @@ public class Asset extends TableImpl<AssetRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.ASSET_ASSET_ACCOUNT_ID_IDX);
+        return Arrays.asList(Indexes.ASSET_ASSET_ACCOUNT_ID_IDX);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class Asset extends TableImpl<AssetRecord> {
     }
 
     @Override
-    public List<UniqueKey<AssetRecord>> getKeys() {
-        return Arrays.<UniqueKey<AssetRecord>>asList(Keys.KEY_ASSET_PRIMARY, Keys.KEY_ASSET_ASSET_ID_IDX);
+    public List<UniqueKey<AssetRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ASSET_ASSET_ID_IDX);
     }
 
     @Override

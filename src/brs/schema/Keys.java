@@ -63,8 +63,7 @@ import org.jooq.impl.Internal;
 
 
 /**
- * A class modelling foreign key relationships and constraints of tables in 
- * DB.
+ * A class modelling foreign key relationships and constraints of tables in DB.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Keys {

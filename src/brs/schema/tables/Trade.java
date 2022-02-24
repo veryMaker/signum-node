@@ -150,12 +150,12 @@ public class Trade extends TableImpl<TradeRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.TRADE_TRADE_ASSET_ID_IDX, Indexes.TRADE_TRADE_BUYER_ID_IDX, Indexes.TRADE_TRADE_SELLER_ID_IDX);
+        return Arrays.asList(Indexes.TRADE_TRADE_ASSET_ID_IDX, Indexes.TRADE_TRADE_BUYER_ID_IDX, Indexes.TRADE_TRADE_SELLER_ID_IDX);
     }
 
     @Override
@@ -169,8 +169,8 @@ public class Trade extends TableImpl<TradeRecord> {
     }
 
     @Override
-    public List<UniqueKey<TradeRecord>> getKeys() {
-        return Arrays.<UniqueKey<TradeRecord>>asList(Keys.KEY_TRADE_PRIMARY, Keys.KEY_TRADE_TRADE_ASK_BID_IDX);
+    public List<UniqueKey<TradeRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_TRADE_TRADE_ASK_BID_IDX);
     }
 
     @Override

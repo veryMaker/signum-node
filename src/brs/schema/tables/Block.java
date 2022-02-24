@@ -185,12 +185,12 @@ public class Block extends TableImpl<BlockRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.BLOCK_BLOCK_GENERATOR_ID_IDX);
+        return Arrays.asList(Indexes.BLOCK_BLOCK_GENERATOR_ID_IDX);
     }
 
     @Override
@@ -204,13 +204,13 @@ public class Block extends TableImpl<BlockRecord> {
     }
 
     @Override
-    public List<UniqueKey<BlockRecord>> getKeys() {
-        return Arrays.<UniqueKey<BlockRecord>>asList(Keys.KEY_BLOCK_PRIMARY, Keys.KEY_BLOCK_BLOCK_ID_IDX, Keys.KEY_BLOCK_BLOCK_TIMESTAMP_IDX, Keys.KEY_BLOCK_BLOCK_HEIGHT_IDX);
+    public List<UniqueKey<BlockRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_BLOCK_BLOCK_ID_IDX, Keys.KEY_BLOCK_BLOCK_TIMESTAMP_IDX, Keys.KEY_BLOCK_BLOCK_HEIGHT_IDX);
     }
 
     @Override
     public List<ForeignKey<BlockRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<BlockRecord, ?>>asList(Keys.CONSTRAINT_3C, Keys.CONSTRAINT_3C5);
+        return Arrays.asList(Keys.CONSTRAINT_3C, Keys.CONSTRAINT_3C5);
     }
 
     private transient Block _constraint_3c;

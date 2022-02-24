@@ -130,12 +130,12 @@ public class Alias extends TableImpl<AliasRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.ALIAS_ALIAS_ACCOUNT_ID_IDX, Indexes.ALIAS_ALIAS_NAME_LOWER_IDX);
+        return Arrays.asList(Indexes.ALIAS_ALIAS_ACCOUNT_ID_IDX, Indexes.ALIAS_ALIAS_NAME_LOWER_IDX);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class Alias extends TableImpl<AliasRecord> {
     }
 
     @Override
-    public List<UniqueKey<AliasRecord>> getKeys() {
-        return Arrays.<UniqueKey<AliasRecord>>asList(Keys.KEY_ALIAS_PRIMARY, Keys.KEY_ALIAS_ALIAS_ID_HEIGHT_IDX);
+    public List<UniqueKey<AliasRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ALIAS_ALIAS_ID_HEIGHT_IDX);
     }
 
     @Override

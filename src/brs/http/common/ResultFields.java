@@ -133,6 +133,7 @@ public class ResultFields {
   public static final String ATTACHMENT_BYTES_RESPONSE = "attachmentBytes";
   public static final String EC_BLOCK_ID_RESPONSE = "ecBlockId";
   public static final String EC_BLOCK_HEIGHT_RESPONSE = "ecBlockHeight";
+  public static final String CASH_BACK_ID_RESPONSE = "cashBackId";
   public static final String FREQUENCY_RESPONSE = "frequency";
   public static final String TIME_NEXT_RESPONSE = "timeNext";
   public static final String BLOCK_IDS_RESPONSE = "blockIds";

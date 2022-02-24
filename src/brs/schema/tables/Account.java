@@ -145,12 +145,12 @@ public class Account extends TableImpl<AccountRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX, Indexes.ACCOUNT_ACCOUNT_ID_LATEST_IDX);
+        return Arrays.asList(Indexes.ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX, Indexes.ACCOUNT_ACCOUNT_ID_LATEST_IDX);
     }
 
     @Override
@@ -164,8 +164,8 @@ public class Account extends TableImpl<AccountRecord> {
     }
 
     @Override
-    public List<UniqueKey<AccountRecord>> getKeys() {
-        return Arrays.<UniqueKey<AccountRecord>>asList(Keys.KEY_ACCOUNT_PRIMARY, Keys.KEY_ACCOUNT_ACCOUNT_ID_HEIGHT_IDX);
+    public List<UniqueKey<AccountRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ACCOUNT_ACCOUNT_ID_HEIGHT_IDX);
     }
 
     @Override
