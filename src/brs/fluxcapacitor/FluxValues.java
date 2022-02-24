@@ -32,10 +32,12 @@ public class FluxValues {
 
     public static final FluxValue<Integer> MAX_NUMBER_TRANSACTIONS = new FluxValue<>(
         255,
-        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 4));
+        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 4),
+        new FluxValue.ValueChange<>(HistoricalMoments.NEXT_FORK, 255 * 4 * 2));
     public static final FluxValue<Integer> MAX_PAYLOAD_LENGTH = new FluxValue<>(
         255 * 176,
-        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 176 * 4));
+        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 176 * 4),
+        new FluxValue.ValueChange<>(HistoricalMoments.NEXT_FORK, 255 * (176 + 8) * 4 * 2));
 
     public static final FluxValue<Long> MIN_CAPACITY = new FluxValue<>(
         1000L);
