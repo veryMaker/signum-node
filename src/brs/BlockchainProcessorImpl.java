@@ -1321,7 +1321,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 payloadSize -= transaction.getSize();
                 totalAmountNQT += transaction.getAmountNQT();
                 totalFeeNQT += transaction.getFeeNQT();
-                if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, previousBlock.getHeight() + 1)){
+                if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)){
                   totalFeeCashBackNQT += transaction.getFeeNQT() / propertyService.getInt(Props.CASH_BACK_FACTOR);
                 }
                 orderedBlockTransactions.add(transaction);
@@ -1341,9 +1341,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         if (subscriptionService.isEnabled()) {
           subscriptionService.clearRemovals();
-          long subscriptionFeeNQT = subscriptionService.calculateFees(blockTimestamp, previousBlock.getHeight() + 1);
+          long subscriptionFeeNQT = subscriptionService.calculateFees(blockTimestamp, blockHeight);
           totalFeeNQT += subscriptionFeeNQT;
-          if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, previousBlock.getHeight() + 1)) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)) {
             totalFeeBurntNQT += subscriptionFeeNQT;
           }
         }

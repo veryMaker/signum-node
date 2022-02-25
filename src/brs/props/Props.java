@@ -26,7 +26,7 @@ public class Props {
 
   // Transaction fee cash back options
   public static final Prop<String> CASH_BACK_ID = new Prop<>("node.cashBackId", "8952122635653861124");
-  public static final Prop<Integer> CASH_BACK_NUMERATOR = new Prop<>("node.cashBackNumerator", 4);
+  public static final Prop<Integer> CASH_BACK_FACTOR = new Prop<>("node.cashBackFactor", 4);
 
   public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("node.network", null);
 
