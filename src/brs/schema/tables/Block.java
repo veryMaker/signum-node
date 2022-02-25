@@ -156,9 +156,9 @@ public class Block extends TableImpl<BlockRecord> {
     public final TableField<BlockRecord, Long> TOTAL_FEE_CASH_BACK = createField(DSL.name("total_fee_cash_back"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
 
     /**
-     * The column <code>DB.block.total_fee_ats</code>.
+     * The column <code>DB.block.total_fee_burnt</code>.
      */
-    public final TableField<BlockRecord, Long> TOTAL_FEE_ATS = createField(DSL.name("total_fee_ats"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
+    public final TableField<BlockRecord, Long> TOTAL_FEE_BURNT = createField(DSL.name("total_fee_burnt"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
 
     private Block(Name alias, Table<BlockRecord> aliased) {
         this(alias, aliased, null);

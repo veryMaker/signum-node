@@ -89,7 +89,7 @@ public class SqlBlockDb implements BlockDb {
     long totalAmountNQT             = r.getTotalAmount();
     long totalFeeNQT                = r.getTotalFee();
     long totalFeeCashBackNQT        = r.getTotalFeeCashBack();
-    long totalFeeATsNQT             = r.getTotalFeeAts();
+    long totalFeeBurntNQT           = r.getTotalFeeBurnt();
     int payloadLength               = r.getPayloadLength();
     byte[] generatorPublicKey       = r.getGeneratorPublicKey();
     byte[] previousBlockHash        = r.getPreviousBlockHash();
@@ -105,7 +105,7 @@ public class SqlBlockDb implements BlockDb {
     byte[] blockATs                 = r.getAts();
 
     return new Block(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT,
-                         totalFeeCashBackNQT, totalFeeATsNQT,
+                         totalFeeCashBackNQT, totalFeeBurntNQT,
                          payloadLength, payloadHash,
                          generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
                          cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs);

@@ -1187,10 +1187,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       long totalAmountNQT = 0;
       long totalFeeNQT = 0;
       long totalFeeCashBackNQT = 0;
-      long totalFeeATsNQT = 0;
+      long totalFeeBurntNQT = 0;
 
       final Block previousBlock = blockchain.getLastBlock();
       final int blockTimestamp = timeService.getEpochTime();
+      final int blockHeight = previousBlock.getHeight() + 1;
 
       // this is just an validation. which collects all valid transactions, which fit into the block
       // finally all stuff is reverted so nothing is written to the db
@@ -1340,7 +1341,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         if (subscriptionService.isEnabled()) {
           subscriptionService.clearRemovals();
-          totalFeeNQT += subscriptionService.calculateFees(blockTimestamp, previousBlock.getHeight() + 1);
+          long subscriptionFeeNQT = subscriptionService.calculateFees(blockTimestamp, previousBlock.getHeight() + 1);
+          totalFeeNQT += subscriptionFeeNQT;
+          if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, previousBlock.getHeight() + 1)) {
+            totalFeeBurntNQT += subscriptionFeeNQT;
+          }
         }
       }
       catch (Exception e) {
@@ -1354,7 +1359,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
       // ATs for block
       long generatorId = Account.getId(publicKey);
-      int blockHeight = previousBlock.getHeight() + 1;
       AT.clearPendingFees(blockHeight, generatorId);
       AT.clearPendingTransactions(blockHeight, generatorId);
       AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, blockHeight, generatorId);
@@ -1365,7 +1369,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         payloadSize    -= byteATs.length;
         totalFeeNQT    += atBlock.getTotalFees();
         if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)) {
-          totalFeeATsNQT += atBlock.getTotalFees();
+          totalFeeBurntNQT += atBlock.getTotalFees();
         }
         totalAmountNQT += atBlock.getTotalAmount();
       }
@@ -1381,7 +1385,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       byte[] previousBlockHash = Crypto.sha256().digest(previousBlock.getBytes());
       try {
         block = new Block(getBlockVersion(), blockTimestamp,
-            previousBlock.getId(), totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeATsNQT,
+            previousBlock.getId(), totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeBurntNQT,
             Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
             byteATs, previousBlock.getHeight(), Constants.INITIAL_BASE_TARGET);

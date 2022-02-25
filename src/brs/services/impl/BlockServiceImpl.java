@@ -213,10 +213,10 @@ public class BlockServiceImpl implements BlockService {
       long rewardFeesNQT = block.getTotalFeeNQT();
       if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
         rewardFeesNQT -= block.getTotalFeeCashBackNQT();
-        rewardFeesNQT -= block.getTotalFeeATsNQT();
+        rewardFeesNQT -= block.getTotalFeeBurntNQT();
 
         Account nullAccount = accountService.getOrAddAccount(0L);
-        accountService.addToBalanceAndUnconfirmedBalanceNQT(nullAccount, block.getTotalFeeATsNQT());
+        accountService.addToBalanceAndUnconfirmedBalanceNQT(nullAccount, block.getTotalFeeBurntNQT());
       }
       accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);
       accountService.addToForgedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);

@@ -29,7 +29,7 @@ public class Block {
   private final byte[] previousBlockHash;
   private final long totalAmountNQT;
   private final long totalFeeNQT;
-  private final long totalFeeATsNQT;
+  private final long totalFeeBurntNQT;
   private final long totalFeeCashBackNQT;
   private final int payloadLength;
   private final byte[] generationSignature;
@@ -57,7 +57,7 @@ public class Block {
   private int byteLength = 0;
 
   Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT,
-      long totalFeeCashBackNQT, long totalFeeATsNQT,
+      long totalFeeCashBackNQT, long totalFeeBurntNQT,
       int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature,
       byte[] blockSignature, byte[] previousBlockHash, List<Transaction> transactions,
       long nonce, byte[] blockATs, int height, long baseTarget) throws BurstException.ValidationException {
@@ -73,7 +73,7 @@ public class Block {
     this.totalAmountNQT = totalAmountNQT;
     this.totalFeeNQT = totalFeeNQT;
     this.totalFeeCashBackNQT = totalFeeCashBackNQT;
-    this.totalFeeATsNQT = totalFeeATsNQT;
+    this.totalFeeBurntNQT = totalFeeBurntNQT;
     this.payloadLength = payloadLength;
     this.payloadHash = payloadHash;
     this.generatorPublicKey = generatorPublicKey;
@@ -101,11 +101,11 @@ public class Block {
   }
 
   public Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT,
-      long totalFeeCashBackNQT, long totalFeeATsNQT,
+      long totalFeeCashBackNQT, long totalFeeBurntNQT,
       int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature, byte[] blockSignature, byte[] previousBlockHash, BigInteger cumulativeDifficulty, long baseTarget,
       long nextBlockId, int height, Long id, long nonce, byte[] blockATs) throws BurstException.ValidationException {
 
-    this(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeATsNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height, baseTarget);
+    this(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeBurntNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height, baseTarget);
 
     this.cumulativeDifficulty = cumulativeDifficulty == null ? BigInteger.ZERO : cumulativeDifficulty;
     this.nextBlockId.set(nextBlockId);
@@ -173,8 +173,8 @@ public class Block {
     return totalFeeCashBackNQT;
   }
 
-  public long getTotalFeeATsNQT() {
-    return totalFeeATsNQT;
+  public long getTotalFeeBurntNQT() {
+    return totalFeeBurntNQT;
   }
 
   public int getPayloadLength() {
@@ -299,7 +299,7 @@ public class Block {
     json.addProperty("totalAmountNQT", totalAmountNQT);
     json.addProperty("totalFeeNQT", totalFeeNQT);
     json.addProperty("totalFeeCashBackNQT", totalFeeCashBackNQT);
-    json.addProperty("totalFeeATsNQT", totalFeeATsNQT);
+    json.addProperty("totalFeeBurntNQT", totalFeeBurntNQT);
     json.addProperty("payloadLength", payloadLength);
     json.addProperty("payloadHash", Convert.toHexString(payloadHash));
     json.addProperty("generatorPublicKey", Convert.toHexString(generatorPublicKey));
@@ -325,10 +325,10 @@ public class Block {
       long totalAmountNQT = JSON.getAsLong(blockData.get("totalAmountNQT"));
       long totalFeeNQT = JSON.getAsLong(blockData.get("totalFeeNQT"));
       long totalFeeCashBackNQT = 0L;
-      long totalFeeATsNQT = 0L;
+      long totalFeeBurntNQT = 0L;
       if (version > 3){
         totalFeeCashBackNQT = JSON.getAsLong(blockData.get("totalFeeCashBackNQT"));
-        totalFeeATsNQT = JSON.getAsLong(blockData.get("totalFeeATsNQT"));
+        totalFeeBurntNQT = JSON.getAsLong(blockData.get("totalFeeBurntNQT"));
       }
       int payloadLength = JSON.getAsInt(blockData.get("payloadLength"));
       byte[] payloadHash = Convert.parseHexString(JSON.getAsString(blockData.get("payloadHash")));
@@ -355,7 +355,7 @@ public class Block {
 
       byte[] blockATs = Convert.parseHexString(JSON.getAsString(blockData.get("blockATs")));
       return new Block(version, timestamp, previousBlock, totalAmountNQT, totalFeeNQT,
-          totalFeeCashBackNQT, totalFeeATsNQT,
+          totalFeeCashBackNQT, totalFeeBurntNQT,
           payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
           previousBlockHash, new ArrayList<>(blockTransactions.values()), nonce, blockATs, height, baseTarget);
     } catch (BurstException.ValidationException | RuntimeException e) {

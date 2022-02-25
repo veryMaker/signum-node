@@ -316,16 +316,16 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
     }
 
     /**
-     * Setter for <code>DB.block.total_fee_ats</code>.
+     * Setter for <code>DB.block.total_fee_burnt</code>.
      */
-    public void setTotalFeeAts(Long value) {
+    public void setTotalFeeBurnt(Long value) {
         set(21, value);
     }
 
     /**
-     * Getter for <code>DB.block.total_fee_ats</code>.
+     * Getter for <code>DB.block.total_fee_burnt</code>.
      */
-    public Long getTotalFeeAts() {
+    public Long getTotalFeeBurnt() {
         return (Long) get(21);
     }
 
@@ -459,7 +459,7 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
 
     @Override
     public Field<Long> field22() {
-        return Block.BLOCK.TOTAL_FEE_ATS;
+        return Block.BLOCK.TOTAL_FEE_BURNT;
     }
 
     @Override
@@ -569,7 +569,7 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
 
     @Override
     public Long component22() {
-        return getTotalFeeAts();
+        return getTotalFeeBurnt();
     }
 
     @Override
@@ -679,7 +679,7 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
 
     @Override
     public Long value22() {
-        return getTotalFeeAts();
+        return getTotalFeeBurnt();
     }
 
     @Override
@@ -810,7 +810,7 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
 
     @Override
     public BlockRecord value22(Long value) {
-        setTotalFeeAts(value);
+        setTotalFeeBurnt(value);
         return this;
     }
 
@@ -855,7 +855,7 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
     /**
      * Create a detached, initialised BlockRecord
      */
-    public BlockRecord(Long dbId, Long id, Integer version, Integer timestamp, Long previousBlockId, Long totalAmount, Long totalFee, Integer payloadLength, byte[] generatorPublicKey, byte[] previousBlockHash, byte[] cumulativeDifficulty, Long baseTarget, Long nextBlockId, Integer height, byte[] generationSignature, byte[] blockSignature, byte[] payloadHash, Long generatorId, Long nonce, byte[] ats, Long totalFeeCashBack, Long totalFeeAts) {
+    public BlockRecord(Long dbId, Long id, Integer version, Integer timestamp, Long previousBlockId, Long totalAmount, Long totalFee, Integer payloadLength, byte[] generatorPublicKey, byte[] previousBlockHash, byte[] cumulativeDifficulty, Long baseTarget, Long nextBlockId, Integer height, byte[] generationSignature, byte[] blockSignature, byte[] payloadHash, Long generatorId, Long nonce, byte[] ats, Long totalFeeCashBack, Long totalFeeBurnt) {
         super(Block.BLOCK);
 
         setDbId(dbId);
@@ -879,6 +879,6 @@ public class BlockRecord extends UpdatableRecordImpl<BlockRecord> implements Rec
         setNonce(nonce);
         setAts(ats);
         setTotalFeeCashBack(totalFeeCashBack);
-        setTotalFeeAts(totalFeeAts);
+        setTotalFeeBurnt(totalFeeBurnt);
     }
 }
