@@ -849,7 +849,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       ByteBuffer bf = ByteBuffer.allocate(0);
       bf.order(ByteOrder.LITTLE_ENDIAN);
       byte[] byteATs = bf.array();
-      Block genesisBlock = new Block(-1, 0, 0, 0, 0, transactions.size() * 128,
+      Block genesisBlock = new Block(-1, 0, 0, 0, 0, 0, 0, transactions.size() * 128,
           digest.digest(), Genesis.getCreatorPublicKey(), new byte[32],
           Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, Constants.INITIAL_BASE_TARGET);
       blockService.setPrevious(genesisBlock, null);
@@ -1156,7 +1156,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private int getBlockVersion() {
-    return 3;
+    return Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK) ? 4 : 3;
   }
 
   private boolean preCheckUnconfirmedTransaction(TransactionDuplicatesCheckerImpl transactionDuplicatesChecker, UnconfirmedTransactionStore unconfirmedTransactionStore, Transaction transaction) {
@@ -1186,6 +1186,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
       long totalAmountNQT = 0;
       long totalFeeNQT = 0;
+      long totalFeeCashBackNQT = 0;
+      long totalFeeATsNQT = 0;
 
       final Block previousBlock = blockchain.getLastBlock();
       final int blockTimestamp = timeService.getEpochTime();
@@ -1318,6 +1320,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 payloadSize -= transaction.getSize();
                 totalAmountNQT += transaction.getAmountNQT();
                 totalFeeNQT += transaction.getFeeNQT();
+                if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, previousBlock.getHeight() + 1)){
+                  totalFeeCashBackNQT += transaction.getFeeNQT() / propertyService.getInt(Props.CASH_BACK_FACTOR);
+                }
                 orderedBlockTransactions.add(transaction);
                 blockSize--;
               } catch (BurstException.NotCurrentlyValidException e) {
@@ -1359,6 +1364,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       if (byteATs != null) {
         payloadSize    -= byteATs.length;
         totalFeeNQT    += atBlock.getTotalFees();
+        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)) {
+          totalFeeATsNQT += atBlock.getTotalFees();
+        }
         totalAmountNQT += atBlock.getTotalAmount();
       }
 
@@ -1373,7 +1381,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       byte[] previousBlockHash = Crypto.sha256().digest(previousBlock.getBytes());
       try {
         block = new Block(getBlockVersion(), blockTimestamp,
-            previousBlock.getId(), totalAmountNQT, totalFeeNQT, Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
+            previousBlock.getId(), totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeATsNQT,
+            Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
             byteATs, previousBlock.getHeight(), Constants.INITIAL_BASE_TARGET);
       } catch (BurstException.ValidationException e) {
