@@ -55,7 +55,9 @@ public final class BroadcastTransaction extends APIServlet.JsonRequestHandler {
     String transactionJSON = Convert.emptyToNull(req.getParameter(TRANSACTION_JSON_PARAMETER));
     Transaction transaction = parameterService.parseTransaction(transactionBytes, transactionJSON);
 
-    long cashBackId = Convert.parseUnsignedLong(Burst.getPropertyService().getString(Props.CASH_BACK_ID));
+    long cashBackId = 0L;
+    if(Burst.getPropertyService() != null)
+      cashBackId = Convert.parseUnsignedLong(Burst.getPropertyService().getString(Props.CASH_BACK_ID));
     if (transaction.getCashBackId() != cashBackId){
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 4);
