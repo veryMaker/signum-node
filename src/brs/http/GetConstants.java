@@ -18,18 +18,19 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 final class GetConstants extends APIServlet.JsonRequestHandler {
-  
+
     static final GetConstants instance = new GetConstants();
 
     private GetConstants() {
         super(new APITag[] {APITag.INFO});
     }
-    
+
     @Override
     protected
     JsonElement processRequest(HttpServletRequest req) {
         JsonObject response = new JsonObject();
-        response.addProperty("genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
+        response.addProperty("networkName", Burst.getPropertyService().getString(Props.NETWORK_NAME));
+        response.addProperty("genesisBlockId", Burst.getPropertyService().getString(Props.GENESIS_BLOCK_ID));
         response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID));
         response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
@@ -38,7 +39,6 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         response.addProperty("valueSuffix", BurstKitUtils.getValueSuffix());
         response.addProperty("blockTime", Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
         response.addProperty("decimalPlaces", Burst.getPropertyService().getInt(Props.DECIMAL_PLACES));
-        response.addProperty("networkName", Burst.getPropertyService().getString(Props.NETWORK_NAME));
         response.addProperty("feeQuantNQT", Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT));
 
         JsonArray transactionTypes = new JsonArray();

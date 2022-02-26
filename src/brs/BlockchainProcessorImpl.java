@@ -74,6 +74,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final Generator generator;
   private final DBCacheManagerImpl dbCacheManager;
   private final IndirectIncomingService indirectIncomingService;
+  private final long genesisBlockId;
 
   private static final int MAX_TIMESTAMP_DIFFERENCE = 15;
   private boolean oclVerify;
@@ -138,6 +139,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     oclUnverifiedQueue = propertyService.getInt(Props.GPU_UNVERIFIED_QUEUE);
 
     trimDerivedTables = propertyService.getBoolean(Props.DB_TRIM_DERIVED_TABLES);
+    genesisBlockId = Convert.parseUnsignedLong(propertyService.getString(Props.GENESIS_BLOCK_ID));
 
     blockListeners.addListener(block -> {
       if (block.getHeight() % 5000 == 0) {
@@ -233,11 +235,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
               logger.trace("Got a better cumulative difficulty {} than current {}.", betterCumulativeDifficulty, curCumulativeDifficulty);
 
-              long commonBlockId = Genesis.GENESIS_BLOCK_ID;
+              long commonBlockId = genesisBlockId;
               long cacheLastBlockId = downloadCache.getLastBlockId();
 
               // Now we will find the highest common block between ourself and our peer
-              if (cacheLastBlockId != Genesis.GENESIS_BLOCK_ID) {
+              if (cacheLastBlockId != genesisBlockId) {
                 commonBlockId = getCommonMilestoneBlockId(peer);
                 if (commonBlockId == 0 || !peerHasMore) {
                   logger.debug("We could not get a common milestone block from peer.");
@@ -407,7 +409,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             return 0;
           }
           if (milestoneBlockIds.size() == 0) {
-            return Genesis.GENESIS_BLOCK_ID;
+            return genesisBlockId;
           }
           // prevent overloading with blockIds
           if (milestoneBlockIds.size() > 20) {
@@ -832,7 +834,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private void addGenesisBlock() {
-    if (blockDb.hasBlock(Genesis.GENESIS_BLOCK_ID)) {
+    if (blockDb.hasBlock(genesisBlockId)) {
       logger.info("Genesis block already in database");
       Block lastBlock = blockDb.findLastBlock();
       blockchain.setLastBlock(lastBlock);
@@ -1109,7 +1111,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           stores.beginTransaction();
           Block block = blockchain.getLastBlock();
           logger.info("Rollback from {} to {}", block.getHeight(), commonBlock.getHeight());
-          while (block.getId() != commonBlock.getId() && block.getId() != Genesis.GENESIS_BLOCK_ID) {
+          while (block.getId() != commonBlock.getId() && block.getId() != genesisBlockId) {
         	if(forkBlocks != null) {
         	  for(Block fb : forkBlocks) {
         		if(fb.getHeight() == block.getHeight() && fb.getGeneratorId() == block.getGeneratorId()) {
@@ -1143,7 +1145,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
   private Block popLastBlock() {
     Block block = blockchain.getLastBlock();
-    if (block.getId() == Genesis.GENESIS_BLOCK_ID) {
+    if (block.getId() == genesisBlockId) {
       throw new RuntimeException("Cannot pop off genesis block");
     }
     Block previousBlock = blockDb.findBlock(block.getPreviousBlockId());

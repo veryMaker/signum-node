@@ -1,6 +1,9 @@
 package brs.props;
 
 import brs.Burst;
+import brs.Constants;
+import brs.Genesis;
+import brs.util.Convert;
 
 public class Props {
 
@@ -12,8 +15,8 @@ public class Props {
   public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("node.decimalPlaces", 8);
   public static final Prop<Integer> ONE_COIN_NQT = new Prop<>("node.coinFactor", 100_000_000);
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
-  public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", "Signum");
-  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", "3444294670862540038");
+  public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", Constants.SIGNUM_NETWORK_NAME);
+  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
   public static final Prop<String> ADDRESS_PREFIX = new Prop<>("node.addressPrefix", "S");
   public static final Prop<String> VALUE_SUFIX = new Prop<>("node.valueSuffix", "SIGNA");
   public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("node.experimental", false);
@@ -52,7 +55,7 @@ public class Props {
   public static final Prop<Integer> SPEEDWAY_HEIGHT = new Prop<>("brs.speedway.startBlock", -1);
   public static final Prop<Integer> SMART_TOKEN_HEIGHT = new Prop<>("brs.smartToken.startBlock", -1);
   public static final Prop<Integer> SMART_FEES_HEIGHT = new Prop<>("brs.smartFees.startBlock", -1);
-
+  
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
