@@ -157,7 +157,7 @@ public class SqlTransactionDb implements TransactionDb {
                 TRANSACTION.BLOCK_TIMESTAMP, TRANSACTION.FULL_HASH, TRANSACTION.VERSION,
                 TRANSACTION.HAS_MESSAGE, TRANSACTION.HAS_ENCRYPTED_MESSAGE,
                 TRANSACTION.HAS_PUBLIC_KEY_ANNOUNCEMENT, TRANSACTION.HAS_ENCRYPTTOSELF_MESSAGE,
-                TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID)
+                TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID, TRANSACTION.CASH_BACK_ID)
                 .values((Long) null, null, null, null, null, null, null, null, null, null, null,
                     null, null,
                     null, null, null, null, null, null, null, null, null, null, null));
@@ -186,7 +186,8 @@ public class SqlTransactionDb implements TransactionDb {
               transaction.getPublicKeyAnnouncement() != null,
               transaction.getEncryptToSelfMessage() != null,
               transaction.getECBlockHeight(),
-              (transaction.getECBlockId() != 0 ? transaction.getECBlockId() : null)
+              (transaction.getECBlockId() != 0 ? transaction.getECBlockId() : null),
+              transaction.getCashBackId()
           );
         }
         insertBatch.execute();
