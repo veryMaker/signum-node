@@ -52,6 +52,8 @@ public class ResultFields {
   public static final String NUMBER_OF_TRANSACTIONS_RESPONSE = "numberOfTransactions";
   public static final String TOTAL_AMOUNT_NQT_RESPONSE = "totalAmountNQT";
   public static final String TOTAL_FEE_NQT_RESPONSE = "totalFeeNQT";
+  public static final String TOTAL_FEE_CASH_BACK_NQT_RESPONSE = "totalFeeCashBackNQT";
+  public static final String TOTAL_FEE_BURNT_NQT_RESPONSE = "totalFeeBurntNQT";
   public static final String BLOCK_REWARD_RESPONSE = "blockReward";
   public static final String BLOCK_REWARD_NQT_RESPONSE = "blockRewardNQT";
   public static final String LAST_BLOCK_REWARD_RESPONSE = "lastBlockReward";
