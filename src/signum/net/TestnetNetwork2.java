@@ -19,7 +19,7 @@ public class TestnetNetwork2 extends TestnetNetwork {
 
     setProperty(Props.P2P_PORT, "7124");
 
-    setProperty(Props.DEV_NEXT_FORK_BLOCK_HEIGHT, "397880");
+    setProperty(Props.SMART_FEES_HEIGHT, "397880");
 
     setProperty(Props.P2P_REBROADCAST_TO, "77.56.66.83");
     setProperty(Props.P2P_BOOTSTRAP_PEERS, "77.56.66.83");

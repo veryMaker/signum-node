@@ -1156,7 +1156,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private int getBlockVersion() {
-    return Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK) ? 4 : 3;
+    return Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES) ? 4 : 3;
   }
 
   private boolean preCheckUnconfirmedTransaction(TransactionDuplicatesCheckerImpl transactionDuplicatesChecker, UnconfirmedTransactionStore unconfirmedTransactionStore, Transaction transaction) {
@@ -1321,7 +1321,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 payloadSize -= transaction.getSize();
                 totalAmountNQT += transaction.getAmountNQT();
                 totalFeeNQT += transaction.getFeeNQT();
-                if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)){
+                if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)){
                   totalFeeCashBackNQT += transaction.getFeeNQT() / propertyService.getInt(Props.CASH_BACK_FACTOR);
                 }
                 orderedBlockTransactions.add(transaction);
@@ -1343,7 +1343,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           subscriptionService.clearRemovals();
           long subscriptionFeeNQT = subscriptionService.calculateFees(blockTimestamp, blockHeight);
           totalFeeNQT += subscriptionFeeNQT;
-          if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)) {
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
             totalFeeBurntNQT += subscriptionFeeNQT;
           }
         }
@@ -1368,7 +1368,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       if (byteATs != null) {
         payloadSize    -= byteATs.length;
         totalFeeNQT    += atBlock.getTotalFees();
-        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, blockHeight)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
           totalFeeBurntNQT += atBlock.getTotalFees();
         }
         totalAmountNQT += atBlock.getTotalAmount();

@@ -284,7 +284,7 @@ public abstract class TransactionType {
     if (recipientAccount != null && transaction.getAmountNQT() > 0L && !transaction.getType().isIndirect() ) {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }
-    if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight())) {
+    if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, transaction.getHeight())) {
       Account cashBackAccount = accountService.getOrAddAccount(transaction.getCashBackId());
       long cashBackAmountNQT = transaction.getFeeNQT() / Burst.getPropertyService().getInt(Props.CASH_BACK_FACTOR);
       accountService.addToBalanceAndUnconfirmedBalanceNQT(cashBackAccount, cashBackAmountNQT);

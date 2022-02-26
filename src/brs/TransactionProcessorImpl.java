@@ -275,7 +275,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   @Override
   public int getTransactionVersion(int previousBlockHeight) {
     if(Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight)){
-      if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, previousBlockHeight)){
+      if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, previousBlockHeight)){
         return 2;
       }
       return 1;

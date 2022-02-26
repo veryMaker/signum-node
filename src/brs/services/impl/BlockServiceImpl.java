@@ -211,7 +211,7 @@ public class BlockServiceImpl implements BlockService {
       Account rewardAccount = getRewardAccount(block);
 
       long rewardFeesNQT = block.getTotalFeeNQT();
-      if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES)) {
         rewardFeesNQT -= block.getTotalFeeCashBackNQT();
         rewardFeesNQT -= block.getTotalFeeBurntNQT();
 
