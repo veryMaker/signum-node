@@ -15,6 +15,7 @@ import brs.at.AtException;
 import brs.at.AtMachineState;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
 import brs.util.Convert;
@@ -94,7 +95,7 @@ public abstract class TransactionType {
 
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
-  
+
   private static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
   private static final long BASELINE_ALIAS_ASSIGNMENT_FACTOR = 20L;
 
@@ -106,20 +107,20 @@ public abstract class TransactionType {
   private static AssetExchange assetExchange;
   private static SubscriptionService subscriptionService;
   private static EscrowService escrowService;
-  
+
   public static class Type {
     private byte type;
     private String description;
-    
+
     public Type(byte type, String description) {
       this.type = type;
       this.description = description;
     }
-    
+
     public byte getType() {
       return type;
     }
-    
+
     public String getDescription() {
       return description;
     }
@@ -201,7 +202,7 @@ public abstract class TransactionType {
     TRANSACTION_TYPES.put(TYPE_ADVANCED_PAYMENT, advancedPaymentTypes);
     TRANSACTION_TYPES.put(TYPE_AUTOMATED_TRANSACTIONS, atTypes);
   }
-  
+
   public static void setNetworkParameters(NetworkParameters params) {
     params.adjustTransactionTypes(TRANSACTION_TYPES);
   }
@@ -210,7 +211,7 @@ public abstract class TransactionType {
     for(Type t : TRANSACTION_TYPES.keySet()) {
       if(t.getType() == type) {
         Map<Byte, TransactionType> subtypes = TRANSACTION_TYPES.get(t);
-        return subtypes == null ? null : subtypes.get(subtype);        
+        return subtypes == null ? null : subtypes.get(subtype);
       }
     }
     return null;
@@ -283,6 +284,11 @@ public abstract class TransactionType {
     if (recipientAccount != null && transaction.getAmountNQT() > 0L && !transaction.getType().isIndirect() ) {
       accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, transaction.getAmountNQT());
     }
+    if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, transaction.getHeight())) {
+      Account cashBackAccount = accountService.getOrAddAccount(transaction.getCashBackId());
+      long cashBackAmountNQT = transaction.getFeeNQT() / Burst.getPropertyService().getInt(Props.CASH_BACK_FACTOR);
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(cashBackAccount, cashBackAmountNQT);
+    }
     if (logger.isTraceEnabled()) {
       logger.trace("applying transaction - id: {}, type: {}", transaction.getId(), transaction.getType());
     }
@@ -329,7 +335,7 @@ public abstract class TransactionType {
   }
 
   public abstract boolean hasRecipient();
-  
+
   public boolean isIndirect() {
     return false;
   }
@@ -450,16 +456,16 @@ public abstract class TransactionType {
       public final boolean hasRecipient() {
         return false;
       }
-      
+
       @Override
       public boolean isIndirect() {
         return true;
       }
-      
+
       @Override
       public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
         Attachment.PaymentMultiOutCreation attachment = (Attachment.PaymentMultiOutCreation) transaction.getAttachment();
-        
+
         ArrayList<IndirectIncoming> indirects = new ArrayList<IndirectIncoming>(attachment.getRecipients().size());
         for(List<Long> recipient : attachment.getRecipients()) {
           indirects.add(new IndirectIncoming(recipient.get(0), transaction.getId(),
@@ -522,12 +528,12 @@ public abstract class TransactionType {
       public final boolean hasRecipient() {
         return false;
       }
-      
+
       @Override
       public boolean isIndirect() {
         return true;
       }
-      
+
       @Override
       public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
         Attachment.PaymentMultiSameOutCreation attachment = (Attachment.PaymentMultiSameOutCreation) transaction.getAttachment();
@@ -648,7 +654,7 @@ public abstract class TransactionType {
       public String getDescription() {
         return "Alias Assignment";
       }
-      
+
       @Override
       public Fee getBaselineFee(int height) {
         return fluxCapacitor.getValue(FluxValues.SPEEDWAY, height) ?
@@ -1085,20 +1091,20 @@ public abstract class TransactionType {
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASSET_MINT");
         Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
-        
+
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         if(asset == null || asset.getAccountId() != transaction.getSenderId() || !asset.getMintable()
             || attachment.getQuantityQNT() <= 0L
             || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           return false;
         }
-        
+
         long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
           return false;
         }
-        
+
         return true;
       }
 
@@ -1107,7 +1113,7 @@ public abstract class TransactionType {
         Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint) transaction.getAttachment();
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
       }
-      
+
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         // All mint transactions from the same account are considered duplicates, so just the one with highest fee is kept
@@ -1123,7 +1129,7 @@ public abstract class TransactionType {
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetMint attachment = (Attachment.ColoredCoinsAssetMint)transaction.getAttachment();
         if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
-          throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));          
+          throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));
         }
 
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
@@ -1135,7 +1141,7 @@ public abstract class TransactionType {
             || !asset.getMintable() || attachment.getQuantityQNT() <= 0L) {
           throw new BurstException.NotValidException("Invalid asset mint: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        
+
         long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
@@ -1171,26 +1177,26 @@ public abstract class TransactionType {
       protected Attachment.AbstractAttachment parseAttachment(JsonObject attachmentData) {
         return Attachment.ASSET_ADD_TREASURY_ACCOUNT_ATTACHMENT;
       }
-      
+
       @Override
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASSET_ADD_TREASURY_ACCOUNT");
-        
+
         if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
-          return false;          
+          return false;
         }
-        
+
         Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
         if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
             || assetCreationTransaction.getSenderId() != transaction.getSenderId())
           return false;
-        
+
         Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
         if(asset == null || asset.getAccountId() != transaction.getSenderId()
             || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           return false;
         }
-        
+
         return true;
       }
 
@@ -1207,7 +1213,7 @@ public abstract class TransactionType {
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
-          throw new BurstException.NotValidException("Transaction type not yet enabled");          
+          throw new BurstException.NotValidException("Transaction type not yet enabled");
         }
 
         Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
@@ -1216,14 +1222,14 @@ public abstract class TransactionType {
             || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
           throw new BurstException.NotValidException("Invalid add treasury account transaction");
         }
-        
+
         Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
         if (asset == null) {
           throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(assetCreationTransaction.getId()) +
                   " does not exist yet");
         }
       }
-      
+
       @Override
       public boolean hasRecipient() {
         // recipient is the account being ignored
@@ -1231,9 +1237,9 @@ public abstract class TransactionType {
       }
 
     };
-    
+
     public static final TransactionType ASSET_DISTRIBUTE_TO_HOLDERS = new ColoredCoins() {
-      
+
       @Override
       public final byte getSubtype() {
         return TransactionType.SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS;
@@ -1253,17 +1259,17 @@ public abstract class TransactionType {
       protected Attachment.ColoredCoinsAssetDistributeToHolders parseAttachment(JsonObject attachmentData) {
         return new Attachment.ColoredCoinsAssetDistributeToHolders(attachmentData);
       }
-      
+
       @Override
       public long minimumFeeNQT(int height, Transaction transaction) {
         long minFee = super.minimumFeeNQT(height, transaction);
-        
+
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true);
-        long minFeeHolders = (numberOfHolders*minFee)/10L;        
+        long minFeeHolders = (numberOfHolders*minFee)/10L;
         minFee = Math.max(minFee, minFeeHolders);
-        
+
         return minFee;
       }
 
@@ -1271,9 +1277,9 @@ public abstract class TransactionType {
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ASSET_DISTRIBUTE_TO_HOLDERS");
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
-        
+
         if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
-          return false;          
+          return false;
         }
 
         if(attachment.getAssetIdToDistribute() != 0L && attachment.getQuantityQNT() > 0L) {
@@ -1281,7 +1287,7 @@ public abstract class TransactionType {
           if(attachment.getQuantityQNT() > unconfirmedAssetBalance)
             return false;
         }
-        
+
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
         long circulatingQuantityQNT = 0L;
@@ -1302,21 +1308,21 @@ public abstract class TransactionType {
       @Override
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
-        
-        // subtract the asset balance from the sender, the amount was already subtracted by the transaction 
+
+        // subtract the asset balance from the sender, the amount was already subtracted by the transaction
         accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
 
         Collection<IndirectIncoming> incomings = getIndirectIncomings(transaction);
         for(IndirectIncoming incoming : incomings) {
-          
+
           // add to the holders
           Account account = accountService.getOrAddAccount(incoming.getAccountId());
-          
+
           long quantity = incoming.getQuantity();
           if(quantity > 0L) {
             accountService.addToAssetAndUnconfirmedAssetBalanceQNT(account, attachment.getAssetIdToDistribute(), quantity);
           }
-          
+
           long amount = incoming.getAmount();
           if(amount > 0L) {
             accountService.addToBalanceAndUnconfirmedBalanceNQT(account, amount);
@@ -1335,9 +1341,9 @@ public abstract class TransactionType {
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
         if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
-          throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));          
+          throw new BurstException.NotValidException("Transaction type not yet enabled: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        
+
         if (attachment.getAssetId() == 0L) {
           throw new BurstException.NotValidException("Invalid asset transfer id: " + JSON.toJsonString(attachment.getJsonObject()));
         }
@@ -1351,7 +1357,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Asset has no circulating supply: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         if (attachment.getQuantityQNT() == 0L && transaction.getAmountNQT() == 0L){
-          throw new BurstException.NotValidException("Nothing to distribute");          
+          throw new BurstException.NotValidException("Nothing to distribute");
         }
         if(attachment.getQuantityQNT() > 0L) {
           Asset assetToDistribute = assetExchange.getAsset(attachment.getAssetIdToDistribute());
@@ -1366,12 +1372,12 @@ public abstract class TransactionType {
       public boolean hasRecipient() {
         return false;
       }
-      
+
       @Override
       public boolean isIndirect() {
         return true;
       }
-      
+
       @Override
       public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
         // TODO: rework this so we do not run this more than once
@@ -1385,12 +1391,12 @@ public abstract class TransactionType {
           circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
         }
         BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
-        
+
         ArrayList<IndirectIncoming> indirects = new ArrayList<IndirectIncoming>(assetHolders.size());
 
         BigInteger quantityToDistribute = BigInteger.valueOf(attachment.getQuantityQNT());
         BigInteger amountToDistribute = BigInteger.valueOf(transaction.getAmountNQT());
-        
+
         long amountDistributed = 0L;
         long quantityDistributed = 0L;
 
@@ -1405,24 +1411,24 @@ public abstract class TransactionType {
 
             quantityDistributed += quantity;
           }
-          
+
           long amount = 0L;
           if(transaction.getAmountNQT() > 0L) {
             amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
                 .divide(circulatingQuantity).longValue();
             amountDistributed += amount;
           }
-          
+
           IndirectIncoming indirect = new IndirectIncoming(holder.getAccountId(), transaction.getId(),
               amount, quantity, transaction.getHeight());
           indirects.add(indirect);
-          
+
           if(largestHolder == null || holder.getUnconfirmedQuantityQNT() > largestHolder.getUnconfirmedQuantityQNT()) {
             largestHolder = holder;
             largestIndirect = indirect;
-          }          
+          }
         }
-        
+
         // any "dust" goes to the largestHolder
         if(amountDistributed < transaction.getAmountNQT()) {
           largestIndirect.addAmount(transaction.getAmountNQT() - amountDistributed);
@@ -2400,7 +2406,7 @@ public abstract class TransactionType {
       protected Attachment.CommitmentAdd parseAttachment(JsonObject attachmentData) {
         return new Attachment.CommitmentAdd(attachmentData);
       }
-      
+
       protected Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
         CommitmentAdd commitmentAdd = (CommitmentAdd) transaction.getAttachment();
         Long totalAmountNQT = commitmentAdd.getAmountNQT();
@@ -2414,7 +2420,7 @@ public abstract class TransactionType {
         Long totalAmountNQT = commitmentAdd.getAmountNQT();
         if(totalAmountNQT < 0L)
           return false;
-        
+
         if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
@@ -3089,7 +3095,7 @@ public abstract class TransactionType {
             // check if we have a reference for the code
             Transaction referenceTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
             minCodePages = 0;
-            
+
             if(referenceTransaction!=null && referenceTransaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
               Attachment.AutomatedTransactionsCreation atCreationAttachmentRef = (Attachment.AutomatedTransactionsCreation)referenceTransaction.getAttachment();
               AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), referenceTransaction.getHeight());
@@ -3128,7 +3134,7 @@ public abstract class TransactionType {
       @Override
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AutomatedTransactionsCreation attachment = (Attachment.AutomatedTransactionsCreation) transaction.getAttachment();
-        
+
         long codeHashId = 0L;
         AtMachineState thisNewAtCreation = new AtMachineState(null, null, attachment.getCreationBytes(), 0);
         if(thisNewAtCreation.getApCodeBytes().length == 0) {
@@ -3137,7 +3143,7 @@ public abstract class TransactionType {
           AtMachineState atCreationRef = new AtMachineState(null, null, atCreationAttachmentRef.getCreationBytes(), referenceTransaction.getHeight());
           codeHashId = atCreationRef.getApCodeHashId();
         }
-        
+
         AT.addAT( transaction.getId() , transaction.getSenderId() , attachment.getName() , attachment.getDescription() , attachment.getCreationBytes() , transaction.getHeight(), codeHashId );
       }
 
@@ -3236,7 +3242,7 @@ public abstract class TransactionType {
               '}';
     }
   }
-  
+
   private static final Collection<IndirectIncoming> NO_INDIRECTS = Collections.emptyList();
   public Collection<IndirectIncoming> getIndirectIncomings(Transaction transaction) {
     // by default there is no indirect incomings, transaction types should implement it

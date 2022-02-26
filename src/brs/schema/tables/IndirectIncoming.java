@@ -115,12 +115,12 @@ public class IndirectIncoming extends TableImpl<IndirectIncomingRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.INDIRECT_INCOMING_INDIRECT_INCOMING_INDEX);
+        return Arrays.asList(Indexes.INDIRECT_INCOMING_INDIRECT_INCOMING_ID_INDEX, Indexes.INDIRECT_INCOMING_INDIRECT_INCOMING_INDEX);
     }
 
     @Override
@@ -134,8 +134,8 @@ public class IndirectIncoming extends TableImpl<IndirectIncomingRecord> {
     }
 
     @Override
-    public List<UniqueKey<IndirectIncomingRecord>> getKeys() {
-        return Arrays.<UniqueKey<IndirectIncomingRecord>>asList(Keys.KEY_INDIRECT_INCOMING_PRIMARY, Keys.KEY_INDIRECT_INCOMING_INDIRECT_INCOMING_DB_ID_UINDEX);
+    public List<UniqueKey<IndirectIncomingRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_INDIRECT_INCOMING_INDIRECT_INCOMING_DB_ID_UINDEX);
     }
 
     @Override

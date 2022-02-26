@@ -48,7 +48,7 @@ import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static brs.Constants.FEE_QUANT_CIP3;
+import static brs.Constants.FEE_QUANT_SIP3;
 import static brs.Constants.ONE_BURST;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
@@ -851,7 +851,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       ByteBuffer bf = ByteBuffer.allocate(0);
       bf.order(ByteOrder.LITTLE_ENDIAN);
       byte[] byteATs = bf.array();
-      Block genesisBlock = new Block(-1, 0, 0, 0, 0, transactions.size() * 128,
+      Block genesisBlock = new Block(-1, 0, 0, 0, 0, 0, 0, transactions.size() * 128,
           digest.digest(), Genesis.getCreatorPublicKey(), new byte[32],
           Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, Constants.INITIAL_BASE_TARGET);
       blockService.setPrevious(genesisBlock, null);
@@ -994,7 +994,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
-            if (feeArray[i] < Constants.FEE_QUANT_CIP3 * (i + 1)) {
+            if (feeArray[i] < Constants.FEE_QUANT_SIP3 * (i + 1)) {
               throw new BlockNotAcceptedException("Transaction fee is not enough to be included in this block " + block.getHeight());
             }
           }
@@ -1158,7 +1158,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private int getBlockVersion() {
-    return 3;
+    return Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES) ? 4 : 3;
   }
 
   private boolean preCheckUnconfirmedTransaction(TransactionDuplicatesCheckerImpl transactionDuplicatesChecker, UnconfirmedTransactionStore unconfirmedTransactionStore, Transaction transaction) {
@@ -1188,9 +1188,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
       long totalAmountNQT = 0;
       long totalFeeNQT = 0;
+      long totalFeeCashBackNQT = 0;
+      long totalFeeBurntNQT = 0;
 
       final Block previousBlock = blockchain.getLastBlock();
       final int blockTimestamp = timeService.getEpochTime();
+      final int blockHeight = previousBlock.getHeight() + 1;
 
       // this is just an validation. which collects all valid transactions, which fit into the block
       // finally all stuff is reverted so nothing is written to the db
@@ -1230,7 +1233,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
-            long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_CIP3)) / FEE_QUANT_CIP3;
+            long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_SIP3)) / FEE_QUANT_SIP3;
             slot = Math.min(Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
             TreeMap<Long, Transaction> utxInSlot = unconfirmedTransactionsOrderedBySlotThenPriority.get(slot);
             if(utxInSlot == null) {
@@ -1308,7 +1311,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
           indirectsCount += txIndirects;
 
-          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_CIP3 : ONE_BURST;
+          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_SIP3 : ONE_BURST;
           if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
             // we already got the list by priority, no need to check the fees again
             slotFee = FEE_QUANT;
@@ -1320,6 +1323,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 payloadSize -= transaction.getSize();
                 totalAmountNQT += transaction.getAmountNQT();
                 totalFeeNQT += transaction.getFeeNQT();
+                if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)){
+                  totalFeeCashBackNQT += transaction.getFeeNQT() / propertyService.getInt(Props.CASH_BACK_FACTOR);
+                }
                 orderedBlockTransactions.add(transaction);
                 blockSize--;
               } catch (BurstException.NotCurrentlyValidException e) {
@@ -1337,7 +1343,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         if (subscriptionService.isEnabled()) {
           subscriptionService.clearRemovals();
-          totalFeeNQT += subscriptionService.calculateFees(blockTimestamp, previousBlock.getHeight() + 1);
+          long subscriptionFeeNQT = subscriptionService.calculateFees(blockTimestamp, blockHeight);
+          totalFeeNQT += subscriptionFeeNQT;
+          if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
+            totalFeeBurntNQT += subscriptionFeeNQT;
+          }
         }
       }
       catch (Exception e) {
@@ -1351,7 +1361,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
       // ATs for block
       long generatorId = Account.getId(publicKey);
-      int blockHeight = previousBlock.getHeight() + 1;
       AT.clearPendingFees(blockHeight, generatorId);
       AT.clearPendingTransactions(blockHeight, generatorId);
       AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, blockHeight, generatorId);
@@ -1361,6 +1370,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       if (byteATs != null) {
         payloadSize    -= byteATs.length;
         totalFeeNQT    += atBlock.getTotalFees();
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
+          totalFeeBurntNQT += atBlock.getTotalFees();
+        }
         totalAmountNQT += atBlock.getTotalAmount();
       }
 
@@ -1375,7 +1387,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       byte[] previousBlockHash = Crypto.sha256().digest(previousBlock.getBytes());
       try {
         block = new Block(getBlockVersion(), blockTimestamp,
-            previousBlock.getId(), totalAmountNQT, totalFeeNQT, Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
+            previousBlock.getId(), totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeBurntNQT,
+            Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
             byteATs, previousBlock.getHeight(), Constants.INITIAL_BASE_TARGET);
       } catch (BurstException.ValidationException e) {

@@ -125,12 +125,12 @@ public class AssetTransfer extends TableImpl<AssetTransferRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.ASSET_TRANSFER_ASSET_TRANSFER_ASSET_ID_IDX, Indexes.ASSET_TRANSFER_ASSET_TRANSFER_RECIPIENT_ID_IDX, Indexes.ASSET_TRANSFER_ASSET_TRANSFER_SENDER_ID_IDX);
+        return Arrays.asList(Indexes.ASSET_TRANSFER_ASSET_TRANSFER_ASSET_ID_IDX, Indexes.ASSET_TRANSFER_ASSET_TRANSFER_RECIPIENT_ID_IDX, Indexes.ASSET_TRANSFER_ASSET_TRANSFER_SENDER_ID_IDX);
     }
 
     @Override
@@ -144,8 +144,8 @@ public class AssetTransfer extends TableImpl<AssetTransferRecord> {
     }
 
     @Override
-    public List<UniqueKey<AssetTransferRecord>> getKeys() {
-        return Arrays.<UniqueKey<AssetTransferRecord>>asList(Keys.KEY_ASSET_TRANSFER_PRIMARY, Keys.KEY_ASSET_TRANSFER_ASSET_TRANSFER_ID_IDX);
+    public List<UniqueKey<AssetTransferRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ASSET_TRANSFER_ASSET_TRANSFER_ID_IDX);
     }
 
     @Override

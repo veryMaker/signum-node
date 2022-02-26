@@ -130,12 +130,12 @@ public class Subscription extends TableImpl<SubscriptionRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SUBSCRIPTION_SUBSCRIPTION_RECIPIENT_ID_HEIGHT_IDX, Indexes.SUBSCRIPTION_SUBSCRIPTION_SENDER_ID_HEIGHT_IDX, Indexes.SUBSCRIPTION_SUBSCRIPTION_TIME_NEXT_INDEX);
+        return Arrays.asList(Indexes.SUBSCRIPTION_SUBSCRIPTION_LATEST_INDEX, Indexes.SUBSCRIPTION_SUBSCRIPTION_RECIPIENT_ID_HEIGHT_IDX, Indexes.SUBSCRIPTION_SUBSCRIPTION_SENDER_ID_HEIGHT_IDX, Indexes.SUBSCRIPTION_SUBSCRIPTION_TIME_NEXT_INDEX);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class Subscription extends TableImpl<SubscriptionRecord> {
     }
 
     @Override
-    public List<UniqueKey<SubscriptionRecord>> getKeys() {
-        return Arrays.<UniqueKey<SubscriptionRecord>>asList(Keys.KEY_SUBSCRIPTION_PRIMARY, Keys.KEY_SUBSCRIPTION_SUBSCRIPTION_ID_HEIGHT_IDX);
+    public List<UniqueKey<SubscriptionRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_SUBSCRIPTION_SUBSCRIPTION_ID_HEIGHT_IDX);
     }
 
     @Override

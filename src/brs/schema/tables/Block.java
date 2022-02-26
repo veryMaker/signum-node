@@ -18,7 +18,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row20;
+import org.jooq.Row22;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -150,6 +150,16 @@ public class Block extends TableImpl<BlockRecord> {
      */
     public final TableField<BlockRecord, byte[]> ATS = createField(DSL.name("ats"), SQLDataType.BLOB.defaultValue(DSL.field("NULL", SQLDataType.BLOB)), this, "");
 
+    /**
+     * The column <code>DB.block.total_fee_cash_back</code>.
+     */
+    public final TableField<BlockRecord, Long> TOTAL_FEE_CASH_BACK = createField(DSL.name("total_fee_cash_back"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
+
+    /**
+     * The column <code>DB.block.total_fee_burnt</code>.
+     */
+    public final TableField<BlockRecord, Long> TOTAL_FEE_BURNT = createField(DSL.name("total_fee_burnt"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
+
     private Block(Name alias, Table<BlockRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -185,12 +195,12 @@ public class Block extends TableImpl<BlockRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.BLOCK_BLOCK_GENERATOR_ID_IDX);
+        return Arrays.asList(Indexes.BLOCK_BLOCK_GENERATOR_ID_IDX);
     }
 
     @Override
@@ -204,13 +214,13 @@ public class Block extends TableImpl<BlockRecord> {
     }
 
     @Override
-    public List<UniqueKey<BlockRecord>> getKeys() {
-        return Arrays.<UniqueKey<BlockRecord>>asList(Keys.KEY_BLOCK_PRIMARY, Keys.KEY_BLOCK_BLOCK_ID_IDX, Keys.KEY_BLOCK_BLOCK_TIMESTAMP_IDX, Keys.KEY_BLOCK_BLOCK_HEIGHT_IDX);
+    public List<UniqueKey<BlockRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_BLOCK_BLOCK_ID_IDX, Keys.KEY_BLOCK_BLOCK_TIMESTAMP_IDX, Keys.KEY_BLOCK_BLOCK_HEIGHT_IDX);
     }
 
     @Override
     public List<ForeignKey<BlockRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<BlockRecord, ?>>asList(Keys.CONSTRAINT_3C, Keys.CONSTRAINT_3C5);
+        return Arrays.asList(Keys.CONSTRAINT_3C, Keys.CONSTRAINT_3C5);
     }
 
     private transient Block _constraint_3c;
@@ -257,11 +267,11 @@ public class Block extends TableImpl<BlockRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row20 type methods
+    // Row22 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row20<Long, Long, Integer, Integer, Long, Long, Long, Integer, byte[], byte[], byte[], Long, Long, Integer, byte[], byte[], byte[], Long, Long, byte[]> fieldsRow() {
-        return (Row20) super.fieldsRow();
+    public Row22<Long, Long, Integer, Integer, Long, Long, Long, Integer, byte[], byte[], byte[], Long, Long, Integer, byte[], byte[], byte[], Long, Long, byte[], Long, Long> fieldsRow() {
+        return (Row22) super.fieldsRow();
     }
 }

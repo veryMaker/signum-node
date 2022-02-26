@@ -117,6 +117,8 @@ public final class JSONData {
     json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, allBlockTransactions.size());
     json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
     json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
+    json.addProperty(TOTAL_FEE_CASH_BACK_NQT_RESPONSE, String.valueOf(block.getTotalFeeCashBackNQT()));
+    json.addProperty(TOTAL_FEE_BURNT_NQT_RESPONSE, String.valueOf(block.getTotalFeeBurntNQT()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
     json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Burst.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
@@ -365,6 +367,7 @@ public final class JSONData {
       json.addProperty(EC_BLOCK_ID_RESPONSE, Convert.toUnsignedLong(transaction.getECBlockId()));
       json.addProperty(EC_BLOCK_HEIGHT_RESPONSE, transaction.getECBlockHeight());
     }
+    json.addProperty(CASH_BACK_ID_RESPONSE, Convert.toUnsignedLong(transaction.getCashBackId()));
 
     return json;
   }
@@ -401,16 +404,16 @@ public final class JSONData {
     json.addProperty(name, Convert.toUnsignedLong(accountId));
     json.addProperty(name + "RS", Convert.rsAccount(accountId));
   }
-  
+
   static JsonObject at(AT at) {
     return at(at, null, true);
   }
 
   static JsonObject at(AT at, AtMachineState atCreation, boolean includeDetails) {
     JsonObject json = new JsonObject();
-    
+
     long id = AtApiHelper.getLong(at.getId());
-    
+
     json.addProperty("at", Convert.toUnsignedLong( id ));
     json.addProperty("machineData", Convert.toHexString(at.getApDataBytes()));
     json.addProperty("balanceNQT", Convert.toUnsignedLong(at.getgBalance()));
@@ -422,7 +425,7 @@ public final class JSONData {
     json.addProperty("finished", at.getMachineState().isFinished());
     json.addProperty("dead", at.getMachineState().isDead());
     json.addProperty("machineCodeHashId", Convert.toUnsignedLong(at.getApCodeHashId()) );
-    
+
     if(includeDetails) {
       // These are immutable details, which we might want to avoid getting on every call
       json.addProperty("atVersion", at.getVersion());
@@ -435,7 +438,7 @@ public final class JSONData {
       json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
       json.addProperty("creationBlock", at.getCreationBlockHeight());
       if(atCreation != null) {
-        json.addProperty("creationMachineData", Convert.toHexString(atCreation.getApDataBytes()));        
+        json.addProperty("creationMachineData", Convert.toHexString(atCreation.getApDataBytes()));
       }
     }
     return json;

@@ -243,7 +243,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   public Transaction parseTransaction(JsonObject transactionData) throws BurstException.NotValidException {
     return Transaction.parseTransaction(transactionData, blockchain.getHeight());
   }
-    
+
   @Override
   public void clearUnconfirmedTransactions() {
     synchronized (unconfirmedTransactionsSyncObj) {
@@ -274,7 +274,13 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public int getTransactionVersion(int previousBlockHeight) {
-    return Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
+    if(Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight)){
+      if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, previousBlockHeight)){
+        return 2;
+      }
+      return 1;
+    }
+    return 0;
   }
 
   // Watch: This is not really clean

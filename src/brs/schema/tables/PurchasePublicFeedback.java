@@ -84,14 +84,16 @@ public class PurchasePublicFeedback extends TableImpl<PurchasePublicFeedbackReco
     }
 
     /**
-     * Create an aliased <code>DB.purchase_public_feedback</code> table reference
+     * Create an aliased <code>DB.purchase_public_feedback</code> table
+     * reference
      */
     public PurchasePublicFeedback(String alias) {
         this(DSL.name(alias), PURCHASE_PUBLIC_FEEDBACK);
     }
 
     /**
-     * Create an aliased <code>DB.purchase_public_feedback</code> table reference
+     * Create an aliased <code>DB.purchase_public_feedback</code> table
+     * reference
      */
     public PurchasePublicFeedback(Name alias) {
         this(alias, PURCHASE_PUBLIC_FEEDBACK);
@@ -110,12 +112,12 @@ public class PurchasePublicFeedback extends TableImpl<PurchasePublicFeedbackReco
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.PURCHASE_PUBLIC_FEEDBACK_PURCHASE_PUBLIC_FEEDBACK_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.PURCHASE_PUBLIC_FEEDBACK_PURCHASE_PUBLIC_FEEDBACK_ID_HEIGHT_IDX);
     }
 
     @Override
@@ -126,11 +128,6 @@ public class PurchasePublicFeedback extends TableImpl<PurchasePublicFeedbackReco
     @Override
     public UniqueKey<PurchasePublicFeedbackRecord> getPrimaryKey() {
         return Keys.KEY_PURCHASE_PUBLIC_FEEDBACK_PRIMARY;
-    }
-
-    @Override
-    public List<UniqueKey<PurchasePublicFeedbackRecord>> getKeys() {
-        return Arrays.<UniqueKey<PurchasePublicFeedbackRecord>>asList(Keys.KEY_PURCHASE_PUBLIC_FEEDBACK_PRIMARY);
     }
 
     @Override

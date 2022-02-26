@@ -368,6 +368,20 @@ public class TransactionRecord extends UpdatableRecordImpl<TransactionRecord> {
         return (Boolean) get(24);
     }
 
+    /**
+     * Setter for <code>DB.transaction.cash_back_id</code>.
+     */
+    public void setCashBackId(Long value) {
+        set(25, value);
+    }
+
+    /**
+     * Getter for <code>DB.transaction.cash_back_id</code>.
+     */
+    public Long getCashBackId() {
+        return (Long) get(25);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -391,7 +405,7 @@ public class TransactionRecord extends UpdatableRecordImpl<TransactionRecord> {
     /**
      * Create a detached, initialised TransactionRecord
      */
-    public TransactionRecord(Long dbId, Long id, Short deadline, byte[] senderPublicKey, Long recipientId, Long amount, Long fee, Integer height, Long blockId, byte[] signature, Integer timestamp, Byte type, Byte subtype, Long senderId, Integer blockTimestamp, byte[] fullHash, byte[] referencedTransactionFullhash, byte[] attachmentBytes, Byte version, Boolean hasMessage, Boolean hasEncryptedMessage, Boolean hasPublicKeyAnnouncement, Integer ecBlockHeight, Long ecBlockId, Boolean hasEncrypttoselfMessage) {
+    public TransactionRecord(Long dbId, Long id, Short deadline, byte[] senderPublicKey, Long recipientId, Long amount, Long fee, Integer height, Long blockId, byte[] signature, Integer timestamp, Byte type, Byte subtype, Long senderId, Integer blockTimestamp, byte[] fullHash, byte[] referencedTransactionFullhash, byte[] attachmentBytes, Byte version, Boolean hasMessage, Boolean hasEncryptedMessage, Boolean hasPublicKeyAnnouncement, Integer ecBlockHeight, Long ecBlockId, Boolean hasEncrypttoselfMessage, Long cashBackId) {
         super(Transaction.TRANSACTION);
 
         setDbId(dbId);
@@ -419,5 +433,6 @@ public class TransactionRecord extends UpdatableRecordImpl<TransactionRecord> {
         setEcBlockHeight(ecBlockHeight);
         setEcBlockId(ecBlockId);
         setHasEncrypttoselfMessage(hasEncrypttoselfMessage);
+        setCashBackId(cashBackId);
     }
 }

@@ -209,8 +209,17 @@ public class BlockServiceImpl implements BlockService {
       accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
     } else {
       Account rewardAccount = getRewardAccount(block);
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + blockReward);
-      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + blockReward);
+
+      long rewardFeesNQT = block.getTotalFeeNQT();
+      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES)) {
+        rewardFeesNQT -= block.getTotalFeeCashBackNQT();
+        rewardFeesNQT -= block.getTotalFeeBurntNQT();
+
+        Account nullAccount = accountService.getOrAddAccount(0L);
+        accountService.addToBalanceAndUnconfirmedBalanceNQT(nullAccount, block.getTotalFeeBurntNQT());
+      }
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);
+      accountService.addToForgedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);
     }
 
     for(Transaction transaction : block.getTransactions()) {

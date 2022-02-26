@@ -113,7 +113,7 @@ public class AliasOffer extends TableImpl<AliasOfferRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
@@ -127,8 +127,8 @@ public class AliasOffer extends TableImpl<AliasOfferRecord> {
     }
 
     @Override
-    public List<UniqueKey<AliasOfferRecord>> getKeys() {
-        return Arrays.<UniqueKey<AliasOfferRecord>>asList(Keys.KEY_ALIAS_OFFER_PRIMARY, Keys.KEY_ALIAS_OFFER_ALIAS_OFFER_ID_HEIGHT_IDX);
+    public List<UniqueKey<AliasOfferRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ALIAS_OFFER_ALIAS_OFFER_ID_HEIGHT_IDX);
     }
 
     @Override

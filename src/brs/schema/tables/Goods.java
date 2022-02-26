@@ -145,12 +145,12 @@ public class Goods extends TableImpl<GoodsRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.GOODS_GOODS_SELLER_ID_NAME_IDX, Indexes.GOODS_GOODS_TIMESTAMP_IDX);
+        return Arrays.asList(Indexes.GOODS_GOODS_SELLER_ID_NAME_IDX, Indexes.GOODS_GOODS_TIMESTAMP_IDX);
     }
 
     @Override
@@ -164,8 +164,8 @@ public class Goods extends TableImpl<GoodsRecord> {
     }
 
     @Override
-    public List<UniqueKey<GoodsRecord>> getKeys() {
-        return Arrays.<UniqueKey<GoodsRecord>>asList(Keys.KEY_GOODS_PRIMARY, Keys.KEY_GOODS_GOODS_ID_HEIGHT_IDX);
+    public List<UniqueKey<GoodsRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_GOODS_GOODS_ID_HEIGHT_IDX);
     }
 
     @Override

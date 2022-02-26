@@ -174,6 +174,11 @@ public class Transaction extends TableImpl<TransactionRecord> {
      */
     public final TableField<TransactionRecord, Boolean> HAS_ENCRYPTTOSELF_MESSAGE = createField(DSL.name("has_encrypttoself_message"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field("0", SQLDataType.BOOLEAN)), this, "");
 
+    /**
+     * The column <code>DB.transaction.cash_back_id</code>.
+     */
+    public final TableField<TransactionRecord, Long> CASH_BACK_ID = createField(DSL.name("cash_back_id"), SQLDataType.BIGINT.defaultValue(DSL.field("0", SQLDataType.BIGINT)), this, "");
+
     private Transaction(Name alias, Table<TransactionRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -209,12 +214,12 @@ public class Transaction extends TableImpl<TransactionRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.TRANSACTION_TRANSACTION_BLOCK_TIMESTAMP_IDX, Indexes.TRANSACTION_TRANSACTION_RECIPIENT_ID_AMOUNT_HEIGHT_IDX, Indexes.TRANSACTION_TRANSACTION_RECIPIENT_ID_IDX, Indexes.TRANSACTION_TRANSACTION_SENDER_ID_IDX);
+        return Arrays.asList(Indexes.TRANSACTION_TRANSACTION_BLOCK_TIMESTAMP_IDX, Indexes.TRANSACTION_TRANSACTION_RECIPIENT_ID_AMOUNT_HEIGHT_IDX, Indexes.TRANSACTION_TRANSACTION_RECIPIENT_ID_IDX, Indexes.TRANSACTION_TRANSACTION_SENDER_ID_IDX, Indexes.TRANSACTION_TX_CASH_BACK_INDEX, Indexes.TRANSACTION_TX_SENDER_TYPE);
     }
 
     @Override
@@ -228,13 +233,13 @@ public class Transaction extends TableImpl<TransactionRecord> {
     }
 
     @Override
-    public List<UniqueKey<TransactionRecord>> getKeys() {
-        return Arrays.<UniqueKey<TransactionRecord>>asList(Keys.KEY_TRANSACTION_PRIMARY, Keys.KEY_TRANSACTION_TRANSACTION_ID_IDX, Keys.KEY_TRANSACTION_TRANSACTION_FULL_HASH_IDX);
+    public List<UniqueKey<TransactionRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_TRANSACTION_TRANSACTION_ID_IDX, Keys.KEY_TRANSACTION_TRANSACTION_FULL_HASH_IDX);
     }
 
     @Override
     public List<ForeignKey<TransactionRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<TransactionRecord, ?>>asList(Keys.CONSTRAINT_FF);
+        return Arrays.asList(Keys.CONSTRAINT_FF);
     }
 
     private transient Block _block;

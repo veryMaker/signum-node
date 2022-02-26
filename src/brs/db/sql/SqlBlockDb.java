@@ -88,6 +88,8 @@ public class SqlBlockDb implements BlockDb {
     long previousBlockId            = Optional.ofNullable(r.getPreviousBlockId()).orElse(0L);
     long totalAmountNQT             = r.getTotalAmount();
     long totalFeeNQT                = r.getTotalFee();
+    long totalFeeCashBackNQT        = r.getTotalFeeCashBack();
+    long totalFeeBurntNQT           = r.getTotalFeeBurnt();
     int payloadLength               = r.getPayloadLength();
     byte[] generatorPublicKey       = r.getGeneratorPublicKey();
     byte[] previousBlockHash        = r.getPreviousBlockHash();
@@ -102,20 +104,25 @@ public class SqlBlockDb implements BlockDb {
     long nonce                      = r.getNonce();
     byte[] blockATs                 = r.getAts();
 
-    return new Block(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, payloadLength, payloadHash,
+    return new Block(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT,
+                         totalFeeCashBackNQT, totalFeeBurntNQT,
+                         payloadLength, payloadHash,
                          generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
                          cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs);
   }
 
   public void saveBlock(DSLContext ctx, Block block) {
       ctx.insertInto(BLOCK, BLOCK.ID, BLOCK.VERSION, BLOCK.TIMESTAMP, BLOCK.PREVIOUS_BLOCK_ID,
-              BLOCK.TOTAL_AMOUNT, BLOCK.TOTAL_FEE, BLOCK.PAYLOAD_LENGTH, BLOCK.GENERATOR_PUBLIC_KEY,
+              BLOCK.TOTAL_AMOUNT, BLOCK.TOTAL_FEE, BLOCK.TOTAL_FEE_CASH_BACK, BLOCK.TOTAL_FEE_BURNT,
+              BLOCK.PAYLOAD_LENGTH, BLOCK.GENERATOR_PUBLIC_KEY,
               BLOCK.PREVIOUS_BLOCK_HASH, BLOCK.CUMULATIVE_DIFFICULTY, BLOCK.BASE_TARGET, BLOCK.HEIGHT,
               BLOCK.GENERATION_SIGNATURE, BLOCK.BLOCK_SIGNATURE, BLOCK.PAYLOAD_HASH, BLOCK.GENERATOR_ID,
               BLOCK.NONCE, BLOCK.ATS)
               .values(block.getId(), block.getVersion(), block.getTimestamp(),
                       block.getPreviousBlockId() == 0 ? null : block.getPreviousBlockId(),
-                      block.getTotalAmountNQT(), block.getTotalFeeNQT(), block.getPayloadLength(),
+                      block.getTotalAmountNQT(), block.getTotalFeeNQT(),
+                      block.getTotalFeeCashBackNQT(), block.getTotalFeeBurntNQT(),
+                      block.getPayloadLength(),
                       block.getGeneratorPublicKey(), block.getPreviousBlockHash(),
                       block.getCumulativeDifficulty().toByteArray(), block.getBaseTarget(), block.getHeight(),
                       block.getGenerationSignature(), block.getBlockSignature(), block.getPayloadHash(),

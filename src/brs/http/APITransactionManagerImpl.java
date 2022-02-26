@@ -10,6 +10,7 @@ import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FluxValues;
 import brs.http.common.Parameters;
+import brs.props.Props;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.services.TransactionService;
@@ -52,6 +53,8 @@ public class APITransactionManagerImpl implements APITransactionManager {
     String publicKeyValue = Convert.emptyToNull(req.getParameter(PUBLIC_KEY_PARAMETER));
     String recipientPublicKeyValue = Convert.emptyToNull(ParameterParser.getRecipientPublicKey(req));
     boolean broadcast = !Parameters.isFalse(req.getParameter(BROADCAST_PARAMETER));
+
+    long cashBackId = Convert.parseUnsignedLong(Burst.getPropertyService().getString(Props.CASH_BACK_ID));
 
     EncryptedMessage encryptedMessage = null;
 
@@ -145,6 +148,8 @@ public class APITransactionManagerImpl implements APITransactionManager {
       if (encryptToSelfMessage != null) {
         builder.encryptToSelfMessage(encryptToSelfMessage);
       }
+      builder.cashBackId(cashBackId);
+
       Transaction transaction = builder.build();
       transactionService.validate(transaction);
 

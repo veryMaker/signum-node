@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Constants {
-  
+
   public static final String SIGNUM_NETWORK_NAME = "Signum";
 
   public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
@@ -21,7 +21,8 @@ public final class Constants {
 
   public static final long MAX_BALANCE_BURST = 2158812800L;
 
-  public static final long FEE_QUANT_CIP3 = 735000;
+  public static final long FEE_QUANT_SIP3 = 735_000;
+  public static final long FEE_QUANT_SIP34 = 1_000_000;
   public static final long ONE_BURST = 100000000;
   public static final long INITIAL_COMMITMENT = 1000 * ONE_BURST;
   public static final int COMMITMENT_WAIT = 60;
@@ -33,7 +34,7 @@ public final class Constants {
   public static final int CAPACITY_ESTIMATION_BLOCKS_MID = 360 * 4;
   public static final long MAX_BASE_TARGET = 18325193796L;
   public static final int MAX_ROLLBACK = 1440;
-  
+
   public static final int ORDINARY_TRANSACTION_BYTES = 176;
 
   public static final int MAX_ALIAS_URI_LENGTH = 1000;
