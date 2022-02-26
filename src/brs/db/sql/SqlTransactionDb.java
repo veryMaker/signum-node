@@ -160,7 +160,7 @@ public class SqlTransactionDb implements TransactionDb {
                 TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID, TRANSACTION.CASH_BACK_ID)
                 .values((Long) null, null, null, null, null, null, null, null, null, null, null,
                     null, null,
-                    null, null, null, null, null, null, null, null, null, null, null));
+                    null, null, null, null, null, null, null, null, null, null, null, null));
         for (Transaction transaction : transactions) {
           insertBatch.bind(
               transaction.getId(),
