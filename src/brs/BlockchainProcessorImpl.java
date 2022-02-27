@@ -374,6 +374,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
             } catch (BurstException.StopException e) {
               logger.info("Blockchain download stopped: {}", e.getMessage());
+            } catch (InterruptedException ignored) {
+              // shutting down
             } catch (Exception e) {
               logger.info("Error in blockchain download thread", e);
             } // end second try

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,6 +89,8 @@ public final class Burst {
   private static DBCacheManagerImpl dbCacheManager;
 
   private static API api;
+
+  private static AtomicBoolean shuttingdown = new AtomicBoolean(false);
 
   private static PropertyService loadProperties(String confFolder) {
     logger.info("Initializing Signum Node version {}", VERSION);
@@ -338,7 +341,13 @@ public final class Burst {
   }
 
   public static void shutdown(boolean ignoreDBShutdown) {
+    if(shuttingdown.get())
+      return;
+
+    shuttingdown.set(true);
     logger.info("Shutting down...");
+    logger.info("Do not force exit or kill the node process.");
+
     if (api != null)
       api.shutdown();
     if (threadPool != null) {

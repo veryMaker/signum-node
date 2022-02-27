@@ -136,7 +136,7 @@ public final class Db {
       throw new RuntimeException(e.toString(), e);
     }
   }
-  
+
   public static void clean() {
     try {
       flyway.clean();
@@ -167,6 +167,9 @@ public final class Db {
   }
 
   public static void shutdown() {
+    if (cp == null || cp.isClosed() ) {
+      return;
+    }
     if (dialect == SQLDialect.H2) {
       try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
         // COMPACT is not giving good result.
@@ -187,7 +190,7 @@ public final class Db {
       cp.close();
     }
   }
-  
+
   public static void backup(String filename) {
     if (dialect == SQLDialect.H2) {
       logger.info("Database backup to {} started, it might take a while.", filename);

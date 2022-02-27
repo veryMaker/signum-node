@@ -214,10 +214,15 @@ public class BurstGUI extends JFrame {
 
     private void shutdown() {
         userClosed = true;
-        if (trayIcon != null && SystemTray.isSupported()) {
-            SystemTray.getSystemTray().remove(trayIcon);
-        }
-        System.exit(0); // BRS shutdown handled by exit hook
+
+        new Thread(() -> {
+          Burst.shutdown(false);
+
+          if (trayIcon != null && SystemTray.isSupported()) {
+              SystemTray.getSystemTray().remove(trayIcon);
+          }
+          System.exit(0);
+        }).start();
     }
 
     private void showTrayIcon() {
