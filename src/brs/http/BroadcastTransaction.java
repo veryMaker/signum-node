@@ -4,6 +4,7 @@ import brs.Burst;
 import brs.BurstException;
 import brs.Transaction;
 import brs.TransactionProcessor;
+import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
 import brs.services.ParameterService;
 import brs.services.TransactionService;
@@ -58,7 +59,7 @@ public final class BroadcastTransaction extends APIServlet.JsonRequestHandler {
     long cashBackId = 0L;
     if(Burst.getPropertyService() != null)
       cashBackId = Convert.parseUnsignedLong(Burst.getPropertyService().getString(Props.CASH_BACK_ID));
-    if (transaction.getCashBackId() != cashBackId){
+    if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES) && transaction.getCashBackId() != cashBackId){
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 4);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transactionBytes: cash back ID mismatch");
