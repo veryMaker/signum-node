@@ -40,6 +40,8 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         response.addProperty("blockTime", Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
         response.addProperty("decimalPlaces", Burst.getPropertyService().getInt(Props.DECIMAL_PLACES));
         response.addProperty("feeQuantNQT", Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT));
+        response.addProperty("cashBackId", Burst.getPropertyService().getString(Props.CASH_BACK_ID));
+        response.addProperty("cashBackFactor", Burst.getPropertyService().getInt(Props.CASH_BACK_FACTOR));
 
         JsonArray transactionTypes = new JsonArray();
         TransactionType.getTransactionTypes()
