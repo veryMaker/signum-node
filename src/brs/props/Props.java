@@ -17,6 +17,7 @@ public class Props {
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
   public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", Constants.SIGNUM_NETWORK_NAME);
   public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
+  public static final Prop<Integer> GENESIS_TIMESTAMP = new Prop<>("node.genesisTimestamp", 0);
   public static final Prop<String> ADDRESS_PREFIX = new Prop<>("node.addressPrefix", "S");
   public static final Prop<String> VALUE_SUFIX = new Prop<>("node.valueSuffix", "SIGNA");
   public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("node.experimental", false);
@@ -37,7 +38,7 @@ public class Props {
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
   public static final Prop<Integer> DEV_TIMEWARP    = new Prop<>("DEV.TimeWarp", 1);
   public static final Prop<Boolean> DEV_MOCK_MINING = new Prop<>("DEV.mockMining", false);
-  public static final Prop<Integer> DEV_MOCK_MINING_DEADLINE = new Prop<>("DEV.mockMining.deadline", 10);
+  public static final Prop<Integer> DEV_MOCK_MINING_DEADLINE = new Prop<>("DEV.mockMining.deadline", 0);
 
   public static final Prop<String> DEV_DUMP_PEERS_VERSION = new Prop<>("DEV.dumpPeersVersion", "");
 
@@ -55,7 +56,7 @@ public class Props {
   public static final Prop<Integer> SPEEDWAY_HEIGHT = new Prop<>("brs.speedway.startBlock", -1);
   public static final Prop<Integer> SMART_TOKEN_HEIGHT = new Prop<>("brs.smartToken.startBlock", -1);
   public static final Prop<Integer> SMART_FEES_HEIGHT = new Prop<>("brs.smartFees.startBlock", -1);
-  
+
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);

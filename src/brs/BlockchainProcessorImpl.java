@@ -853,7 +853,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       ByteBuffer bf = ByteBuffer.allocate(0);
       bf.order(ByteOrder.LITTLE_ENDIAN);
       byte[] byteATs = bf.array();
-      Block genesisBlock = new Block(-1, 0, 0, 0, 0, 0, 0, transactions.size() * 128,
+      int genesisTimestamp = Burst.getPropertyService().getInt(Props.GENESIS_TIMESTAMP);
+      Block genesisBlock = new Block(-1, genesisTimestamp, 0, 0, 0, 0, 0, transactions.size() * 128,
           digest.digest(), Genesis.getCreatorPublicKey(), new byte[32],
           Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, Constants.INITIAL_BASE_TARGET);
       blockService.setPrevious(genesisBlock, null);
