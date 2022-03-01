@@ -341,9 +341,6 @@ public final class Burst {
   }
 
   public static void shutdown(boolean ignoreDBShutdown) {
-    if(shuttingdown.get())
-      return;
-
     shuttingdown.set(true);
     logger.info("Shutting down...");
     logger.info("Do not force exit or kill the node process.");
@@ -354,7 +351,7 @@ public final class Burst {
       Peers.shutdown(threadPool);
       threadPool.shutdown();
     }
-    if(! ignoreDBShutdown) {
+    if(! ignoreDBShutdown && !shuttingdown.get()) {
       Db.shutdown();
     }
     if (dbCacheManager != null)
