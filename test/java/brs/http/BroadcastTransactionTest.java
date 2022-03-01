@@ -1,15 +1,21 @@
 package brs.http;
 
+import brs.Burst;
 import brs.BurstException;
 import brs.Transaction;
 import brs.TransactionProcessor;
+import brs.common.QuickMocker;
+import brs.fluxcapacitor.FluxCapacitor;
 import brs.services.ParameterService;
 import brs.services.TransactionService;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,8 +24,13 @@ import static brs.http.common.Parameters.TRANSACTION_JSON_PARAMETER;
 import static brs.http.common.ResultFields.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class BroadcastTransactionTest {
 
   private BroadcastTransaction t;
@@ -33,6 +44,10 @@ public class BroadcastTransactionTest {
     this.transactionProcessorMock = mock(TransactionProcessor.class);
     this.parameterServiceMock = mock(ParameterService.class);
     this.transactionServiceMock = mock(TransactionService.class);
+
+    mockStatic(Burst.class);
+    FluxCapacitor mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor();
+    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new BroadcastTransaction(transactionProcessorMock, parameterServiceMock, transactionServiceMock);
   }
