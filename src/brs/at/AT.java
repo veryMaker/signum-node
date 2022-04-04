@@ -249,12 +249,10 @@ public class AT extends AtMachineState {
 
     public static class HandleATBlockTransactionsListener implements Listener<Block> {
         private final AccountService accountService;
-        private final Blockchain blockchain;
         private final TransactionDb transactionDb;
 
-        public HandleATBlockTransactionsListener(AccountService accountService, Blockchain blockchain, TransactionDb transactionDb) {
+        public HandleATBlockTransactionsListener(AccountService accountService, TransactionDb transactionDb) {
             this.accountService = accountService;
-            this.blockchain = blockchain;
             this.transactionDb = transactionDb;
         }
 
@@ -274,29 +272,12 @@ public class AT extends AtMachineState {
             List<AtTransaction> pendingTransactions = pendingTransactionsMap.get(hash);
             if(pendingTransactions != null) {
               for (AtTransaction atTransaction : pendingTransactions) {
-                accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(AtApiHelper.getLong(atTransaction.getSenderId())), -atTransaction.getAmount());
-                accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.getRecipientId())), atTransaction.getAmount());
-
-                Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
-                        atTransaction.getAmount(), 0L, block.getTimestamp(), (short) 1440, Attachment.AT_PAYMENT);
-
-                builder.senderId(AtApiHelper.getLong(atTransaction.getSenderId()))
-                        .recipientId(AtApiHelper.getLong(atTransaction.getRecipientId()))
-                        .blockId(block.getId())
-                        .height(block.getHeight())
-                        .blockTimestamp(block.getTimestamp())
-                        .ecBlockHeight(0)
-                        .ecBlockId(0L);
-
-                byte[] message = atTransaction.getMessage();
-                if (message != null) {
-                    builder.message(new Appendix.Message(message, blockchain.getHeight()));
-                }
-
                 try {
-                    Transaction transaction = builder.build();
+                    Transaction transaction = atTransaction.build(accountService, block);
+                    
                     if (!transactionDb.hasTransaction(transaction.getId())) {
-                        transactions.add(transaction);
+                      atTransaction.apply(accountService, transaction);
+                      transactions.add(transaction);
                     }
                 } catch (BurstException.NotValidException e) {
                     throw new RuntimeException("Failed to construct AT payment transaction", e);

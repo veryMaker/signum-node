@@ -529,6 +529,10 @@ interface AtApi {
      * @param state AT machine state
      */
     void sendAToAddressInB(AtMachineState state);
+    
+    public long issueAsset(AtMachineState state);
+    
+    public void mintAsset(AtMachineState state);
 
     /**
      * $addr1 is timestamp calculated from $addr2

@@ -82,6 +82,7 @@ public final class Burst {
   private static BlockchainProcessorImpl blockchainProcessor;
   private static TransactionProcessorImpl transactionProcessor;
   private static TransactionService transactionService;
+  private static AssetExchange assetExchange; 
 
   private static PropertyService propertyService;
   private static FluxCapacitor fluxCapacitor;
@@ -132,6 +133,10 @@ public final class Burst {
 
   public static TransactionService getTransactionService() {
     return transactionService;
+  }
+  
+  public static AssetExchange getAssetExchange() {
+    return assetExchange;
   }
 
   public static Stores getStores() {
@@ -242,7 +247,7 @@ public final class Burst {
       final DGSGoodsStoreService digitalGoodsStoreService = new DGSGoodsStoreServiceImpl(blockchain, stores.getDigitalGoodsStoreStore(), accountService);
       final EscrowService escrowService = new EscrowServiceImpl(stores.getEscrowStore(), blockchain, aliasService, accountService);
 
-      final AssetExchange assetExchange = new AssetExchangeImpl(accountService, stores.getTradeStore(), stores.getAccountStore(), stores.getAssetTransferStore(), stores.getAssetStore(), stores.getOrderStore());
+      assetExchange = new AssetExchangeImpl(accountService, stores.getTradeStore(), stores.getAccountStore(), stores.getAssetTransferStore(), stores.getAssetStore(), stores.getOrderStore());
 
       final IndirectIncomingService indirectIncomingService = new IndirectIncomingServiceImpl(stores.getIndirectIncomingStore(), propertyService);
 
@@ -261,7 +266,7 @@ public final class Burst {
       final ParameterService parameterService = new ParameterServiceImpl(accountService, aliasService, assetExchange,
           digitalGoodsStoreService, blockchain, blockchainProcessor, transactionProcessor, atService);
 
-      addBlockchainListeners(blockchainProcessor, accountService, digitalGoodsStoreService, blockchain, dbs.getTransactionDb());
+      addBlockchainListeners(blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService, blockchain, dbs.getTransactionDb());
 
       final APITransactionManager apiTransactionManager = new APITransactionManagerImpl(parameterService, transactionProcessor, blockchain, accountService, transactionService);
 
@@ -301,10 +306,10 @@ public final class Burst {
     (new Thread(Burst::commandHandler)).start();
   }
 
-  private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, DGSGoodsStoreService goodsService, Blockchain blockchain,
+  private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, AssetExchange assetExchange, DGSGoodsStoreService goodsService, Blockchain blockchain,
       TransactionDb transactionDb) {
 
-    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, blockchain, transactionDb);
+    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, transactionDb);
     final DGSGoodsStoreServiceImpl.ExpiredPurchaseListener devNullListener = new DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(accountService, goodsService);
 
     blockchainProcessor.addListener(handleATBlockTransactionListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);

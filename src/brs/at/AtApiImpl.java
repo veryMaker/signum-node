@@ -785,4 +785,14 @@ public class AtApiImpl implements AtApi {
         state.setB3(AtApiHelper.getByteArray(shab.getLong(16)));
         state.setB4(AtApiHelper.getByteArray(shab.getLong(24)));
     }
+
+    @Override
+    public long issueAsset(AtMachineState state) {
+      return platform.issueAsset(state);
+    }
+
+    @Override
+    public void mintAsset(AtMachineState state) {
+      platform.mintAsset(state);
+    }
 }

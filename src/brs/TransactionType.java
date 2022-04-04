@@ -953,7 +953,7 @@ public abstract class TransactionType {
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetIssuance attachment = (Attachment.ColoredCoinsAssetIssuance) transaction.getAttachment();
         long assetId = transaction.getId();
-        assetExchange.addAsset(transaction, attachment);
+        assetExchange.addAsset(transaction.getId(), transaction.getSenderId(), attachment);
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetId, attachment.getQuantityQNT());
       }
 

@@ -221,6 +221,11 @@ public class SqlAccountStore implements AccountStore {
   public Collection<Account.AccountAsset> getAssets(int from, int to, Long id) {
     return getAccountAssetTable().getManyBy(ACCOUNT_ASSET.ACCOUNT_ID.eq(id), from, to);
   }
+  
+  @Override
+  public Account.AccountAsset getAccountAsset(Long accountId, Long assetId) {
+    return getAccountAssetTable().getBy(ACCOUNT_ASSET.ACCOUNT_ID.eq(accountId).and(ACCOUNT_ASSET.ASSET_ID.eq(assetId)));
+  }
 
   @Override
   public Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to) {

@@ -1,8 +1,13 @@
 package brs.at;
 
 import brs.Appendix;
+import brs.Asset;
+import brs.Attachment;
+import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Burst;
+import brs.Constants;
 import brs.Transaction;
+import brs.TransactionType;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 import org.slf4j.Logger;
@@ -105,6 +110,10 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return 1;
         }
 
+        if (state.getVersion() >= 3) {
+          return tx.getType().getType();
+        }
+
         return 0;
     }
 
@@ -118,13 +127,22 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return -1;
         }
 
+        if (state.getVersion() >= 3) {
+          long assetId = AtApiHelper.getLong(state.getA2());
+          if (assetId != 0 && tx.getAttachment() instanceof Attachment.ColoredCoinsAssetTransfer) {
+            Attachment.ColoredCoinsAssetTransfer assetTransfer = (ColoredCoinsAssetTransfer) tx.getAttachment();
+            if(assetTransfer.getAssetId() == assetId) {
+              return assetTransfer.getQuantityQNT();
+            }
+          }
+        }
         if ((tx.getMessage() == null || Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
             return tx.getAmountNQT() - state.minActivationAmount();
         }
 
         return 0;
     }
-    
+
     @Override
     public long getMapValueKeysInA(AtMachineState state) {
       long key1 = AtApiHelper.getLong(state.getA1());
@@ -137,7 +155,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
       return Burst.getStores().getAtStore().getMapValue(atId, key1, key2);
     }
-    
+
     @Override
     public void setMapValueKeysInA(AtMachineState state) {
       long key1 = AtApiHelper.getLong(state.getA1());
@@ -299,6 +317,11 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return 0;
         }
 
+        if (state.getVersion() >= 3) {
+          long assetId = AtApiHelper.getLong(state.getB2());
+          return state.getgBalance(assetId);
+        }
+
         return state.getgBalance();
     }
 
@@ -316,13 +339,26 @@ public class AtApiPlatformImpl extends AtApiImpl {
         if (val < 1)
             return;
 
+        if (state.getVersion() > 2) {
+          long assetId = AtApiHelper.getLong(state.getB2());
+          long balance = state.getgBalance(assetId);
+          if (val > balance) {
+            val = balance;
+          }
+          AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_TRANSFER,
+              state.getId(), state.getB1().clone(), val, assetId, null);
+          state.addTransaction(tx);
+
+          state.setgBalance(assetId, balance - val);
+        }
+
         if (val < state.getgBalance()) {
-            AtTransaction tx = new AtTransaction(state.getId(), state.getB1().clone(), val, null);
+            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), val, 0L, null);
             state.addTransaction(tx);
 
             state.setgBalance(state.getgBalance() - val);
         } else {
-            AtTransaction tx = new AtTransaction(state.getId(), state.getB1().clone(), state.getgBalance(), null);
+            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), state.getgBalance(), 0L, null);
             state.addTransaction(tx);
 
             state.setgBalance(0L);
@@ -330,8 +366,52 @@ public class AtApiPlatformImpl extends AtApiImpl {
     }
 
     @Override
+    public void mintAsset(AtMachineState state) {
+      long assetId = AtApiHelper.getLong(state.getB2());
+      long accountId = AtApiHelper.getLong(state.getId());
+      long quantity = AtApiHelper.getLong(state.getB1());
+
+      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      if (asset == null || asset.getAccountId() != accountId) {
+        // only assets that we have created internally
+        return;
+      }
+
+      long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false);
+      long newSupply = circulatingSupply + quantity;
+      if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
+        // do not mint extra to keep the limit
+        return;
+      }
+
+      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_MINT,
+          state.getId(), state.getB1().clone(), quantity, assetId, null);
+      state.addTransaction(tx);
+
+      state.setgBalance(assetId, state.getgBalance(assetId) + quantity);
+    }
+
+    @Override
+    public long issueAsset(AtMachineState state) {
+      ByteBuffer b = ByteBuffer.allocate(32);
+      b.order(ByteOrder.LITTLE_ENDIAN);
+      b.put(state.getA1());
+      b.put(state.getA2());
+      b.put(state.getA3());
+      b.put(state.getA4());
+      b.clear();
+      
+      long decimals = AtApiHelper.getLong(state.getB1());
+
+      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_ISSUANCE, state.getId(), null, decimals, 0L, b.array());
+      state.addTransaction(tx);
+
+      return tx.getAssetId();
+    }
+
+    @Override
     public void sendAllToAddressInB(AtMachineState state) {
-        AtTransaction tx = new AtTransaction(state.getId(), state.getB1().clone(), state.getgBalance(), null);
+        AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), state.getgBalance(), 0L, null);
         state.addTransaction(tx);
         state.setgBalance(0L);
     }
@@ -339,13 +419,13 @@ public class AtApiPlatformImpl extends AtApiImpl {
     @Override
     public void sendOldToAddressInB(AtMachineState state) {
         if (state.getpBalance() > state.getgBalance()) {
-            AtTransaction tx = new AtTransaction(state.getId(), state.getB1(), state.getgBalance(), null);
+            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1(), state.getgBalance(), 0L, null);
             state.addTransaction(tx);
 
             state.setgBalance(0L);
             state.setpBalance(0L);
         } else {
-            AtTransaction tx = new AtTransaction(state.getId(), state.getB1(), state.getpBalance(), null);
+            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1(), state.getpBalance(), 0L, null);
             state.addTransaction(tx);
 
             state.setgBalance(state.getgBalance() - state.getpBalance());
@@ -363,7 +443,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         b.put(state.getA4());
         b.clear();
 
-        AtTransaction tx = new AtTransaction(state.getId(), state.getB1(), 0L, b.array());
+        AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1(), 0L, 0L, b.array());
         state.addTransaction(tx);
     }
 

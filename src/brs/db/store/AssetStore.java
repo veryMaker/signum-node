@@ -12,4 +12,6 @@ public interface AssetStore {
   EntitySqlTable<Asset> getAssetTable();
 
   Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to);
+
+  Asset getAsset(long assetId);
 }

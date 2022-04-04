@@ -66,6 +66,11 @@ public class SqlAssetStore implements AssetStore {
     return assetTable.getManyBy(ASSET.ACCOUNT_ID.eq(accountId), from, to);
   }
 
+  @Override
+  public Asset getAsset(long assetId) {
+    return assetTable.getBy(ASSET.ID.eq(assetId));
+  }
+
   private class SqlAsset extends Asset {
 
     private SqlAsset(Record record) {

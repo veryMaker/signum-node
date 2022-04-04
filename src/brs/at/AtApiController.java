@@ -156,6 +156,11 @@ class AtApiController {
             case SET_MAP_VALUE_KEYS_IN_A:
               atApi.setMapValueKeysInA(state);
               break;
+            case ISSUE_ASSET:
+              return atApi.issueAsset(state);
+            case MINT_ASSET:
+              atApi.mintAsset(state);
+              break;
 
             default:
                 return 0;

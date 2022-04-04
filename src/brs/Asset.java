@@ -24,10 +24,10 @@ public class Asset {
     this.mintable = mintable;
   }
 
-  public Asset(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsAssetIssuance attachment) {
+  public Asset(BurstKey dbKey, long assetId, long accountId, Attachment.ColoredCoinsAssetIssuance attachment) {
     this.dbKey = dbKey;
-    this.assetId = transaction.getId();
-    this.accountId = transaction.getSenderId();
+    this.assetId = assetId;
+    this.accountId = accountId;
     this.name = attachment.getName();
     this.description = attachment.getDescription();
     this.quantityQNT = attachment.getQuantityQNT();

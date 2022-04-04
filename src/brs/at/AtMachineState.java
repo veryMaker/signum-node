@@ -8,6 +8,8 @@
 package brs.at;
 
 import brs.Burst;
+import brs.Constants;
+import brs.Account.AccountAsset;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 import brs.util.Convert;
@@ -16,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TreeSet;
 
@@ -30,6 +33,7 @@ public class AtMachineState {
     private final ArrayList<AT.AtMapEntry> mapUpdates;
     private short version;
     private long gBalance;
+    private HashMap<Long, Long> gBalanceAsset = new HashMap<>();
     private long pBalance;
     private MachineState machineState;
     private int cSize;
@@ -43,6 +47,8 @@ public class AtMachineState {
     private long minActivationAmount;
     private ByteBuffer apData;
     private int height;
+    private int blockTimestamp;
+    private long blockId;
     private short dataPages;
     private short callStackPages;
     private short userStackPages;
@@ -229,16 +235,31 @@ public class AtMachineState {
     }
 
     void addTransaction(AtTransaction tx) {
-        ByteBuffer recipId = ByteBuffer.wrap(tx.getRecipientId());
-        AtTransaction oldTx = transactions.get(recipId);
+        ByteBuffer txKey = ByteBuffer.allocate(tx.getRecipientId().length + 8);
+        txKey.put(tx.getRecipientId());
+        txKey.putLong(tx.getAssetId());
+        AtTransaction oldTx = transactions.get(txKey);
         if (oldTx == null) {
-            transactions.put(recipId, tx);
+            transactions.put(txKey, tx);
         } else {
-            AtTransaction newTx = new AtTransaction(tx.getSenderId(),
+            byte []message = tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage();
+            if(getVersion() > 2 && (oldTx.getMessage() == null || oldTx.getMessage().length < Constants.MAX_ARBITRARY_MESSAGE_LENGTH - 32)) {
+              // we append the messages now
+              ByteBuffer msg = ByteBuffer.allocate((oldTx.getMessage() == null ? 0 : oldTx.getMessage().length)
+                  + (tx.getMessage() == null ? 0 : tx.getMessage().length));
+              if(oldTx.getMessage() != null)
+                msg.put(oldTx.getMessage());
+              if(tx.getMessage() != null)
+                msg.put(tx.getMessage());
+              msg.clear();
+              message = msg.array();
+            }
+          
+            AtTransaction newTx = new AtTransaction(tx.getType(), tx.getSenderId(),
                     tx.getRecipientId(),
-                    oldTx.getAmount() + tx.getAmount(),
-                    tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage());
-            transactions.put(recipId, newTx);
+                    oldTx.getAmount() + tx.getAmount(), oldTx.getAssetId(),
+                    message);
+            transactions.put(txKey, newTx);
         }
     }
 
@@ -327,19 +348,36 @@ public class AtMachineState {
       return userStackPages;
     }
 
-    public Long getgBalance() {
+    public long getgBalance() {
         return gBalance;
     }
+    
+    public long getgBalance(long assetId) {
+      Long balance = gBalanceAsset.get(assetId);
+      if(balance == null) {
+        balance = 0L;
+        AccountAsset asset = Burst.getStores().getAccountStore().getAccountAsset(AtApiHelper.getLong(getId()), assetId);
+        if(asset != null) {
+          balance = asset.getQuantityQNT();
+        }
+        gBalanceAsset.put(assetId, balance);
+      }
+      return balance;
+    }
+    
+    public void setgBalance(long assetId, long value) {
+      gBalanceAsset.put(assetId, value);
+    }
 
-    public void setgBalance(Long gBalance) {
+    public void setgBalance(long gBalance) {
         this.gBalance = gBalance;
     }
 
-    public Long getpBalance() {
+    public long getpBalance() {
         return pBalance;
     }
 
-    public void setpBalance(Long pBalance) {
+    public void setpBalance(long pBalance) {
         this.pBalance = pBalance;
     }
 
@@ -398,13 +436,24 @@ public class AtMachineState {
     public void setHeight(int height) {
         this.height = height;
     }
+    
+    public void setBlockTimestamp(int blockTimestamp) {
+      this.blockTimestamp = blockTimestamp;
+    }
 
     private byte[] getTransactionBytes() {
-        ByteBuffer b = ByteBuffer.allocate((creator.length + 8) * transactions.size());
+        int txLength = creator.length + 8;
+        if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+          txLength += 8;
+        }
+        ByteBuffer b = ByteBuffer.allocate(txLength * transactions.size());
         b.order(ByteOrder.LITTLE_ENDIAN);
-        for (AtTransaction tx : transactions.values()) {
+        for (AtTransaction tx : getTransactions()) {
             b.put(tx.getRecipientId());
             b.putLong(tx.getAmount());
+            if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+              b.putLong(tx.getAssetId());
+            }
         }
         return b.array();
     }
