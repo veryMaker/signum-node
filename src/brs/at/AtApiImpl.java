@@ -681,6 +681,16 @@ public class AtApiImpl implements AtApi {
     public long getAmountForTxInA(AtMachineState state) {
         return platform.getAmountForTxInA(state);
     }
+    
+    @Override
+    public long getMapValueKeysInA(AtMachineState state) {
+        return platform.getMapValueKeysInA(state);
+    }
+
+    @Override
+    public void setMapValueKeysInA(AtMachineState state) {
+        platform.setMapValueKeysInA(state);
+    }
 
     @Override
     public long getTimestampForTxInA(AtMachineState state) {

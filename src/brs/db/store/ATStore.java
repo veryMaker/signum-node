@@ -28,8 +28,12 @@ public interface ATStore {
   BurstKey.LongKeyFactory<AT.ATState> getAtStateDbKeyFactory();
 
   VersionedEntityTable<AT.ATState> getAtStateTable();
+  
+  VersionedEntityTable<brs.at.AT.AtMapEntry> getAtMapTable();
 
   Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount);
 
   int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount);
+
+  long getMapValue(long atId, long key1, long key2);
 }

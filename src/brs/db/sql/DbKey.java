@@ -116,6 +116,51 @@ public interface DbKey extends BurstKey {
     }
   }
 
+  abstract class LinkKey3Factory<T> extends Factory<T> implements BurstKey.LinkKey3Factory<T> {
+
+    private final String idColumnA;
+    private final String idColumnB;
+    private final String idColumnC;
+
+    public LinkKey3Factory(String idColumnA, String idColumnB, String idColumnC) {
+      super(" WHERE " + idColumnA + " = ? AND " + idColumnB + " = ? AND " + idColumnC + " = ? ",
+            new String[] {idColumnA,idColumnB,idColumnC},
+            " a." + idColumnA + " = b." + idColumnA + " AND a." + idColumnB + " = b." + idColumnB +
+            " AND a." + idColumnC + " = b." + idColumnC + " ");
+      this.idColumnA = idColumnA;
+      this.idColumnB = idColumnB;
+      this.idColumnC = idColumnC;
+    }
+
+    @Override
+    public DbKey newKey(Record rs) {
+      return new LinkKey3(rs.get(idColumnA, Long.class), rs.get(idColumnB, Long.class), rs.get(idColumnC, Long.class), idColumnA, idColumnB, idColumnC);
+    }
+
+    public DbKey newKey(long idA, long idB, long idC) {
+      return new LinkKey3(idA, idB, idC, idColumnA, idColumnB, idColumnC);
+    }
+
+    @Override
+    public void applySelfJoin(SelectQuery<Record> query, Table<?> queryTable, Table<?> otherTable) {
+      query.addConditions(
+        queryTable.field(idColumnA, Long.class).eq(
+          otherTable.field(idColumnA, Long.class)
+        )
+      );
+      query.addConditions(
+        queryTable.field(idColumnB, Long.class).eq(
+          otherTable.field(idColumnB, Long.class)
+        )
+      );
+      query.addConditions(
+          queryTable.field(idColumnC, Long.class).eq(
+            otherTable.field(idColumnC, Long.class)
+          )
+        );
+    }
+  }
+
   final class LongKey implements DbKey {
 
     private final long id;
@@ -187,4 +232,48 @@ public interface DbKey extends BurstKey {
       return conditions;
     }
   }
+
+  final class LinkKey3 implements DbKey {
+
+    private final long idA;
+    private final long idB;
+    private final long idC;
+    private final String idColumnA;
+    private final String idColumnB;
+    private final String idColumnC;
+
+    private LinkKey3(long idA, long idB, long idC, String idColumnA, String idColumnB, String idColumnC) {
+      this.idA       = idA;
+      this.idB       = idB;
+      this.idC       = idC;
+      this.idColumnA = idColumnA;
+      this.idColumnB = idColumnB;
+      this.idColumnC = idColumnC;
+    }
+
+    @Override
+    public long[] getPKValues() {
+        return new long[]{idA, idB, idC};
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof LinkKey3 && ((LinkKey3) o).idA == idA && ((LinkKey3) o).idB == idB && ((LinkKey3) o).idC == idC;
+    }
+
+    @Override
+    public int hashCode() {
+      return (int) (idA ^ (idA >>> 32)) ^ (int) (idB ^ (idB >>> 32)) ^ (int) (idC ^ (idC >>> 32));
+    }
+
+    @Override
+    public Collection<Condition> getPKConditions(Table<?> tableClass) {
+      ArrayList<Condition> conditions = new ArrayList<>();
+      conditions.add(tableClass.field(idColumnA, Long.class).eq(idA));
+      conditions.add(tableClass.field(idColumnB, Long.class).eq(idB));
+      conditions.add(tableClass.field(idColumnC, Long.class).eq(idC));
+      return conditions;
+    }
+  }
+
 }

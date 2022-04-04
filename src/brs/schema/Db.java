@@ -12,6 +12,7 @@ import brs.schema.tables.AskOrder;
 import brs.schema.tables.Asset;
 import brs.schema.tables.AssetTransfer;
 import brs.schema.tables.At;
+import brs.schema.tables.AtMap;
 import brs.schema.tables.AtState;
 import brs.schema.tables.BidOrder;
 import brs.schema.tables.Block;
@@ -90,6 +91,11 @@ public class Db extends SchemaImpl {
      * The table <code>DB.at</code>.
      */
     public final At AT = At.AT;
+
+    /**
+     * The table <code>DB.at_map</code>.
+     */
+    public final AtMap AT_MAP = AtMap.AT_MAP;
 
     /**
      * The table <code>DB.at_state</code>.
@@ -200,6 +206,7 @@ public class Db extends SchemaImpl {
             Asset.ASSET,
             AssetTransfer.ASSET_TRANSFER,
             At.AT,
+            AtMap.AT_MAP,
             AtState.AT_STATE,
             BidOrder.BID_ORDER,
             Block.BLOCK,

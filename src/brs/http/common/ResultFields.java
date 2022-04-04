@@ -120,6 +120,7 @@ public class ResultFields {
   public static final String SIGNERS_RESPONSE = "signers";
   public static final String ATS_RESPONSE = "ats";
   public static final String AT_IDS_RESPONSE = "atIds";
+  public static final String VALUE_RESPONSE = "value";
   public static final String TRADES_RESPONSE = "trades";
   public static final String ASK_ORDER_RESPONSE = "askOrder";
   public static final String BID_ORDER_RESPONSE = "bidOrder";

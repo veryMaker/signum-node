@@ -14,6 +14,7 @@ import brs.util.Convert;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.TreeSet;
@@ -26,6 +27,7 @@ public class AtMachineState {
     private final ByteBuffer apCode;
     private long apCodeHashId;
     private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
+    private final ArrayList<AT.AtMapEntry> mapUpdates;
     private short version;
     private long gBalance;
     private long pBalance;
@@ -72,6 +74,7 @@ public class AtMachineState {
         this.apCodeHashId = apCodeHashId;
 
         transactions = new LinkedHashMap<>();
+        mapUpdates = new ArrayList<>();
     }
 
     public AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
@@ -121,7 +124,7 @@ public class AtMachineState {
         this.apCode.order(ByteOrder.LITTLE_ENDIAN);
         this.apCode.put(code);
         this.apCode.clear();
-        
+
         if(apCode.array().length > 0) {
           this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
         }
@@ -155,6 +158,7 @@ public class AtMachineState {
         this.sleepBetween = 0;
         this.freezeWhenSameBalance = false;
         this.transactions = new LinkedHashMap<>();
+        this.mapUpdates = new ArrayList<>();
         this.gBalance = 0;
         this.pBalance = 0;
         this.machineState = new MachineState();
@@ -238,18 +242,27 @@ public class AtMachineState {
         }
     }
 
-    protected void clearTransactions() {
-        transactions.clear();
+    void addMapUpdate(AT.AtMapEntry entry) {
+      mapUpdates.add(entry);
+    }
+
+    protected void clearLists() {
+      transactions.clear();
+      mapUpdates.clear();
     }
 
     public Collection<AtTransaction> getTransactions() {
         return transactions.values();
     }
 
+    public Collection<AT.AtMapEntry> getMapUpdates() {
+      return mapUpdates;
+    }
+
     public ByteBuffer getApCode() {
         return apCode;
     }
-    
+
     public long getApCodeHashId() {
       return apCodeHashId;
   }
@@ -301,7 +314,7 @@ public class AtMachineState {
     protected void setdSize(int dSize) {
         this.dSize = dSize;
     }
-    
+
     public short getDataPages() {
       return dataPages;
     }

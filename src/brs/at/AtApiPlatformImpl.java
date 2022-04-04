@@ -124,6 +124,30 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         return 0;
     }
+    
+    @Override
+    public long getMapValueKeysInA(AtMachineState state) {
+      long key1 = AtApiHelper.getLong(state.getA1());
+      long key2 = AtApiHelper.getLong(state.getA2());
+
+      long atId = AtApiHelper.getLong(state.getA3());
+      if(atId == 0L) {
+        atId = AtApiHelper.getLong(state.getId());
+      }
+
+      return Burst.getStores().getAtStore().getMapValue(atId, key1, key2);
+    }
+    
+    @Override
+    public void setMapValueKeysInA(AtMachineState state) {
+      long key1 = AtApiHelper.getLong(state.getA1());
+      long key2 = AtApiHelper.getLong(state.getA2());
+      long value = AtApiHelper.getLong(state.getA4());
+
+      long atId = AtApiHelper.getLong(state.getId());
+
+      state.addMapUpdate(new AT.AtMapEntry(atId, key1, key2, value));
+    }
 
     @Override
     public long getTimestampForTxInA(AtMachineState state) {

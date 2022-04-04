@@ -430,6 +430,18 @@ interface AtApi {
      * @return bool if A is a valid tx with @addr to tx amount
      */
     long getAmountForTxInA(AtMachineState state);
+    
+    /**
+     * @param state AT machine state
+     * @return the map value stored with keys in A (A1=key1, A2=key2, A3=at_id (optional, if 0 use the self id))
+     */
+    long getMapValueKeysInA(AtMachineState state);
+
+    /**
+     * @param state AT machine state
+     * @return store the value at A4 with keys in A1=key1 and A2=key2
+     */
+    void setMapValueKeysInA(AtMachineState state);
 
     /**
      * @param state AT machine state

@@ -4,6 +4,7 @@ import brs.Attachment;
 import brs.Burst;
 import brs.Transaction;
 import brs.at.AT;
+import brs.at.AT.AtMapEntry;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
 import brs.at.AtMachineState;
@@ -42,6 +43,16 @@ public class SqlATStore implements ATStore {
     };
 
   private final VersionedEntityTable<brs.at.AT.ATState> atStateTable;
+
+
+  private final DbKey.LinkKey3Factory<brs.at.AT.AtMapEntry> atMapKeyFactory = new DbKey.LinkKey3Factory<brs.at.AT.AtMapEntry>("at_id", "key1", "key2"){
+    @Override
+    public BurstKey newKey(brs.at.AT.AtMapEntry atDb) {
+      return newKey(atDb.getAtId(), atDb.getKey1(), atDb.getKey2());
+    }
+  };
+
+  private final VersionedEntityTable<brs.at.AT.AtMapEntry> atMapTable;
 
   public SqlATStore(DerivedTableManager derivedTableManager) {
     atTable = new VersionedEntitySqlTable<brs.at.AT>("at", brs.schema.Tables.AT, atDbKeyFactory, derivedTableManager) {
@@ -83,12 +94,39 @@ public class SqlATStore implements ATStore {
         return sort;
       }
     };
+    
+    atMapTable = new VersionedEntitySqlTable<brs.at.AT.AtMapEntry>("at_map", brs.schema.Tables.AT_MAP, atMapKeyFactory, derivedTableManager) {
+      @Override
+      protected brs.at.AT.AtMapEntry load(DSLContext ctx, Record rs) {
+        return new SqlAtMapEntry(rs);
+      }
+
+      @Override
+      protected void save(DSLContext ctx, brs.at.AT.AtMapEntry atDbEntry) {
+        saveATMapEntry(ctx, atDbEntry);
+      }
+
+      @Override
+      protected List<SortField<?>> defaultSort() {
+        List<SortField<?>> sort = new ArrayList<>();
+        sort.add(tableClass.field("prev_height", Integer.class).asc());
+        sort.add(heightField.asc());
+        sort.add(tableClass.field("at_id", Long.class).asc());
+        return sort;
+      }
+    };
   }
 
   private void saveATState(DSLContext ctx, brs.at.AT.ATState atState) {
     ctx.mergeInto(AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
             .key(AT_STATE.AT_ID, AT_STATE.HEIGHT)
             .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Burst.getBlockchain().getHeight(), true)
+            .execute();
+  }
+  
+  private void saveATMapEntry(DSLContext ctx, brs.at.AT.AtMapEntry atEntry) {
+    ctx.insertInto(AT_MAP, AT_MAP.AT_ID, AT_MAP.KEY1, AT_MAP.KEY2, AT_MAP.VALUE, AT_STATE.HEIGHT, AT_STATE.LATEST)
+            .values(atEntry.getAtId(), atEntry.getKey1(), atEntry.getKey2(), atEntry.getValue(), Burst.getBlockchain().getHeight(), true)
             .execute();
   }
 
@@ -170,6 +208,14 @@ public class SqlATStore implements ATStore {
       return createAT(at, atState, height);
     });
   }
+  
+  @Override
+  public long getMapValue(long atId, long key1, long key2) {
+    AtMapEntry entry = this.atMapTable.get(this.atMapKeyFactory.newKey(atId, key1, key2));
+    if(entry == null)
+      return 0;
+    return entry.getValue();
+  }
 
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {
     byte[] code = brs.at.AT.decompressState(at.getApCode());
@@ -221,6 +267,11 @@ public class SqlATStore implements ATStore {
   @Override
   public VersionedEntityTable<brs.at.AT> getAtTable() {
     return atTable;
+  }
+
+  @Override
+  public VersionedEntityTable<brs.at.AT.AtMapEntry> getAtMapTable() {
+    return atMapTable;
   }
 
   @Override
@@ -289,4 +340,11 @@ public class SqlATStore implements ATStore {
             );
     }
   }
+  
+  class SqlAtMapEntry extends brs.at.AT.AtMapEntry {
+    public SqlAtMapEntry(Record record) {
+      super(record.get(AT_MAP.AT_ID), record.get(AT_MAP.KEY1), record.get(AT_MAP.KEY2), record.get(AT_MAP.VALUE));
+    }
+  }
+  
 }

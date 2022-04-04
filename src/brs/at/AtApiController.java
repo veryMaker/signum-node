@@ -1,5 +1,7 @@
 package brs.at;
 
+import static brs.at.OpCode.*;
+
 class AtApiController {
     private static final AtApiImpl atApi = new AtApiImpl();
 
@@ -148,6 +150,13 @@ class AtApiController {
             case 1029:
                 atApi.sendAToAddressInB(state);
                 break;
+                
+            case GET_MAP_VALUE_KEYS_IN_A:
+              return atApi.getMapValueKeysInA(state);
+            case SET_MAP_VALUE_KEYS_IN_A:
+              atApi.setMapValueKeysInA(state);
+              break;
+
             default:
                 return 0;
         }

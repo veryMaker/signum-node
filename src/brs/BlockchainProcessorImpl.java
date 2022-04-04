@@ -1066,8 +1066,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long calculatedRemainingFee = 0;
     // ATs
     AtBlock atBlock;
-    AT.clearPendingFees(block.getHeight(), block.getGeneratorId());
-    AT.clearPendingTransactions(block.getHeight(), block.getGeneratorId());
+    AT.clearPending(block.getHeight(), block.getGeneratorId());
     try {
       atBlock = AtController.validateATs(block.getBlockATs(), blockchain.getHeight(),block.getGeneratorId());
     } catch (AtException e) {
@@ -1364,8 +1363,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
       // ATs for block
       long generatorId = Account.getId(publicKey);
-      AT.clearPendingFees(blockHeight, generatorId);
-      AT.clearPendingTransactions(blockHeight, generatorId);
+      AT.clearPending(blockHeight, generatorId);
       AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, blockHeight, generatorId);
       byte[] byteATs = atBlock.getBytesForBlock();
 

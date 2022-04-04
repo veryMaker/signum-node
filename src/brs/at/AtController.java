@@ -85,7 +85,7 @@ public abstract class AtController {
     }
 
     private static int getNumSteps(byte op, int height) {
-        if (op >= 0x32 && op < 0x38)
+        if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST)
             return (int) AtConstants.getInstance().apiStepMultiplier(height);
 
         return 1;
@@ -240,7 +240,7 @@ public abstract class AtController {
                 try {
                     at.setgBalance(atAccountBalance);
                     at.setHeight(blockHeight);
-                    at.clearTransactions();
+                    at.clearLists();
                     at.setWaitForNumberOfBlocks(at.getSleepBetween());
                     listCode(at, true, true);
                     runSteps(at);
@@ -300,7 +300,7 @@ public abstract class AtController {
             AT at = AT.getAT(atId);
             logger.debug("Running AT {}", Convert.toUnsignedLong(atIdLong));
             try {
-                at.clearTransactions();
+                at.clearLists();
                 at.setHeight(blockHeight);
                 at.setWaitForNumberOfBlocks(at.getSleepBetween());
 
@@ -357,6 +357,7 @@ public abstract class AtController {
         for (AT at : processedATs) {
             at.saveState();
         }
+        AT.saveMapUpdates(blockHeight, generatorId);
 
         return new AtBlock(totalFee, totalAmount, new byte[1]);
     }
@@ -433,6 +434,8 @@ public abstract class AtController {
                 logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
             }
         }
+        AT.addMapUpdates(at.getMapUpdates(), blockHeight, generatorId);
+
         return totalAmount;
     }
 
