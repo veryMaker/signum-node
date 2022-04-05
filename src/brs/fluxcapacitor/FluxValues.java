@@ -29,7 +29,10 @@ public class FluxValues {
         new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, Constants.FEE_QUANT_SIP3),
         new FluxValue.ValueChange<>(HistoricalMoments.SMART_FEES, Constants.FEE_QUANT_SIP34)
         );
-    public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1, new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2));
+    public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1,
+      new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2),
+      new FluxValue.ValueChange<>(HistoricalMoments.NEXT_FORK, (short) 3)
+    );
 
     public static final FluxValue<Integer> MAX_NUMBER_TRANSACTIONS = new FluxValue<>(
         255,

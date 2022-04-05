@@ -274,8 +274,8 @@ public class AT extends AtMachineState {
               for (AtTransaction atTransaction : pendingTransactions) {
                 try {
                     Transaction transaction = atTransaction.build(accountService, block);
-                    
-                    if (!transactionDb.hasTransaction(transaction.getId())) {
+
+                    if (!transactionDb.hasTransaction(transaction.getIdCheckSignature(false))) {
                       atTransaction.apply(accountService, transaction);
                       transactions.add(transaction);
                     }

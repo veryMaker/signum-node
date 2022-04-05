@@ -47,8 +47,6 @@ public class AtMachineState {
     private long minActivationAmount;
     private ByteBuffer apData;
     private int height;
-    private int blockTimestamp;
-    private long blockId;
     private short dataPages;
     private short callStackPages;
     private short userStackPages;
@@ -235,9 +233,15 @@ public class AtMachineState {
     }
 
     void addTransaction(AtTransaction tx) {
-        ByteBuffer txKey = ByteBuffer.allocate(tx.getRecipientId().length + 8);
-        txKey.put(tx.getRecipientId());
+        ByteBuffer txKey = ByteBuffer.allocate(8 + 8);
+        if(tx.getRecipientId() == null){
+          txKey.putLong(0L);
+        }
+        else {
+          txKey.put(tx.getRecipientId());
+        }
         txKey.putLong(tx.getAssetId());
+        txKey.clear();
         AtTransaction oldTx = transactions.get(txKey);
         if (oldTx == null) {
             transactions.put(txKey, tx);
@@ -254,7 +258,7 @@ public class AtMachineState {
               msg.clear();
               message = msg.array();
             }
-          
+
             AtTransaction newTx = new AtTransaction(tx.getType(), tx.getSenderId(),
                     tx.getRecipientId(),
                     oldTx.getAmount() + tx.getAmount(), oldTx.getAssetId(),
@@ -351,7 +355,7 @@ public class AtMachineState {
     public long getgBalance() {
         return gBalance;
     }
-    
+
     public long getgBalance(long assetId) {
       Long balance = gBalanceAsset.get(assetId);
       if(balance == null) {
@@ -364,7 +368,7 @@ public class AtMachineState {
       }
       return balance;
     }
-    
+
     public void setgBalance(long assetId, long value) {
       gBalanceAsset.put(assetId, value);
     }
@@ -436,10 +440,6 @@ public class AtMachineState {
     public void setHeight(int height) {
         this.height = height;
     }
-    
-    public void setBlockTimestamp(int blockTimestamp) {
-      this.blockTimestamp = blockTimestamp;
-    }
 
     private byte[] getTransactionBytes() {
         int txLength = creator.length + 8;
@@ -449,7 +449,10 @@ public class AtMachineState {
         ByteBuffer b = ByteBuffer.allocate(txLength * transactions.size());
         b.order(ByteOrder.LITTLE_ENDIAN);
         for (AtTransaction tx : getTransactions()) {
-            b.put(tx.getRecipientId());
+            if(tx.getRecipientId() == null)
+              b.putLong(0L);
+            else
+              b.put(tx.getRecipientId());
             b.putLong(tx.getAmount());
             if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
               b.putLong(tx.getAssetId());

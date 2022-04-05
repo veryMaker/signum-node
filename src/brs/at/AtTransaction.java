@@ -42,11 +42,11 @@ public class AtTransaction {
 
     AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long amount, long assetId, byte[] message) {
         this.senderId = senderId.clone();
-        this.recipientId = recipientId.clone();
+        this.recipientId = recipientId==null ? null : recipientId.clone();
         this.amount = amount;
         this.message = (message != null) ? message.clone() : null;
         this.type = type;
-        
+
         if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
           // create an asset ID, not using here the transaction id (as usual) because we don't have it yet
           ByteBuffer buffer = ByteBuffer.allocate(getSenderId().length + getMessage().length);
@@ -57,42 +57,46 @@ public class AtTransaction {
           this.assetId = Convert.fullHashToId(fullHash);
         }
         else {
-          this.assetId = assetId;          
+          this.assetId = assetId;
         }
     }
-    
+
     public Transaction build(AccountService accountService, Block block) throws NotValidException {
       attachment = Attachment.AT_PAYMENT;
-      
+
       Account senderAccount = accountService.getAccount(AtApiHelper.getLong(getSenderId()));
       long recipient = getRecipientId() == null ? 0L : AtApiHelper.getLong(getRecipientId());
       accountService.getOrAddAccount(recipient);
-      
+      long amount = getAmount();
+
       if (getType() == TransactionType.ColoredCoins.ASSET_TRANSFER) {
         attachment = new Attachment.ColoredCoinsAssetTransfer(getAssetId(),
             getAmount(), block.getHeight());
+        amount = 0L;
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
-        String name = Convert.toString(getMessage());
+        String name = Convert.toString(getMessage()).trim();
         if(name.length() > Constants.MAX_ASSET_NAME_LENGTH) {
           name = name.substring(0, Constants.MAX_ASSET_NAME_LENGTH);
         }
         if (!TextUtils.isInAlphabet(name)) {
           name = "UNNAMED";
         }
-        long decimals = this.getAmount();
+        long decimals = amount;
+        amount = 0L;
         if(decimals < 0 || decimals > 8) {
           decimals = 4;
         }
-        
+
         attachment = new Attachment.ColoredCoinsAssetIssuance(name, "Autonomous creation by " + Convert.toUnsignedLong(senderAccount.getId())
             , 0L, (byte)decimals, block.getHeight(), true);
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), getAmount());
+        amount = 0L;
       }
       Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
-          getAmount(), 0L, block.getTimestamp(), (short) 1440, attachment);
+          amount, 0L, block.getTimestamp(), (short) 1440, attachment);
 
       builder.senderId(AtApiHelper.getLong(getSenderId()))
               .recipientId(recipient)
@@ -106,10 +110,10 @@ public class AtTransaction {
       if (message != null) {
           builder.message(new Appendix.Message(message, Burst.getBlockchain().getHeight()));
       }
-      
+
       return builder.build();
     }
-    
+
     public void apply(AccountService accountService, Transaction transaction) {
       Account senderAccount = accountService.getAccount(AtApiHelper.getLong(getSenderId()));
       long recipient = getRecipientId() == null ? 0L : AtApiHelper.getLong(getRecipientId());
@@ -126,6 +130,9 @@ public class AtTransaction {
         if(asset == null) {
           Burst.getAssetExchange().addAsset(assetId, senderAccount.getId(), (ColoredCoinsAssetIssuance) attachment);
         }
+      }
+      else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
+        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), getAmount());
       }
       else {
         accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
@@ -145,11 +152,11 @@ public class AtTransaction {
     public long getAmount() {
         return amount;
     }
-    
+
     public TransactionType getType() {
       return type;
     }
-    
+
     public long getAssetId() {
       return assetId;
     }

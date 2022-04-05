@@ -431,7 +431,7 @@ public abstract class AtController {
             totalAmount += tx.getAmount();
             AT.addPendingTransaction(tx, blockHeight, generatorId);
             if (logger.isDebugEnabled()) {
-                logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
+                logger.debug("Transaction to {}, amount {}", tx.getRecipientId() == null ? 0L : Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
             }
         }
         AT.addMapUpdates(at.getMapUpdates(), blockHeight, generatorId);
