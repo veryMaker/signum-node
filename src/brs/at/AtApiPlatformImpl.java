@@ -341,15 +341,18 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         if (state.getVersion() > 2) {
           long assetId = AtApiHelper.getLong(state.getB2());
-          long balance = state.getgBalance(assetId);
-          if (val > balance) {
-            val = balance;
-          }
-          AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_TRANSFER,
-              state.getId(), state.getB1().clone(), val, assetId, null);
-          state.addTransaction(tx);
+          if (assetId != 0L) {
+            long balance = state.getgBalance(assetId);
+            if (val > balance) {
+              val = balance;
+            }
+            AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_TRANSFER,
+                state.getId(), state.getB1().clone(), val, assetId, null);
+            state.addTransaction(tx);
 
-          state.setgBalance(assetId, balance - val);
+            state.setgBalance(assetId, balance - val);
+            return;
+          }
         }
 
         if (val < state.getgBalance()) {
@@ -385,7 +388,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_MINT,
-          state.getId(), state.getB1().clone(), quantity, assetId, null);
+          state.getId(), null, quantity, assetId, null);
       state.addTransaction(tx);
 
       state.setgBalance(assetId, state.getgBalance(assetId) + quantity);
@@ -400,7 +403,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       b.put(state.getA3());
       b.put(state.getA4());
       b.clear();
-      
+
       long decimals = AtApiHelper.getLong(state.getB1());
 
       AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_ISSUANCE, state.getId(), null, decimals, 0L, b.array());

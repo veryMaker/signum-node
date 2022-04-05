@@ -92,7 +92,7 @@ public class AtTransaction {
             , 0L, (byte)decimals, block.getHeight(), true);
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
-        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), getAmount());
+        attachment = new Attachment.ColoredCoinsAssetMint(getAssetId(), getAmount(), block.getHeight());
         amount = 0L;
       }
       Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
