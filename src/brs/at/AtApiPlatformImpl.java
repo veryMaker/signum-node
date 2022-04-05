@@ -145,6 +145,9 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getMapValueKeysInA(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return 0;
+      }
       long key1 = AtApiHelper.getLong(state.getA1());
       long key2 = AtApiHelper.getLong(state.getA2());
 
@@ -158,6 +161,9 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public void setMapValueKeysInA(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return;
+      }
       long key1 = AtApiHelper.getLong(state.getA1());
       long key2 = AtApiHelper.getLong(state.getA2());
       long value = AtApiHelper.getLong(state.getA4());
@@ -370,6 +376,10 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public void mintAsset(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return;
+      }
+
       long assetId = AtApiHelper.getLong(state.getB2());
       long accountId = AtApiHelper.getLong(state.getId());
       long quantity = AtApiHelper.getLong(state.getB1());
@@ -396,6 +406,10 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long issueAsset(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return 0;
+      }
+
       ByteBuffer b = ByteBuffer.allocate(32);
       b.order(ByteOrder.LITTLE_ENDIAN);
       b.put(state.getA1());
