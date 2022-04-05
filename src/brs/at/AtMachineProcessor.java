@@ -112,7 +112,11 @@ class AtMachineProcessor {
         return 0;
     }
 
-    private int getFunAddr() {
+    protected short getFuncNum(){
+      return fun.fun;
+    }
+
+    protected int getFunAddr() {
         if (machineData.getMachineState().pc + 4 + 4 >= machineData.getcSize()) {
             return -1;
         }

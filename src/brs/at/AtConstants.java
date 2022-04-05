@@ -73,7 +73,7 @@ public class AtConstants {
 
         // constants for AT version 3
         MIN_FEE.put((short) 3, 1000L);
-        STEP_FEE.put((short) 3, Constants.FEE_QUANT_SIP3 / 10L);
+        STEP_FEE.put((short) 3, Constants.FEE_QUANT_SIP34 / 10L);
         MAX_STEPS.put((short) 3, 100_000L);
         API_STEP_MULTIPLIER.put((short) 3, 10L);
 

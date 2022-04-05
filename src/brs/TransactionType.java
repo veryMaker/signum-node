@@ -96,7 +96,7 @@ public abstract class TransactionType {
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
 
-  private static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
+  public static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
   private static final long BASELINE_ALIAS_ASSIGNMENT_FACTOR = 20L;
 
   private static Blockchain blockchain;

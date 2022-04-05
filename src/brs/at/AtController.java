@@ -2,6 +2,7 @@ package brs.at;
 
 import brs.Account;
 import brs.Burst;
+import brs.TransactionType;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
@@ -40,7 +41,8 @@ public abstract class AtController {
         int numSteps = 0;
 
         while (state.getMachineState().steps +
-                (numSteps = getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getCreationBlockHeight()))
+                (numSteps = getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getCreationBlockHeight(),
+                  state.getVersion(), processor))
                 <= AtConstants.getInstance().maxSteps(state.getHeight())) {
 
             if ((state.getgBalance() < stepFee * numSteps)) {
@@ -84,9 +86,18 @@ public abstract class AtController {
         return 5;
     }
 
-    private static int getNumSteps(byte op, int height) {
-        if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST)
+    private static int getNumSteps(byte op, int height, int version, AtMachineProcessor processor) {
+        if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST){
+            if (version > 2){
+              // special cases
+              if(op == OpCode.E_OP_CODE_EXT_FUN_RET){
+                if(processor.getFunAddr() == 0 && processor.getFuncNum() == OpCode.ISSUE_ASSET){
+                  return (int) (AtConstants.getInstance().apiStepMultiplier(height) * TransactionType.BASELINE_ASSET_ISSUANCE_FACTOR);
+                }
+              }
+            }
             return (int) AtConstants.getInstance().apiStepMultiplier(height);
+        }
 
         return 1;
     }
