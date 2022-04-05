@@ -36,6 +36,7 @@ final class OpCode {
     static final byte E_OP_CODE_MOD_DAT = Byte.parseByte("16", 16);
     static final byte E_OP_CODE_SHL_DAT = Byte.parseByte("17", 16);
     static final byte E_OP_CODE_SHR_DAT = Byte.parseByte("18", 16);
+    static final byte E_OP_CODE_POW_DAT = Byte.parseByte("19", 16);
     static final byte E_OP_CODE_JMP_ADR = Byte.parseByte("1a", 16);
     static final byte E_OP_CODE_BZR_DAT = Byte.parseByte("1b", 16);
     static final byte E_OP_CODE_BNZ_DAT = Byte.parseByte("1e", 16);

@@ -615,6 +615,24 @@ class AtMachineProcessor {
                     }
                 }
             }
+        } else if (op == OpCode.E_OP_CODE_POW_DAT && machineData.getVersion() > 2){
+          rc = getAddrs();
+
+          if (rc == 0 || disassemble) {
+              rc = 9;
+              if (disassemble) {
+                  if (!determineJumps && logger.isDebugEnabled()) {
+                    logger.debug("POW @{} ${}", String.format("%8x", fun.addr1).replace(' ', '0'), String.format("%8x", fun.addr2).replace(' ', '0'));
+                  }
+              } else {
+                  machineData.getMachineState().pc += rc;
+                  double val = machineData.getApData().getLong(fun.addr1 * 8);
+                  double exp10_000 = machineData.getApData().getLong(fun.addr2 * 8);
+
+                  long result = (long)Math.pow(val, exp10_000 / 10_000.0);
+                  machineData.getApData().putLong(fun.addr1 * 8, result);
+              }
+          }
         } else if (op == OpCode.E_OP_CODE_SHL_DAT || op == OpCode.E_OP_CODE_SHR_DAT) {
             rc = getAddrs();
 
