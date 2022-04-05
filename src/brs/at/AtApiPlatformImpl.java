@@ -285,12 +285,23 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public void bToAddressOfCreator(AtMachineState state) {
-        long creator = AtApiHelper.getLong(state.getCreator());
+      long creator = AtApiHelper.getLong(state.getCreator());
+      if (state.getVersion() >= 3) {
+        // we are allowed to ask for the creator of another AT (in B2)
+        long atId = AtApiHelper.getLong(state.getB2());
+        if (atId != 0L) {
+          creator = 0L;
+          // asking for the creator of the given at_id
+          AT at = Burst.getStores().getAtStore().getAT(atId);
+          if (at != null) {
+            creator = AtApiHelper.getLong(at.getCreator());
+          }
+        }
+      }
 
-        clearB(state);
+      clearB(state);
 
-        state.setB1(AtApiHelper.getByteArray(creator));
-
+      state.setB1(AtApiHelper.getByteArray(creator));
     }
 
     @Override

@@ -133,7 +133,7 @@ class AtApiController {
             case 778:
                 atApi.bToAddressOfTxInA(state);
                 break;
-            case 779:
+            case OpCode.B_TO_ADDRESS_OF_CREATOR:
                 atApi.bToAddressOfCreator(state);
                 break;
 
@@ -150,7 +150,7 @@ class AtApiController {
             case 1029:
                 atApi.sendAToAddressInB(state);
                 break;
-                
+
             case GET_MAP_VALUE_KEYS_IN_A:
               return atApi.getMapValueKeysInA(state);
             case SET_MAP_VALUE_KEYS_IN_A:
