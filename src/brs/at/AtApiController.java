@@ -161,6 +161,9 @@ class AtApiController {
             case MINT_ASSET:
               atApi.mintAsset(state);
               break;
+            case DIST_TO_ASSET_HOLDERS:
+              atApi.distToHolders(state);
+              break;
 
             default:
                 return 0;

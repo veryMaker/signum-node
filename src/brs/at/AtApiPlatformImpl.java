@@ -364,7 +364,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
               val = balance;
             }
             AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_TRANSFER,
-                state.getId(), state.getB1().clone(), val, assetId, null);
+                state.getId(), state.getB1().clone(), assetId, val, null);
             state.addTransaction(tx);
 
             state.setgBalance(assetId, balance - val);
@@ -372,17 +372,13 @@ public class AtApiPlatformImpl extends AtApiImpl {
           }
         }
 
-        if (val < state.getgBalance()) {
-            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), val, 0L, null);
-            state.addTransaction(tx);
-
-            state.setgBalance(state.getgBalance() - val);
-        } else {
-            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), state.getgBalance(), 0L, null);
-            state.addTransaction(tx);
-
-            state.setgBalance(0L);
+        if (val > state.getgBalance()) {
+          val = state.getgBalance();
         }
+        AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), val, null);
+        state.addTransaction(tx);
+
+        state.setgBalance(state.getgBalance() - val);
     }
 
     @Override
@@ -409,10 +405,46 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_MINT,
-          state.getId(), null, quantity, assetId, null);
+          state.getId(), null, assetId, quantity, null);
       state.addTransaction(tx);
 
       state.setgBalance(assetId, state.getgBalance(assetId) + quantity);
+    }
+
+    @Override
+    public void distToHolders(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return;
+      }
+
+      long minHolding = AtApiHelper.getLong(state.getB1());
+      long assetId = AtApiHelper.getLong(state.getB2());
+
+      long amount = AtApiHelper.getLong(state.getA1());
+      long assetToDistribute = AtApiHelper.getLong(state.getA3());
+      long quantityToDistribute = AtApiHelper.getLong(state.getA4());
+
+      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      if (asset == null) {
+        // asset not found, do nothing
+        return;
+      }
+
+      if(assetToDistribute !=0 ){
+        if(quantityToDistribute > state.getgBalance(assetToDistribute)){
+          quantityToDistribute = state.getgBalance(assetToDistribute);
+        }
+        state.setgBalance(assetToDistribute, state.getgBalance(assetToDistribute) - quantityToDistribute);
+      }
+      if(amount > state.getgBalance()){
+        amount = state.getgBalance();
+      }
+      state.setgBalance(state.getgBalance() - amount);
+
+      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS,
+          state.getId(), null, amount, assetId, quantityToDistribute, assetToDistribute, minHolding, null);
+      state.addTransaction(tx);
+
     }
 
     @Override

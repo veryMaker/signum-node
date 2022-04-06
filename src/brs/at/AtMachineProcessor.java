@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
+import brs.Asset;
 import brs.Burst;
+import brs.TransactionType;
 import brs.fluxcapacitor.FluxValues;
 
 class AtMachineProcessor {
@@ -35,6 +37,38 @@ class AtMachineProcessor {
         }
 
         return 0;
+    }
+
+    public int getNumSteps(byte op) {
+      int height = machineData.getCreationBlockHeight();
+      int version = machineData.getVersion();
+      if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST){
+          if (version > 2){
+            // special cases
+            if(op == OpCode.E_OP_CODE_EXT_FUN_RET){
+              if(getFunAddr() == 0 && getFuncNum() == OpCode.ISSUE_ASSET){
+                return (int) (AtConstants.getInstance().apiStepMultiplier(height) * TransactionType.BASELINE_ASSET_ISSUANCE_FACTOR);
+              }
+            }
+            if(op == OpCode.E_OP_CODE_EXT_FUN){
+              if(getFunAddr() == 0 && getFuncNum() == OpCode.DIST_TO_ASSET_HOLDERS){
+                int npayments = 1;
+
+                long minHolding = AtApiHelper.getLong(machineData.getB1());
+                long assetId = AtApiHelper.getLong(machineData.getB2());
+                Asset asset = Burst.getAssetExchange().getAsset(assetId);
+                if(asset != null){
+                  npayments += Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+                }
+
+                return (int) (AtConstants.getInstance().apiStepMultiplier(height) * npayments);
+              }
+            }
+          }
+          return (int) AtConstants.getInstance().apiStepMultiplier(height);
+      }
+
+      return 1;
     }
 
     private int getAddr(boolean isCode) {

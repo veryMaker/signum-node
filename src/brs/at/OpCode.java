@@ -98,5 +98,6 @@ final class OpCode {
     static final short SET_MAP_VALUE_KEYS_IN_A  = 0x0408; // EXT_FUN           keys in A1 and A2 with value in A4
     static final short ISSUE_ASSET              = 0x0409; // EXT_FUN_RET       issue asset with name in A and dec. places in B1, returns the asset id
     static final short MINT_ASSET               = 0x040a; // EXT_FUN           mint B1 quantity of asset ID in B2
+    static final short DIST_TO_ASSET_HOLDERS    = 0x040b; // EXT_FUN           B1 min holding of asset ID in B2, A1 the signa amount to distribute, A3 the assetId to distribute, A4 the asset quantity to distribute
 
 }

@@ -681,7 +681,7 @@ public class AtApiImpl implements AtApi {
     public long getAmountForTxInA(AtMachineState state) {
         return platform.getAmountForTxInA(state);
     }
-    
+
     @Override
     public long getMapValueKeysInA(AtMachineState state) {
         return platform.getMapValueKeysInA(state);
@@ -794,5 +794,10 @@ public class AtApiImpl implements AtApi {
     @Override
     public void mintAsset(AtMachineState state) {
       platform.mintAsset(state);
+    }
+
+    @Override
+    public void distToHolders(AtMachineState state) {
+      platform.distToHolders(state);
     }
 }

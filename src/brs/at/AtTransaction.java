@@ -9,6 +9,7 @@ package brs.at;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -21,6 +22,7 @@ import brs.Burst;
 import brs.BurstException.NotValidException;
 import brs.Constants;
 import brs.Genesis;
+import brs.IndirectIncoming;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.crypto.Crypto;
@@ -35,15 +37,30 @@ public class AtTransaction {
     private final byte[] message;
     private final long amount;
     private final long assetId;
+    private final long quantity;
+    private final long assetIdToDistribute;
+    private final long minHolding;
     private byte[] senderId;
     private byte[] recipientId;
     private TransactionType type;
     private Attachment.AbstractAttachment attachment;
 
-    AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long amount, long assetId, byte[] message) {
+    AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long amount, byte[] message) {
+      this(type, senderId, recipientId, amount, 0L, 0L, 0L, 0L, message);
+    }
+
+    AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long assetId, long quantity, byte[] message) {
+      this(type, senderId, recipientId, 0L, assetId, quantity, 0L, 0L, message);
+    }
+
+    AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long amount, long assetId, long quantity, long assetIdToDistribute,
+      long minHolding, byte[] message) {
         this.senderId = senderId.clone();
         this.recipientId = recipientId==null ? null : recipientId.clone();
         this.amount = amount;
+        this.quantity = quantity;
+        this.assetIdToDistribute = assetIdToDistribute;
+        this.minHolding = minHolding;
         this.message = (message != null) ? message.clone() : null;
         this.type = type;
 
@@ -67,12 +84,10 @@ public class AtTransaction {
       Account senderAccount = accountService.getAccount(AtApiHelper.getLong(getSenderId()));
       long recipient = getRecipientId() == null ? 0L : AtApiHelper.getLong(getRecipientId());
       accountService.getOrAddAccount(recipient);
-      long amount = getAmount();
 
       if (getType() == TransactionType.ColoredCoins.ASSET_TRANSFER) {
         attachment = new Attachment.ColoredCoinsAssetTransfer(getAssetId(),
-            getAmount(), block.getHeight());
-        amount = 0L;
+            quantity, block.getHeight());
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
         String name = Convert.toString(getMessage()).trim();
@@ -82,8 +97,7 @@ public class AtTransaction {
         if (!TextUtils.isInAlphabet(name)) {
           name = "UNNAMED";
         }
-        long decimals = amount;
-        amount = 0L;
+        long decimals = quantity;
         if(decimals < 0 || decimals > 8) {
           decimals = 4;
         }
@@ -92,9 +106,12 @@ public class AtTransaction {
             , 0L, (byte)decimals, block.getHeight(), true);
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
-        attachment = new Attachment.ColoredCoinsAssetMint(getAssetId(), getAmount(), block.getHeight());
-        amount = 0L;
+        attachment = new Attachment.ColoredCoinsAssetMint(getAssetId(), quantity, block.getHeight());
       }
+      else if (getType() == TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS) {
+        attachment = new Attachment.ColoredCoinsAssetDistributeToHolders(assetId, minHolding, assetIdToDistribute, quantity, block.getHeight());
+      }
+
       Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
           amount, 0L, block.getTimestamp(), (short) 1440, attachment);
 
@@ -120,8 +137,8 @@ public class AtTransaction {
       Account recipientAccount = accountService.getOrAddAccount(recipient);
 
       if (getType() == TransactionType.ColoredCoins.ASSET_TRANSFER) {
-        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), -getAmount());
-        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, getAssetId(), getAmount());
+        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), -quantity);
+        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, getAssetId(), quantity);
 
         Burst.getAssetExchange().addAssetTransfer(transaction, (ColoredCoinsAssetTransfer) attachment);
       }
@@ -132,7 +149,25 @@ public class AtTransaction {
         }
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
-        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), getAmount());
+        accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), quantity);
+      }
+      else if (getType() == TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS) {
+        accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
+        if(assetIdToDistribute != 0){
+          accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetIdToDistribute, -quantity);
+        }
+
+        Collection<IndirectIncoming> indirects = attachment.getTransactionType().getIndirectIncomings(transaction);
+        for(IndirectIncoming incoming : indirects){
+          Account indirecRecipient = accountService.getOrAddAccount(incoming.getAccountId());
+          if(incoming.getAmount() > 0){
+            accountService.addToBalanceAndUnconfirmedBalanceNQT(indirecRecipient, incoming.getAmount());
+          }
+          if(this.assetIdToDistribute != 0L){
+            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(indirecRecipient, assetIdToDistribute, incoming.getQuantity());
+          }
+        }
+        Burst.getStores().getIndirectIncomingStore().addIndirectIncomings(indirects);
       }
       else {
         accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
