@@ -305,6 +305,25 @@ public class AtApiPlatformImpl extends AtApiImpl {
     }
 
     @Override
+    public long getActivationFee(AtMachineState state) {
+      if (state.getVersion() < 3) {
+        return 0L;
+      }
+
+      // we are allowed to ask for the creator of another AT (in B2)
+      long atId = AtApiHelper.getLong(state.getB2());
+      if (atId == 0L) {
+        atId = AtApiHelper.getLong(state.getId());
+      }
+      // asking for the creator of the given at_id
+      AT at = Burst.getStores().getAtStore().getAT(atId);
+      if (at != null) {
+        return at.minActivationAmount();
+      }
+      return 0L;
+    }
+
+    @Override
     public void putLastBlockGenerationSignatureInA(AtMachineState state) {
         ByteBuffer b = ByteBuffer.allocate(state.getA1().length * 4);
         b.order(ByteOrder.LITTLE_ENDIAN);

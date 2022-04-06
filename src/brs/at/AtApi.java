@@ -536,6 +536,8 @@ interface AtApi {
 
     public void distToHolders(AtMachineState state);
 
+    public long getActivationFee(AtMachineState state);
+
     /**
      * $addr1 is timestamp calculated from $addr2
      *

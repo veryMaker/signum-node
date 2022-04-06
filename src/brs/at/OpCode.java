@@ -84,7 +84,7 @@ final class OpCode {
     static final short GET_RANDOM_ID_FOR_TX_IN_A = 0x0308; // EXT_FUN_RET       if A is a valid tx then @addr to the tx random id*** // Unused
     static final short MESSAGE_FROM_TX_IN_A_TO_B = 0x0309; // EXT_FUN           if A is a valid tx then B to the tx message****
     static final short B_TO_ADDRESS_OF_TX_IN_A   = 0x030a; // EXT_FUN           if A is a valid tx then B set to the tx address
-    static final short B_TO_ADDRESS_OF_CREATOR   = 0x030b; // EXT_FUN           sets B to the address of the AT's creator
+    static final short B_TO_ADDRESS_OF_CREATOR   = 0x030b; // EXT_FUN           sets B1 to the address of the AT's creator (or the creator of the AT id on B2 if B2!=0)
 
     static final short GET_CURRENT_BALANCE      = 0x0400; // EXT_FUN_RET       sets @addr to current balance of the AT
     static final short GET_PREVIOUS_BALANCE     = 0x0401; // EXT_FUN_RET       sets @addr to the balance it had last had when running* // Unused
@@ -99,5 +99,6 @@ final class OpCode {
     static final short ISSUE_ASSET              = 0x0409; // EXT_FUN_RET       issue asset with name in A and dec. places in B1, returns the asset id
     static final short MINT_ASSET               = 0x040a; // EXT_FUN           mint B1 quantity of asset ID in B2
     static final short DIST_TO_ASSET_HOLDERS    = 0x040b; // EXT_FUN           B1 min holding of asset ID in B2, A1 the signa amount to distribute, A3 the assetId to distribute, A4 the asset quantity to distribute
+    static final short GET_ACTIVATION_FEE       = 0x040c; // EXT_FUN_RET       sets @addr to the activation fee of this AT (or the AT id on B2 if B2!=0)
 
 }

@@ -165,6 +165,10 @@ class AtApiController {
               atApi.distToHolders(state);
               break;
 
+            case OpCode.GET_ACTIVATION_FEE:
+              return atApi.getActivationFee(state);
+
+
             default:
                 return 0;
         }

@@ -800,4 +800,9 @@ public class AtApiImpl implements AtApi {
     public void distToHolders(AtMachineState state) {
       platform.distToHolders(state);
     }
+
+    @Override
+    public long getActivationFee(AtMachineState state) {
+      return platform.getActivationFee(state);
+    }
 }
