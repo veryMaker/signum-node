@@ -448,11 +448,16 @@ class AtMachineProcessor {
                                                            String.format("%8s", fun.addr2).replace(' ', '0'),
                                                            String.format("%8s", fun.addr3).replace(' ', '0'));
                 } else {
-                        int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
+                      int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
                                          + machineData.getApData().getLong(fun.addr3 * 8) );
+                      if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                        rc = -1;
+                      }
+                      else {
                         machineData.getApData().putLong(fun.addr1 * 8, machineData.getApData().getLong(addr * 8));
                         machineData.getMachineState().pc += rc;
                         machineData.getApData().clear();
+                      }
                 }
             }
           }
@@ -597,11 +602,16 @@ class AtMachineProcessor {
                                                            String.format("%8s", fun.addr2).replace(' ', '0'),
                                                            String.format("%8s", fun.addr3).replace(' ', '0'));
                 } else {
-                        int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
+                      int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
                                         + machineData.getApData().getLong(fun.addr2 * 8));
+                      if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                        rc = -1;
+                      }
+                      else {
                         machineData.getApData().putLong(addr * 8, machineData.getApData().getLong( fun.addr3 * 8));
                         machineData.getMachineState().pc += rc;
                         machineData.getApData().clear();
+                      }
                 }
             }
           }
@@ -872,7 +882,12 @@ class AtMachineProcessor {
             } else {
                 machineData.getMachineState().pc += rc;
                 machineData.getMachineState().stopped = true;
-                machineData.setFreeze(true);
+                if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, machineData.getCreationBlockHeight())) {
+                  machineData.setWaitForNumberOfBlocks(0);
+                }
+                else {
+                  machineData.setFreeze(true);
+                }
             }
 
         } else if (op == OpCode.E_OP_CODE_SET_PCS) {
