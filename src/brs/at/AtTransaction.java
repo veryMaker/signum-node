@@ -188,6 +188,10 @@ public class AtTransaction {
         return amount;
     }
 
+    public long getQuantity() {
+      return quantity;
+    }
+
     public TransactionType getType() {
       return type;
     }

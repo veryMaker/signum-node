@@ -15,6 +15,7 @@ import brs.Asset;
 import brs.Burst;
 import brs.TransactionType;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 
 class AtMachineProcessor {
 
@@ -39,7 +40,7 @@ class AtMachineProcessor {
         return 0;
     }
 
-    public int getNumSteps(byte op) {
+    public int getNumSteps(byte op, int indirectsCount) {
       int height = machineData.getCreationBlockHeight();
       int version = machineData.getVersion();
       if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST){
@@ -52,16 +53,23 @@ class AtMachineProcessor {
             }
             if(op == OpCode.E_OP_CODE_EXT_FUN){
               if(getFunAddr() == 0 && getFuncNum() == OpCode.DIST_TO_ASSET_HOLDERS){
-                int npayments = 1;
+                int steps = (int) AtConstants.getInstance().apiStepMultiplier(height);
 
                 long minHolding = AtApiHelper.getLong(machineData.getB1());
                 long assetId = AtApiHelper.getLong(machineData.getB2());
                 Asset asset = Burst.getAssetExchange().getAsset(assetId);
-                if(asset != null){
-                  npayments += Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+                int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+                int holdersCount = 0;
+
+                if(asset != null) {
+                  holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+                  if(indirectsCount + holdersCount <= maxIndirects){
+                    // distribution actually takes place only if we are not over the limit
+                    steps += holdersCount;
+                  }
                 }
 
-                return (int) (AtConstants.getInstance().apiStepMultiplier(height) * npayments);
+                return steps;
               }
             }
           }

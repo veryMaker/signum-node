@@ -1192,6 +1192,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       long totalFeeNQT = 0;
       long totalFeeCashBackNQT = 0;
       long totalFeeBurntNQT = 0;
+      int indirectsCount = 0;
 
       final Block previousBlock = blockchain.getLastBlock();
       final int blockTimestamp = timeService.getEpochTime();
@@ -1293,7 +1294,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
 
         int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
-        int indirectsCount = 0;
         long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
         transactionService.startNewBlock();
         for (Map.Entry<Long, Transaction> entry : transactionsToBeIncluded.entrySet()) {
@@ -1364,7 +1364,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       // ATs for block
       long generatorId = Account.getId(publicKey);
       AT.clearPending(blockHeight, generatorId);
-      AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, blockHeight, generatorId);
+      AtBlock atBlock = AtController.getCurrentBlockATs(payloadSize, blockHeight, generatorId, indirectsCount);
       byte[] byteATs = atBlock.getBytesForBlock();
 
       // digesting AT Bytes

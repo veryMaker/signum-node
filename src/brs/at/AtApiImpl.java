@@ -802,6 +802,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public long getAssetHoldersCount(AtMachineState state) {
+      return platform.getAssetHoldersCount(state);
+    }
+
+    @Override
     public long getActivationFee(AtMachineState state) {
       return platform.getActivationFee(state);
     }

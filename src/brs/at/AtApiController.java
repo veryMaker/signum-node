@@ -164,6 +164,8 @@ class AtApiController {
             case DIST_TO_ASSET_HOLDERS:
               atApi.distToHolders(state);
               break;
+            case GET_ASSET_HOLDERS_COUNT:
+              return atApi.getAssetHoldersCount(state);
 
             case OpCode.GET_ACTIVATION_FEE:
               return atApi.getActivationFee(state);

@@ -536,6 +536,8 @@ interface AtApi {
 
     public void distToHolders(AtMachineState state);
 
+    public long getAssetHoldersCount(AtMachineState state);
+
     public long getActivationFee(AtMachineState state);
 
     /**

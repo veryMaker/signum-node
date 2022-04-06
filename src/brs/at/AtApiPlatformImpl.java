@@ -10,6 +10,8 @@ import brs.Transaction;
 import brs.TransactionType;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -449,6 +451,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return;
       }
 
+      int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+      int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+      if(holdersCount == 0 || state.getIndirectsCount() + holdersCount > maxIndirects){
+        // no holders to distribute or over the maximum, so do not distribute
+        return;
+      }
+      state.addIndirectsCount(holdersCount);
+
       if(assetToDistribute !=0 ){
         if(quantityToDistribute > state.getgBalance(assetToDistribute)){
           quantityToDistribute = state.getgBalance(assetToDistribute);
@@ -463,7 +473,24 @@ public class AtApiPlatformImpl extends AtApiImpl {
       AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS,
           state.getId(), null, amount, assetId, quantityToDistribute, assetToDistribute, minHolding, null);
       state.addTransaction(tx);
+    }
 
+    @Override
+    public long getAssetHoldersCount(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return 0L;
+      }
+
+      long minHolding = AtApiHelper.getLong(state.getB1());
+      long assetId = AtApiHelper.getLong(state.getB2());
+
+      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      if (asset == null) {
+        // asset not found, no holders
+        return 0L;
+      }
+
+      return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
     }
 
     @Override

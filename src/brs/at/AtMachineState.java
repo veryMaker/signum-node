@@ -50,6 +50,7 @@ public class AtMachineState {
     private short dataPages;
     private short callStackPages;
     private short userStackPages;
+    private int indirectsCount;
 
     protected AtMachineState(byte[] atId, byte[] creator, short version,
                              int height,
@@ -232,10 +233,18 @@ public class AtMachineState {
         this.machineState.b4 = b4.clone();
     }
 
+    int getIndirectsCount(){
+      return indirectsCount;
+    }
+
+    void addIndirectsCount(int count){
+      indirectsCount += count;
+    }
+
     void addTransaction(AtTransaction tx) {
         ByteBuffer txKey = ByteBuffer.allocate(8 + 8);
         if(tx.getRecipientId() == null){
-          txKey.putLong(0L);
+          txKey.putLong(tx.getType().getType() + tx.getType().getSubtype());
         }
         else {
           txKey.put(tx.getRecipientId());
@@ -243,7 +252,8 @@ public class AtMachineState {
         txKey.putLong(tx.getAssetId());
         txKey.clear();
         AtTransaction oldTx = transactions.get(txKey);
-        if (oldTx == null) {
+        if (oldTx == null || tx.getRecipientId() == null){
+            // so for txs that do not have a recipient (other types) we only add the latest per type/subtype per block
             transactions.put(txKey, tx);
         } else {
             byte []message = tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage();
@@ -262,6 +272,7 @@ public class AtMachineState {
             AtTransaction newTx = new AtTransaction(tx.getType(), tx.getSenderId(),
                     tx.getRecipientId(),
                     oldTx.getAmount() + tx.getAmount(), oldTx.getAssetId(),
+                    oldTx.getQuantity() + tx.getQuantity(), 0L, 0L,
                     message);
             transactions.put(txKey, newTx);
         }
