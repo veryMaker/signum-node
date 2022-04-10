@@ -7,6 +7,8 @@
 
 package brs.at;
 
+import java.math.BigInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
@@ -667,7 +669,8 @@ class AtMachineProcessor {
                     }
                 }
             }
-        } else if (op == OpCode.E_OP_CODE_POW_DAT && machineData.getVersion() > 2){
+        }
+        else if (op == OpCode.E_OP_CODE_POW_DAT && machineData.getVersion() > 2){
           rc = getAddrs();
 
           if (rc == 0 || disassemble) {
@@ -685,7 +688,28 @@ class AtMachineProcessor {
                   machineData.getApData().putLong(fun.addr1 * 8, result);
               }
           }
-        } else if (op == OpCode.E_OP_CODE_SHL_DAT || op == OpCode.E_OP_CODE_SHR_DAT) {
+        }
+        else if (op == OpCode.E_OP_CODE_MDV_DAT && machineData.getVersion() > 2){
+          rc = getAddrs();
+
+          if (rc == 0 || disassemble) {
+              rc = 13;
+              if (disassemble) {
+                  if (!determineJumps && logger.isDebugEnabled()) {
+                    logger.debug("POW @{} ${}", String.format("%8x", fun.addr1).replace(' ', '0'), String.format("%8x", fun.addr2).replace(' ', '0'));
+                  }
+              } else {
+                  machineData.getMachineState().pc += rc;
+                  long x = machineData.getApData().getLong(fun.addr1 * 8);
+                  long y = machineData.getApData().getLong(fun.addr2 * 8);
+                  long den = machineData.getApData().getLong(fun.addr3 * 8);
+
+                  long result = BigInteger.valueOf(x).multiply(BigInteger.valueOf(y)).divide(BigInteger.valueOf(den)).longValue();
+                  machineData.getApData().putLong(fun.addr1 * 8, result);
+              }
+          }
+        }
+        else if (op == OpCode.E_OP_CODE_SHL_DAT || op == OpCode.E_OP_CODE_SHR_DAT) {
             rc = getAddrs();
 
             if (rc == 0 || disassemble) {

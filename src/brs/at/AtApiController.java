@@ -203,7 +203,7 @@ class AtApiController {
             case 281:
                 atApi.setB4(val, state);
                 break;
-            case 772:
+            case A_TO_TX_AFTER_TIMESTAMP:
                 atApi.aToTxAfterTimestamp(val, state);
                 break;
             case 1026:

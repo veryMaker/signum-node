@@ -53,6 +53,7 @@ final class OpCode {
     static final byte E_OP_CODE_STP_IMD = Byte.parseByte("29", 16);
     static final byte E_OP_CODE_SLP_IMD = Byte.parseByte("2a", 16);
     static final byte E_OP_CODE_ERR_ADR = Byte.parseByte("2b", 16);
+    static final byte E_OP_CODE_MDV_DAT = Byte.parseByte("2c", 16);
     static final byte E_OP_CODE_SET_PCS = Byte.parseByte("30", 16);
 
 
