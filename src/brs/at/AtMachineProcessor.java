@@ -452,7 +452,7 @@ class AtMachineProcessor {
                 } else {
                       int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
                                          + machineData.getApData().getLong(fun.addr3 * 8) );
-                      if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
                         rc = -1;
                       }
                       else {
@@ -606,7 +606,7 @@ class AtMachineProcessor {
                 } else {
                       int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
                                         + machineData.getApData().getLong(fun.addr2 * 8));
-                      if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
                         rc = -1;
                       }
                       else {
@@ -906,7 +906,7 @@ class AtMachineProcessor {
             } else {
                 machineData.getMachineState().pc += rc;
                 machineData.getMachineState().stopped = true;
-                if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, machineData.getCreationBlockHeight())) {
+                if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight())) {
                   machineData.setWaitForNumberOfBlocks(0);
                 }
                 else {

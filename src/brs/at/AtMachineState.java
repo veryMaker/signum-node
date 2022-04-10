@@ -454,7 +454,7 @@ public class AtMachineState {
 
     private byte[] getTransactionBytes() {
         int txLength = creator.length + 8;
-        if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS)) {
           txLength += 8;
         }
         ByteBuffer b = ByteBuffer.allocate(txLength * transactions.size());
@@ -465,7 +465,7 @@ public class AtMachineState {
             else
               b.put(tx.getRecipientId());
             b.putLong(tx.getAmount());
-            if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+            if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS)) {
               b.putLong(tx.getAssetId());
             }
         }
