@@ -238,14 +238,22 @@ public class AtApiPlatformImpl extends AtApiImpl {
         if (tx != null && tx.getHeight() >= state.getHeight()) {
             tx = null;
         }
-
-        ByteBuffer b = ByteBuffer.allocate(state.getA1().length * 4);
+        int length = 8 * 4;
+        ByteBuffer b = ByteBuffer.allocate(length);
         b.order(ByteOrder.LITTLE_ENDIAN);
         if (tx != null) {
             Appendix.Message txMessage = tx.getMessage();
             if (txMessage != null) {
                 byte[] message = txMessage.getMessageBytes();
-                if (message.length <= state.getA1().length * 4) {
+                if (state.getVersion() > 2){
+                  // we now accept multiple pages
+                  int page = (int)AtApiHelper.getLong(state.getA2());
+                  int start = page * length;
+                  for(int i=0; i<length && start+i < message.length; i++){
+                    b.put(message[start + i]);
+                  }
+                }
+                else if (message.length <= length) {
                     b.put(message);
                 }
             }

@@ -127,7 +127,7 @@ class AtApiController {
                 return atApi.getTimestampForTxInA(state);
             case 776:
                 return atApi.getRandomIdForTxInA(state);
-            case 777:
+            case OpCode.MESSAGE_FROM_TX_IN_A_TO_B:
                 atApi.messageFromTxInAToB(state);
                 break;
             case 778:
