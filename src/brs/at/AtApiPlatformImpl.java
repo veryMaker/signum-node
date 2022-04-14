@@ -525,7 +525,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public void sendAllToAddressInB(AtMachineState state) {
-        AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1().clone(), state.getgBalance(), 0L, null);
+        AtTransaction tx = new AtTransaction(TransactionType.AutomatedTransactions.AT_PAYMENT, state.getId(), state.getB1().clone(), state.getgBalance(), null);
         state.addTransaction(tx);
         state.setgBalance(0L);
     }
@@ -533,13 +533,13 @@ public class AtApiPlatformImpl extends AtApiImpl {
     @Override
     public void sendOldToAddressInB(AtMachineState state) {
         if (state.getpBalance() > state.getgBalance()) {
-            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1(), state.getgBalance(), 0L, null);
+            AtTransaction tx = new AtTransaction(TransactionType.AutomatedTransactions.AT_PAYMENT, state.getId(), state.getB1(), state.getgBalance(), null);
             state.addTransaction(tx);
 
             state.setgBalance(0L);
             state.setpBalance(0L);
         } else {
-            AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1(), state.getpBalance(), 0L, null);
+            AtTransaction tx = new AtTransaction(TransactionType.AutomatedTransactions.AT_PAYMENT, state.getId(), state.getB1(), state.getpBalance(), null);
             state.addTransaction(tx);
 
             state.setgBalance(state.getgBalance() - state.getpBalance());
@@ -557,7 +557,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         b.put(state.getA4());
         b.clear();
 
-        AtTransaction tx = new AtTransaction(TransactionType.Payment.ORDINARY, state.getId(), state.getB1(), 0L, 0L, b.array());
+        AtTransaction tx = new AtTransaction(TransactionType.AutomatedTransactions.AT_PAYMENT, state.getId(), state.getB1(), 0L, 0L, b.array());
         state.addTransaction(tx);
     }
 
