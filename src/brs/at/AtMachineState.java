@@ -279,7 +279,28 @@ public class AtMachineState {
     }
 
     void addMapUpdate(AT.AtMapEntry entry) {
+      for(AT.AtMapEntry e : mapUpdates){
+        // check if we need to update an existing entry or add a new one
+        if(e.getAtId() == entry.getAtId() && e.getKey1() == entry.getKey1() && e.getKey2() == entry.getKey2()){
+          e.setValue(entry.getValue());
+          return;
+        }
+      }
       mapUpdates.add(entry);
+    }
+
+    long getMapValue(long atId, long key1, long key2){
+      long thisAtId = AtApiHelper.getLong(this.getId());
+      if(atId == thisAtId) {
+        // for the contract itself, we first check if there is a pending update
+        for(AT.AtMapEntry e : getMapUpdates()){
+          if(e.getKey1() == key1 && e.getKey2() == key2){
+            return e.getValue();
+          }
+        }
+      }
+
+      return Burst.getStores().getAtStore().getMapValue(atId, key1, key2);
     }
 
     protected void clearLists() {

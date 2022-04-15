@@ -158,7 +158,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         atId = AtApiHelper.getLong(state.getId());
       }
 
-      return Burst.getStores().getAtStore().getMapValue(atId, key1, key2);
+      return state.getMapValue(atId, key1, key2);
     }
 
     @Override
