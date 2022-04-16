@@ -116,9 +116,15 @@ class AtApiController {
                 return atApi.getCreationTimestamp(state); // 0x0301
             case 770:
                 return atApi.getLastBlockTimestamp(state);
-            case 771:
+            case OpCode.PUT_LAST_BLOCK_HASH_IN_A:
                 atApi.putLastBlockHashInA(state);
                 break;
+            case OpCode.PUT_LAST_BLOCK_GSIG_IN_A:
+                if(state.getVersion() > 2){
+                  atApi.putLastBlockGenerationSignatureInA(state);
+                }
+                break;
+
             case 773:
                 return atApi.getTypeForTxInA(state);
             case 774:
