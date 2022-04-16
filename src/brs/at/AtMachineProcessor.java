@@ -696,7 +696,7 @@ class AtMachineProcessor {
           }
         }
         else if (op == OpCode.E_OP_CODE_MDV_DAT && machineData.getVersion() > 2){
-          rc = getAddrs();
+          rc = get3Addrs();
 
           if (rc == 0 || disassemble) {
               rc = 13;
