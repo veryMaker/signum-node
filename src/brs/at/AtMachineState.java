@@ -278,15 +278,15 @@ public class AtMachineState {
         }
     }
 
-    void addMapUpdate(AT.AtMapEntry entry) {
+    void addMapUpdate(long atId, long key1, long key2, long value) {
       for(AT.AtMapEntry e : mapUpdates){
         // check if we need to update an existing entry or add a new one
-        if(e.getAtId() == entry.getAtId() && e.getKey1() == entry.getKey1() && e.getKey2() == entry.getKey2()){
-          e.setValue(entry.getValue());
+        if(e.getAtId() == atId && e.getKey1() == key1 && e.getKey2() == key2){
+          e.setValue(value);
           return;
         }
       }
-      mapUpdates.add(entry);
+      mapUpdates.add(new AT.AtMapEntry(atId, key1, key2, value));
     }
 
     long getMapValue(long atId, long key1, long key2){

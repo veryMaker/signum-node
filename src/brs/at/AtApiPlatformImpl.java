@@ -172,7 +172,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
       long atId = AtApiHelper.getLong(state.getId());
 
-      state.addMapUpdate(new AT.AtMapEntry(atId, key1, key2, value));
+      state.addMapUpdate(atId, key1, key2, value);
     }
 
     @Override
