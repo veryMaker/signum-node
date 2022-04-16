@@ -389,6 +389,9 @@ public class AtMachineState {
     }
 
     public long getgBalance(long assetId) {
+      if(assetId == 0L){
+        return getgBalance();
+      }
       Long balance = gBalanceAsset.get(assetId);
       if(balance == null) {
         balance = 0L;
@@ -402,6 +405,9 @@ public class AtMachineState {
     }
 
     public void setgBalance(long assetId, long value) {
+      if(assetId == 0L){
+        setgBalance(value);
+      }
       gBalanceAsset.put(assetId, value);
     }
 
