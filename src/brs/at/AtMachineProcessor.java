@@ -682,11 +682,11 @@ class AtMachineProcessor {
               } else {
                   machineData.getMachineState().pc += rc;
                   double val = machineData.getApData().getLong(fun.addr1 * 8);
-                  double exp10_000 = machineData.getApData().getLong(fun.addr2 * 8);
+                  double exp1_0000_0000 = machineData.getApData().getLong(fun.addr2 * 8);
                   long result = 0L;
 
                   if(val > 0){
-                    double doubleResult = Math.pow(val, exp10_000 / 10_000.0);
+                    double doubleResult = Math.pow(val, exp1_0000_0000 / 1_0000_0000.0);
                     if (!Double.isNaN(doubleResult) && doubleResult < Long.MAX_VALUE){
                       result = (long)doubleResult;
                     }
