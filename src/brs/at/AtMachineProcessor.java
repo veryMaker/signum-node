@@ -683,8 +683,14 @@ class AtMachineProcessor {
                   machineData.getMachineState().pc += rc;
                   double val = machineData.getApData().getLong(fun.addr1 * 8);
                   double exp10_000 = machineData.getApData().getLong(fun.addr2 * 8);
+                  long result = 0L;
 
-                  long result = (long)Math.pow(val, exp10_000 / 10_000.0);
+                  if(val > 0){
+                    double doubleResult = Math.pow(val, exp10_000 / 10_000.0);
+                    if (!Double.isNaN(doubleResult) && doubleResult < Long.MAX_VALUE){
+                      result = (long)doubleResult;
+                    }
+                  }
                   machineData.getApData().putLong(fun.addr1 * 8, result);
               }
           }
@@ -704,7 +710,17 @@ class AtMachineProcessor {
                   long y = machineData.getApData().getLong(fun.addr2 * 8);
                   long den = machineData.getApData().getLong(fun.addr3 * 8);
 
-                  long result = BigInteger.valueOf(x).multiply(BigInteger.valueOf(y)).divide(BigInteger.valueOf(den)).longValue();
+                  long result = 0L;
+                  if(den != 0L){
+                    try{
+                      BigInteger bigResult = BigInteger.valueOf(x).multiply(BigInteger.valueOf(y)).divide(BigInteger.valueOf(den));
+                      result = bigResult.longValue();
+                    }
+                    catch(ArithmeticException ignored){
+                      // result will be 0L
+                    }
+                  }
+
                   machineData.getApData().putLong(fun.addr1 * 8, result);
               }
           }
