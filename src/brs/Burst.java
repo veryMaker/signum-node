@@ -346,7 +346,6 @@ public final class Burst {
   }
 
   public static void shutdown(boolean ignoreDBShutdown) {
-    shuttingdown.set(true);
     logger.info("Shutting down...");
     logger.info("Do not force exit or kill the node process.");
 
@@ -357,8 +356,10 @@ public final class Burst {
       threadPool.shutdown();
     }
     if(! ignoreDBShutdown && !shuttingdown.get()) {
+      shuttingdown.set(true);
       Db.shutdown();
     }
+
     if (dbCacheManager != null)
       dbCacheManager.close();
     if (blockchainProcessor != null && blockchainProcessor.getOclVerify()) {
