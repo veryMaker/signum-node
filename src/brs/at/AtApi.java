@@ -377,7 +377,7 @@ interface AtApi {
     long checkSha256AWithB(AtMachineState state);
 
     /**
-     * bool if the signature attached as a message on tx id A1, page A2 can be verified for the B1..4 message.
+     * bool if the signature attached as a message on tx id A1, page A2 can be verified for the [AT ID, B2..4] message.
      * @param state
      * @return bool if the signature described in A1 can be verified for B1..4
      */
