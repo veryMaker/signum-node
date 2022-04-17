@@ -91,7 +91,7 @@ public class AtConstants {
 
         BLOCKS_FOR_RANDOM.put((short) 3, 15L); //for testing 2 -> normally 1440
         AVERAGE_BLOCK_MINUTES.put((short) 3, 4L);
-        // end of AT version 2
+        // end of AT version 3
     }
 
     public static AtConstants getInstance() {
