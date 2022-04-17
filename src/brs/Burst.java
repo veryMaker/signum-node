@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.4.0-alpha2");
+  public static final Version VERSION = Version.parse("v3.4.0-beta1");
   public static final String APPLICATION = "BRS";
 
   public static final String CONF_FOLDER = "./conf";
@@ -82,7 +82,7 @@ public final class Burst {
   private static BlockchainProcessorImpl blockchainProcessor;
   private static TransactionProcessorImpl transactionProcessor;
   private static TransactionService transactionService;
-  private static AssetExchange assetExchange; 
+  private static AssetExchange assetExchange;
 
   private static PropertyService propertyService;
   private static FluxCapacitor fluxCapacitor;
@@ -134,7 +134,7 @@ public final class Burst {
   public static TransactionService getTransactionService() {
     return transactionService;
   }
-  
+
   public static AssetExchange getAssetExchange() {
     return assetExchange;
   }
