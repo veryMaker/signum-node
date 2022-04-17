@@ -645,6 +645,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public long checkSignBWithA(AtMachineState state) {
+      return platform.checkSignBWithA(state);
+    }
+
+    @Override
     public long getBlockTimestamp(AtMachineState state) {
         return platform.getBlockTimestamp(state);
 

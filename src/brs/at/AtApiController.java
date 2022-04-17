@@ -107,8 +107,11 @@ class AtApiController {
             case 516:
                 atApi.sha256AToB(state);
                 break;
-            case 517:
+            case OpCode.CHECK_SHA256_A_WITH_B:
                 return atApi.checkSha256AWithB(state);
+            case OpCode.CHECK_SIG_B_WITH_A:
+                return atApi.checkSignBWithA(state);
+
 
             case 768:
                 return atApi.getBlockTimestamp(state);    // 0x0300

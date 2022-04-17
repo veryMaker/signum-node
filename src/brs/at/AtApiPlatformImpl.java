@@ -1,5 +1,6 @@
 package brs.at;
 
+import brs.Account;
 import brs.Appendix;
 import brs.Asset;
 import brs.Attachment;
@@ -228,6 +229,50 @@ public class AtApiPlatformImpl extends AtApiImpl {
         byte[] byteRandom = digest.digest();
 
         return Math.abs(AtApiHelper.getLong(Arrays.copyOfRange(byteRandom, 0, 8)));
+    }
+
+    @Override
+    public long checkSignBWithA(AtMachineState state) {
+        if (state.getVersion() > 2) {
+          long txid = AtApiHelper.getLong(state.getA1());
+          Transaction tx = Burst.getBlockchain().getTransaction(txid);
+          if (tx == null || tx.getHeight() >= state.getHeight() || tx.getMessage() == null) {
+              return 0L;
+          }
+          int page = (int)AtApiHelper.getLong(state.getA2());
+
+          long accountId = AtApiHelper.getLong(state.getA3());
+          Account account = Account.getAccount(accountId);
+          if(account == null || account.getPublicKey() == null){
+            return 0L;
+          }
+
+          ByteBuffer message = ByteBuffer.allocate(32);
+          message.order(ByteOrder.LITTLE_ENDIAN);
+
+          message.put(state.getId());
+          message.put(state.getB2());
+          message.put(state.getB3());
+          message.put(state.getB4());
+          message.clear();
+
+          ByteBuffer signature = ByteBuffer.allocate(64);
+          signature.order(ByteOrder.LITTLE_ENDIAN);
+          Appendix.Message txMessage = tx.getMessage();
+          byte[] txMessageBytes = txMessage.getMessageBytes();
+          if (txMessageBytes != null) {
+            int start = page * 8 * 4;
+            for(int i=0; i<64 && start+i < txMessageBytes.length; i++){
+              signature.put(txMessageBytes[start + i]);
+            }
+          }
+          signature.clear();
+
+          boolean verified = Crypto.verify(signature.array(), message.array(), account.getPublicKey(), true);
+
+          return verified ? 1L : 0L;
+        }
+        return 0L;
     }
 
     @Override

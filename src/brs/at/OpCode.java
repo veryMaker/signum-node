@@ -67,31 +67,32 @@ final class OpCode {
     static final byte E_OP_CODE_EXT_LAST = Byte.parseByte("38", 16);
 
 
-    static final short MD5_A_TO_B               = 0x0200; //  EXT_FUN           take an MD5 hash of A1..2 and put this is B1..2 // Unused
-    static final short CHECK_MD5_A_WITH_B       = 0x0201; //  EXT_FUN_RET       @addr to bool if MD5 hash of A1..2 matches B1..2 // Unused
-    static final short HASH160_A_TO_B           = 0x0202; //  EXT_FUN           take a RIPEMD160 hash of A1..3 and put this in B1..3 // Unused
-    static final short CHECK_HASH160_A_WITH_B   = 0x0203; //  EXT_FUN_RET       @addr to bool if RIPEMD160 hash of A1..3 matches B1..3 // Unused
+    static final short MD5_A_TO_B               = 0x0200; //  EXT_FUN           take an MD5 hash of A1..2 and put this is B1..2
+    static final short CHECK_MD5_A_WITH_B       = 0x0201; //  EXT_FUN_RET       @addr to bool if MD5 hash of A1..2 matches B1..2
+    static final short HASH160_A_TO_B           = 0x0202; //  EXT_FUN           take a RIPEMD160 hash of A1..3 and put this in B1..3
+    static final short CHECK_HASH160_A_WITH_B   = 0x0203; //  EXT_FUN_RET       @addr to bool if RIPEMD160 hash of A1..3 matches B1..3
     static final short SHA256_A_To_B            = 0x0204; //  EXT_FUN           take a SHA256 hash of A and put this in B
-    static final short CHECK_SHA256_A_WITH_B    = 0x0205; //  EXT_FUN_RET       @addr to bool if SHA256 hash of A matches B // Unused
+    static final short CHECK_SHA256_A_WITH_B    = 0x0205; //  EXT_FUN_RET       @addr to bool if SHA256 hash of A matches B
+    static final short CHECK_SIG_B_WITH_A       = 0x0206; //  EXT_FUN_RET       @addr to bool if [AT ID, B2..4] signature can be verified with the message attached on tx id in A1 (page in A2) for account id in A3
 
     static final short GET_BLOCK_TIMESTAMP       = 0x0300; // EXT_FUN_RET       sets @addr to the timestamp of the current block
     static final short GET_CREATION_TIMESTAMP    = 0x0301; // EXT_FUN_RET       sets @addr to the timestamp of the AT creation block
     static final short GET_LAST_BLOCK_TIMESTAMP  = 0x0302; // EXT_FUN_RET       sets @addr to the timestamp of the previous block
     static final short PUT_LAST_BLOCK_HASH_IN_A  = 0x0303; // EXT_FUN           puts the block hash of the previous block in A
     static final short A_TO_TX_AFTER_TIMESTAMP   = 0x0304; // EXT_FUN_DAT       sets A to tx hash of the first tx after $addr timestamp
-    static final short GET_TYPE_FOR_TX_IN_A      = 0x0305; // EXT_FUN_RET       if A is a valid tx then @addr to tx type* // Unused
+    static final short GET_TYPE_FOR_TX_IN_A      = 0x0305; // EXT_FUN_RET       if A is a valid tx then @addr to tx type*
     static final short GET_AMOUNT_FOR_TX_IN_A    = 0x0306; // EXT_FUN_RET       if A is a valid tx then @addr to tx amount**
     static final short GET_TIMESTAMP_FOR_TX_IN_A = 0x0307; // EXT_FUN_RET       if A is a valid tx then @addr to the tx timestamp
-    static final short GET_RANDOM_ID_FOR_TX_IN_A = 0x0308; // EXT_FUN_RET       if A is a valid tx then @addr to the tx random id*** // Unused
+    static final short GET_RANDOM_ID_FOR_TX_IN_A = 0x0308; // EXT_FUN_RET       if A is a valid tx then @addr to the tx random id***
     static final short MESSAGE_FROM_TX_IN_A_TO_B = 0x0309; // EXT_FUN           if A is a valid tx then B to the tx message****
     static final short B_TO_ADDRESS_OF_TX_IN_A   = 0x030a; // EXT_FUN           if A is a valid tx then B set to the tx address
     static final short B_TO_ADDRESS_OF_CREATOR   = 0x030b; // EXT_FUN           sets B1 to the address of the AT's creator (or the creator of the AT id on B2 if B2!=0)
 
     static final short GET_CURRENT_BALANCE      = 0x0400; // EXT_FUN_RET       sets @addr to current balance of the AT
-    static final short GET_PREVIOUS_BALANCE     = 0x0401; // EXT_FUN_RET       sets @addr to the balance it had last had when running* // Unused
+    static final short GET_PREVIOUS_BALANCE     = 0x0401; // EXT_FUN_RET       sets @addr to the balance it had last had when running*
     static final short SEND_TO_ADDRESS_IN_B     = 0x0402; // EXT_FUN_DAT       if B is a valid address then send it $addr amount**
     static final short SEND_ALL_TO_ADDRESS_IN_B = 0x0403; // EXT_FUN           if B is a valid address then send it the entire balance
-    static final short SEND_OLD_TO_ADDRESS_IN_B = 0x0404; // EXT_FUN           if B is a valid address then send it the old balance** // Unused
+    static final short SEND_OLD_TO_ADDRESS_IN_B = 0x0404; // EXT_FUN           if B is a valid address then send it the old balance**
     static final short SEND_A_TO_ADDRESS_IN_B   = 0x0405; // EXT_FUN           if B is a valid address then send it A as a message
     static final short ADD_MINUTES_TO_TIMESTAMP = 0x0406; // EXT_FUN_RET_DAT_2 set @addr1 to timestamp $addr2 plus $addr3 minutes***
 
