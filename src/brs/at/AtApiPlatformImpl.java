@@ -361,7 +361,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getCodeHashId(AtMachineState state) {
-      if (state.getVersion() < 2) {
+      if (state.getVersion() < 3) {
         return 0L;
       }
       long atId = AtApiHelper.getLong(state.getB2());
