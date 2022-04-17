@@ -721,7 +721,11 @@ public class AtApiImpl implements AtApi {
     @Override
     public void bToAddressOfCreator(AtMachineState state) {
         platform.bToAddressOfCreator(state);
+    }
 
+    @Override
+    public long getCodeHashId(AtMachineState state) {
+        return platform.getCodeHashId(state);
     }
 
     @Override

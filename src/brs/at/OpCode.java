@@ -87,6 +87,7 @@ final class OpCode {
     static final short MESSAGE_FROM_TX_IN_A_TO_B = 0x0309; // EXT_FUN           if A is a valid tx then B to the tx message****
     static final short B_TO_ADDRESS_OF_TX_IN_A   = 0x030a; // EXT_FUN           if A is a valid tx then B set to the tx address
     static final short B_TO_ADDRESS_OF_CREATOR   = 0x030b; // EXT_FUN           sets B1 to the address of the AT's creator (or the creator of the AT id on B2 if B2!=0)
+    static final short GET_CODE_HASH_ID          = 0x030c; // EXT_FUN_RET       sets @addr to the code hash ID of the AT's (or of the AT id on B2 if B2!=0)
 
     static final short GET_CURRENT_BALANCE      = 0x0400; // EXT_FUN_RET       sets @addr to current balance of the AT
     static final short GET_PREVIOUS_BALANCE     = 0x0401; // EXT_FUN_RET       sets @addr to the balance it had last had when running*

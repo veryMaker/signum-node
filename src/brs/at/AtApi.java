@@ -485,6 +485,13 @@ interface AtApi {
      */
     void bToAddressOfCreator(AtMachineState state);
 
+    /**
+     * Return the AT's code hash ID (or for the one in B2 if B2!=0)
+     * @param state
+     * @return
+     */
+    long getCodeHashId(AtMachineState state);
+
     // end range 0x0300..0x03ff
     // ------------------------
 

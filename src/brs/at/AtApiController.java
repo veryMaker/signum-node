@@ -145,6 +145,8 @@ class AtApiController {
             case OpCode.B_TO_ADDRESS_OF_CREATOR:
                 atApi.bToAddressOfCreator(state);
                 break;
+            case OpCode.GET_CODE_HASH_ID:
+                return atApi.getCodeHashId(state);
 
             case 1024:
                 return atApi.getCurrentBalance(state);

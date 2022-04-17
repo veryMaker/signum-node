@@ -360,6 +360,22 @@ public class AtApiPlatformImpl extends AtApiImpl {
     }
 
     @Override
+    public long getCodeHashId(AtMachineState state) {
+      if (state.getVersion() < 2) {
+        return 0L;
+      }
+      long atId = AtApiHelper.getLong(state.getB2());
+      if(atId == 0L){
+        atId = AtApiHelper.getLong(state.getId());
+      }
+      AT at = Burst.getStores().getAtStore().getAT(atId);
+      if (at != null) {
+        return at.getApCodeHashId();
+      }
+      return 0L;
+    }
+
+    @Override
     public long getActivationFee(AtMachineState state) {
       if (state.getVersion() < 3) {
         return 0L;
