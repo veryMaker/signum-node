@@ -3116,7 +3116,7 @@ public abstract class TransactionType {
         catch (AtException e) {
           throw new BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e);
         }
-        long requiredFee = totalPages * AtConstants.getInstance().costPerPage( transaction.getHeight() );
+        long requiredFee = totalPages * AtConstants.getInstance().costPerPage( blockchain.getHeight() );
         if (transaction.getFeeNQT() <  requiredFee){
           throw new BurstException.NotValidException("Insufficient fee for AT creation, using " + transaction.getFeeNQT()
             + ", minimum: " + requiredFee);
