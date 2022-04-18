@@ -102,7 +102,7 @@ public class AtTransaction {
           decimals = 4;
         }
 
-        attachment = new Attachment.ColoredCoinsAssetIssuance(name, "Autonomous creation by " + Convert.toUnsignedLong(senderAccount.getId())
+        attachment = new Attachment.ColoredCoinsAssetIssuance(name, "Token issued and controlled by smart contract ID: " + Convert.toUnsignedLong(senderAccount.getId())
             , 0L, (byte)decimals, block.getHeight(), true);
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
