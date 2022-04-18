@@ -1,5 +1,7 @@
 package brs.at;
 
+import static brs.at.OpCode.*;
+
 class AtApiController {
     private static final AtApiImpl atApi = new AtApiImpl();
 
@@ -105,8 +107,11 @@ class AtApiController {
             case 516:
                 atApi.sha256AToB(state);
                 break;
-            case 517:
+            case OpCode.CHECK_SHA256_A_WITH_B:
                 return atApi.checkSha256AWithB(state);
+            case OpCode.CHECK_SIG_B_WITH_A:
+                return atApi.checkSignBWithA(state);
+
 
             case 768:
                 return atApi.getBlockTimestamp(state);    // 0x0300
@@ -114,9 +119,15 @@ class AtApiController {
                 return atApi.getCreationTimestamp(state); // 0x0301
             case 770:
                 return atApi.getLastBlockTimestamp(state);
-            case 771:
+            case OpCode.PUT_LAST_BLOCK_HASH_IN_A:
                 atApi.putLastBlockHashInA(state);
                 break;
+            case OpCode.PUT_LAST_BLOCK_GSIG_IN_A:
+                if(state.getVersion() > 2){
+                  atApi.putLastBlockGenerationSignatureInA(state);
+                }
+                break;
+
             case 773:
                 return atApi.getTypeForTxInA(state);
             case 774:
@@ -125,15 +136,17 @@ class AtApiController {
                 return atApi.getTimestampForTxInA(state);
             case 776:
                 return atApi.getRandomIdForTxInA(state);
-            case 777:
+            case OpCode.MESSAGE_FROM_TX_IN_A_TO_B:
                 atApi.messageFromTxInAToB(state);
                 break;
             case 778:
                 atApi.bToAddressOfTxInA(state);
                 break;
-            case 779:
+            case OpCode.B_TO_ADDRESS_OF_CREATOR:
                 atApi.bToAddressOfCreator(state);
                 break;
+            case OpCode.GET_CODE_HASH_ID:
+                return atApi.getCodeHashId(state);
 
             case 1024:
                 return atApi.getCurrentBalance(state);
@@ -148,6 +161,27 @@ class AtApiController {
             case 1029:
                 atApi.sendAToAddressInB(state);
                 break;
+
+            case GET_MAP_VALUE_KEYS_IN_A:
+              return atApi.getMapValueKeysInA(state);
+            case SET_MAP_VALUE_KEYS_IN_A:
+              atApi.setMapValueKeysInA(state);
+              break;
+            case ISSUE_ASSET:
+              return atApi.issueAsset(state);
+            case MINT_ASSET:
+              atApi.mintAsset(state);
+              break;
+            case DIST_TO_ASSET_HOLDERS:
+              atApi.distToHolders(state);
+              break;
+            case GET_ASSET_HOLDERS_COUNT:
+              return atApi.getAssetHoldersCount(state);
+
+            case OpCode.GET_ACTIVATION_FEE:
+              return atApi.getActivationFee(state);
+
+
             default:
                 return 0;
         }
@@ -180,7 +214,7 @@ class AtApiController {
             case 281:
                 atApi.setB4(val, state);
                 break;
-            case 772:
+            case A_TO_TX_AFTER_TIMESTAMP:
                 atApi.aToTxAfterTimestamp(val, state);
                 break;
             case 1026:

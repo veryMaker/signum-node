@@ -17,6 +17,9 @@ public class MockNetwork extends TestnetNetwork {
     setProperty(Props.SIGNUM_HEIGHT, "0");
     setProperty(Props.POC_PLUS_HEIGHT, "0");
     setProperty(Props.SPEEDWAY_HEIGHT, "0");
+    setProperty(Props.SMART_FEES_HEIGHT, "0");
+    setProperty(Props.SMART_TOKEN_HEIGHT, "0");
+    setProperty(Props.SMART_ATS_HEIGHT, "0");
 
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "-1");
     setProperty(Props.BRS_CHECKPOINT_HASH, "");

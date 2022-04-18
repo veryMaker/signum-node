@@ -31,7 +31,7 @@ public interface AssetExchange {
 
   Ask getAskOrder(long orderId);
 
-  void addAsset(Transaction transaction, ColoredCoinsAssetIssuance attachment);
+  void addAsset(long assetId, long accountId, ColoredCoinsAssetIssuance attachment);
 
   void addAssetTransfer(Transaction transaction, ColoredCoinsAssetTransfer attachment);
 

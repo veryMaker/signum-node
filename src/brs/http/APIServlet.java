@@ -161,6 +161,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getATDetails", new GetATDetails(parameterService));
     map.put("getATIds", new GetATIds(atService));
     map.put("getATLong", GetATLong.instance);
+    map.put("getATMapValue", new GetATMapValue());
     map.put("getAccountATs", new GetAccountATs(parameterService, atService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
     map.put("generateDeeplink", GenerateDeeplink.instance);
@@ -171,7 +172,7 @@ public final class APIServlet extends HttpServlet {
     map.put("fullReset", new FullReset(blockchainProcessor, propertyService));
     map.put("popOff", new PopOff(blockchainProcessor, blockchain, blockService, propertyService));
     map.put("backupDB", new BackupDB(propertyService));
-    
+
     // Extra api for the custom network parameters
     if(params != null) {
       params.adjustAPIs(map);
@@ -273,7 +274,7 @@ public final class APIServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
     doGet(req, resp);
   }
-  
+
   @Override
   protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     doGet(req, resp);
@@ -302,7 +303,7 @@ public final class APIServlet extends HttpServlet {
         return;
       }
     }
-    
+
     if("OPTIONS".equals(req.getMethod())) {
       // For HTTP OPTIONS reply with ACCEPTED status code -- per CORS handshake
       resp.setStatus(HttpServletResponse.SC_ACCEPTED);

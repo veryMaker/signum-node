@@ -56,9 +56,9 @@ class AssetServiceImpl {
     return assetTable.getCount();
   }
 
-  public void addAsset(Transaction transaction, Attachment.ColoredCoinsAssetIssuance attachment) {
-    final BurstKey dbKey = assetDbKeyFactory.newKey(transaction.getId());
-    assetTable.insert(new Asset(dbKey, transaction, attachment));
+  public void addAsset(long assetId, long senderId, Attachment.ColoredCoinsAssetIssuance attachment) {
+    final BurstKey dbKey = assetDbKeyFactory.newKey(assetId);
+    assetTable.insert(new Asset(dbKey, assetId, senderId, attachment));
   }
 
 }

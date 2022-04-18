@@ -40,7 +40,7 @@ public abstract class AtController {
         int numSteps = 0;
 
         while (state.getMachineState().steps +
-                (numSteps = getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getCreationBlockHeight()))
+                (numSteps = processor.getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getIndirectsCount()))
                 <= AtConstants.getInstance().maxSteps(state.getHeight())) {
 
             if ((state.getgBalance() < stepFee * numSteps)) {
@@ -82,13 +82,6 @@ public abstract class AtController {
         }
 
         return 5;
-    }
-
-    private static int getNumSteps(byte op, int height) {
-        if (op >= 0x32 && op < 0x38)
-            return (int) AtConstants.getInstance().apiStepMultiplier(height);
-
-        return 1;
     }
 
     public static void resetMachine(AtMachineState state) {
@@ -213,7 +206,7 @@ public abstract class AtController {
         return codeLen;
     }
 
-    public static AtBlock getCurrentBlockATs(int freePayload, int blockHeight, long generatorId) {
+    public static AtBlock getCurrentBlockATs(int freePayload, int blockHeight, long generatorId, int indirectsCount) {
         List<Long> orderedATs = AT.getOrderedATs();
         Iterator<Long> keys = orderedATs.iterator();
 
@@ -227,6 +220,7 @@ public abstract class AtController {
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
             Long id = keys.next();
             AT at = AT.getAT(id);
+            at.addIndirectsCount(indirectsCount);
 
             long atAccountBalance = getATAccountBalance(id);
             long atStateBalance = at.getgBalance();
@@ -240,10 +234,11 @@ public abstract class AtController {
                 try {
                     at.setgBalance(atAccountBalance);
                     at.setHeight(blockHeight);
-                    at.clearTransactions();
+                    at.clearLists();
                     at.setWaitForNumberOfBlocks(at.getSleepBetween());
                     listCode(at, true, true);
                     runSteps(at);
+                    indirectsCount = at.getIndirectsCount();
 
                     long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
                     if (at.getMachineState().dead) {
@@ -300,7 +295,7 @@ public abstract class AtController {
             AT at = AT.getAT(atId);
             logger.debug("Running AT {}", Convert.toUnsignedLong(atIdLong));
             try {
-                at.clearTransactions();
+                at.clearLists();
                 at.setHeight(blockHeight);
                 at.setWaitForNumberOfBlocks(at.getSleepBetween());
 
@@ -357,6 +352,7 @@ public abstract class AtController {
         for (AT at : processedATs) {
             at.saveState();
         }
+        AT.saveMapUpdates(blockHeight, generatorId);
 
         return new AtBlock(totalFee, totalAmount, new byte[1]);
     }
@@ -430,9 +426,11 @@ public abstract class AtController {
             totalAmount += tx.getAmount();
             AT.addPendingTransaction(tx, blockHeight, generatorId);
             if (logger.isDebugEnabled()) {
-                logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
+                logger.debug("Transaction to {}, amount {}", tx.getRecipientId() == null ? 0L : Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
             }
         }
+        AT.addMapUpdates(at.getMapUpdates(), blockHeight, generatorId);
+
         return totalAmount;
     }
 

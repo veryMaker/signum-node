@@ -76,8 +76,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public void addAsset(Transaction transaction, ColoredCoinsAssetIssuance attachment) {
-    assetService.addAsset(transaction, attachment);
+  public void addAsset(long assetId, long accountId, ColoredCoinsAssetIssuance attachment) {
+    assetService.addAsset(assetId, accountId, attachment);
   }
 
   @Override

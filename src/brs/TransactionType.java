@@ -96,7 +96,7 @@ public abstract class TransactionType {
   private static final int BASELINE_FEE_HEIGHT = 1; // At release time must be less than current block - 1440
   private static final Fee BASELINE_ASSET_ISSUANCE_FEE = new Fee(Constants.ASSET_ISSUANCE_FEE_NQT, 0);
 
-  private static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
+  public static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
   private static final long BASELINE_ALIAS_ASSIGNMENT_FACTOR = 20L;
 
   private static Blockchain blockchain;
@@ -953,7 +953,7 @@ public abstract class TransactionType {
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.ColoredCoinsAssetIssuance attachment = (Attachment.ColoredCoinsAssetIssuance) transaction.getAttachment();
         long assetId = transaction.getId();
-        assetExchange.addAsset(transaction, attachment);
+        assetExchange.addAsset(transaction.getId(), transaction.getSenderId(), attachment);
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetId, attachment.getQuantityQNT());
       }
 
@@ -3116,7 +3116,7 @@ public abstract class TransactionType {
         catch (AtException e) {
           throw new BurstException.NotCurrentlyValidException("Invalid AT creation bytes", e);
         }
-        long requiredFee = totalPages * AtConstants.getInstance().costPerPage( transaction.getHeight() );
+        long requiredFee = totalPages * AtConstants.getInstance().costPerPage( blockchain.getHeight() );
         if (transaction.getFeeNQT() <  requiredFee){
           throw new BurstException.NotValidException("Insufficient fee for AT creation, using " + transaction.getFeeNQT()
             + ", minimum: " + requiredFee);

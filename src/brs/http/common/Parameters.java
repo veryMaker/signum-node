@@ -53,6 +53,8 @@ public final class Parameters {
   public static final String DESCRIPTION_PARAMETER = "description";
   public static final String FREQUENCY_PARAMETER = "frequency";
   public static final String AT_PARAMETER = "at";
+  public static final String KEY1_PARAMETER = "key1";
+  public static final String KEY2_PARAMETER = "key2";
   public static final String MACHINE_CODE_HASH_ID_PARAMETER = "machineCodeHashId";
   public static final String INCLUDE_DETAILS_PARAMETER = "includeDetails";
   public static final String CREATION_BYTES_PARAMETER = "creationBytes";

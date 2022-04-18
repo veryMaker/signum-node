@@ -8,13 +8,17 @@
 package brs.at;
 
 import brs.Burst;
+import brs.Constants;
+import brs.Account.AccountAsset;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 import brs.util.Convert;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TreeSet;
 
@@ -26,8 +30,10 @@ public class AtMachineState {
     private final ByteBuffer apCode;
     private long apCodeHashId;
     private final LinkedHashMap<ByteBuffer, AtTransaction> transactions;
+    private final ArrayList<AT.AtMapEntry> mapUpdates;
     private short version;
     private long gBalance;
+    private HashMap<Long, Long> gBalanceAsset = new HashMap<>();
     private long pBalance;
     private MachineState machineState;
     private int cSize;
@@ -44,6 +50,7 @@ public class AtMachineState {
     private short dataPages;
     private short callStackPages;
     private short userStackPages;
+    private int indirectsCount;
 
     protected AtMachineState(byte[] atId, byte[] creator, short version,
                              int height,
@@ -72,6 +79,7 @@ public class AtMachineState {
         this.apCodeHashId = apCodeHashId;
 
         transactions = new LinkedHashMap<>();
+        mapUpdates = new ArrayList<>();
     }
 
     public AtMachineState(byte[] atId, byte[] creator, byte[] creationBytes, int height) {
@@ -121,7 +129,7 @@ public class AtMachineState {
         this.apCode.order(ByteOrder.LITTLE_ENDIAN);
         this.apCode.put(code);
         this.apCode.clear();
-        
+
         if(apCode.array().length > 0) {
           this.apCodeHashId = Convert.fullHashToId(Crypto.sha256().digest(apCode.array()));
         }
@@ -155,6 +163,7 @@ public class AtMachineState {
         this.sleepBetween = 0;
         this.freezeWhenSameBalance = false;
         this.transactions = new LinkedHashMap<>();
+        this.mapUpdates = new ArrayList<>();
         this.gBalance = 0;
         this.pBalance = 0;
         this.machineState = new MachineState();
@@ -224,32 +233,93 @@ public class AtMachineState {
         this.machineState.b4 = b4.clone();
     }
 
+    int getIndirectsCount(){
+      return indirectsCount;
+    }
+
+    void addIndirectsCount(int count){
+      indirectsCount += count;
+    }
+
     void addTransaction(AtTransaction tx) {
-        ByteBuffer recipId = ByteBuffer.wrap(tx.getRecipientId());
-        AtTransaction oldTx = transactions.get(recipId);
-        if (oldTx == null) {
-            transactions.put(recipId, tx);
+        ByteBuffer txKey = ByteBuffer.allocate(8 + 8);
+        if(tx.getRecipientId() == null){
+          txKey.putLong(tx.getType().getType() + tx.getType().getSubtype());
+        }
+        else {
+          txKey.put(tx.getRecipientId());
+        }
+        txKey.putLong(tx.getAssetId());
+        txKey.clear();
+        AtTransaction oldTx = transactions.get(txKey);
+        if (oldTx == null || tx.getRecipientId() == null){
+            // so for txs that do not have a recipient (other types) we only add the latest per type/subtype per block
+            transactions.put(txKey, tx);
         } else {
-            AtTransaction newTx = new AtTransaction(tx.getSenderId(),
+            byte []message = tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage();
+            if(getVersion() > 2 && (oldTx.getMessage() == null || oldTx.getMessage().length < Constants.MAX_ARBITRARY_MESSAGE_LENGTH - 32)) {
+              // we append the messages now
+              ByteBuffer msg = ByteBuffer.allocate((oldTx.getMessage() == null ? 0 : oldTx.getMessage().length)
+                  + (tx.getMessage() == null ? 0 : tx.getMessage().length));
+              if(oldTx.getMessage() != null)
+                msg.put(oldTx.getMessage());
+              if(tx.getMessage() != null)
+                msg.put(tx.getMessage());
+              msg.clear();
+              message = msg.array();
+            }
+
+            AtTransaction newTx = new AtTransaction(tx.getType(), tx.getSenderId(),
                     tx.getRecipientId(),
-                    oldTx.getAmount() + tx.getAmount(),
-                    tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage());
-            transactions.put(recipId, newTx);
+                    oldTx.getAmount() + tx.getAmount(), oldTx.getAssetId(),
+                    oldTx.getQuantity() + tx.getQuantity(), 0L, 0L,
+                    message);
+            transactions.put(txKey, newTx);
         }
     }
 
-    protected void clearTransactions() {
-        transactions.clear();
+    void addMapUpdate(long atId, long key1, long key2, long value) {
+      for(AT.AtMapEntry e : mapUpdates){
+        // check if we need to update an existing entry or add a new one
+        if(e.getAtId() == atId && e.getKey1() == key1 && e.getKey2() == key2){
+          e.setValue(value);
+          return;
+        }
+      }
+      mapUpdates.add(new AT.AtMapEntry(atId, key1, key2, value));
+    }
+
+    long getMapValue(long atId, long key1, long key2){
+      long thisAtId = AtApiHelper.getLong(this.getId());
+      if(atId == thisAtId) {
+        // for the contract itself, we first check if there is a pending update
+        for(AT.AtMapEntry e : getMapUpdates()){
+          if(e.getKey1() == key1 && e.getKey2() == key2){
+            return e.getValue();
+          }
+        }
+      }
+
+      return Burst.getStores().getAtStore().getMapValue(atId, key1, key2);
+    }
+
+    protected void clearLists() {
+      transactions.clear();
+      mapUpdates.clear();
     }
 
     public Collection<AtTransaction> getTransactions() {
         return transactions.values();
     }
 
+    public Collection<AT.AtMapEntry> getMapUpdates() {
+      return mapUpdates;
+    }
+
     public ByteBuffer getApCode() {
         return apCode;
     }
-    
+
     public long getApCodeHashId() {
       return apCodeHashId;
   }
@@ -301,7 +371,7 @@ public class AtMachineState {
     protected void setdSize(int dSize) {
         this.dSize = dSize;
     }
-    
+
     public short getDataPages() {
       return dataPages;
     }
@@ -314,19 +384,42 @@ public class AtMachineState {
       return userStackPages;
     }
 
-    public Long getgBalance() {
+    public long getgBalance() {
         return gBalance;
     }
 
-    public void setgBalance(Long gBalance) {
+    public long getgBalance(long assetId) {
+      if(assetId == 0L){
+        return getgBalance();
+      }
+      Long balance = gBalanceAsset.get(assetId);
+      if(balance == null) {
+        balance = 0L;
+        AccountAsset asset = Burst.getStores().getAccountStore().getAccountAsset(AtApiHelper.getLong(getId()), assetId);
+        if(asset != null) {
+          balance = asset.getQuantityQNT();
+        }
+        gBalanceAsset.put(assetId, balance);
+      }
+      return balance;
+    }
+
+    public void setgBalance(long assetId, long value) {
+      if(assetId == 0L){
+        setgBalance(value);
+      }
+      gBalanceAsset.put(assetId, value);
+    }
+
+    public void setgBalance(long gBalance) {
         this.gBalance = gBalance;
     }
 
-    public Long getpBalance() {
+    public long getpBalance() {
         return pBalance;
     }
 
-    public void setpBalance(Long pBalance) {
+    public void setpBalance(long pBalance) {
         this.pBalance = pBalance;
     }
 
@@ -387,11 +480,21 @@ public class AtMachineState {
     }
 
     private byte[] getTransactionBytes() {
-        ByteBuffer b = ByteBuffer.allocate((creator.length + 8) * transactions.size());
+        int txLength = creator.length + 8;
+        if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS)) {
+          txLength += 8;
+        }
+        ByteBuffer b = ByteBuffer.allocate(txLength * transactions.size());
         b.order(ByteOrder.LITTLE_ENDIAN);
-        for (AtTransaction tx : transactions.values()) {
-            b.put(tx.getRecipientId());
+        for (AtTransaction tx : getTransactions()) {
+            if(tx.getRecipientId() == null)
+              b.putLong(0L);
+            else
+              b.put(tx.getRecipientId());
             b.putLong(tx.getAmount());
+            if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS)) {
+              b.putLong(tx.getAssetId());
+            }
         }
         return b.array();
     }

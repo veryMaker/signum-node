@@ -355,8 +355,12 @@ public class Transaction implements Comparable<Transaction> {
   }
 
   public long getId() {
+    return getIdCheckSignature(true);
+  }
+
+  public long getIdCheckSignature(boolean checkSignature) {
     if (id.get() == 0) {
-      if (signature.get() == null && type.isSigned()) {
+      if (checkSignature && signature.get() == null && type.isSigned()) {
         throw new IllegalStateException("Transaction is not signed yet");
       }
       byte[] hash;

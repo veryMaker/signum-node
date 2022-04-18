@@ -34,6 +34,8 @@ public interface AccountStore {
   Collection<Account.RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId);
 
   Collection<Account.AccountAsset> getAssets(int from, int to, Long id);
+  
+  Account.AccountAsset getAccountAsset(Long accountId, Long assetId);
 
   Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to);
 

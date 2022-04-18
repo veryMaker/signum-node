@@ -70,6 +70,28 @@ public class AtConstants {
         BLOCKS_FOR_RANDOM.put((short) 2, 15L); //for testing 2 -> normally 1440
         AVERAGE_BLOCK_MINUTES.put((short) 2, 4L);
         // end of AT version 2
+
+        // constants for AT version 3
+        MIN_FEE.put((short) 3, 1000L);
+        STEP_FEE.put((short) 3, Constants.FEE_QUANT_SIP34 / 10L);
+        MAX_STEPS.put((short) 3, 100_000L);
+        API_STEP_MULTIPLIER.put((short) 3, 10L);
+
+        COST_PER_PAGE.put((short) 3, Constants.FEE_QUANT_SIP34 * 10);
+
+        MAX_WAIT_FOR_NUM_OF_BLOCKS.put((short) 3, 31536000L);
+        MAX_SLEEP_BETWEEN_BLOCKS.put((short) 3, 31536000L);
+
+        PAGE_SIZE.put((short) 3, 256L);
+
+        MAX_MACHINE_CODE_PAGES.put((short) 3, 40L);
+        MAX_MACHINE_DATA_PAGES.put((short) 3, 10L);
+        MAX_MACHINE_USER_STACK_PAGES.put((short) 3, 10L);
+        MAX_MACHINE_CALL_STACK_PAGES.put((short) 3, 10L);
+
+        BLOCKS_FOR_RANDOM.put((short) 3, 15L); //for testing 2 -> normally 1440
+        AVERAGE_BLOCK_MINUTES.put((short) 3, 4L);
+        // end of AT version 3
     }
 
     public static AtConstants getInstance() {
