@@ -578,7 +578,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
       long decimals = AtApiHelper.getLong(state.getB1());
 
-      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_ISSUANCE, state.getId(), null, decimals, 0L, b.array());
+      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_ISSUANCE, state.getId(), null, 0L, decimals, b.array());
       state.addTransaction(tx);
 
       return tx.getAssetId();
