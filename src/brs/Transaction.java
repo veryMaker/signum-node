@@ -358,6 +358,10 @@ public class Transaction implements Comparable<Transaction> {
     return getIdCheckSignature(true);
   }
 
+  public boolean hasId() {
+    return id.get() != 0;
+  }
+
   public long getIdCheckSignature(boolean checkSignature) {
     if (id.get() == 0) {
       if (checkSignature && signature.get() == null && type.isSigned()) {

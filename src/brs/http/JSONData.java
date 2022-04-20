@@ -348,6 +348,9 @@ public final class JSONData {
       json.addProperty(FULL_HASH_RESPONSE, transaction.getFullHash());
       json.addProperty(TRANSACTION_RESPONSE, transaction.getStringId());
     }
+    else if(transaction.hasId()){
+      json.addProperty(TRANSACTION_RESPONSE, transaction.getStringId());
+    }
     JsonObject attachmentJSON = new JsonObject();
     for (Appendix appendage : transaction.getAppendages()) {
       JSON.addAll(attachmentJSON, appendage.getJsonObject());
