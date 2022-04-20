@@ -244,7 +244,7 @@ public class AtMachineState {
     void addTransaction(AtTransaction tx) {
         ByteBuffer txKey = ByteBuffer.allocate(8 + 8);
         if(tx.getRecipientId() == null){
-          txKey.putLong(tx.getType().getType() + tx.getType().getSubtype());
+          txKey.putLong(((long)tx.getType().getType()) << 4 + tx.getType().getSubtype());
         }
         else {
           txKey.put(tx.getRecipientId());
@@ -252,12 +252,12 @@ public class AtMachineState {
         txKey.putLong(tx.getAssetId());
         txKey.clear();
         AtTransaction oldTx = transactions.get(txKey);
-        if (oldTx == null || tx.getRecipientId() == null){
-            // so for txs that do not have a recipient (other types) we only add the latest per type/subtype per block
+        if (oldTx == null){
             transactions.put(txKey, tx);
         } else {
+            // we add the amounts and append the messages
             byte []message = tx.getMessage() != null ? tx.getMessage() : oldTx.getMessage();
-            if(getVersion() > 2 && (oldTx.getMessage() == null || oldTx.getMessage().length < Constants.MAX_ARBITRARY_MESSAGE_LENGTH - 32)) {
+            if(getVersion() > 2 && tx.getMessage()!=null && (oldTx.getMessage() == null || oldTx.getMessage().length < Constants.MAX_ARBITRARY_MESSAGE_LENGTH - 32)) {
               // we append the messages now
               ByteBuffer msg = ByteBuffer.allocate((oldTx.getMessage() == null ? 0 : oldTx.getMessage().length)
                   + (tx.getMessage() == null ? 0 : tx.getMessage().length));

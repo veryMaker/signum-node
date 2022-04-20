@@ -49,8 +49,8 @@ public class AtTransaction {
       this(type, senderId, recipientId, amount, 0L, 0L, 0L, 0L, message);
     }
 
-    AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long assetId, long quantity, byte[] message) {
-      this(type, senderId, recipientId, 0L, assetId, quantity, 0L, 0L, message);
+    AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long amount, long assetId, long quantity, byte[] message) {
+      this(type, senderId, recipientId, amount, assetId, quantity, 0L, 0L, message);
     }
 
     AtTransaction(TransactionType type, byte[] senderId, byte[] recipientId, long amount, long assetId, long quantity, long assetIdToDistribute,
@@ -78,12 +78,10 @@ public class AtTransaction {
         }
     }
 
-    public Transaction build(AccountService accountService, Block block) throws NotValidException {
+    public Transaction build(Block block) throws NotValidException {
       attachment = Attachment.AT_PAYMENT;
 
-      Account senderAccount = accountService.getAccount(AtApiHelper.getLong(getSenderId()));
       long recipient = getRecipientId() == null ? 0L : AtApiHelper.getLong(getRecipientId());
-      accountService.getOrAddAccount(recipient);
 
       if (getType() == TransactionType.ColoredCoins.ASSET_TRANSFER) {
         attachment = new Attachment.ColoredCoinsAssetTransfer(getAssetId(),
@@ -102,7 +100,7 @@ public class AtTransaction {
           decimals = 4;
         }
 
-        attachment = new Attachment.ColoredCoinsAssetIssuance(name, "Token issued and controlled by smart contract ID: " + Convert.toUnsignedLong(senderAccount.getId())
+        attachment = new Attachment.ColoredCoinsAssetIssuance(name, "Token issued and controlled by smart contract ID: " + Convert.toUnsignedLong(AtApiHelper.getLong(getSenderId()))
             , 0L, (byte)decimals, block.getHeight(), true);
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {

@@ -452,15 +452,29 @@ public class AtApiPlatformImpl extends AtApiImpl {
         if (state.getVersion() > 2) {
           long assetId = AtApiHelper.getLong(state.getB2());
           if (assetId != 0L) {
-            long balance = state.getgBalance(assetId);
-            if (val > balance) {
-              val = balance;
+            long assetBalance = state.getgBalance(assetId);
+            if (val > assetBalance) {
+              val = assetBalance;
             }
+
+            // optional coin amount besides the asset
+            long amount = AtApiHelper.getLong(state.getB3());
+            if (amount > 0L) {
+              long balance = state.getgBalance();
+              if (amount > balance){
+                amount = balance;
+              }
+              state.setgBalance(balance - amount);
+            }
+            else {
+              amount = 0L;
+            }
+
             AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_TRANSFER,
-                state.getId(), state.getB1().clone(), assetId, val, null);
+                state.getId(), state.getB1().clone(), amount, assetId, val, null);
             state.addTransaction(tx);
 
-            state.setgBalance(assetId, balance - val);
+            state.setgBalance(assetId, assetBalance - val);
             return;
           }
         }
@@ -498,7 +512,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_MINT,
-          state.getId(), null, assetId, quantity, null);
+          state.getId(), null, 0L, assetId, quantity, null);
       state.addTransaction(tx);
 
       state.setgBalance(assetId, state.getgBalance(assetId) + quantity);
@@ -581,7 +595,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
       long decimals = AtApiHelper.getLong(state.getB1());
 
-      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_ISSUANCE, state.getId(), null, 0L, decimals, b.array());
+      AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_ISSUANCE, state.getId(), null, 0L, 0L, decimals, b.array());
       state.addTransaction(tx);
 
       return tx.getAssetId();
@@ -621,7 +635,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         b.put(state.getA4());
         b.clear();
 
-        AtTransaction tx = new AtTransaction(TransactionType.AutomatedTransactions.AT_PAYMENT, state.getId(), state.getB1(), 0L, 0L, b.array());
+        AtTransaction tx = new AtTransaction(TransactionType.AutomatedTransactions.AT_PAYMENT, state.getId(), state.getB1(), 0L, 0L, 0L, b.array());
         state.addTransaction(tx);
     }
 
