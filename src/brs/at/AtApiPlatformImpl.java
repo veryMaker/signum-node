@@ -130,13 +130,16 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return -1;
         }
 
-        if (state.getVersion() >= 3) {
+        if (state.getVersion() > 2) {
           long assetId = AtApiHelper.getLong(state.getA2());
-          if (assetId != 0 && tx.getAttachment() instanceof Attachment.ColoredCoinsAssetTransfer) {
-            Attachment.ColoredCoinsAssetTransfer assetTransfer = (ColoredCoinsAssetTransfer) tx.getAttachment();
-            if(assetTransfer.getAssetId() == assetId) {
-              return assetTransfer.getQuantityQNT();
+          if (assetId != 0){
+            if(tx.getAttachment() instanceof Attachment.ColoredCoinsAssetTransfer) {
+              Attachment.ColoredCoinsAssetTransfer assetTransfer = (ColoredCoinsAssetTransfer) tx.getAttachment();
+              if(assetTransfer.getAssetId() == assetId) {
+                return assetTransfer.getQuantityQNT();
+              }
             }
+            return 0L;
           }
         }
         if ((tx.getMessage() == null || Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
