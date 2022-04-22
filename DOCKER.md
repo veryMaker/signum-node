@@ -15,18 +15,103 @@ The two supported database backends are:
 
 # Running on Docker
 Running the Signum node on docker is a great way to provide easy updates upon new releases, but requires some knowledge of how to use docker.
+
 These containers are built with a script that will automatically download the latest version of Phoenix and install it during startup. 
-Each time you launch the container, it should have the latest Phoenix interface.
+
+Each time you launch the container, it will download and install the latest Phoenix interface.
+
+The easiest way is to use docker-compose to launch the image consistently every time.
+## Database Choices
+
+There are two choices of database driver: `h2` and `mariadb`. The H2 driver is built into the node and will be completely self-contained. MariaDB is a separate database server that can be installed locally or run alongside the node in a second docker container.
+
+H2 seems to do an initial sync faster, but MariaDB is far more stable and seems to use much less ram
+
+## Mariadb Image via docker-compose
+Running the Mariadb image is similar to the H2 image, except it does not create a database docker volume. You must also provide the configuration in `node.properties` to point it to a mariadb instance.
+
+1. Run `mkdir signum-docker` or similar to create a folder to house all your docker files.
+2. Run `cd signum-docker` then `mkdir conf`
+3. Run `touch conf/node.properties`, then edit that file to override the nodes default settings as desired.
+4. In `node.properties`, set the connection string and credentials:
+```
+DB.Url=jdbc:mariadb://mariadb:3306/signum
+DB.Username=root
+DB.Password=signum
+```
+5. Run `docker volume create signum_db` to create a location to house your database.
+
+6. Create a file called `docker-compose.yml` with these contents:
+```yml
+version: "3.8"
+services:
+  node:
+    image: signumnetwork/node:latest-maria
+    init: true
+    depends_on:
+      - mariadb
+    stop_grace_period: 5m
+    networks:
+      - backend
+    ports:
+      - "8123:8123"
+      - "8125:8125"
+    volumes:
+      - "./conf:/conf"
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=signum
+      - TZ=America/New_York
+      - MYSQL_DATABASE=signum
+      - MYSQL_USER=signum
+      - MYSQL_PASSWORD=signum
+    volumes:
+      - signum_db:/config
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  signum_db:
+    external: true
+```
+7. Run `docker-compose up -d` from the directory containing your dockercompose.yml file to start both servers.
+8. You may turn the servers off with `docker-compose down`
+
+### More detail
+The `signumnetwork/node:latest-mariadb` image in the `node` service will create 1 docker volume by default: a `conf` volume, though it will show up in `docker volume ls` as a UUID. The above compose file overrides this volume and maps it to a filesystem location instead.
+
+By default the node will use all default settings. The `volumes` section in the docker-compose.yml file above tells docker to map the internal '/conf' folder to an external folder on the host's hard drive instead of using a docker volume. This allows node configuration files to be easily customized.
+
+The `conf` folder inside the 'signum-docker' folder should contain `node.properties` and several other files. Make any desired changes to these config files.
+
+Finally, the `docker-compose up -d`, while inside the 'signum-docker' folder, will start the node. You can monitor it with `docker-compose logs`.
+
+The above compose file for the `mariadb` service along with the `docker volume create` command overrides the mariadb default database location so that you will have a persistent `signum_db` volume that will exist until you delete it explicitly or run `docker volume prune` while no container exists that is attached to the volume.
+
+Docker-compose can launch multiple replicas if software properly supports it, but the Signum node is not designed with this feature of docker in mind, so this docker-compose file specificies only a single replica.
+
+Once you port-forward the two relevant ports, the website should be available at the server's host name on port 8125. There is no need to expose the mariadb ports. The two images communicate within the docker network.
 
 ## H2 Image via docker-compose
-The easiest way is to use docker-compose to launch the image consistently every time.
+> \>>>ATTENTION<<<
+>
+> H2 is not currently recommended as there is a problem with it disconnecting the database randomly, leaving the node in a stuck state. Please use mariadb.
+>
+> H2 instructions are provided here only as a reference.
+To use the H2 docker image:
 
-There are two choices of database driver: `h2` and `mariadb`. The H2 driver is built into the node and will be completely self-contained.
-It is not slower than mariadb and works just as well, but does not require a mariadb RDMS installed.
-To use the H2 docker image, in a folder called 'signum-node', create a file called `docker-compose.yml` and fill it with:
-
-> As a template you can use the docker-compose.yml file which is in this repository
-
+1. Run `mkdir signum-docker` or similar to create a folder to house all your docker files.
+2. Run `cd signum-docker` then `mkdir conf`
+3. Run `touch conf/node.properties`, then edit that file to override the nodes default settings as desired.
+4. Run `docker volume create signum_db` to create a location to house your database.
+5. Create a file called `docker-compose.yml` with these contents:
 ```yml
 version: "3.8"
 services:
@@ -41,20 +126,38 @@ services:
       - "8123:8123"
       - "8125:8125"
     volumes:
-      - "./conf:/conf"
-      - "./db:/db"
+      - ./conf:/conf
+      - signum_db:/db
+
+volumes:
+  signum_db:
+    external: true
 ```
+6. Run `docker-compose up -d` from the directory containing your dockercompose.yml file to start both servers.
+7. You may turn the servers off with `docker-compose down`
 
-The h2 image will create 2 docker volumes by default: a `db` volume and a `conf` volume, though these will show up in `docker volume ls` as a pair of UUIDs. 
-By default the node will use all default settings. The `volumes` section in the docker-compose.yml file above tells docker to map the internal '/conf' folder to an external folder on the host's hard drive instead of using a docker volumne. This allows node configuration files to be customized.
+You should now have a running docker node. Port-forward it manually since the docker container interferes with automatic port forwarding. Read on for more details on what's going on.
 
-Create a `conf` folder inside the 'signum-node' folder and drop your `brs.properties` file into that conf folder. Make any desired changes to the config file.
+### More detail
+The h2 image will create 2 docker volumes by default: a `db` volume and a `conf` volume, though these will show up in `docker volume ls` as a pair of UUIDs. The above compose file and `docker volume create` command, however, overrides the `db` mapping so that you will have a persistent `signum_db` volume that will exist until you delete it explicitly or run `docker volume prune` while no container exists that is attached to the volume.
 
-Finally, run `docker-compose up -d` from inside the 'signum-node' folder. The node will begin starting up. You can monitor it with `docker logs signum-node_signum_1`. The name is generated from the folder name, following by the name of the service in the docker-compose file, then a number indicating which replica instance it is. Docker-compose can launch multiple replicas if software properly supports it, but the Signum node is not designed with this feature of docker in mind, so this docker-compose file specificies only a single replica.
+By default the node will use all default settings. The `volumes` section in the docker-compose.yml file above tells docker to map the internal '/conf' folder to an external folder on the host's hard drive instead of using a docker volume. This allows node configuration files to be easily customized.
 
-The website should now be available at the server's host name on port 8125.
+The `conf` folder inside the 'signum-docker' folder should contain `node.properties` and several other files. Make any desired changes to these config files.
+
+Finally, the `docker-compose up -d`, while inside the 'signum-docker' folder, will start the node. You can monitor it with `docker-compose logs`.
+
+The container name is generated from the folder name, followed by the name of the service in the docker-compose file, then a number indicating which replica instance it is. Docker-compose can launch multiple replicas if software properly supports it, but the Signum node is not designed with this feature of docker in mind, so this docker-compose file specificies only a single replica.
+
+Once you port-forward the two relevant ports, the website should be available at the server's host name on port 8125.
+
 
 ## Starting manually in the console
+> NOTE: This command uses the H2 version of the node for simplicity.
+>
+> H2 is not currently recommended as there is a problem with it disconnecting the database randomly, leaving the node in a stuck state. Please use mariadb.
+>
+> You can run the mariadb version similarly to this if you provide it with a pre-existing mariadb instance.
 
 Alternatively, you may want to run the container manually in the command line. Then you need to link/mount your local `conf` and `db` folders to the container and forward the ports.
 The command may look like this:
@@ -68,17 +171,11 @@ docker run -d -p "8123:8123" -p "8125:8125" -v "/home/me/crypto/signum-node/db:/
 Be sure that the `db` and `conf` folder exist under the give path. You do not need to put any files there, they will be created on the first startup.
 Within the `conf` folder you'll see three file created:
 
-- logging-default.properties - only if you know how logging conf works
-- node-default.properties - better not touch it
-- node.properties - this is your custom node configuration file...mess it up here
+- logging-default.properties - default logging config reference
+- logging.properties - override default logging settings
+- node-default.properties - default config reference
+- node.properties - override default config settings
 
-
-## Mariadb Image
-Running the Mariadb image is similar to the H2 image, except it does not create a database docker volume. You must also provide the configuration in `brs.properties` to point it to a pre-established mariadb instance.
-
-*The mariadb image is provided as an alternative, but is not officially supported in docker form due to its more complex setup.*
-
-If running mariadb in its own docker container, add the service directly to the docker-compose file used for h2 so both containers launch simultaneously. If hosting it on the docker host or somewhere else, no modification to the docker-compose is necessary, but there may be additional options needed to allow the node to communicate with the mariadb outside of its container network.
 
 # Configuring Dockerhub Releases on Github
 The github actions workflow that releases docker images to dockerhub is set up to do so automatically whenever there is a 'release' created via the Github interface, or when the workflow is manually triggered. Some configuration is required to succesfully run this workflow.
