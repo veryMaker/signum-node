@@ -38,7 +38,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       int blockchainHeight = Burst.getBlockchain().getHeight();
       return
         getBlocks(ctx.selectFrom(BLOCK)
-                .where(BLOCK.HEIGHT.between(to > 0 ? blockchainHeight - to : 0).and(blockchainHeight - Math.max(from, 0)))
+                .where(BLOCK.HEIGHT.between(to > 0 ? blockchainHeight - to : blockchainHeight).and(blockchainHeight - Math.max(from, 0)))
                 .orderBy(BLOCK.HEIGHT.desc())
                 .fetch());
     });
@@ -293,7 +293,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       }
 
       SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions);
-      
+
       if (recipient != null) {
         select = select.and(TRANSACTION.RECIPIENT_ID.eq(recipient));
       }
