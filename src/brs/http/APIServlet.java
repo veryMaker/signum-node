@@ -201,8 +201,12 @@ public final class APIServlet extends HttpServlet {
         response = ERROR_INCORRECT_REQUEST;
       }
 
+      long processingTime = System.currentTimeMillis() - startTime;
       if (response instanceof JsonObject) {
-        JSON.getAsJsonObject(response).addProperty("requestProcessingTime", System.currentTimeMillis() - startTime);
+        JSON.getAsJsonObject(response).addProperty("requestProcessingTime", processingTime);
+      }
+      if(logger.isDebugEnabled() && processingTime > 20){
+        logger.debug("{} ms - {}", processingTime, req.getParameter("requestType"));
       }
 
       writeJsonToResponse(resp, response);
