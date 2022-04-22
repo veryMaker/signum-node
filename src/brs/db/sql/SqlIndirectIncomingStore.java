@@ -19,9 +19,10 @@ import static brs.schema.Tables.INDIRECT_INCOMING;
 public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
     private final EntitySqlTable<IndirectIncoming> indirectIncomingTable;
+    private final BurstKey.LinkKeyFactory<IndirectIncoming> indirectIncomingDbKeyFactory;
 
     public SqlIndirectIncomingStore(DerivedTableManager derivedTableManager) {
-        BurstKey.LinkKeyFactory<IndirectIncoming> indirectIncomingDbKeyFactory = new DbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
+        indirectIncomingDbKeyFactory = new DbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
             @Override
             public BurstKey newKey(IndirectIncoming indirectIncoming) {
                 return newKey(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId());
@@ -81,5 +82,10 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                 .stream()
                 .map(IndirectIncoming::getTransactionId)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public IndirectIncoming getIndirectIncoming(long accountId, long transactionId) {
+        return indirectIncomingTable.get(indirectIncomingDbKeyFactory.newKey(accountId, transactionId));
     }
 }

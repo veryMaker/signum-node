@@ -382,6 +382,15 @@ public final class JSONData {
     json.addProperty(BLOCK_TIMESTAMP_RESPONSE, transaction.getBlockTimestamp());
     return json;
   }
+  
+  public static JsonObject indirect(IndirectIncoming indirectIncoming, int currentBlockchainHeight) {
+    JsonObject json = new JsonObject();
+    json.addProperty(AMOUNT_NQT_RESPONSE, String.valueOf(indirectIncoming.getAmount()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(indirectIncoming.getQuantity()));
+    json.addProperty(HEIGHT_RESPONSE, indirectIncoming.getHeight());
+    json.addProperty(CONFIRMATIONS_RESPONSE, currentBlockchainHeight - indirectIncoming.getHeight());
+    return json;
+  }
 
   // ugly, hopefully temporary
   private static void modifyAttachmentJSON(JsonObject json) {
