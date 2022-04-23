@@ -529,7 +529,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
       long amount = AtApiHelper.getLong(state.getA1());
       long assetToDistribute = AtApiHelper.getLong(state.getA3());
-      long quantityToDistribute = AtApiHelper.getLong(state.getA4());
+      long quantityToDistribute = 0L;
 
       Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
       if (asset == null) {
@@ -546,6 +546,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       state.addIndirectsCount(holdersCount);
 
       if(assetToDistribute !=0 ){
+        quantityToDistribute = AtApiHelper.getLong(state.getA4());
         if(quantityToDistribute > state.getgBalance(assetToDistribute)){
           quantityToDistribute = state.getgBalance(assetToDistribute);
         }
@@ -555,6 +556,11 @@ public class AtApiPlatformImpl extends AtApiImpl {
         amount = state.getgBalance();
       }
       state.setgBalance(state.getgBalance() - amount);
+
+      if(amount == 0L && quantityToDistribute == 0L){
+        // nothing to actually distribute
+        return;
+      }
 
       AtTransaction tx = new AtTransaction(TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS,
           state.getId(), null, amount, assetId, quantityToDistribute, assetToDistribute, minHolding, null);
