@@ -7,6 +7,7 @@ public class MockNetwork extends TestnetNetwork {
   public MockNetwork() {
 
     setProperty(Props.NETWORK_NAME, "Signum-LOCAL-MOCK");
+    setProperty(Props.ICON_LOCATION, "/images/signum_testnet_logo.png");
     setProperty(Props.GENESIS_TIMESTAMP, "1234");
     setProperty(Props.GENESIS_BLOCK_ID, "13202088261921974776");
 

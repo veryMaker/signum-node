@@ -12,6 +12,7 @@ public class TestnetNetwork extends NetworkParametersBase {
   public TestnetNetwork() {
 
     setProperty(Props.NETWORK_NAME, "Signum-TESTNET");
+    setProperty(Props.ICON_LOCATION, "/images/signum_testnet_logo.png");
 
     setProperty(Props.REWARD_RECIPIENT_ENABLE_BLOCK_HEIGHT, "0");
     setProperty(Props.DIGITAL_GOODS_STORE_BLOCK_HEIGHT, "0");
