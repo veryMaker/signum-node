@@ -16,11 +16,11 @@ import brs.Burst;
 import brs.IndirectIncoming;
 import brs.util.Convert;
 
-final class GetTransactionIndirect extends APIServlet.JsonRequestHandler {
+final class GetIndirectIncoming extends APIServlet.JsonRequestHandler {
 
   private final Blockchain blockchain;
 
-  GetTransactionIndirect(Blockchain blockchain) {
+  GetIndirectIncoming(Blockchain blockchain) {
     super(new APITag[] {APITag.TRANSACTIONS}, TRANSACTION_PARAMETER, ACCOUNT_PARAMETER);
     this.blockchain = blockchain;
   }
