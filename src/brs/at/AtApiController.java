@@ -10,63 +10,63 @@ class AtApiController {
 
     public static long func(int funcNum, AtMachineState state) {
         switch (funcNum) {
-            case 256:
+            case Get_A1:
                 return atApi.getA1(state);
-            case 257:
+            case Get_A2:
                 return atApi.getA2(state);
-            case 258:
+            case Get_A3:
                 return atApi.getA3(state);
-            case 259:
+            case Get_A4:
                 return atApi.getA4(state);
-            case 260:
+            case Get_B1:
                 return atApi.getB1(state);
-            case 261:
+            case Get_B2:
                 return atApi.getB2(state);
-            case 262:
+            case Get_B3:
                 return atApi.getB3(state);
-            case 263:
+            case Get_B4:
                 return atApi.getB4(state);
-            case 288:
+            case Clear_A:
                 atApi.clearA(state);
                 break;
-            case 289:
+            case Clear_B:
                 atApi.clearB(state);
                 break;
-            case 290:
+            case Clear_A_And_B:
                 atApi.clearA(state);
                 atApi.clearB(state);
                 break;
-            case 291:
+            case Copy_A_From_B:
                 atApi.copyAFromB(state);
                 break;
-            case 292:
+            case Copy_B_From_A:
                 atApi.copyBFromA(state);
                 break;
-            case 293:
+            case Check_A_Is_Zero:
                 return atApi.checkAIsZero(state);
-            case 294:
+            case Check_B_Is_Zero:
                 return atApi.checkBIsZero(state);
-            case 295:
+            case Check_A_Equals_B:
                 return atApi.checkAEqualsB(state);
-            case 296:
+            case Swap_A_and_B:
                 atApi.swapAAndB(state);
                 break;
-            case 297:
+            case OR_A_with_B:
                 atApi.orAWithB(state);
                 break;
-            case 298:
+            case OR_B_with_A:
                 atApi.orBWithA(state);
                 break;
-            case 299:
+            case AND_A_with_B:
                 atApi.andAWithB(state);
                 break;
-            case 300:
+            case AND_B_with_A:
                 atApi.andBWithA(state);
                 break;
-            case 301:
+            case XOR_A_with_B:
                 atApi.xorAWithB(state);
                 break;
-            case 302:
+            case XOR_B_with_A:
                 atApi.xorBWithA(state);
                 break;
             case 320:
@@ -94,17 +94,17 @@ class AtApiController {
                 atApi.divBByA(state);
                 break;
 
-            case 512:
+            case MD5_A_TO_B:
                 atApi.md5Atob(state);
                 break;
-            case 513:
+            case CHECK_MD5_A_WITH_B:
                 return atApi.checkMd5AWithB(state);
-            case 514:
+            case HASH160_A_TO_B:
                 atApi.hash160AToB(state);
                 break;
-            case 515:
+            case CHECK_HASH160_A_WITH_B:
                 return atApi.checkHash160AWithB(state);
-            case 516:
+            case SHA256_A_To_B:
                 atApi.sha256AToB(state);
                 break;
             case OpCode.CHECK_SHA256_A_WITH_B:
@@ -113,11 +113,11 @@ class AtApiController {
                 return atApi.checkSignBWithA(state);
 
 
-            case 768:
-                return atApi.getBlockTimestamp(state);    // 0x0300
-            case 769:
-                return atApi.getCreationTimestamp(state); // 0x0301
-            case 770:
+            case GET_BLOCK_TIMESTAMP:
+                return atApi.getBlockTimestamp(state);
+            case GET_CREATION_TIMESTAMP:
+                return atApi.getCreationTimestamp(state);
+            case GET_LAST_BLOCK_TIMESTAMP:
                 return atApi.getLastBlockTimestamp(state);
             case OpCode.PUT_LAST_BLOCK_HASH_IN_A:
                 atApi.putLastBlockHashInA(state);
@@ -128,18 +128,18 @@ class AtApiController {
                 }
                 break;
 
-            case 773:
+            case GET_TYPE_FOR_TX_IN_A:
                 return atApi.getTypeForTxInA(state);
-            case 774:
+            case GET_AMOUNT_FOR_TX_IN_A:
                 return atApi.getAmountForTxInA(state);
-            case 775:
+            case GET_TIMESTAMP_FOR_TX_IN_A:
                 return atApi.getTimestampForTxInA(state);
-            case 776:
+            case GET_RANDOM_ID_FOR_TX_IN_A:
                 return atApi.getRandomIdForTxInA(state);
             case OpCode.MESSAGE_FROM_TX_IN_A_TO_B:
                 atApi.messageFromTxInAToB(state);
                 break;
-            case 778:
+            case B_TO_ADDRESS_OF_TX_IN_A:
                 atApi.bToAddressOfTxInA(state);
                 break;
             case OpCode.B_TO_ADDRESS_OF_CREATOR:
@@ -148,17 +148,17 @@ class AtApiController {
             case OpCode.GET_CODE_HASH_ID:
                 return atApi.getCodeHashId(state);
 
-            case 1024:
+            case GET_CURRENT_BALANCE:
                 return atApi.getCurrentBalance(state);
-            case 1025:
+            case GET_PREVIOUS_BALANCE:
                 return atApi.getPreviousBalance(state);
-            case 1027:
+            case SEND_ALL_TO_ADDRESS_IN_B:
                 atApi.sendAllToAddressInB(state);
                 break;
-            case 1028:
+            case SEND_OLD_TO_ADDRESS_IN_B:
                 atApi.sendOldToAddressInB(state);
                 break;
-            case 1029:
+            case SEND_A_TO_ADDRESS_IN_B:
                 atApi.sendAToAddressInB(state);
                 break;
 
@@ -190,34 +190,34 @@ class AtApiController {
 
     public static long func1(int funcNum, long val, AtMachineState state) {
         switch (funcNum) {
-            case 272:
+            case Set_A1:
                 atApi.setA1(val, state);
                 break;
-            case 273:
+            case Set_A2:
                 atApi.setA2(val, state);
                 break;
-            case 274:
+            case Set_A3:
                 atApi.setA3(val, state);
                 break;
-            case 275:
+            case Set_A4:
                 atApi.setA4(val, state);
                 break;
-            case 278:
+            case Set_B1:
                 atApi.setB1(val, state);
                 break;
-            case 279:
+            case Set_B2:
                 atApi.setB2(val, state);
                 break;
-            case 280:
+            case Set_B3:
                 atApi.setB3(val, state);
                 break;
-            case 281:
+            case Set_B4:
                 atApi.setB4(val, state);
                 break;
             case A_TO_TX_AFTER_TIMESTAMP:
                 atApi.aToTxAfterTimestamp(val, state);
                 break;
-            case 1026:
+            case SEND_TO_ADDRESS_IN_B:
                 atApi.sendToAddressInB(val, state);
                 break;
             default:
@@ -228,19 +228,19 @@ class AtApiController {
 
     public static long func2(int funcNum, long val1, long val2, AtMachineState state) {
         switch (funcNum) {
-            case 276:
+            case Set_A1_A2:
                 atApi.setA1A2(val1, val2, state);
                 break;
-            case 277:
+            case Set_A3_A4:
                 atApi.setA3A4(val1, val2, state);
                 break;
-            case 282:
+            case Set_B1_B2:
                 atApi.setB1B2(val1, val2, state);
                 break;
-            case 283:
+            case Set_B3_B4:
                 atApi.setB3B4(val1, val2, state);
                 break;
-            case 1030:
+            case ADD_MINUTES_TO_TIMESTAMP:
                 return atApi.addMinutesToTimestamp(val1, val2, state);
             default:
                 return 0;
