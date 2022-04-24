@@ -2868,7 +2868,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Invalid subscription frequency");
         }
         if (transaction.getAmountNQT() < Constants.ONE_BURST || transaction.getAmountNQT() > Constants.MAX_BALANCE_NQT) {
-          throw new BurstException.NotValidException("Subscriptions must be at least one burst");
+          throw new BurstException.NotValidException("Subscriptions must be at least one " + Burst.getPropertyService().getString(Props.VALUE_SUFIX));
         }
         if (transaction.getSenderId() == transaction.getRecipientId()) {
           throw new BurstException.NotValidException("Cannot create subscription to same address");
