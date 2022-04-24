@@ -35,7 +35,7 @@ public abstract class AtController {
 
         state.setFreeze(false);
 
-        long stepFee = AtConstants.getInstance().stepFee(state.getCreationBlockHeight());
+        long stepFee = AtConstants.getInstance().stepFee(state.getVersion());
 
         int numSteps = 0;
 
@@ -137,22 +137,22 @@ public abstract class AtController {
             b.getShort(); //future: reserved for future needs
 
             short codePages = b.getShort();
-            if (codePages > instance.maxMachineCodePages(height) || codePages < minCodePages) {
+            if (codePages > instance.maxMachineCodePages(version) || codePages < minCodePages) {
                 throw new AtException(AtError.INCORRECT_CODE_PAGES.getDescription());
             }
 
             short dataPages = b.getShort();
-            if (dataPages > instance.maxMachineDataPages(height) || dataPages < 0) {
+            if (dataPages > instance.maxMachineDataPages(version) || dataPages < 0) {
                 throw new AtException(AtError.INCORRECT_DATA_PAGES.getDescription());
             }
 
             short callStackPages = b.getShort();
-            if (callStackPages > instance.maxMachineCallStackPages(height) || callStackPages < 0) {
+            if (callStackPages > instance.maxMachineCallStackPages(version) || callStackPages < 0) {
                 throw new AtException(AtError.INCORRECT_CALL_PAGES.getDescription());
             }
 
             short userStackPages = b.getShort();
-            if (userStackPages > instance.maxMachineUserStackPages(height) || userStackPages < 0) {
+            if (userStackPages > instance.maxMachineUserStackPages(version) || userStackPages < 0) {
                 throw new AtException(AtError.INCORRECT_USER_PAGES.getDescription());
             }
 
@@ -229,8 +229,8 @@ public abstract class AtController {
                 continue;
             }
 
-            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.getCreationBlockHeight())
-                    * AtConstants.getInstance().apiStepMultiplier(at.getCreationBlockHeight())) {
+            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.getVersion())
+                    * AtConstants.getInstance().apiStepMultiplier(at.getVersion())) {
                 try {
                     at.setgBalance(atAccountBalance);
                     at.setHeight(blockHeight);
@@ -240,7 +240,7 @@ public abstract class AtController {
                     runSteps(at);
                     indirectsCount = at.getIndirectsCount();
 
-                    long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
+                    long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getVersion());
                     if (at.getMachineState().dead) {
                         fee += at.getgBalance();
                         at.setgBalance(0L);
@@ -300,8 +300,8 @@ public abstract class AtController {
                 at.setWaitForNumberOfBlocks(at.getSleepBetween());
 
                 long atAccountBalance = getATAccountBalance(atIdLong);
-                if (atAccountBalance < AtConstants.getInstance().stepFee(at.getCreationBlockHeight())
-                        * AtConstants.getInstance().apiStepMultiplier(at.getCreationBlockHeight())) {
+                if (atAccountBalance < AtConstants.getInstance().stepFee(at.getVersion())
+                        * AtConstants.getInstance().apiStepMultiplier(at.getVersion())) {
                     throw new AtException("AT has insufficient balance to run");
                 }
 
@@ -319,7 +319,7 @@ public abstract class AtController {
 
                 runSteps(at);
 
-                long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
+                long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getVersion());
                 if (at.getMachineState().dead) {
                     fee += at.getgBalance();
                     at.setgBalance(0L);

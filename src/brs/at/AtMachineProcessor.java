@@ -44,18 +44,18 @@ class AtMachineProcessor {
 
     public int getNumSteps(byte op, int indirectsCount) {
       int height = machineData.getCreationBlockHeight();
-      int version = machineData.getVersion();
+      short version = machineData.getVersion();
       if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST){
           if (version > 2){
             // special cases
             if(op == OpCode.E_OP_CODE_EXT_FUN_RET){
               if(getFunAddr() == 0 && getFuncNum() == OpCode.ISSUE_ASSET){
-                return (int) (AtConstants.getInstance().apiStepMultiplier(height) * TransactionType.BASELINE_ASSET_ISSUANCE_FACTOR);
+                return (int) (AtConstants.getInstance().apiStepMultiplier(version) * TransactionType.BASELINE_ASSET_ISSUANCE_FACTOR);
               }
             }
             if(op == OpCode.E_OP_CODE_EXT_FUN){
               if(getFunAddr() == 0 && getFuncNum() == OpCode.DIST_TO_ASSET_HOLDERS){
-                int steps = (int) AtConstants.getInstance().apiStepMultiplier(height);
+                int steps = (int) AtConstants.getInstance().apiStepMultiplier(version);
 
                 long minHolding = AtApiHelper.getLong(machineData.getB1());
                 long assetId = AtApiHelper.getLong(machineData.getB2());
@@ -75,7 +75,7 @@ class AtMachineProcessor {
               }
             }
           }
-          return (int) AtConstants.getInstance().apiStepMultiplier(height);
+          return (int) AtConstants.getInstance().apiStepMultiplier(version);
       }
 
       return 1;

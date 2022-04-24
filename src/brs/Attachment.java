@@ -91,7 +91,7 @@ public interface Attachment extends Appendix {
     }
 
   };
-  
+
   EmptyAttachment ASSET_ADD_TREASURY_ACCOUNT_ATTACHMENT = new EmptyAttachment() {
 
     @Override
@@ -612,7 +612,7 @@ public interface Attachment extends Appendix {
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ASSET_DESCRIPTION_LENGTH);
       this.quantityQNT = buffer.getLong();
       this.decimals = buffer.get();
-      
+
       boolean mintable = false;
       if(super.getVersion() > 1) {
         mintable = buffer.get() == 1;
@@ -776,7 +776,7 @@ public interface Attachment extends Appendix {
     }
 
   }
-  
+
   final class ColoredCoinsAssetMint extends AbstractAttachment {
 
     private final long assetId;
@@ -834,9 +834,9 @@ public interface Attachment extends Appendix {
     public long getQuantityQNT() {
       return quantityQNT;
     }
-    
+
   }
-  
+
   final class ColoredCoinsAssetDistributeToHolders extends AbstractAttachment {
 
     private final long assetId;
@@ -902,7 +902,7 @@ public interface Attachment extends Appendix {
     public long getAssetId() {
       return assetId;
     }
-    
+
     public long getMinimumAssetQuantityQNT() {
       return minimumAssetQuantityQNT;
     }
@@ -1714,9 +1714,9 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
     }
-    
+
   }
-  
+
 
   abstract class CommitmentAttachment extends AbstractAttachment {
 
@@ -1757,7 +1757,7 @@ public interface Attachment extends Appendix {
     }
 
   }
-  
+
   final class CommitmentAdd extends CommitmentAttachment {
 
     CommitmentAdd(ByteBuffer buffer, byte transactionVersion) {
@@ -1783,7 +1783,7 @@ public interface Attachment extends Appendix {
     }
 
   }
-  
+
   final class CommitmentRemove extends CommitmentAttachment {
 
     CommitmentRemove(ByteBuffer buffer, byte transactionVersion) {
@@ -1807,10 +1807,10 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.BurstMining.COMMITMENT_REMOVE;
     }
-    
+
   }
-  
-  
+
+
   final class AdvancedPaymentEscrowCreation extends AbstractAttachment {
 
     private final Long amountNQT;
@@ -2192,11 +2192,11 @@ public interface Attachment extends Appendix {
       // rest of the parsing is at related; code comes from
       // public AtMachineState( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
       int startPosition = buffer.position();
-      buffer.getShort();
+      short version = buffer.getShort();
 
       buffer.getShort(); //future: reserved for future needs
 
-      int pageSize = ( int ) AtConstants.getInstance().pageSize( Burst.getBlockchain().getHeight() );
+      int pageSize = ( int ) AtConstants.getInstance().pageSize( version );
       short codePages = buffer.getShort();
       short dataPages = buffer.getShort();
       buffer.getShort();

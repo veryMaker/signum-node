@@ -97,7 +97,7 @@ public class AtMachineState {
 
         b.getShort(); //future: reserved for future needs
 
-        int pageSize = (int) AtConstants.getInstance().pageSize(height);
+        int pageSize = (int) AtConstants.getInstance().pageSize(version);
         short codePages = b.getShort();
         this.dataPages = b.getShort();
         this.callStackPages = b.getShort();
