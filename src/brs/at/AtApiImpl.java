@@ -170,18 +170,26 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkAIsZero(AtMachineState state) {
-        return isZero(state.getA1())
+        boolean result = isZero(state.getA1())
                 && isZero(state.getA2())
                 && isZero(state.getA3())
-                && isZero(state.getA4()) ? 0 : 1; // TODO why return long?!
+                && isZero(state.getA4());
+        if(state.getVersion() > 2){
+          return result ? 1 : 0;
+        }
+        return result ? 0 : 1;
     }
 
     @Override
     public long checkBIsZero(AtMachineState state) {
-        return isZero(state.getB1())
+        boolean result = isZero(state.getB1())
                 && isZero(state.getB2())
                 && isZero(state.getB3())
-                && isZero(state.getB4()) ? 0 : 1; // TODO why return long?!
+                && isZero(state.getB4());
+        if(state.getVersion() > 2){
+          return result ? 1 : 0;
+        }
+        return result ? 0 : 1;
     }
 
     public long checkAEqualsB(AtMachineState state) {
