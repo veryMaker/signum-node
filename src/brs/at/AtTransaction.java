@@ -142,7 +142,7 @@ public class AtTransaction {
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
         Asset asset = Burst.getAssetExchange().getAsset(assetId);
-        if(asset == null) {
+        if(asset == null && assetId != 0L) {
           Burst.getAssetExchange().addAsset(assetId, senderAccount.getId(), (ColoredCoinsAssetIssuance) attachment);
         }
       }
@@ -151,14 +151,14 @@ public class AtTransaction {
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS) {
         accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
-        if(assetIdToDistribute != 0){
+        if(assetIdToDistribute != 0L){
           accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetIdToDistribute, -quantity);
         }
 
         Collection<IndirectIncoming> indirects = attachment.getTransactionType().getIndirectIncomings(transaction);
         for(IndirectIncoming incoming : indirects){
           Account indirecRecipient = accountService.getOrAddAccount(incoming.getAccountId());
-          if(incoming.getAmount() > 0){
+          if(incoming.getAmount() > 0L){
             accountService.addToBalanceAndUnconfirmedBalanceNQT(indirecRecipient, incoming.getAmount());
           }
           if(this.assetIdToDistribute != 0L){
