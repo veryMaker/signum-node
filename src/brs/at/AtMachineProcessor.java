@@ -702,7 +702,7 @@ class AtMachineProcessor {
               rc = 13;
               if (disassemble) {
                   if (!determineJumps && logger.isDebugEnabled()) {
-                    logger.debug("POW @{} ${}", String.format("%8x", fun.addr1).replace(' ', '0'), String.format("%8x", fun.addr2).replace(' ', '0'));
+                    logger.debug("MDV @{} ${}", String.format("%8x", fun.addr1).replace(' ', '0'), String.format("%8x", fun.addr2).replace(' ', '0'));
                   }
               } else {
                   machineData.getMachineState().pc += rc;
