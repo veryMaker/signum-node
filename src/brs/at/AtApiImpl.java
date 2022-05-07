@@ -824,6 +824,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public long getAssetCirculating(AtMachineState state) {
+      return platform.getAssetCirculating(state);
+    }
+
+    @Override
     public long getActivationFee(AtMachineState state) {
       return platform.getActivationFee(state);
     }

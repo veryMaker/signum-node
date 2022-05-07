@@ -177,6 +177,8 @@ class AtApiController {
               break;
             case GET_ASSET_HOLDERS_COUNT:
               return atApi.getAssetHoldersCount(state);
+            case GET_ASSET_CIRCULATING:
+              return atApi.getAssetCirculating(state);
 
             case OpCode.GET_ACTIVATION_FEE:
               return atApi.getActivationFee(state);

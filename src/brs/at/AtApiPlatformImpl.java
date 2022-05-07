@@ -586,6 +586,23 @@ public class AtApiPlatformImpl extends AtApiImpl {
     }
 
     @Override
+    public long getAssetCirculating(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return 0L;
+      }
+
+      long assetId = AtApiHelper.getLong(state.getB2());
+
+      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      if (asset == null) {
+        // asset not found, no supply
+        return 0L;
+      }
+
+      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true);
+    }
+
+    @Override
     public long issueAsset(AtMachineState state) {
       if(state.getVersion() < 3){
         return 0;

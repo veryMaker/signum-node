@@ -142,5 +142,6 @@ final class OpCode {
     static final short GET_ASSET_HOLDERS_COUNT  = 0x040c; // EXT_FUN_RET       number of tokens holders with more than B1 holdings of asset ID in B2
     static final short GET_ACTIVATION_FEE       = 0x040d; // EXT_FUN_RET       sets @addr to the activation fee of this AT (or the AT id on B2 if B2!=0)
     static final short PUT_LAST_BLOCK_GSIG_IN_A = 0x040e; // EXT_FUN           puts the block generation signature of the previous block in A
+    static final short GET_ASSET_CIRCULATING    = 0x040f; // EXT_FUN_RET       total circulating supply of tokens of asset ID in B2
 
 }

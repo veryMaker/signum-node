@@ -552,6 +552,8 @@ interface AtApi {
 
     public long getAssetHoldersCount(AtMachineState state);
 
+    public long getAssetCirculating(AtMachineState state);
+
     public long getActivationFee(AtMachineState state);
 
     /**
