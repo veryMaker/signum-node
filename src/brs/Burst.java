@@ -346,8 +346,10 @@ public final class Burst {
   }
 
   public static void shutdown(boolean ignoreDBShutdown) {
-    logger.info("Shutting down...");
-    logger.info("Do not force exit or kill the node process.");
+    if(!shuttingdown.get()){
+      logger.info("Shutting down...");
+      logger.info("Do not force exit or kill the node process.");
+    }
 
     if (api != null)
       api.shutdown();

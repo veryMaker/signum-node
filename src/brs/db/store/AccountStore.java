@@ -14,7 +14,9 @@ import java.util.Collection;
 public interface AccountStore {
 
   VersionedBatchEntityTable<Account> getAccountTable();
-  
+
+  VersionedBatchEntityTable<Account.Balance> getAccountBalanceTable();
+
   long getAllAccountsBalance();
 
   VersionedEntityTable<Account.RewardRecipientAssignment> getRewardRecipientAssignmentTable();
@@ -30,6 +32,8 @@ public interface AccountStore {
   long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury);
 
   BurstKey.LongKeyFactory<Account> getAccountKeyFactory();
+
+  BurstKey.LongKeyFactory<Account.Balance> getAccountBalanceKeyFactory();
 
   Collection<Account.RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId);
 

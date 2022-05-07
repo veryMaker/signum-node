@@ -619,6 +619,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             break;
           }
         } catch (Exception exception) {
+          exception.printStackTrace();
           logger.error("Uncaught exception in blockImporterThread", exception);
         }
       }

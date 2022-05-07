@@ -436,7 +436,7 @@ public abstract class AtController {
 
     //platform based
     private static long getATAccountBalance(Long id) {
-        Account atAccount = Account.getAccount(id);
+        Account.Balance atAccount = Account.getAccountBalance(id);
 
         if (atAccount != null) {
             return atAccount.getBalanceNQT();

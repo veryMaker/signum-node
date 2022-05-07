@@ -115,7 +115,8 @@ public class APITransactionManagerImpl implements APITransactionManager {
     }
 
     try {
-      if (Convert.safeAdd(amountNQT, feeNQT) > senderAccount.getUnconfirmedBalanceNQT()) {
+      Account.Balance senderBalance = Account.getAccountBalance(senderAccount.getId());
+      if (Convert.safeAdd(amountNQT, feeNQT) > senderBalance.getUnconfirmedBalanceNQT()) {
         return NOT_ENOUGH_FUNDS;
       }
     } catch (ArithmeticException e) {

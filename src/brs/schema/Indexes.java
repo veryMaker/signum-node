@@ -6,6 +6,7 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AskOrder;
 import brs.schema.tables.Asset;
@@ -45,7 +46,8 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index ACCOUNT_ASSET_ACCOUNT_ASSET_QUANTITY_IDX = Internal.createIndex(DSL.name("account_asset_quantity_idx"), AccountAsset.ACCOUNT_ASSET, new OrderField[] { AccountAsset.ACCOUNT_ASSET.QUANTITY }, false);
-    public static final Index ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX = Internal.createIndex(DSL.name("account_id_balance_height_idx"), Account.ACCOUNT, new OrderField[] { Account.ACCOUNT.ID, Account.ACCOUNT.BALANCE, Account.ACCOUNT.HEIGHT }, false);
+    public static final Index ACCOUNT_BALANCE_ACCOUNT_BALANCE_ID_BALANCE_HEIGHT_IDX = Internal.createIndex(DSL.name("account_balance_id_balance_height_idx"), AccountBalance.ACCOUNT_BALANCE, new OrderField[] { AccountBalance.ACCOUNT_BALANCE.ID, AccountBalance.ACCOUNT_BALANCE.BALANCE, AccountBalance.ACCOUNT_BALANCE.HEIGHT }, false);
+    public static final Index ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX = Internal.createIndex(DSL.name("account_id_balance_height_idx"), Account.ACCOUNT, new OrderField[] { Account.ACCOUNT.ID, Account.ACCOUNT.HEIGHT }, false);
     public static final Index ACCOUNT_ACCOUNT_ID_LATEST_IDX = Internal.createIndex(DSL.name("account_id_latest_idx"), Account.ACCOUNT, new OrderField[] { Account.ACCOUNT.ID, Account.ACCOUNT.LATEST }, false);
     public static final Index ALIAS_ALIAS_ACCOUNT_ID_IDX = Internal.createIndex(DSL.name("alias_account_id_idx"), Alias.ALIAS, new OrderField[] { Alias.ALIAS.ACCOUNT_ID, Alias.ALIAS.HEIGHT }, false);
     public static final Index ALIAS_ALIAS_NAME_LOWER_IDX = Internal.createIndex(DSL.name("alias_name_lower_idx"), Alias.ALIAS, new OrderField[] { Alias.ALIAS.ALIAS_NAME_LOWER }, false);

@@ -118,8 +118,9 @@ public class SqlATStore implements ATStore {
   }
 
   private void saveATState(DSLContext ctx, brs.at.AT.ATState atState) {
-    ctx.mergeInto(AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
-            .key(AT_STATE.AT_ID, AT_STATE.HEIGHT)
+    ctx.insertInto( // .mergeInto(
+      AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
+            //.key(AT_STATE.AT_ID, AT_STATE.HEIGHT)
             .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Burst.getBlockchain().getHeight(), true)
             .execute();
   }
@@ -157,23 +158,23 @@ public class SqlATStore implements ATStore {
     return Db.useDSLContext(ctx -> {
       AtConstants atConstants = AtConstants.getInstance();
       return ctx.selectFrom(
-              AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT).on(AT.ID.eq(ACCOUNT.ID))
+              AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)).join(ACCOUNT_BALANCE).on(AT.ID.eq(ACCOUNT_BALANCE.ID))
       ).where(
               AT.LATEST.isTrue()
       ).and(
               AT_STATE.LATEST.isTrue()
       ).and(
-              ACCOUNT.LATEST.isTrue()
+              ACCOUNT_BALANCE.LATEST.isTrue()
       ).and(
               AT_STATE.NEXT_HEIGHT.lessOrEqual(Burst.getBlockchain().getHeight() + 1)
       ).and(
-              ACCOUNT.BALANCE.greaterOrEqual(
+        ACCOUNT_BALANCE.BALANCE.greaterOrEqual(
                 atConstants.stepFee(atConstants.atVersion(Burst.getBlockchain().getHeight()))
                               * atConstants.apiStepMultiplier(atConstants.atVersion(Burst.getBlockchain().getHeight()))
               )
       ).and(
               AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse().or(
-                      "account.balance - at_state.prev_balance >= at_state.min_activate_amount"
+                      "account_balance.balance - at_state.prev_balance >= at_state.min_activate_amount"
               )
       ).orderBy(
               AT_STATE.PREV_HEIGHT.asc(), AT_STATE.NEXT_HEIGHT.asc(), AT.ID.asc()

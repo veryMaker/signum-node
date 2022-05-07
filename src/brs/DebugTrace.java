@@ -180,21 +180,10 @@ public final class DebugTrace {
     }
   }
 
-  private Map<String,String> lessorGuaranteedBalance(Account account, long lesseeId) {
-    Map<String,String> map = new HashMap<>();
-    map.put("account", Convert.toUnsignedLong(account.getId()));
-    map.put("lessor guaranteed balance", String.valueOf(account.getBalanceNQT()));
-    map.put("lessee", Convert.toUnsignedLong(lesseeId));
-    map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));
-    map.put("height", String.valueOf(Burst.getBlockchain().getHeight()));
-    map.put("event", "lessor guaranteed balance");
-    return map;
-  }
-
   private Map<String,String> getValues(long accountId, boolean unconfirmed) {
     Map<String,String> map = new HashMap<>();
     map.put("account", Convert.toUnsignedLong(accountId));
-    Account account = Account.getAccount(accountId);
+    Account.Balance account = Account.getAccountBalance(accountId);
     map.put("balance", String.valueOf(account != null ? account.getBalanceNQT() : 0));
     map.put("unconfirmed balance", String.valueOf(account != null ? account.getUnconfirmedBalanceNQT() : 0));
     map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));

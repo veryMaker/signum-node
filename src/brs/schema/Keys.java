@@ -6,6 +6,7 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AliasOffer;
 import brs.schema.tables.AskOrder;
@@ -31,6 +32,7 @@ import brs.schema.tables.Trade;
 import brs.schema.tables.Transaction;
 import brs.schema.tables.UnconfirmedTransaction;
 import brs.schema.tables.records.AccountAssetRecord;
+import brs.schema.tables.records.AccountBalanceRecord;
 import brs.schema.tables.records.AccountRecord;
 import brs.schema.tables.records.AliasOfferRecord;
 import brs.schema.tables.records.AliasRecord;
@@ -78,6 +80,7 @@ public class Keys {
     public static final UniqueKey<AccountRecord> KEY_ACCOUNT_PRIMARY = Internal.createUniqueKey(Account.ACCOUNT, DSL.name("KEY_account_PRIMARY"), new TableField[] { Account.ACCOUNT.DB_ID }, true);
     public static final UniqueKey<AccountAssetRecord> KEY_ACCOUNT_ASSET_ACCOUNT_ASSET_ID_HEIGHT_IDX = Internal.createUniqueKey(AccountAsset.ACCOUNT_ASSET, DSL.name("KEY_account_asset_account_asset_id_height_idx"), new TableField[] { AccountAsset.ACCOUNT_ASSET.ACCOUNT_ID, AccountAsset.ACCOUNT_ASSET.ASSET_ID, AccountAsset.ACCOUNT_ASSET.HEIGHT }, true);
     public static final UniqueKey<AccountAssetRecord> KEY_ACCOUNT_ASSET_PRIMARY = Internal.createUniqueKey(AccountAsset.ACCOUNT_ASSET, DSL.name("KEY_account_asset_PRIMARY"), new TableField[] { AccountAsset.ACCOUNT_ASSET.DB_ID }, true);
+    public static final UniqueKey<AccountBalanceRecord> KEY_ACCOUNT_BALANCE_PRIMARY = Internal.createUniqueKey(AccountBalance.ACCOUNT_BALANCE, DSL.name("KEY_account_balance_PRIMARY"), new TableField[] { AccountBalance.ACCOUNT_BALANCE.DB_ID }, true);
     public static final UniqueKey<AliasRecord> KEY_ALIAS_ALIAS_ID_HEIGHT_IDX = Internal.createUniqueKey(Alias.ALIAS, DSL.name("KEY_alias_alias_id_height_idx"), new TableField[] { Alias.ALIAS.ID, Alias.ALIAS.HEIGHT }, true);
     public static final UniqueKey<AliasRecord> KEY_ALIAS_PRIMARY = Internal.createUniqueKey(Alias.ALIAS, DSL.name("KEY_alias_PRIMARY"), new TableField[] { Alias.ALIAS.DB_ID }, true);
     public static final UniqueKey<AliasOfferRecord> KEY_ALIAS_OFFER_ALIAS_OFFER_ID_HEIGHT_IDX = Internal.createUniqueKey(AliasOffer.ALIAS_OFFER, DSL.name("KEY_alias_offer_alias_offer_id_height_idx"), new TableField[] { AliasOffer.ALIAS_OFFER.ID, AliasOffer.ALIAS_OFFER.HEIGHT }, true);

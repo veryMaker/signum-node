@@ -18,7 +18,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row12;
+import org.jooq.Row9;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -74,21 +74,6 @@ public class Account extends TableImpl<AccountRecord> {
      * The column <code>DB.account.key_height</code>.
      */
     public final TableField<AccountRecord, Integer> KEY_HEIGHT = createField(DSL.name("key_height"), SQLDataType.INTEGER.defaultValue(DSL.field("NULL", SQLDataType.INTEGER)), this, "");
-
-    /**
-     * The column <code>DB.account.balance</code>.
-     */
-    public final TableField<AccountRecord, Long> BALANCE = createField(DSL.name("balance"), SQLDataType.BIGINT.nullable(false), this, "");
-
-    /**
-     * The column <code>DB.account.unconfirmed_balance</code>.
-     */
-    public final TableField<AccountRecord, Long> UNCONFIRMED_BALANCE = createField(DSL.name("unconfirmed_balance"), SQLDataType.BIGINT.nullable(false), this, "");
-
-    /**
-     * The column <code>DB.account.forged_balance</code>.
-     */
-    public final TableField<AccountRecord, Long> FORGED_BALANCE = createField(DSL.name("forged_balance"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>DB.account.name</code>.
@@ -195,11 +180,11 @@ public class Account extends TableImpl<AccountRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row12 type methods
+    // Row9 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row12<Long, Long, Integer, byte[], Integer, Long, Long, Long, String, String, Integer, Boolean> fieldsRow() {
-        return (Row12) super.fieldsRow();
+    public Row9<Long, Long, Integer, byte[], Integer, String, String, Integer, Boolean> fieldsRow() {
+        return (Row9) super.fieldsRow();
     }
 }

@@ -6,6 +6,7 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AliasOffer;
 import brs.schema.tables.AskOrder;
@@ -47,6 +48,11 @@ public class Tables {
      * The table <code>DB.account_asset</code>.
      */
     public static final AccountAsset ACCOUNT_ASSET = AccountAsset.ACCOUNT_ASSET;
+
+    /**
+     * The table <code>DB.account_balance</code>.
+     */
+    public static final AccountBalance ACCOUNT_BALANCE = AccountBalance.ACCOUNT_BALANCE;
 
     /**
      * The table <code>DB.alias</code>.
