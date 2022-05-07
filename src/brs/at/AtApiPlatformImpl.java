@@ -499,8 +499,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long quantity = AtApiHelper.getLong(state.getB1());
 
       Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
-      if (asset == null || asset.getAccountId() != accountId) {
-        // only assets that we have created internally
+      if (asset == null || asset.getAccountId() != accountId || quantity <= 0L) {
+        // only assets that we have created internally and no burning by mint
         return;
       }
 
