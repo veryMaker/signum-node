@@ -242,7 +242,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
           if (tx == null || tx.getHeight() >= state.getHeight() || tx.getMessage() == null) {
               return 0L;
           }
-          int page = (int)AtApiHelper.getLong(state.getA2());
+          int page = Math.min(0, (int)AtApiHelper.getLong(state.getA2()));
 
           long accountId = AtApiHelper.getLong(state.getA3());
           Account account = Account.getAccount(accountId);
@@ -295,7 +295,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
                 byte[] message = txMessage.getMessageBytes();
                 if (state.getVersion() > 2){
                   // we now accept multiple pages
-                  int page = (int)AtApiHelper.getLong(state.getA2());
+                  int page = Math.min(0, (int)AtApiHelper.getLong(state.getA2()));
                   int start = page * length;
                   for(int i=0; i<length && start+i < message.length; i++){
                     b.put(message[start + i]);
