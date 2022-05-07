@@ -71,6 +71,7 @@ public class AtTestHelper {
         //noinspection unchecked
         BurstKey.LongKeyFactory<Account> mockAccountKeyFactory = mock(BurstKey.LongKeyFactory.class);
         Account mockAccount = mock(Account.class);
+        Account.Balance mockAccountBalance = mock(Account.Balance.class);
         mockStatic(Account.class);
 
         doAnswer(invoke -> {
@@ -82,6 +83,7 @@ public class AtTestHelper {
             return null;
         }).when(mockAtTable).insert(ArgumentMatchers.any());
         when(mockAccount.getBalanceNQT()).thenReturn(TestConstants.TEN_BURST);
+        when(mockAccountBalance.getBalanceNQT()).thenReturn(TestConstants.TEN_BURST);
         when(mockAccountStore.getAccountTable()).thenReturn(mockAccountTable);
         when(mockAccountStore.setOrVerify(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
                 .thenReturn(true);
@@ -111,6 +113,7 @@ public class AtTestHelper {
         when(mockAtTable.getAll(ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt())).thenReturn(addedAts);
         when(Account.getOrAddAccount(ArgumentMatchers.anyLong())).thenReturn(mockAccount);
         when(Account.getAccount(ArgumentMatchers.anyLong())).thenReturn(mockAccount);
+        when(Account.getAccountBalance(ArgumentMatchers.anyLong())).thenReturn(mockAccountBalance);
         when(mockAccountTable.get(ArgumentMatchers.any())).thenReturn(mockAccount);
         when(mockStores.getAccountStore()).thenReturn(mockAccountStore);
         when(mockAccountStore.getAccountKeyFactory()).thenReturn(mockAccountKeyFactory);
