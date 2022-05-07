@@ -242,7 +242,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
           if (tx == null || tx.getHeight() >= state.getHeight() || tx.getMessage() == null) {
               return 0L;
           }
-          int page = Math.min(0, (int)AtApiHelper.getLong(state.getA2()));
+          int page = Math.max(0, (int)AtApiHelper.getLong(state.getA2()));
 
           long accountId = AtApiHelper.getLong(state.getA3());
           Account account = Account.getAccount(accountId);
@@ -295,7 +295,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
                 byte[] message = txMessage.getMessageBytes();
                 if (state.getVersion() > 2){
                   // we now accept multiple pages
-                  int page = Math.min(0, (int)AtApiHelper.getLong(state.getA2()));
+                  int page = Math.max(0, (int)AtApiHelper.getLong(state.getA2()));
                   int start = page * length;
                   for(int i=0; i<length && start+i < message.length; i++){
                     b.put(message[start + i]);
@@ -527,7 +527,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long minHolding = AtApiHelper.getLong(state.getB1());
       long assetId = AtApiHelper.getLong(state.getB2());
 
-      long amount = AtApiHelper.getLong(state.getA1());
+      long amount = Math.max(0L, AtApiHelper.getLong(state.getA1()));
       long assetToDistribute = AtApiHelper.getLong(state.getA3());
       long quantityToDistribute = 0L;
 
@@ -546,7 +546,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       state.addIndirectsCount(holdersCount);
 
       if(assetToDistribute !=0 ){
-        quantityToDistribute = AtApiHelper.getLong(state.getA4());
+        quantityToDistribute = Math.max(0L, AtApiHelper.getLong(state.getA4()));
         if(quantityToDistribute > state.getgBalance(assetToDistribute)){
           quantityToDistribute = state.getgBalance(assetToDistribute);
         }
