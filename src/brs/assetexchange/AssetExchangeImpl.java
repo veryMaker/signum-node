@@ -59,7 +59,7 @@ public class AssetExchangeImpl implements AssetExchange {
   public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury) {
     return assetAccountService.getAssetAccountsCount(asset, minimumQuantity, ignoreTreasury);
   }
-  
+
   @Override
   public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
     return assetAccountService.getAssetCirculatingSupply(asset, ignoreTreasury);
@@ -81,8 +81,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public void addAssetTransfer(Transaction transaction, ColoredCoinsAssetTransfer attachment) {
-    assetTransferService.addAssetTransfer(transaction, attachment);
+  public void addAssetTransfer(Transaction transaction, long assetId, long quantityQNT) {
+    assetTransferService.addAssetTransfer(transaction, assetId, quantityQNT);
   }
 
   @Override

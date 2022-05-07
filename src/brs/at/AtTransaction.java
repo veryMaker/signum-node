@@ -138,7 +138,8 @@ public class AtTransaction {
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), -quantity);
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, getAssetId(), quantity);
 
-        Burst.getAssetExchange().addAssetTransfer(transaction, (ColoredCoinsAssetTransfer) attachment);
+        ColoredCoinsAssetTransfer assetTransferAttachment = (ColoredCoinsAssetTransfer) attachment;
+        Burst.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
         Asset asset = Burst.getAssetExchange().getAsset(assetId);

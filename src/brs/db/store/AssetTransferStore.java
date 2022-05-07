@@ -7,7 +7,7 @@ import brs.db.sql.EntitySqlTable;
 import java.util.Collection;
 
 public interface AssetTransferStore {
-  BurstKey.LongKeyFactory<AssetTransfer> getTransferDbKeyFactory();
+  BurstKey.LinkKeyFactory<AssetTransfer> getTransferDbKeyFactory();
 
   EntitySqlTable<AssetTransfer> getAssetTransferTable();
 

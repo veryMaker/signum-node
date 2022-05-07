@@ -67,6 +67,7 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_COLORED_COINS_ASSET_MINT = 6;
   public static final byte SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT = 7;
   public static final byte SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS = 8;
+  public static final byte SUBTYPE_COLORED_COINS_ASSET_MULTI_TRANSFER = 9;
 
   public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
   public static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
@@ -1027,7 +1028,100 @@ public abstract class TransactionType {
         Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
         accountService.addToAssetBalanceQNT(senderAccount, attachment.getAssetId(), -attachment.getQuantityQNT());
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, attachment.getAssetId(), attachment.getQuantityQNT());
-        assetExchange.addAssetTransfer(transaction, attachment);
+        assetExchange.addAssetTransfer(transaction, attachment.getAssetId(), attachment.getQuantityQNT());
+      }
+
+      @Override
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetId(), attachment.getQuantityQNT());
+      }
+
+      @Override
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer)transaction.getAttachment();
+        if ((!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN) && transaction.getAmountNQT() != 0)
+                || attachment.getComment() != null && attachment.getComment().length() > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH
+                || attachment.getAssetId() == 0) {
+          throw new BurstException.NotValidException("Invalid asset transfer amount or comment: " + JSON.toJsonString(attachment.getJsonObject()));
+        }
+        if (transaction.getVersion() > 0 && attachment.getComment() != null) {
+          throw new BurstException.NotValidException("Asset transfer comments no longer allowed, use message " +
+                  "or encrypted message appendix instead");
+        }
+        Asset asset = assetExchange.getAsset(attachment.getAssetId());
+        if (attachment.getQuantityQNT() <= 0) {
+          throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
+        }
+        if (asset == null) {
+          throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
+                  " does not exist yet");
+        }
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return true;
+      }
+
+    };
+
+    public static final TransactionType ASSET_MULTI_TRANSFER = new ColoredCoins() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_COLORED_COINS_ASSET_MULTI_TRANSFER;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Asset Multi-Transfer";
+      }
+
+      @Override
+      public Attachment.ColoredCoinsAssetMultiTransfer parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+        return new Attachment.ColoredCoinsAssetMultiTransfer(buffer, transactionVersion);
+      }
+
+      @Override
+      protected Attachment.ColoredCoinsAssetMultiTransfer parseAttachment(JsonObject attachmentData) throws NotValidException {
+        return new Attachment.ColoredCoinsAssetMultiTransfer(attachmentData);
+      }
+
+      @Override
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        logger.trace("TransactionType ASSET_MULTI_TRANSFER");
+        Attachment.ColoredCoinsAssetMultiTransfer attachment = (Attachment.ColoredCoinsAssetMultiTransfer) transaction.getAttachment();
+        ArrayList<Long> assetIds = attachment.getAssetIds();
+        ArrayList<Long> quantitiesQNT = attachment.getQuantitiesQNT();
+        for(int i = 0; i < assetIds.size(); i++){
+          long assetId = assetIds.get(i);
+          long quantityQNT = quantitiesQNT.get(i);
+
+          long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, assetId);
+          if (unconfirmedAssetBalance >= 0 && unconfirmedAssetBalance >= quantityQNT) {
+            accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetId, -quantityQNT);
+          }
+          else {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      @Override
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        Attachment.ColoredCoinsAssetMultiTransfer attachment = (Attachment.ColoredCoinsAssetMultiTransfer) transaction.getAttachment();
+        ArrayList<Long> assetIds = attachment.getAssetIds();
+        ArrayList<Long> quantitiesQNT = attachment.getQuantitiesQNT();
+        for(int i = 0; i < assetIds.size(); i++){
+          long assetId = assetIds.get(i);
+          long quantityQNT = quantitiesQNT.get(i);
+
+          accountService.addToAssetBalanceQNT(senderAccount, assetId, -quantityQNT);
+          accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, assetId, quantityQNT);
+          assetExchange.addAssetTransfer(transaction, assetId, quantityQNT);
+        }
       }
 
       @Override
