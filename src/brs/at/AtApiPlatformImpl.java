@@ -109,12 +109,12 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return -1;
         }
 
-        if (tx.getMessage() != null) {
-            return 1;
-        }
-
         if (state.getVersion() >= 3) {
           return tx.getType().getType();
+        }
+
+        if (tx.getMessage() != null) {
+            return 1;
         }
 
         return 0;

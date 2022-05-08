@@ -127,7 +127,7 @@ final class OpCode {
     static final short GET_CODE_HASH_ID          = 0x030c; // EXT_FUN_RET       sets @addr to the code hash ID of the AT's (or of the AT id on B2 if B2!=0)
     static final short B_TO_ASSET_IDS_OF_TX_IN_A = 0x030d; // EXT_FUN           if A is a valid tx then B set to the asset ids received (terminated by 0)
 
-    static final short GET_CURRENT_BALANCE      = 0x0400; // EXT_FUN_RET       sets @addr to current balance of the AT
+    static final short GET_CURRENT_BALANCE      = 0x0400; // EXT_FUN_RET       sets @addr to current balance of the AT for the asset id in B2 (or SIGNA if B2==0)
     static final short GET_PREVIOUS_BALANCE     = 0x0401; // EXT_FUN_RET       sets @addr to the balance it had last had when running*
     static final short SEND_TO_ADDRESS_IN_B     = 0x0402; // EXT_FUN_DAT       if B is a valid address then send it $addr amount**
     static final short SEND_ALL_TO_ADDRESS_IN_B = 0x0403; // EXT_FUN           if B is a valid address then send it the entire balance
