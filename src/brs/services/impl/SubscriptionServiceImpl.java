@@ -83,8 +83,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     paymentTransactions.clear();
     for (Subscription subscription : appliedSubscriptions) {
       apply(block, blockchainHeight, subscription);
-      subscriptionTable.insert(subscription);
     }
+    subscriptionStore.saveSubscriptions(appliedSubscriptions);
+
     if (! paymentTransactions.isEmpty()) {
       transactionDb.saveTransactions(paymentTransactions);
     }
