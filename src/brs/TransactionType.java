@@ -1126,29 +1126,33 @@ public abstract class TransactionType {
 
       @Override
       protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
-        Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) transaction.getAttachment();
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount,attachment.getAssetId(), attachment.getQuantityQNT());
+        Attachment.ColoredCoinsAssetMultiTransfer attachment = (Attachment.ColoredCoinsAssetMultiTransfer) transaction.getAttachment();
+        for(int i = 0; i < attachment.getAssetIds().size(); i++){
+          long assetId = attachment.getAssetIds().get(i);
+          long quantityQNT = attachment.getQuantitiesQNT().get(i);
+          accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetId, quantityQNT);
+        }
       }
 
       @Override
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
-        Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer)transaction.getAttachment();
-        if ((!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN) && transaction.getAmountNQT() != 0)
-                || attachment.getComment() != null && attachment.getComment().length() > Constants.MAX_ASSET_TRANSFER_COMMENT_LENGTH
-                || attachment.getAssetId() == 0) {
-          throw new BurstException.NotValidException("Invalid asset transfer amount or comment: " + JSON.toJsonString(attachment.getJsonObject()));
+        Attachment.ColoredCoinsAssetMultiTransfer attachment = (Attachment.ColoredCoinsAssetMultiTransfer)transaction.getAttachment();
+        if ((!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN))
+                || attachment.getAssetIds().size() == 0 || attachment.getAssetIds().size() > Constants.MAX_MULTI_ASSET_IDS) {
+          throw new BurstException.NotValidException("Invalid asset multi transfer: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (transaction.getVersion() > 0 && attachment.getComment() != null) {
-          throw new BurstException.NotValidException("Asset transfer comments no longer allowed, use message " +
-                  "or encrypted message appendix instead");
-        }
-        Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        if (attachment.getQuantityQNT() <= 0) {
-          throw new BurstException.NotValidException("Invalid asset transfer asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
-        }
-        if (asset == null) {
-          throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
-                  " does not exist yet");
+        for(int i = 0; i < attachment.getAssetIds().size(); i++){
+          long assetId = attachment.getAssetIds().get(i);
+          long quantityQNT = attachment.getQuantitiesQNT().get(i);
+
+          Asset asset = assetExchange.getAsset(assetId);
+          if (quantityQNT <= 0) {
+            throw new BurstException.NotValidException("Invalid asset transfer quantity: " + JSON.toJsonString(attachment.getJsonObject()));
+          }
+          if (asset == null) {
+            throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(assetId) +
+                    " does not exist yet");
+          }
         }
       }
 
