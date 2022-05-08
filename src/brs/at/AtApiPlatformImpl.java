@@ -139,6 +139,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
                 return assetTransfer.getQuantityQNT();
               }
             }
+            else if(tx.getAttachment() instanceof Attachment.ColoredCoinsAssetMultiTransfer) {
+              Attachment.ColoredCoinsAssetMultiTransfer assetTransfer = (Attachment.ColoredCoinsAssetMultiTransfer) tx.getAttachment();
+              for(int i = 0; i < assetTransfer.getAssetIds().size(); i++){
+                if(assetTransfer.getAssetIds().get(i) == assetId) {
+                  return assetTransfer.getQuantitiesQNT().get(i);
+                }
+              }
+            }
             return 0L;
           }
         }
