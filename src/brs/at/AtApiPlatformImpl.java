@@ -350,6 +350,40 @@ public class AtApiPlatformImpl extends AtApiImpl {
     }
 
     @Override
+    public void bToAssetsOfTxInA(AtMachineState state) {
+        long txId = AtApiHelper.getLong(state.getA1());
+
+        clearB(state);
+
+        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        if (tx != null && tx.getHeight() >= state.getHeight()) {
+            tx = null;
+        }
+        if(tx == null)
+          return;
+
+        if (tx.getAttachment() instanceof Attachment.ColoredCoinsAssetTransfer) {
+          Attachment.ColoredCoinsAssetTransfer assetTransfer = (Attachment.ColoredCoinsAssetTransfer) tx.getAttachment();
+          state.setB1(AtApiHelper.getByteArray(assetTransfer.getAssetId()));
+        }
+        else if (tx.getAttachment() instanceof Attachment.ColoredCoinsAssetMultiTransfer) {
+          Attachment.ColoredCoinsAssetMultiTransfer assetTransfer = (Attachment.ColoredCoinsAssetMultiTransfer) tx.getAttachment();
+          if(assetTransfer.getAssetIds().size() > 0){
+            state.setB1(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(0)));
+          }
+          if(assetTransfer.getAssetIds().size() > 1){
+            state.setB2(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(1)));
+          }
+          if(assetTransfer.getAssetIds().size() > 2){
+            state.setB3(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(2)));
+          }
+          if(assetTransfer.getAssetIds().size() > 3){
+            state.setB4(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(3)));
+          }
+        }
+    }
+
+    @Override
     public void bToAddressOfCreator(AtMachineState state) {
       long creator = AtApiHelper.getLong(state.getCreator());
       if (state.getVersion() >= 3) {

@@ -142,6 +142,9 @@ class AtApiController {
             case B_TO_ADDRESS_OF_TX_IN_A:
                 atApi.bToAddressOfTxInA(state);
                 break;
+            case B_TO_ASSET_IDS_OF_TX_IN_A:
+                atApi.bToAssetsOfTxInA(state);
+                break;
             case OpCode.B_TO_ADDRESS_OF_CREATOR:
                 atApi.bToAddressOfCreator(state);
                 break;

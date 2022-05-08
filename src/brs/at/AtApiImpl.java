@@ -727,6 +727,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public void bToAssetsOfTxInA(AtMachineState state) {
+        platform.bToAssetsOfTxInA(state);
+    }
+
+    @Override
     public void bToAddressOfCreator(AtMachineState state) {
         platform.bToAddressOfCreator(state);
     }

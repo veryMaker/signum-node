@@ -479,6 +479,13 @@ interface AtApi {
     void bToAddressOfTxInA(AtMachineState state);
 
     /**
+     * bool if A is a valid tx with B set to the tx asset ids received
+     *
+     * @param state AT machine state
+     */
+    void bToAssetsOfTxInA(AtMachineState state);
+
+    /**
      * set B to the address of the AT's creator
      *
      * @param state AT machine state
