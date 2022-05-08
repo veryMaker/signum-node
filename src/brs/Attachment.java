@@ -786,7 +786,7 @@ public interface Attachment extends Appendix {
       super(buffer, transactionVersion);
 
       int numberOfAssets = Byte.toUnsignedInt(buffer.get());
-      if (numberOfAssets > 4) {
+      if (numberOfAssets > Constants.MAX_MULTI_ASSET_IDS) {
         throw new BurstException.NotValidException("Invalid number of assets to transfer");
       }
       assetIds = new ArrayList<>(numberOfAssets);
@@ -799,7 +799,7 @@ public interface Attachment extends Appendix {
         if(assetIds.contains(assetId)){
           throw new BurstException.NotValidException("No repeated assets in a multi transfer");
         }
-       if (quantity <= 0){
+        if (quantity <= 0){
           throw new BurstException.NotValidException("Insufficient quantityQNT on asset multi transfer");
         }
         assetIds.add(assetId);
@@ -821,7 +821,7 @@ public interface Attachment extends Appendix {
         }
         assetIds.add(assetId);
       }
-      JsonArray quantitiesJsonArray = JSON.getAsJsonArray(attachmentData.get(QUANTITIES_RESPONSE));
+      JsonArray quantitiesJsonArray = JSON.getAsJsonArray(attachmentData.get(QUANTITIES_QNT_RESPONSE));
       for(JsonElement quantityJson : quantitiesJsonArray){
         long quantity = JSON.getAsLong(quantityJson);
         if (quantity <= 0){
@@ -830,8 +830,8 @@ public interface Attachment extends Appendix {
         quantitiesQNT.add(quantity);
       }
 
-      if(assetIds.size() == 0 || assetIds.size() != quantitiesQNT.size()){
-        throw new BurstException.NotValidException("Invalid asset/quantity for multi transfer");
+      if(assetIds.size() == 0 || assetIds.size() != quantitiesQNT.size() || assetIds.size() > Constants.MAX_MULTI_ASSET_IDS){
+        throw new BurstException.NotValidException("Invalid asset/quantity for multi asset transfer");
       }
     }
 
@@ -848,7 +848,7 @@ public interface Attachment extends Appendix {
 
     @Override
     protected int getMySize() {
-      return 8*2 * assetIds.size();
+      return 1 + 8 * 2 * assetIds.size();
     }
 
     @Override
@@ -872,7 +872,7 @@ public interface Attachment extends Appendix {
       }
 
       attachment.add(ASSET_IDS_RESPONSE, assetIdsJson);
-      attachment.add(QUANTITIES_RESPONSE, quantitiesJson);
+      attachment.add(QUANTITIES_QNT_RESPONSE, quantitiesJson);
     }
 
     @Override

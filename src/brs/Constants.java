@@ -46,6 +46,8 @@ public final class Constants {
   public static final int MAX_MULTI_OUT_RECIPIENTS = 64;
   public static final int MAX_MULTI_SAME_OUT_RECIPIENTS = 128;
 
+  public static final int MAX_MULTI_ASSET_IDS = 4;
+
   public static final int MAX_ACCOUNT_NAME_LENGTH = 100;
   public static final int MAX_ACCOUNT_DESCRIPTION_LENGTH = 1000;
 

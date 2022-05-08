@@ -18,6 +18,8 @@ public final class Parameters {
   public static final String GOODS_PARAMETER = "goods";
   public static final String ORDER_PARAMETER = "order";
   public static final String QUANTITY_PARAMETER = "quantity";
+  public static final String ASSET_IDS_PARAMETER = "assetIds";
+  public static final String QUANTITIES_QNT_PARAMETER = "quantitiesQNT";
   public static final String ENCRYPTED_MESSAGE_DATA_PARAMETER = "encryptedMessageData";
   public static final String ENCRYPTED_MESSAGE_NONCE_PARAMETER = "encryptedMessageNonce";
   public static final String MESSAGE_TO_ENCRYPT_PARAMETER = "messageToEncrypt";
