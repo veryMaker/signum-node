@@ -89,7 +89,6 @@ public class Keys {
     public static final UniqueKey<AskOrderRecord> KEY_ASK_ORDER_PRIMARY = Internal.createUniqueKey(AskOrder.ASK_ORDER, DSL.name("KEY_ask_order_PRIMARY"), new TableField[] { AskOrder.ASK_ORDER.DB_ID }, true);
     public static final UniqueKey<AssetRecord> KEY_ASSET_ASSET_ID_IDX = Internal.createUniqueKey(Asset.ASSET, DSL.name("KEY_asset_asset_id_idx"), new TableField[] { Asset.ASSET.ID }, true);
     public static final UniqueKey<AssetRecord> KEY_ASSET_PRIMARY = Internal.createUniqueKey(Asset.ASSET, DSL.name("KEY_asset_PRIMARY"), new TableField[] { Asset.ASSET.DB_ID }, true);
-    public static final UniqueKey<AssetTransferRecord> KEY_ASSET_TRANSFER_ASSET_TRANSFER_ID_IDX = Internal.createUniqueKey(AssetTransfer.ASSET_TRANSFER, DSL.name("KEY_asset_transfer_asset_transfer_id_idx"), new TableField[] { AssetTransfer.ASSET_TRANSFER.ID }, true);
     public static final UniqueKey<AssetTransferRecord> KEY_ASSET_TRANSFER_PRIMARY = Internal.createUniqueKey(AssetTransfer.ASSET_TRANSFER, DSL.name("KEY_asset_transfer_PRIMARY"), new TableField[] { AssetTransfer.ASSET_TRANSFER.DB_ID }, true);
     public static final UniqueKey<AtRecord> KEY_AT_AT_ID_HEIGHT_IDX = Internal.createUniqueKey(At.AT, DSL.name("KEY_at_at_id_height_idx"), new TableField[] { At.AT.ID, At.AT.HEIGHT }, true);
     public static final UniqueKey<AtRecord> KEY_AT_PRIMARY = Internal.createUniqueKey(At.AT, DSL.name("KEY_at_PRIMARY"), new TableField[] { At.AT.DB_ID }, true);
