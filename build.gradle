@@ -25,9 +25,7 @@ java {
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
@@ -212,7 +210,7 @@ task dist(type: Zip) {
    archiveName "${baseName}.zip"
 }
 
-def jdkVersion = 'zulu11.54.23-ca-jre11.0.14'
+def jdkVersion = 'zulu11.56.19-ca-jre11.0.15'
 import de.undercouch.gradle.tasks.download.Download
 
 task downloadWindowsJDK(type: Download) {
