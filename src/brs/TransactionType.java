@@ -1080,6 +1080,12 @@ public abstract class TransactionType {
       }
 
       @Override
+      public Fee getBaselineFee(int height) {
+        long FEE_QUANT = fluxCapacitor.getValue(FluxValues.FEE_QUANT, height);
+        return new Fee(2*FEE_QUANT, FEE_QUANT);
+      }
+
+      @Override
       public Attachment.ColoredCoinsAssetMultiTransfer parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
         return new Attachment.ColoredCoinsAssetMultiTransfer(buffer, transactionVersion);
       }
