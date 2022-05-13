@@ -349,7 +349,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   logger.warn("Unhandled exception trace: {}", Arrays.toString(e.getStackTrace()));
                 }
                 //executor shutdown?
-                if (Thread.currentThread().isInterrupted())
+                if (Thread.currentThread().isInterrupted() || !ThreadPool.running.get())
                   return;
               } // end block loop
 
