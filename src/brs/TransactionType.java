@@ -1528,12 +1528,14 @@ public abstract class TransactionType {
           }
         }
 
-        // any "dust" goes to the largestHolder
-        if(amountDistributed < transaction.getAmountNQT()) {
-          largestIndirect.addAmount(transaction.getAmountNQT() - amountDistributed);
-        }
-        if(quantityDistributed < attachment.getQuantityQNT()) {
-          largestIndirect.addQuantity(attachment.getQuantityQNT() - quantityDistributed);
+        // any "dust" goes to the largestHolder, if any
+        if(largestIndirect != null){
+          if(amountDistributed < transaction.getAmountNQT()) {
+            largestIndirect.addAmount(transaction.getAmountNQT() - amountDistributed);
+          }
+          if(quantityDistributed < attachment.getQuantityQNT()) {
+            largestIndirect.addQuantity(attachment.getQuantityQNT() - quantityDistributed);
+          }
         }
 
         return indirects;
