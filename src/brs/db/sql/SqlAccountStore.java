@@ -208,7 +208,7 @@ public class SqlAccountStore implements AccountStore {
           .where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId())).and(ACCOUNT_ASSET.LATEST.isTrue())
           .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
       if(minimumQuantity > 0L) {
-        select = select.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+        select = select.and(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY.ge(minimumQuantity));
       }
       if(ignoreTreasury) {
         Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
@@ -230,7 +230,7 @@ public class SqlAccountStore implements AccountStore {
   public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
     return Db.useDSLContext(ctx -> {
 
-      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(ACCOUNT_ASSET.QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
+      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
           .and(ACCOUNT_ASSET.LATEST.isTrue())
           .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
 
@@ -284,7 +284,7 @@ public class SqlAccountStore implements AccountStore {
 
     Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(asset.getId());
     if(minimumQuantity > 0L) {
-      condition = condition.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+      condition = condition.and(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY.ge(minimumQuantity));
     }
     if(ignoreTreasury) {
       Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());

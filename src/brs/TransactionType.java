@@ -1387,11 +1387,14 @@ public abstract class TransactionType {
           return false;
         }
 
-        if(attachment.getAssetIdToDistribute() != 0L && attachment.getQuantityQNT() > 0L) {
+        long assetToDistribute = attachment.getAssetIdToDistribute();
+        if(assetToDistribute != 0L && attachment.getQuantityQNT() > 0L) {
           long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute());
           if(attachment.getQuantityQNT() > unconfirmedAssetBalance)
             return false;
         }
+
+        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetToDistribute, -attachment.getQuantityQNT());
 
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
@@ -1400,13 +1403,9 @@ public abstract class TransactionType {
           circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
         }
         if(circulatingQuantityQNT <= 0L) {
+          accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetToDistribute, attachment.getQuantityQNT());
           return false;
         }
-        long unconfirmedAssetBalance = accountService.getUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute());
-        if (unconfirmedAssetBalance < attachment.getQuantityQNT()) {
-          return false;
-        }
-        accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, attachment.getAssetIdToDistribute(), -attachment.getQuantityQNT());
         return true;
       }
 
