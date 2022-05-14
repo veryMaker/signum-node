@@ -151,14 +151,21 @@ public class AtTransaction {
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), quantity);
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS) {
+        accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
+        if(assetIdToDistribute != 0L){
+          accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetIdToDistribute, -quantity);
+        }
+
         Collection<IndirectIncoming> indirects = attachment.getTransactionType().getIndirectIncomings(transaction);
 
-        if(!indirects.isEmpty()){
-          accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
+        if(indirects.isEmpty()){
+          // revert, since we are not distributing
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, getAmount());
           if(assetIdToDistribute != 0L){
-            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetIdToDistribute, -quantity);
+            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetIdToDistribute, quantity);
           }
-
+        }
+        else {
           for(IndirectIncoming incoming : indirects){
             Account indirecRecipient = accountService.getOrAddAccount(incoming.getAccountId());
             if(incoming.getAmount() > 0L){
