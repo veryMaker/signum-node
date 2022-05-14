@@ -6,6 +6,7 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AliasOffer;
 import brs.schema.tables.AskOrder;
@@ -31,6 +32,7 @@ import brs.schema.tables.Trade;
 import brs.schema.tables.Transaction;
 import brs.schema.tables.UnconfirmedTransaction;
 import brs.schema.tables.records.AccountAssetRecord;
+import brs.schema.tables.records.AccountBalanceRecord;
 import brs.schema.tables.records.AccountRecord;
 import brs.schema.tables.records.AliasOfferRecord;
 import brs.schema.tables.records.AliasRecord;
@@ -78,6 +80,7 @@ public class Keys {
     public static final UniqueKey<AccountRecord> KEY_ACCOUNT_PRIMARY = Internal.createUniqueKey(Account.ACCOUNT, DSL.name("KEY_account_PRIMARY"), new TableField[] { Account.ACCOUNT.DB_ID }, true);
     public static final UniqueKey<AccountAssetRecord> KEY_ACCOUNT_ASSET_ACCOUNT_ASSET_ID_HEIGHT_IDX = Internal.createUniqueKey(AccountAsset.ACCOUNT_ASSET, DSL.name("KEY_account_asset_account_asset_id_height_idx"), new TableField[] { AccountAsset.ACCOUNT_ASSET.ACCOUNT_ID, AccountAsset.ACCOUNT_ASSET.ASSET_ID, AccountAsset.ACCOUNT_ASSET.HEIGHT }, true);
     public static final UniqueKey<AccountAssetRecord> KEY_ACCOUNT_ASSET_PRIMARY = Internal.createUniqueKey(AccountAsset.ACCOUNT_ASSET, DSL.name("KEY_account_asset_PRIMARY"), new TableField[] { AccountAsset.ACCOUNT_ASSET.DB_ID }, true);
+    public static final UniqueKey<AccountBalanceRecord> KEY_ACCOUNT_BALANCE_PRIMARY = Internal.createUniqueKey(AccountBalance.ACCOUNT_BALANCE, DSL.name("KEY_account_balance_PRIMARY"), new TableField[] { AccountBalance.ACCOUNT_BALANCE.DB_ID }, true);
     public static final UniqueKey<AliasRecord> KEY_ALIAS_ALIAS_ID_HEIGHT_IDX = Internal.createUniqueKey(Alias.ALIAS, DSL.name("KEY_alias_alias_id_height_idx"), new TableField[] { Alias.ALIAS.ID, Alias.ALIAS.HEIGHT }, true);
     public static final UniqueKey<AliasRecord> KEY_ALIAS_PRIMARY = Internal.createUniqueKey(Alias.ALIAS, DSL.name("KEY_alias_PRIMARY"), new TableField[] { Alias.ALIAS.DB_ID }, true);
     public static final UniqueKey<AliasOfferRecord> KEY_ALIAS_OFFER_ALIAS_OFFER_ID_HEIGHT_IDX = Internal.createUniqueKey(AliasOffer.ALIAS_OFFER, DSL.name("KEY_alias_offer_alias_offer_id_height_idx"), new TableField[] { AliasOffer.ALIAS_OFFER.ID, AliasOffer.ALIAS_OFFER.HEIGHT }, true);
@@ -86,7 +89,6 @@ public class Keys {
     public static final UniqueKey<AskOrderRecord> KEY_ASK_ORDER_PRIMARY = Internal.createUniqueKey(AskOrder.ASK_ORDER, DSL.name("KEY_ask_order_PRIMARY"), new TableField[] { AskOrder.ASK_ORDER.DB_ID }, true);
     public static final UniqueKey<AssetRecord> KEY_ASSET_ASSET_ID_IDX = Internal.createUniqueKey(Asset.ASSET, DSL.name("KEY_asset_asset_id_idx"), new TableField[] { Asset.ASSET.ID }, true);
     public static final UniqueKey<AssetRecord> KEY_ASSET_PRIMARY = Internal.createUniqueKey(Asset.ASSET, DSL.name("KEY_asset_PRIMARY"), new TableField[] { Asset.ASSET.DB_ID }, true);
-    public static final UniqueKey<AssetTransferRecord> KEY_ASSET_TRANSFER_ASSET_TRANSFER_ID_IDX = Internal.createUniqueKey(AssetTransfer.ASSET_TRANSFER, DSL.name("KEY_asset_transfer_asset_transfer_id_idx"), new TableField[] { AssetTransfer.ASSET_TRANSFER.ID }, true);
     public static final UniqueKey<AssetTransferRecord> KEY_ASSET_TRANSFER_PRIMARY = Internal.createUniqueKey(AssetTransfer.ASSET_TRANSFER, DSL.name("KEY_asset_transfer_PRIMARY"), new TableField[] { AssetTransfer.ASSET_TRANSFER.DB_ID }, true);
     public static final UniqueKey<AtRecord> KEY_AT_AT_ID_HEIGHT_IDX = Internal.createUniqueKey(At.AT, DSL.name("KEY_at_at_id_height_idx"), new TableField[] { At.AT.ID, At.AT.HEIGHT }, true);
     public static final UniqueKey<AtRecord> KEY_AT_PRIMARY = Internal.createUniqueKey(At.AT, DSL.name("KEY_at_PRIMARY"), new TableField[] { At.AT.DB_ID }, true);

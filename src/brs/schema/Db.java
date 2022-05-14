@@ -6,6 +6,7 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AliasOffer;
 import brs.schema.tables.AskOrder;
@@ -61,6 +62,11 @@ public class Db extends SchemaImpl {
      * The table <code>DB.account_asset</code>.
      */
     public final AccountAsset ACCOUNT_ASSET = AccountAsset.ACCOUNT_ASSET;
+
+    /**
+     * The table <code>DB.account_balance</code>.
+     */
+    public final AccountBalance ACCOUNT_BALANCE = AccountBalance.ACCOUNT_BALANCE;
 
     /**
      * The table <code>DB.alias</code>.
@@ -200,6 +206,7 @@ public class Db extends SchemaImpl {
         return Arrays.asList(
             Account.ACCOUNT,
             AccountAsset.ACCOUNT_ASSET,
+            AccountBalance.ACCOUNT_BALANCE,
             Alias.ALIAS,
             AliasOffer.ALIAS_OFFER,
             AskOrder.ASK_ORDER,

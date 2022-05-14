@@ -109,12 +109,12 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return -1;
         }
 
-        if (tx.getMessage() != null) {
-            return 1;
-        }
-
         if (state.getVersion() >= 3) {
           return tx.getType().getType();
+        }
+
+        if (tx.getMessage() != null) {
+            return 1;
         }
 
         return 0;
@@ -137,6 +137,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
               Attachment.ColoredCoinsAssetTransfer assetTransfer = (ColoredCoinsAssetTransfer) tx.getAttachment();
               if(assetTransfer.getAssetId() == assetId) {
                 return assetTransfer.getQuantityQNT();
+              }
+            }
+            else if(tx.getAttachment() instanceof Attachment.ColoredCoinsAssetMultiTransfer) {
+              Attachment.ColoredCoinsAssetMultiTransfer assetTransfer = (Attachment.ColoredCoinsAssetMultiTransfer) tx.getAttachment();
+              for(int i = 0; i < assetTransfer.getAssetIds().size(); i++){
+                if(assetTransfer.getAssetIds().get(i) == assetId) {
+                  return assetTransfer.getQuantitiesQNT().get(i);
+                }
               }
             }
             return 0L;
@@ -242,7 +250,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
           if (tx == null || tx.getHeight() >= state.getHeight() || tx.getMessage() == null) {
               return 0L;
           }
-          int page = (int)AtApiHelper.getLong(state.getA2());
+          int page = Math.max(0, (int)AtApiHelper.getLong(state.getA2()));
 
           long accountId = AtApiHelper.getLong(state.getA3());
           Account account = Account.getAccount(accountId);
@@ -295,7 +303,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
                 byte[] message = txMessage.getMessageBytes();
                 if (state.getVersion() > 2){
                   // we now accept multiple pages
-                  int page = (int)AtApiHelper.getLong(state.getA2());
+                  int page = Math.max(0, (int)AtApiHelper.getLong(state.getA2()));
                   int start = page * length;
                   for(int i=0; i<length && start+i < message.length; i++){
                     b.put(message[start + i]);
@@ -338,6 +346,40 @@ public class AtApiPlatformImpl extends AtApiImpl {
         if (tx != null) {
             long address = tx.getSenderId();
             state.setB1(AtApiHelper.getByteArray(address));
+        }
+    }
+
+    @Override
+    public void bToAssetsOfTxInA(AtMachineState state) {
+        long txId = AtApiHelper.getLong(state.getA1());
+
+        clearB(state);
+
+        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        if (tx != null && tx.getHeight() >= state.getHeight()) {
+            tx = null;
+        }
+        if(tx == null)
+          return;
+
+        if (tx.getAttachment() instanceof Attachment.ColoredCoinsAssetTransfer) {
+          Attachment.ColoredCoinsAssetTransfer assetTransfer = (Attachment.ColoredCoinsAssetTransfer) tx.getAttachment();
+          state.setB1(AtApiHelper.getByteArray(assetTransfer.getAssetId()));
+        }
+        else if (tx.getAttachment() instanceof Attachment.ColoredCoinsAssetMultiTransfer) {
+          Attachment.ColoredCoinsAssetMultiTransfer assetTransfer = (Attachment.ColoredCoinsAssetMultiTransfer) tx.getAttachment();
+          if(assetTransfer.getAssetIds().size() > 0){
+            state.setB1(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(0)));
+          }
+          if(assetTransfer.getAssetIds().size() > 1){
+            state.setB2(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(1)));
+          }
+          if(assetTransfer.getAssetIds().size() > 2){
+            state.setB3(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(2)));
+          }
+          if(assetTransfer.getAssetIds().size() > 3){
+            state.setB4(AtApiHelper.getByteArray(assetTransfer.getAssetIds().get(3)));
+          }
         }
     }
 
@@ -499,8 +541,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long quantity = AtApiHelper.getLong(state.getB1());
 
       Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
-      if (asset == null || asset.getAccountId() != accountId) {
-        // only assets that we have created internally
+      if (asset == null || asset.getAccountId() != accountId || quantity <= 0L) {
+        // only assets that we have created internally and no burning by mint
         return;
       }
 
@@ -527,7 +569,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long minHolding = AtApiHelper.getLong(state.getB1());
       long assetId = AtApiHelper.getLong(state.getB2());
 
-      long amount = AtApiHelper.getLong(state.getA1());
+      long amount = Math.max(0L, AtApiHelper.getLong(state.getA1()));
       long assetToDistribute = AtApiHelper.getLong(state.getA3());
       long quantityToDistribute = 0L;
 
@@ -546,7 +588,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       state.addIndirectsCount(holdersCount);
 
       if(assetToDistribute !=0 ){
-        quantityToDistribute = AtApiHelper.getLong(state.getA4());
+        quantityToDistribute = Math.max(0L, AtApiHelper.getLong(state.getA4()));
         if(quantityToDistribute > state.getgBalance(assetToDistribute)){
           quantityToDistribute = state.getgBalance(assetToDistribute);
         }
@@ -583,6 +625,23 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+    }
+
+    @Override
+    public long getAssetCirculating(AtMachineState state) {
+      if(state.getVersion() < 3){
+        return 0L;
+      }
+
+      long assetId = AtApiHelper.getLong(state.getB2());
+
+      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      if (asset == null) {
+        // asset not found, no supply
+        return 0L;
+      }
+
+      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true);
     }
 
     @Override

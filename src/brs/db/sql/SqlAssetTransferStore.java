@@ -15,11 +15,11 @@ import static brs.schema.Tables.ASSET_TRANSFER;
 
 public class SqlAssetTransferStore implements AssetTransferStore {
 
-  private static final BurstKey.LongKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
+  private static final BurstKey.LinkKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LinkKeyFactory<AssetTransfer>("asset_transfer.id", "asset_transfer.asset_id") {
 
       @Override
       public BurstKey newKey(AssetTransfer assetTransfer) {
-        return assetTransfer.dbKey;
+        return assetTransfer.getDbKey();
       }
     };
   private final EntitySqlTable<AssetTransfer> assetTransferTable;
@@ -59,7 +59,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<AssetTransfer> getTransferDbKeyFactory() {
+  public BurstKey.LinkKeyFactory<AssetTransfer> getTransferDbKeyFactory() {
     return transferDbKeyFactory;
   }
   @Override
@@ -119,7 +119,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
 
     SqlAssetTransfer(Record record) {
       super(record.get(ASSET_TRANSFER.ID),
-            transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)),
+            transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID), record.get(ASSET_TRANSFER.ASSET_ID)),
             record.get(ASSET_TRANSFER.ASSET_ID),
             record.get(ASSET_TRANSFER.HEIGHT),
             record.get(ASSET_TRANSFER.SENDER_ID),

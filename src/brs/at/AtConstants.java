@@ -102,8 +102,8 @@ public class AtConstants {
         return Burst.getFluxCapacitor().getValue(FluxValues.AT_VERSION, blockHeight);
     }
 
-    public long stepFee(int height) {
-        return STEP_FEE.get(atVersion(height));
+    public long stepFee(short version) {
+        return STEP_FEE.get(version);
     }
 
     public long maxSteps(int height) {
@@ -113,8 +113,8 @@ public class AtConstants {
         return MAX_STEPS.get(atVersion(height));
     }
 
-    public long apiStepMultiplier(int height) {
-        return API_STEP_MULTIPLIER.get(atVersion(height));
+    public long apiStepMultiplier(short version) {
+        return API_STEP_MULTIPLIER.get(version);
     }
 
     public long costPerPage(int height) {
@@ -129,24 +129,24 @@ public class AtConstants {
         return MAX_SLEEP_BETWEEN_BLOCKS.get(atVersion(height));
     }
 
-    public long pageSize(int height) {
-        return PAGE_SIZE.get(atVersion(height));
+    public long pageSize(short version) {
+        return PAGE_SIZE.get(version);
     }
 
-    public long maxMachineCodePages(int height) {
-        return MAX_MACHINE_CODE_PAGES.get(atVersion(height));
+    public long maxMachineCodePages(short version) {
+        return MAX_MACHINE_CODE_PAGES.get(version);
     }
 
-    public long maxMachineDataPages(int height) {
-        return MAX_MACHINE_DATA_PAGES.get(atVersion(height));
+    public long maxMachineDataPages(short version) {
+        return MAX_MACHINE_DATA_PAGES.get(atVersion(version));
     }
 
-    public long maxMachineUserStackPages(int height) {
-        return MAX_MACHINE_USER_STACK_PAGES.get(atVersion(height));
+    public long maxMachineUserStackPages(short version) {
+        return MAX_MACHINE_USER_STACK_PAGES.get(atVersion(version));
     }
 
-    public long maxMachineCallStackPages(int height) {
-        return MAX_MACHINE_CALL_STACK_PAGES.get(atVersion(height));
+    public long maxMachineCallStackPages(short version) {
+        return MAX_MACHINE_CALL_STACK_PAGES.get(atVersion(version));
     }
 
     public long blocksForRandom(int height) {

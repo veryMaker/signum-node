@@ -91,7 +91,7 @@ public interface Attachment extends Appendix {
     }
 
   };
-  
+
   EmptyAttachment ASSET_ADD_TREASURY_ACCOUNT_ATTACHMENT = new EmptyAttachment() {
 
     @Override
@@ -612,7 +612,7 @@ public interface Attachment extends Appendix {
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ASSET_DESCRIPTION_LENGTH);
       this.quantityQNT = buffer.getLong();
       this.decimals = buffer.get();
-      
+
       boolean mintable = false;
       if(super.getVersion() > 1) {
         mintable = buffer.get() == 1;
@@ -776,7 +776,119 @@ public interface Attachment extends Appendix {
     }
 
   }
-  
+
+  final class ColoredCoinsAssetMultiTransfer extends AbstractAttachment {
+
+    private final ArrayList<Long> assetIds;
+    private final ArrayList<Long> quantitiesQNT;
+
+    ColoredCoinsAssetMultiTransfer(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+      super(buffer, transactionVersion);
+
+      int numberOfAssets = Byte.toUnsignedInt(buffer.get());
+      if (numberOfAssets > Constants.MAX_MULTI_ASSET_IDS) {
+        throw new BurstException.NotValidException("Invalid number of assets to transfer");
+      }
+      assetIds = new ArrayList<>(numberOfAssets);
+      quantitiesQNT = new ArrayList<>(numberOfAssets);
+
+      for(int i=0; i < numberOfAssets; i++){
+        long assetId = buffer.getLong();
+        long quantity = buffer.getLong();
+
+        if(assetIds.contains(assetId)){
+          throw new BurstException.NotValidException("No repeated assets in a multi transfer");
+        }
+        if (quantity <= 0){
+          throw new BurstException.NotValidException("Insufficient quantityQNT on asset multi transfer");
+        }
+        assetIds.add(assetId);
+        quantitiesQNT.add(quantity);
+      }
+    }
+
+    ColoredCoinsAssetMultiTransfer(JsonObject attachmentData) throws BurstException.NotValidException {
+      super(attachmentData);
+
+      assetIds = new ArrayList<>();
+      quantitiesQNT = new ArrayList<>();
+
+      JsonArray assetIdsJsonArray = JSON.getAsJsonArray(attachmentData.get(ASSET_IDS_RESPONSE));
+      for(JsonElement assetIdJson : assetIdsJsonArray){
+        long assetId = Convert.parseUnsignedLong(assetIdJson.getAsString());
+        if(assetIds.contains(assetId)){
+          throw new BurstException.NotValidException("No repeated assets in a multi transfer");
+        }
+        assetIds.add(assetId);
+      }
+      JsonArray quantitiesJsonArray = JSON.getAsJsonArray(attachmentData.get(QUANTITIES_QNT_RESPONSE));
+      for(JsonElement quantityJson : quantitiesJsonArray){
+        long quantity = JSON.getAsLong(quantityJson);
+        if (quantity <= 0){
+          throw new BurstException.NotValidException("Insufficient quantityQNT on asset multi transfer");
+        }
+        quantitiesQNT.add(quantity);
+      }
+
+      if(assetIds.size() == 0 || assetIds.size() != quantitiesQNT.size() || assetIds.size() > Constants.MAX_MULTI_ASSET_IDS){
+        throw new BurstException.NotValidException("Invalid asset/quantity for multi asset transfer");
+      }
+    }
+
+    public ColoredCoinsAssetMultiTransfer(ArrayList<Long> assetIds, ArrayList<Long> quantitiesQNT, int blockchainHeight) {
+      super(blockchainHeight);
+      this.assetIds = assetIds;
+      this.quantitiesQNT = quantitiesQNT;
+    }
+
+    @Override
+    protected String getAppendixName() {
+      return "AssetMultiTransfer";
+    }
+
+    @Override
+    protected int getMySize() {
+      return 1 + 8 * 2 * assetIds.size();
+    }
+
+    @Override
+    protected void putMyBytes(ByteBuffer buffer) {
+      buffer.put((byte)assetIds.size());
+      for(int i=0; i < assetIds.size(); i++){
+        buffer.putLong(assetIds.get(i));
+        buffer.putLong(quantitiesQNT.get(i));
+      }
+    }
+
+    @Override
+    protected void putMyJSON(JsonObject attachment) {
+      JsonArray assetIdsJson = new JsonArray();
+      JsonArray quantitiesJson = new JsonArray();
+      for(Long assetId : assetIds){
+        assetIdsJson.add(Convert.toUnsignedLong(assetId));
+      }
+      for(Long quantity : quantitiesQNT){
+        quantitiesJson.add(Convert.toUnsignedLong(quantity));
+      }
+
+      attachment.add(ASSET_IDS_RESPONSE, assetIdsJson);
+      attachment.add(QUANTITIES_QNT_RESPONSE, quantitiesJson);
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.ColoredCoins.ASSET_MULTI_TRANSFER;
+    }
+
+    public ArrayList<Long> getAssetIds() {
+      return assetIds;
+    }
+
+    public ArrayList<Long> getQuantitiesQNT() {
+      return quantitiesQNT;
+    }
+  }
+
   final class ColoredCoinsAssetMint extends AbstractAttachment {
 
     private final long assetId;
@@ -834,9 +946,9 @@ public interface Attachment extends Appendix {
     public long getQuantityQNT() {
       return quantityQNT;
     }
-    
+
   }
-  
+
   final class ColoredCoinsAssetDistributeToHolders extends AbstractAttachment {
 
     private final long assetId;
@@ -902,7 +1014,7 @@ public interface Attachment extends Appendix {
     public long getAssetId() {
       return assetId;
     }
-    
+
     public long getMinimumAssetQuantityQNT() {
       return minimumAssetQuantityQNT;
     }
@@ -1714,9 +1826,9 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
     }
-    
+
   }
-  
+
 
   abstract class CommitmentAttachment extends AbstractAttachment {
 
@@ -1757,7 +1869,7 @@ public interface Attachment extends Appendix {
     }
 
   }
-  
+
   final class CommitmentAdd extends CommitmentAttachment {
 
     CommitmentAdd(ByteBuffer buffer, byte transactionVersion) {
@@ -1783,7 +1895,7 @@ public interface Attachment extends Appendix {
     }
 
   }
-  
+
   final class CommitmentRemove extends CommitmentAttachment {
 
     CommitmentRemove(ByteBuffer buffer, byte transactionVersion) {
@@ -1807,10 +1919,10 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.BurstMining.COMMITMENT_REMOVE;
     }
-    
+
   }
-  
-  
+
+
   final class AdvancedPaymentEscrowCreation extends AbstractAttachment {
 
     private final Long amountNQT;
@@ -2192,11 +2304,11 @@ public interface Attachment extends Appendix {
       // rest of the parsing is at related; code comes from
       // public AtMachineState( byte[] atId, byte[] creator, byte[] creationBytes, int height ) {
       int startPosition = buffer.position();
-      buffer.getShort();
+      short version = buffer.getShort();
 
       buffer.getShort(); //future: reserved for future needs
 
-      int pageSize = ( int ) AtConstants.getInstance().pageSize( Burst.getBlockchain().getHeight() );
+      int pageSize = ( int ) AtConstants.getInstance().pageSize( version );
       short codePages = buffer.getShort();
       short dataPages = buffer.getShort();
       buffer.getShort();

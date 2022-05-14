@@ -12,6 +12,8 @@ public interface SubscriptionStore {
 
   VersionedEntityTable<Subscription> getSubscriptionTable();
 
+  void saveSubscriptions(Collection<Subscription> subscriptions);
+
   Collection<Subscription> getSubscriptionsByParticipant(Long accountId);
 
   Collection<Subscription> getIdSubscriptions(Long accountId);

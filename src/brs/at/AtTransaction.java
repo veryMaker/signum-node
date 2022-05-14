@@ -138,7 +138,8 @@ public class AtTransaction {
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, getAssetId(), -quantity);
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, getAssetId(), quantity);
 
-        Burst.getAssetExchange().addAssetTransfer(transaction, (ColoredCoinsAssetTransfer) attachment);
+        ColoredCoinsAssetTransfer assetTransferAttachment = (ColoredCoinsAssetTransfer) attachment;
+        Burst.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
         Asset asset = Burst.getAssetExchange().getAsset(assetId);
@@ -156,16 +157,26 @@ public class AtTransaction {
         }
 
         Collection<IndirectIncoming> indirects = attachment.getTransactionType().getIndirectIncomings(transaction);
-        for(IndirectIncoming incoming : indirects){
-          Account indirecRecipient = accountService.getOrAddAccount(incoming.getAccountId());
-          if(incoming.getAmount() > 0L){
-            accountService.addToBalanceAndUnconfirmedBalanceNQT(indirecRecipient, incoming.getAmount());
-          }
-          if(this.assetIdToDistribute != 0L){
-            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(indirecRecipient, assetIdToDistribute, incoming.getQuantity());
+
+        if(indirects.isEmpty()){
+          // revert, since we are not distributing
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, getAmount());
+          if(assetIdToDistribute != 0L){
+            accountService.addToAssetAndUnconfirmedAssetBalanceQNT(senderAccount, assetIdToDistribute, quantity);
           }
         }
-        Burst.getStores().getIndirectIncomingStore().addIndirectIncomings(indirects);
+        else {
+          for(IndirectIncoming incoming : indirects){
+            Account indirecRecipient = accountService.getOrAddAccount(incoming.getAccountId());
+            if(incoming.getAmount() > 0L){
+              accountService.addToBalanceAndUnconfirmedBalanceNQT(indirecRecipient, incoming.getAmount());
+            }
+            if(this.assetIdToDistribute != 0L){
+              accountService.addToAssetAndUnconfirmedAssetBalanceQNT(indirecRecipient, assetIdToDistribute, incoming.getQuantity());
+            }
+          }
+          Burst.getStores().getIndirectIncomingStore().addIndirectIncomings(indirects);
+        }
       }
       else {
         accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());

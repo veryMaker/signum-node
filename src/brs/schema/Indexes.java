@@ -6,6 +6,7 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AskOrder;
 import brs.schema.tables.Asset;
@@ -45,7 +46,8 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index ACCOUNT_ASSET_ACCOUNT_ASSET_QUANTITY_IDX = Internal.createIndex(DSL.name("account_asset_quantity_idx"), AccountAsset.ACCOUNT_ASSET, new OrderField[] { AccountAsset.ACCOUNT_ASSET.QUANTITY }, false);
-    public static final Index ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX = Internal.createIndex(DSL.name("account_id_balance_height_idx"), Account.ACCOUNT, new OrderField[] { Account.ACCOUNT.ID, Account.ACCOUNT.BALANCE, Account.ACCOUNT.HEIGHT }, false);
+    public static final Index ACCOUNT_BALANCE_ACCOUNT_BALANCE_ID_BALANCE_HEIGHT_IDX = Internal.createIndex(DSL.name("account_balance_id_balance_height_idx"), AccountBalance.ACCOUNT_BALANCE, new OrderField[] { AccountBalance.ACCOUNT_BALANCE.ID, AccountBalance.ACCOUNT_BALANCE.BALANCE, AccountBalance.ACCOUNT_BALANCE.HEIGHT }, false);
+    public static final Index ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX = Internal.createIndex(DSL.name("account_id_balance_height_idx"), Account.ACCOUNT, new OrderField[] { Account.ACCOUNT.ID, Account.ACCOUNT.HEIGHT }, false);
     public static final Index ACCOUNT_ACCOUNT_ID_LATEST_IDX = Internal.createIndex(DSL.name("account_id_latest_idx"), Account.ACCOUNT, new OrderField[] { Account.ACCOUNT.ID, Account.ACCOUNT.LATEST }, false);
     public static final Index ALIAS_ALIAS_ACCOUNT_ID_IDX = Internal.createIndex(DSL.name("alias_account_id_idx"), Alias.ALIAS, new OrderField[] { Alias.ALIAS.ACCOUNT_ID, Alias.ALIAS.HEIGHT }, false);
     public static final Index ALIAS_ALIAS_NAME_LOWER_IDX = Internal.createIndex(DSL.name("alias_name_lower_idx"), Alias.ALIAS, new OrderField[] { Alias.ALIAS.ALIAS_NAME_LOWER }, false);
@@ -54,6 +56,7 @@ public class Indexes {
     public static final Index ASK_ORDER_ASK_ORDER_CREATION_IDX = Internal.createIndex(DSL.name("ask_order_creation_idx"), AskOrder.ASK_ORDER, new OrderField[] { AskOrder.ASK_ORDER.CREATION_HEIGHT }, false);
     public static final Index ASSET_ASSET_ACCOUNT_ID_IDX = Internal.createIndex(DSL.name("asset_account_id_idx"), Asset.ASSET, new OrderField[] { Asset.ASSET.ACCOUNT_ID }, false);
     public static final Index ASSET_TRANSFER_ASSET_TRANSFER_ASSET_ID_IDX = Internal.createIndex(DSL.name("asset_transfer_asset_id_idx"), AssetTransfer.ASSET_TRANSFER, new OrderField[] { AssetTransfer.ASSET_TRANSFER.ASSET_ID, AssetTransfer.ASSET_TRANSFER.HEIGHT }, false);
+    public static final Index ASSET_TRANSFER_ASSET_TRANSFER_ID_IDX = Internal.createIndex(DSL.name("asset_transfer_id_idx"), AssetTransfer.ASSET_TRANSFER, new OrderField[] { AssetTransfer.ASSET_TRANSFER.ID }, false);
     public static final Index ASSET_TRANSFER_ASSET_TRANSFER_RECIPIENT_ID_IDX = Internal.createIndex(DSL.name("asset_transfer_recipient_id_idx"), AssetTransfer.ASSET_TRANSFER, new OrderField[] { AssetTransfer.ASSET_TRANSFER.RECIPIENT_ID, AssetTransfer.ASSET_TRANSFER.HEIGHT }, false);
     public static final Index ASSET_TRANSFER_ASSET_TRANSFER_SENDER_ID_IDX = Internal.createIndex(DSL.name("asset_transfer_sender_id_idx"), AssetTransfer.ASSET_TRANSFER, new OrderField[] { AssetTransfer.ASSET_TRANSFER.SENDER_ID, AssetTransfer.ASSET_TRANSFER.HEIGHT }, false);
     public static final Index AT_AT_AP_CODE_HASH_ID_INDEX = Internal.createIndex(DSL.name("at_ap_code_hash_id_index"), At.AT, new OrderField[] { At.AT.AP_CODE_HASH_ID }, false);

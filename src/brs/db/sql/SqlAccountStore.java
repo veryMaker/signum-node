@@ -29,6 +29,12 @@ public class SqlAccountStore implements AccountStore {
         return (DbKey) account.nxtKey;
       }
   };
+  private static final DbKey.LongKeyFactory<Account.Balance> accountBalanceDbKeyFactory = new DbKey.LongKeyFactory<Account.Balance>(ACCOUNT_BALANCE.ID) {
+    @Override
+    public DbKey newKey(Account.Balance account) {
+      return (DbKey) account.nxtKey;
+    }
+  };
   private static final DbKey.LongKeyFactory<Account.RewardRecipientAssignment> rewardRecipientAssignmentDbKeyFactory
     = new DbKey.LongKeyFactory<Account.RewardRecipientAssignment>(REWARD_RECIP_ASSIGN.ACCOUNT_ID) {
         @Override
@@ -105,12 +111,38 @@ public class SqlAccountStore implements AccountStore {
         for (Account account: accounts) {
           if (account == null) continue;
           accountQueries.add(
-                  ctx.mergeInto(ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT, ACCOUNT.BALANCE,
-                          ACCOUNT.UNCONFIRMED_BALANCE, ACCOUNT.FORGED_BALANCE, ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
+                  ctx.mergeInto(
+                  //ctx.insertInto(
+                    ACCOUNT, ACCOUNT.ID, ACCOUNT.HEIGHT, ACCOUNT.CREATION_HEIGHT, ACCOUNT.PUBLIC_KEY, ACCOUNT.KEY_HEIGHT,
+                          ACCOUNT.NAME, ACCOUNT.DESCRIPTION, ACCOUNT.LATEST)
                           .key(ACCOUNT.ID, ACCOUNT.HEIGHT)
                           .values(account.getId(), height, account.getCreationHeight(), account.getPublicKey(), account.getKeyHeight(),
-                                  account.getBalanceNQT(), account.getUnconfirmedBalanceNQT(), account.getForgedBalanceNQT(), account.getName(), account.getDescription(), true)
+                                  account.getName(), account.getDescription(), true)
           );
+        }
+        ctx.batch(accountQueries).execute();
+      }
+    };
+
+    accountBalanceTable = new VersionedBatchEntitySqlTable<Account.Balance>("account_balance", brs.schema.Tables.ACCOUNT_BALANCE, accountBalanceDbKeyFactory, derivedTableManager, dbCacheManager, Account.Balance.class) {
+      @Override
+      protected Account.Balance load(DSLContext ctx, Record rs) {
+        return new SqlAccountBalance(rs);
+      }
+
+      @Override
+      protected void bulkInsert(DSLContext ctx, Collection<Account.Balance> accounts) {
+        List<Query> accountQueries = new ArrayList<>();
+        int height = Burst.getBlockchain().getHeight();
+        for (Account.Balance account: accounts) {
+          if (account == null) continue;
+          accountQueries.add(
+              ctx.insertInto(
+                ACCOUNT_BALANCE, ACCOUNT_BALANCE.ID, ACCOUNT_BALANCE.HEIGHT,
+                  ACCOUNT_BALANCE.BALANCE, ACCOUNT_BALANCE.UNCONFIRMED_BALANCE, ACCOUNT_BALANCE.FORGED_BALANCE, ACCOUNT.LATEST)
+              .values(account.getId(), height,
+                  account.getBalanceNQT(), account.getUnconfirmedBalanceNQT(), account.getForgedBalanceNQT(), true)
+              );
         }
         ctx.batch(accountQueries).execute();
       }
@@ -127,10 +159,18 @@ public class SqlAccountStore implements AccountStore {
 
   private final VersionedBatchEntityTable<Account> accountTable;
 
+  private final VersionedBatchEntityTable<Account.Balance> accountBalanceTable;
+
   @Override
   public VersionedBatchEntityTable<Account> getAccountTable() {
     return accountTable;
   }
+
+  @Override
+  public VersionedBatchEntityTable<Account.Balance> getAccountBalanceTable(){
+    return accountBalanceTable;
+  }
+
 
   @Override
   public VersionedEntityTable<Account.RewardRecipientAssignment> getRewardRecipientAssignmentTable() {
@@ -155,7 +195,7 @@ public class SqlAccountStore implements AccountStore {
   @Override
   public long getAllAccountsBalance() {
     return Db.useDSLContext(ctx -> {
-      return ctx.select(DSL.sum(ACCOUNT.BALANCE)).from(ACCOUNT).where(ACCOUNT.LATEST.isTrue())
+      return ctx.select(DSL.sum(ACCOUNT_BALANCE.BALANCE)).from(ACCOUNT_BALANCE).where(ACCOUNT_BALANCE.LATEST.isTrue())
           .fetchOneInto(long.class);
     });
   }
@@ -168,7 +208,7 @@ public class SqlAccountStore implements AccountStore {
           .where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId())).and(ACCOUNT_ASSET.LATEST.isTrue())
           .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
       if(minimumQuantity > 0L) {
-        select = select.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+        select = select.and(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY.ge(minimumQuantity));
       }
       if(ignoreTreasury) {
         Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
@@ -190,7 +230,7 @@ public class SqlAccountStore implements AccountStore {
   public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
     return Db.useDSLContext(ctx -> {
 
-      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(ACCOUNT_ASSET.QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
+      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
           .and(ACCOUNT_ASSET.LATEST.isTrue())
           .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
 
@@ -217,6 +257,11 @@ public class SqlAccountStore implements AccountStore {
   }
 
   @Override
+  public DbKey.LongKeyFactory<Account.Balance> getAccountBalanceKeyFactory() {
+    return accountBalanceDbKeyFactory;
+  }
+
+  @Override
   public Collection<Account.RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId) {
     return getRewardRecipientAssignmentTable().getManyBy(getAccountsWithRewardRecipientClause(recipientId, Burst.getBlockchain().getHeight() + 1), 0, -1);
   }
@@ -239,7 +284,7 @@ public class SqlAccountStore implements AccountStore {
 
     Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(asset.getId());
     if(minimumQuantity > 0L) {
-      condition = condition.and(ACCOUNT_ASSET.QUANTITY.ge(minimumQuantity));
+      condition = condition.and(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY.ge(minimumQuantity));
     }
     if(ignoreTreasury) {
       Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
@@ -313,11 +358,17 @@ public class SqlAccountStore implements AccountStore {
             record.get(ACCOUNT.CREATION_HEIGHT));
       this.setPublicKey(record.get(ACCOUNT.PUBLIC_KEY));
       this.setKeyHeight(record.get(ACCOUNT.KEY_HEIGHT));
-      this.balanceNQT = record.get(ACCOUNT.BALANCE);
-      this.unconfirmedBalanceNQT = record.get(ACCOUNT.UNCONFIRMED_BALANCE);
-      this.forgedBalanceNQT = record.get(ACCOUNT.FORGED_BALANCE);
       this.name = record.get(ACCOUNT.NAME);
       this.description = record.get(ACCOUNT.DESCRIPTION);
+    }
+  }
+
+  class SqlAccountBalance extends Account.Balance {
+    SqlAccountBalance(Record record) {
+      super(record.get(ACCOUNT_BALANCE.ID));
+      this.balanceNQT = record.get(ACCOUNT_BALANCE.BALANCE);
+      this.unconfirmedBalanceNQT = record.get(ACCOUNT_BALANCE.UNCONFIRMED_BALANCE);
+      this.forgedBalanceNQT = record.get(ACCOUNT_BALANCE.FORGED_BALANCE);
     }
   }
 

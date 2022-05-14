@@ -69,8 +69,9 @@ final class SendMoneyMultiSame extends CreateTransaction {
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid recipients parameter");
       return response;
     }
-		
-    if(sender.getBalanceNQT() < totalAmountNQT) {
+	
+    Account.Balance senderBalance = Account.getAccountBalance(sender.getId());
+    if(senderBalance.getBalanceNQT() < totalAmountNQT) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 6);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Insufficient funds");

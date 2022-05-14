@@ -89,6 +89,7 @@ public class ResultFields {
   public static final String TAGS_RESPONSE = "tags";
   public static final String DELISTED_RESPONSE = "delisted";
   public static final String ASSET_IDS_RESPONSE = "assetIds";
+  public static final String QUANTITIES_QNT_RESPONSE = "quantitiesQNT";
   public static final String PURCHASE_RESPONSE = "purchase";
   public static final String BUYER_RESPONSE = "buyer";
   public static final String DELIVERY_DEADLINE_TIMESTAMP_RESPONSE = "deliveryDeadlineTimestamp";

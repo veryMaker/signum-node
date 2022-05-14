@@ -727,6 +727,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public void bToAssetsOfTxInA(AtMachineState state) {
+        platform.bToAssetsOfTxInA(state);
+    }
+
+    @Override
     public void bToAddressOfCreator(AtMachineState state) {
         platform.bToAddressOfCreator(state);
     }
@@ -821,6 +826,11 @@ public class AtApiImpl implements AtApi {
     @Override
     public long getAssetHoldersCount(AtMachineState state) {
       return platform.getAssetHoldersCount(state);
+    }
+
+    @Override
+    public long getAssetCirculating(AtMachineState state) {
+      return platform.getAssetCirculating(state);
     }
 
     @Override
