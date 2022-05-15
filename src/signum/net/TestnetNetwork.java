@@ -46,7 +46,8 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.P2P_PORT, "7123");
     setProperty(Props.API_PORT, "6876");
 
-    setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club; 162.55.177.197; europe3.testnet.signum.network; tordek.ddns.net; octalsburstnode.ddns.net;");
+    setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club; europe3.testnet.signum.network; 77.56.66.83;");
+    setProperty(Props.P2P_BOOTSTRAP_PEERS, "77.56.66.83;");
     setProperty(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS, "1");
 
     setProperty(Props.P2P_USE_PEERS_DB, "false");
