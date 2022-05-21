@@ -1145,7 +1145,7 @@ public abstract class TransactionType {
       protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
         Attachment.ColoredCoinsAssetMultiTransfer attachment = (Attachment.ColoredCoinsAssetMultiTransfer)transaction.getAttachment();
         if ((!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN))
-                || attachment.getAssetIds().size() > 1 || attachment.getAssetIds().size() > Constants.MAX_MULTI_ASSET_IDS) {
+                || attachment.getAssetIds().size() < 2 || attachment.getAssetIds().size() > Constants.MAX_MULTI_ASSET_IDS) {
           throw new BurstException.NotValidException("Invalid asset multi transfer: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         for(int i = 0; i < attachment.getAssetIds().size(); i++){
