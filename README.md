@@ -20,10 +20,17 @@ The two supported database backends are:
 
 ## Network Specification
 
-- 4 minute block time
+- Block time is 4 minutes 
+- Block size is 375,360 byte
+- Minimum transaction size is 184 bytes
+- Minimum network fee is 0.01 Signa
+- TPS is 16
+- STPS is up to 5,000 [STPS](https://docs.signum.network/signum#ny-smart-layer-10)
+- Maximum 1,200,000 balance changes per block
 - Total Supply: [2,138,119,200 SIGNA up to block 972k + 100 SIGNA per block after that](https://github.com/signum-network/CIPs/blob/master/cip-0029.md)
-- Block reward starts at 10,000/block
-- Block reward decreases at 5% each month with a minimum mining incentive of 100 SIGNA per block
+- Block reward started at 10,000/block in 2014
+- Block reward decreased at 5% each month with a minimum mining incentive of 100 SIGNA per block
+- Automated burning of subscription interval payment fees and smart contract step fees from block 1,029,000 [SIP-36](https://github.com/signum-network/SIPs/blob/master/SIP/sip-36.md)
 
 ## Features
 
@@ -98,6 +105,8 @@ own account ID in the configuration file:
 node.cashBackId = 8952122635653861124
 ```
 Note: the example ID above `8952122635653861124` is the [SNA](https://www.sna.signum.network/) account.
+
+The cash-back is paid from block 1,029,000.
 
 **H2/MariaDB**
 
