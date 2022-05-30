@@ -115,12 +115,12 @@ public class PurchaseFeedback extends TableImpl<PurchaseFeedbackRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.PURCHASE_FEEDBACK_PURCHASE_FEEDBACK_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.PURCHASE_FEEDBACK_PURCHASE_FEEDBACK_ID_HEIGHT_IDX);
     }
 
     @Override
@@ -131,11 +131,6 @@ public class PurchaseFeedback extends TableImpl<PurchaseFeedbackRecord> {
     @Override
     public UniqueKey<PurchaseFeedbackRecord> getPrimaryKey() {
         return Keys.KEY_PURCHASE_FEEDBACK_PRIMARY;
-    }
-
-    @Override
-    public List<UniqueKey<PurchaseFeedbackRecord>> getKeys() {
-        return Arrays.<UniqueKey<PurchaseFeedbackRecord>>asList(Keys.KEY_PURCHASE_FEEDBACK_PRIMARY);
     }
 
     @Override

@@ -83,8 +83,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     paymentTransactions.clear();
     for (Subscription subscription : appliedSubscriptions) {
       apply(block, blockchainHeight, subscription);
-      subscriptionTable.insert(subscription);
     }
+    subscriptionStore.saveSubscriptions(appliedSubscriptions);
+
     if (! paymentTransactions.isEmpty()) {
       transactionDb.saveTransactions(paymentTransactions);
     }
@@ -163,7 +164,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     Account sender = accountService.getAccount(subscription.getSenderId());
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
-    if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
+    Account.Balance senderBalance = sender == null ? null : Account.getAccountBalance(sender.getId());
+    if (sender == null || senderBalance.getUnconfirmedBalanceNQT() < totalAmountNQT) {
       return false;
     }
 

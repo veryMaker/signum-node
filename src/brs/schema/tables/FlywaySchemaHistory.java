@@ -135,22 +135,17 @@ public class FlywaySchemaHistory extends TableImpl<FlywaySchemaHistoryRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.FLYWAY_SCHEMA_HISTORY_FLYWAY_SCHEMA_HISTORY_S_IDX);
+        return Arrays.asList(Indexes.FLYWAY_SCHEMA_HISTORY_FLYWAY_SCHEMA_HISTORY_S_IDX);
     }
 
     @Override
     public UniqueKey<FlywaySchemaHistoryRecord> getPrimaryKey() {
         return Keys.KEY_FLYWAY_SCHEMA_HISTORY_PRIMARY;
-    }
-
-    @Override
-    public List<UniqueKey<FlywaySchemaHistoryRecord>> getKeys() {
-        return Arrays.<UniqueKey<FlywaySchemaHistoryRecord>>asList(Keys.KEY_FLYWAY_SCHEMA_HISTORY_PRIMARY);
     }
 
     @Override

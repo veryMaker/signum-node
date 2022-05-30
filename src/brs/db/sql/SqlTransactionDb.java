@@ -101,6 +101,9 @@ public class SqlTransactionDb implements TransactionDb {
       builder.ecBlockHeight(tr.getEcBlockHeight());
       builder.ecBlockId(Optional.ofNullable(tr.getEcBlockId()).orElse(0L));
     }
+    if (tr.getVersion() > 1) {
+      builder.cashBackId(tr.getCashBackId());
+    }
 
     return builder.build();
   }
@@ -154,10 +157,10 @@ public class SqlTransactionDb implements TransactionDb {
                 TRANSACTION.BLOCK_TIMESTAMP, TRANSACTION.FULL_HASH, TRANSACTION.VERSION,
                 TRANSACTION.HAS_MESSAGE, TRANSACTION.HAS_ENCRYPTED_MESSAGE,
                 TRANSACTION.HAS_PUBLIC_KEY_ANNOUNCEMENT, TRANSACTION.HAS_ENCRYPTTOSELF_MESSAGE,
-                TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID)
+                TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID, TRANSACTION.CASH_BACK_ID)
                 .values((Long) null, null, null, null, null, null, null, null, null, null, null,
                     null, null,
-                    null, null, null, null, null, null, null, null, null, null, null));
+                    null, null, null, null, null, null, null, null, null, null, null, null));
         for (Transaction transaction : transactions) {
           insertBatch.bind(
               transaction.getId(),
@@ -183,7 +186,8 @@ public class SqlTransactionDb implements TransactionDb {
               transaction.getPublicKeyAnnouncement() != null,
               transaction.getEncryptToSelfMessage() != null,
               transaction.getECBlockHeight(),
-              (transaction.getECBlockId() != 0 ? transaction.getECBlockId() : null)
+              (transaction.getECBlockId() != 0 ? transaction.getECBlockId() : null),
+              transaction.getCashBackId()
           );
         }
         insertBatch.execute();

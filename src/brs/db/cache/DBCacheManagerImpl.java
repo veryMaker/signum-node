@@ -30,6 +30,8 @@ public class DBCacheManagerImpl {
 
     caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.class,
         ResourcePoolsBuilder.heap(8192*4)).build());
+    caches.put("account_balance", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.Balance.class,
+        ResourcePoolsBuilder.heap(8192*4)).build());
 
     CacheManagerBuilder<CacheManager> cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder();
     for (Map.Entry<String, CacheConfiguration<BurstKey, ?>> cache : caches.entrySet()) {

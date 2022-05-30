@@ -6,12 +6,14 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AliasOffer;
 import brs.schema.tables.AskOrder;
 import brs.schema.tables.Asset;
 import brs.schema.tables.AssetTransfer;
 import brs.schema.tables.At;
+import brs.schema.tables.AtMap;
 import brs.schema.tables.AtState;
 import brs.schema.tables.BidOrder;
 import brs.schema.tables.Block;
@@ -48,6 +50,11 @@ public class Tables {
     public static final AccountAsset ACCOUNT_ASSET = AccountAsset.ACCOUNT_ASSET;
 
     /**
+     * The table <code>DB.account_balance</code>.
+     */
+    public static final AccountBalance ACCOUNT_BALANCE = AccountBalance.ACCOUNT_BALANCE;
+
+    /**
      * The table <code>DB.alias</code>.
      */
     public static final Alias ALIAS = Alias.ALIAS;
@@ -76,6 +83,11 @@ public class Tables {
      * The table <code>DB.at</code>.
      */
     public static final At AT = At.AT;
+
+    /**
+     * The table <code>DB.at_map</code>.
+     */
+    public static final AtMap AT_MAP = AtMap.AT_MAP;
 
     /**
      * The table <code>DB.at_state</code>.

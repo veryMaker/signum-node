@@ -115,12 +115,12 @@ public class EscrowDecision extends TableImpl<EscrowDecisionRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.ESCROW_DECISION_ESCROW_DECISION_ACCOUNT_ID_HEIGHT_IDX, Indexes.ESCROW_DECISION_ESCROW_DECISION_ESCROW_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.ESCROW_DECISION_ESCROW_DECISION_ACCOUNT_ID_HEIGHT_IDX, Indexes.ESCROW_DECISION_ESCROW_DECISION_ESCROW_ID_HEIGHT_IDX);
     }
 
     @Override
@@ -134,8 +134,8 @@ public class EscrowDecision extends TableImpl<EscrowDecisionRecord> {
     }
 
     @Override
-    public List<UniqueKey<EscrowDecisionRecord>> getKeys() {
-        return Arrays.<UniqueKey<EscrowDecisionRecord>>asList(Keys.KEY_ESCROW_DECISION_PRIMARY, Keys.KEY_ESCROW_DECISION_ESCROW_DECISION_ESCROW_ID_ACCOUNT_ID_HEIGHT_IDX);
+    public List<UniqueKey<EscrowDecisionRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ESCROW_DECISION_ESCROW_DECISION_ESCROW_ID_ACCOUNT_ID_HEIGHT_IDX);
     }
 
     @Override

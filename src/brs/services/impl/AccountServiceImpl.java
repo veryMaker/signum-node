@@ -29,7 +29,9 @@ public class AccountServiceImpl implements AccountService {
 
   private final AccountStore accountStore;
   private final VersionedBatchEntityTable<Account> accountTable;
+  private final VersionedBatchEntityTable<Account.Balance> accountBalanceTable;
   private final LongKeyFactory<Account> accountBurstKeyFactory;
+  private final LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory;
   private final VersionedEntityTable<AccountAsset> accountAssetTable;
   private final LinkKeyFactory<AccountAsset> accountAssetKeyFactory;
   private final VersionedEntityTable<RewardRecipientAssignment> rewardRecipientAssignmentTable;
@@ -43,7 +45,9 @@ public class AccountServiceImpl implements AccountService {
   public AccountServiceImpl(AccountStore accountStore, AssetTransferStore assetTransferStore) {
     this.accountStore = accountStore;
     this.accountTable = accountStore.getAccountTable();
+    this.accountBalanceTable = accountStore.getAccountBalanceTable();
     this.accountBurstKeyFactory = accountStore.getAccountKeyFactory();
+    this.accountBalanceBurstKeyFactory = accountStore.getAccountBalanceKeyFactory();
     this.assetTransferStore = assetTransferStore;
     this.accountAssetTable = accountStore.getAccountAssetTable();
     this.accountAssetKeyFactory = accountStore.getAccountAssetKeyFactory();
@@ -65,7 +69,16 @@ public class AccountServiceImpl implements AccountService {
   public Account getAccount(long id) {
     return id == 0 ? null : accountTable.get(accountBurstKeyFactory.newKey(id));
   }
-  
+
+  @Override
+  public Account.Balance getAccountBalance(long id) {
+    Account.Balance account = accountBalanceTable.get(accountBalanceBurstKeyFactory.newKey(id));
+    if(account == null){
+      account = new Account.Balance(id);
+    }
+    return account;
+  }
+
   @Override
   public Account getNullAccount() {
     return accountTable.get(accountBurstKeyFactory.newKey(0L));
@@ -116,7 +129,7 @@ public class AccountServiceImpl implements AccountService {
   public Collection<Account> getAllAccounts(int from, int to) {
     return accountTable.getAll(from, to);
   }
-  
+
   @Override
   public long getAllAccountsBalance() {
     return accountStore.getAllAccountsBalance();
@@ -146,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
   public int getCount() {
     return accountTable.getCount();
   }
-  
+
   @Override
   public int getBatchedAccountsCount() {
     return accountTable.getBatch().size();
@@ -157,8 +170,9 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setForgedBalanceNQT(Convert.safeAdd(account.getForgedBalanceNQT(), amountNQT));
-    accountTable.insert(account);
+    Account.Balance accountBalance = getAccountBalance(account.getId());
+    accountBalance.setForgedBalanceNQT(Convert.safeAdd(accountBalance.getForgedBalanceNQT(), amountNQT));
+    accountBalanceTable.insert(accountBalance);
   }
 
   @Override
@@ -239,9 +253,11 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setBalanceNQT(Convert.safeAdd(account.getBalanceNQT(), amountNQT));
-    account.checkBalance();
-    accountTable.insert(account);
+    Account.Balance accountBalance = getAccountBalance(account.getId());
+
+    accountBalance.setBalanceNQT(Convert.safeAdd(accountBalance.getBalanceNQT(), amountNQT));
+    accountBalance.checkBalance();
+    accountBalanceTable.insert(accountBalance);
     listeners.notify(account, Event.BALANCE);
   }
 
@@ -250,9 +266,11 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setUnconfirmedBalanceNQT(Convert.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
-    account.checkBalance();
-    accountTable.insert(account);
+    Account.Balance accountBalance = getAccountBalance(account.getId());
+
+    accountBalance.setUnconfirmedBalanceNQT(Convert.safeAdd(accountBalance.getUnconfirmedBalanceNQT(), amountNQT));
+    accountBalance.checkBalance();
+    accountBalanceTable.insert(accountBalance);
     listeners.notify(account, Event.UNCONFIRMED_BALANCE);
   }
 
@@ -261,10 +279,12 @@ public class AccountServiceImpl implements AccountService {
     if (amountNQT == 0) {
       return;
     }
-    account.setBalanceNQT(Convert.safeAdd(account.getBalanceNQT(), amountNQT));
-    account.setUnconfirmedBalanceNQT(Convert.safeAdd(account.getUnconfirmedBalanceNQT(), amountNQT));
-    account.checkBalance();
-    accountTable.insert(account);
+    Account.Balance accountBalance = getAccountBalance(account.getId());
+
+    accountBalance.setBalanceNQT(Convert.safeAdd(accountBalance.getBalanceNQT(), amountNQT));
+    accountBalance.setUnconfirmedBalanceNQT(Convert.safeAdd(accountBalance.getUnconfirmedBalanceNQT(), amountNQT));
+    accountBalance.checkBalance();
+    accountBalanceTable.insert(accountBalance);
     listeners.notify(account, Event.BALANCE);
     listeners.notify(account, Event.UNCONFIRMED_BALANCE);
   }

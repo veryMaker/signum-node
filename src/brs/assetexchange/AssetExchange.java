@@ -24,16 +24,16 @@ public interface AssetExchange {
   int getTransferCount(long id);
 
   int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
-  
+
   long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury);
 
   void addTradeListener(Listener<Trade> listener, Event trade);
 
   Ask getAskOrder(long orderId);
 
-  void addAsset(Transaction transaction, ColoredCoinsAssetIssuance attachment);
+  void addAsset(long assetId, long accountId, ColoredCoinsAssetIssuance attachment);
 
-  void addAssetTransfer(Transaction transaction, ColoredCoinsAssetTransfer attachment);
+  void addAssetTransfer(Transaction transaction, long assetId, long quantityQNT);
 
   void addAskOrder(Transaction transaction, ColoredCoinsAskOrderPlacement attachment);
 

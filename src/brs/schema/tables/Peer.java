@@ -8,9 +8,6 @@ import brs.schema.Db;
 import brs.schema.Keys;
 import brs.schema.tables.records.PeerRecord;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Name;
@@ -87,17 +84,12 @@ public class Peer extends TableImpl<PeerRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public UniqueKey<PeerRecord> getPrimaryKey() {
         return Keys.KEY_PEER_PRIMARY;
-    }
-
-    @Override
-    public List<UniqueKey<PeerRecord>> getKeys() {
-        return Arrays.<UniqueKey<PeerRecord>>asList(Keys.KEY_PEER_PRIMARY);
     }
 
     @Override

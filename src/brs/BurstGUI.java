@@ -52,7 +52,6 @@ import jiconfont.swing.IconFontSwing;
 
 @SuppressWarnings("serial")
 public class BurstGUI extends JFrame {
-    private static final String ICON_LOCATION = "/images/signum_overlay_logo.png";
     private static final String FAILED_TO_START_MESSAGE = "Signum caught exception while starting";
     private static final String UNEXPECTED_EXIT_MESSAGE = "Signum Quit unexpectedly! Exit code ";
 
@@ -64,6 +63,7 @@ public class BurstGUI extends JFrame {
     private static String []args;
 
     private boolean userClosed = false;
+    private String iconLocation;
     private TrayIcon trayIcon = null;
     private JPanel toolBar = null;
     private JLabel infoLable = null;
@@ -74,7 +74,7 @@ public class BurstGUI extends JFrame {
     Color iconColor = Color.BLACK;
 
     public static void main(String []args) {
-        new BurstGUI("Signum Node", ICON_LOCATION, Burst.VERSION.toString(), args);
+        new BurstGUI("Signum Node", Props.ICON_LOCATION.getDefaultValue(), Burst.VERSION.toString(), args);
     }
 
     public BurstGUI(String programName, String iconLocation, String version, String []args) {
@@ -83,6 +83,7 @@ public class BurstGUI extends JFrame {
         this.programName = programName;
         this.version = version;
         setTitle(programName + " " + version);
+        this.iconLocation = iconLocation;
 
         Class<?> lafc = null;
         try {
@@ -158,7 +159,7 @@ public class BurstGUI extends JFrame {
         setSize(960, 600);
         setLocationRelativeTo(null);
         try {
-			setIconImage(ImageIO.read(getClass().getResourceAsStream(ICON_LOCATION)));
+			setIconImage(ImageIO.read(getClass().getResourceAsStream(iconLocation)));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -214,10 +215,15 @@ public class BurstGUI extends JFrame {
 
     private void shutdown() {
         userClosed = true;
-        if (trayIcon != null && SystemTray.isSupported()) {
-            SystemTray.getSystemTray().remove(trayIcon);
-        }
-        System.exit(0); // BRS shutdown handled by exit hook
+
+        new Thread(() -> {
+          Burst.shutdown(false);
+
+          if (trayIcon != null && SystemTray.isSupported()) {
+              SystemTray.getSystemTray().remove(trayIcon);
+          }
+          System.exit(0);
+        }).start();
     }
 
     private void showTrayIcon() {
@@ -280,7 +286,13 @@ public class BurstGUI extends JFrame {
     	getContentPane().validate();
 
     	try {
-    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(ICON_LOCATION)), "Signum Node", popupMenu);
+        String newIconLocation = Burst.getPropertyService().getString(Props.ICON_LOCATION);
+        if(!newIconLocation.equals(iconLocation)){
+          // update the icon
+          iconLocation = newIconLocation;
+          setIconImage(ImageIO.read(getClass().getResourceAsStream(iconLocation)));
+        }
+    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(iconLocation)), "Signum Node", popupMenu);
     		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
     		if(phoenixIndex.isFile() && phoenixIndex.exists()) {
     		  newTrayIcon.addActionListener(e -> openWebUi("/phoenix"));

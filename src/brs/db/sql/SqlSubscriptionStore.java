@@ -6,6 +6,8 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
+
+import org.jooq.BatchBindStep;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Query;
@@ -93,7 +95,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
     return ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
             .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true);
   }
-  
+
   private class SqlSubscription extends Subscription {
     SqlSubscription(Record record) {
       super(
@@ -105,6 +107,35 @@ public class SqlSubscriptionStore implements SubscriptionStore {
             record.get(SUBSCRIPTION.TIME_NEXT),
             subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID))
             );
+    }
+  }
+
+  @Override
+  public void saveSubscriptions(Collection<Subscription> subscriptions) {
+    if (!subscriptions.isEmpty()) {
+      Db.useDSLContext(ctx -> {
+
+        // remove the latest flag for past entries
+        ctx.batched(c -> {
+          for (Subscription s : subscriptions) {
+              c.dsl().update(SUBSCRIPTION)
+                     .set(SUBSCRIPTION.LATEST, false)
+                     .where(SUBSCRIPTION.ID.eq(s.id).and(SUBSCRIPTION.LATEST.isTrue()))
+                     .execute();
+          } });
+
+        BatchBindStep insertBatch = ctx.batch(
+            ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID,
+            SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
+                .values((Long) null, null, null, null, null, null, null, null));
+        for (Subscription subscription : subscriptions) {
+          insertBatch.bind(
+            subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency,
+            subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true
+          );
+        }
+        insertBatch.execute();
+      });
     }
   }
 }

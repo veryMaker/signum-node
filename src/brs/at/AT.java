@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -30,6 +31,7 @@ public class AT extends AtMachineState {
 
     private static final LinkedHashMap<Long, LinkedHashMap<Long, Long>> pendingFeesMap = new LinkedHashMap<>();
     private static final LinkedHashMap<Long, List<AtTransaction>> pendingTransactionsMap = new LinkedHashMap<>();
+    private static final LinkedHashMap<Long, List<AtMapEntry>> pendingEntryUpdatesMap = new LinkedHashMap<>();
     public final BurstKey dbKey;
     private final String name;
     private final String description;
@@ -59,13 +61,11 @@ public class AT extends AtMachineState {
         this.nextHeight = nextHeight;
     }
 
-    public static void clearPendingFees(int blockHeight, long generatorId) {
+    public static void clearPending(int blockHeight, long generatorId) {
         // using height+id as hash
         pendingFeesMap.remove(blockHeight + generatorId);
-    }
-
-    public static void clearPendingTransactions(int blockHeight, long generatorId) {
         pendingTransactionsMap.remove(blockHeight + generatorId);
+        pendingEntryUpdatesMap.remove(blockHeight + generatorId);
     }
 
     public static void addPendingFee(long id, long fee, int blockHeight, long generatorId) {
@@ -90,6 +90,19 @@ public class AT extends AtMachineState {
           pendingTransactionsMap.put(hash, pendingTransactions);
         }
         pendingTransactions.add(atTransaction);
+    }
+
+    public static void addMapUpdates(Collection<AtMapEntry> entries, int blockHeight, long generatorId) {
+      if(entries == null)
+        return;
+
+      long hash = blockHeight + generatorId;
+      List<AtMapEntry> pendingUpdates = pendingEntryUpdatesMap.get(hash);
+      if(pendingUpdates == null) {
+        pendingUpdates = new ArrayList<>();
+        pendingEntryUpdatesMap.put(hash, pendingUpdates);
+      }
+      pendingUpdates.addAll(entries);
     }
 
     public static boolean findPendingTransaction(byte[] recipientId, int blockHeight, long generatorId) {
@@ -145,7 +158,7 @@ public class AT extends AtMachineState {
         bf.get(creator, 0, 8);
 
         AT at = new AT(id, creator, name, description, creationBytes, height);
-        
+
         if(at.getApCodeHashId() == 0L)
           at.setApCodeHashId(atCodeHashId);
 
@@ -210,6 +223,18 @@ public class AT extends AtMachineState {
         atStateTable().insert(state);
     }
 
+    public static void saveMapUpdates(int blockHeight, long generatorId) {
+      long hash = blockHeight+generatorId;
+      List<AtMapEntry> updates = pendingEntryUpdatesMap.get(hash);
+      if(updates != null) {
+        VersionedEntityTable<AtMapEntry> table = Burst.getStores().getAtStore().getAtMapTable();
+        for(AtMapEntry e : updates) {
+          table.insert(e);
+        }
+        updates.clear();
+      }
+    }
+
     public String getName() {
         return name;
     }
@@ -224,12 +249,10 @@ public class AT extends AtMachineState {
 
     public static class HandleATBlockTransactionsListener implements Listener<Block> {
         private final AccountService accountService;
-        private final Blockchain blockchain;
         private final TransactionDb transactionDb;
 
-        public HandleATBlockTransactionsListener(AccountService accountService, Blockchain blockchain, TransactionDb transactionDb) {
+        public HandleATBlockTransactionsListener(AccountService accountService, TransactionDb transactionDb) {
             this.accountService = accountService;
-            this.blockchain = blockchain;
             this.transactionDb = transactionDb;
         }
 
@@ -249,29 +272,12 @@ public class AT extends AtMachineState {
             List<AtTransaction> pendingTransactions = pendingTransactionsMap.get(hash);
             if(pendingTransactions != null) {
               for (AtTransaction atTransaction : pendingTransactions) {
-                accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(AtApiHelper.getLong(atTransaction.getSenderId())), -atTransaction.getAmount());
-                accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.getRecipientId())), atTransaction.getAmount());
-
-                Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
-                        atTransaction.getAmount(), 0L, block.getTimestamp(), (short) 1440, Attachment.AT_PAYMENT);
-
-                builder.senderId(AtApiHelper.getLong(atTransaction.getSenderId()))
-                        .recipientId(AtApiHelper.getLong(atTransaction.getRecipientId()))
-                        .blockId(block.getId())
-                        .height(block.getHeight())
-                        .blockTimestamp(block.getTimestamp())
-                        .ecBlockHeight(0)
-                        .ecBlockId(0L);
-
-                byte[] message = atTransaction.getMessage();
-                if (message != null) {
-                    builder.message(new Appendix.Message(message, blockchain.getHeight()));
-                }
-
                 try {
-                    Transaction transaction = builder.build();
-                    if (!transactionDb.hasTransaction(transaction.getId())) {
-                        transactions.add(transaction);
+                    Transaction transaction = atTransaction.build(block);
+
+                    if (!transactionDb.hasTransaction(transaction.getIdCheckSignature(false))) {
+                      atTransaction.apply(accountService, transaction);
+                      transactions.add(transaction);
                     }
                 } catch (BurstException.NotValidException e) {
                     throw new RuntimeException("Failed to construct AT payment transaction", e);
@@ -371,5 +377,36 @@ public class AT extends AtMachineState {
         void setMinActivationAmount(long newMinActivationAmount) {
             this.minActivationAmount = newMinActivationAmount;
         }
+    }
+
+    public static class AtMapEntry {
+      private long atId;
+      private long key1;
+      private long key2;
+      private long value;
+
+      public AtMapEntry(long atId, long key1, long key2, long value) {
+        this.atId = atId;
+        this.key1 = key1;
+        this.key2 = key2;
+        this.value = value;
+      }
+
+      public long getValue() {
+        return value;
+      }
+      public void setValue(long value) {
+        this.value = value;
+      }
+      public long getAtId() {
+        return atId;
+      }
+      public long getKey1() {
+        return key1;
+      }
+      public long getKey2() {
+        return key2;
+      }
+
     }
 }

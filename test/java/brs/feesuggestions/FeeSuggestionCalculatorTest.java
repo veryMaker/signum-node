@@ -20,7 +20,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 
-import static brs.Constants.FEE_QUANT_CIP3;
+import static brs.Constants.FEE_QUANT_SIP3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,17 +43,17 @@ public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
   @Before
   public void setUp() {
     mockStatic(Burst.class);
-    
+
     blockchainProcessorMock = mock(BlockchainProcessor.class);
     unconfirmedTransactionStoreMock = mock(UnconfirmedTransactionStore.class);
-    
+
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
     when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
-    doReturn(Constants.FEE_QUANT_CIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
-    doReturn(Constants.FEE_QUANT_CIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
+    doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
+    doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     listenerArgumentCaptor = ArgumentCaptor.forClass(Listener.class);
-    when(blockchainProcessorMock.addListener(listenerArgumentCaptor.capture(), eq(Event.AFTER_BLOCK_APPLY))).thenReturn(true);    
+    when(blockchainProcessorMock.addListener(listenerArgumentCaptor.capture(), eq(Event.AFTER_BLOCK_APPLY))).thenReturn(true);
 
     t = new FeeSuggestionCalculator(blockchainProcessorMock, unconfirmedTransactionStoreMock);
   }
@@ -71,8 +71,8 @@ public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
     listenerArgumentCaptor.getValue().notify(mockBlock1);
 
     FeeSuggestion feeSuggestionOne = t.giveFeeSuggestion();
-    assertEquals(1 * FEE_QUANT_CIP3, feeSuggestionOne.getCheapFee());
-    assertEquals(2 * FEE_QUANT_CIP3, feeSuggestionOne.getStandardFee());
-    assertEquals(12 * FEE_QUANT_CIP3, feeSuggestionOne.getPriorityFee());
+    assertEquals(1 * FEE_QUANT_SIP3, feeSuggestionOne.getCheapFee());
+    assertEquals(2 * FEE_QUANT_SIP3, feeSuggestionOne.getStandardFee());
+    assertEquals(12 * FEE_QUANT_SIP3, feeSuggestionOne.getPriorityFee());
   }
 }

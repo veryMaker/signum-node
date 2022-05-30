@@ -376,6 +376,13 @@ interface AtApi {
      */
     long checkSha256AWithB(AtMachineState state);
 
+    /**
+     * bool if the signature attached as a message on tx id A1, page A2 can be verified for the [AT ID, B2..4] message.
+     * @param state
+     * @return bool if the signature described in A1 can be verified for B1..4
+     */
+    long checkSignBWithA(AtMachineState state);
+
     // end of range 0x02..0x02ff
 
     // range 0x03..0x03ff
@@ -433,6 +440,18 @@ interface AtApi {
 
     /**
      * @param state AT machine state
+     * @return the map value stored with keys in A (A1=key1, A2=key2, A3=at_id (optional, if 0 use the self id))
+     */
+    long getMapValueKeysInA(AtMachineState state);
+
+    /**
+     * @param state AT machine state
+     * @return store the value at A4 with keys in A1=key1 and A2=key2
+     */
+    void setMapValueKeysInA(AtMachineState state);
+
+    /**
+     * @param state AT machine state
      * @return bool if A is a valid tx with @addr to the tx timestamp
      */
     long getTimestampForTxInA(AtMachineState state);
@@ -460,11 +479,25 @@ interface AtApi {
     void bToAddressOfTxInA(AtMachineState state);
 
     /**
+     * bool if A is a valid tx with B set to the tx asset ids received
+     *
+     * @param state AT machine state
+     */
+    void bToAssetsOfTxInA(AtMachineState state);
+
+    /**
      * set B to the address of the AT's creator
      *
      * @param state AT machine state
      */
     void bToAddressOfCreator(AtMachineState state);
+
+    /**
+     * Return the AT's code hash ID (or for the one in B2 if B2!=0)
+     * @param state
+     * @return
+     */
+    long getCodeHashId(AtMachineState state);
 
     // end range 0x0300..0x03ff
     // ------------------------
@@ -517,6 +550,18 @@ interface AtApi {
      * @param state AT machine state
      */
     void sendAToAddressInB(AtMachineState state);
+
+    public long issueAsset(AtMachineState state);
+
+    public void mintAsset(AtMachineState state);
+
+    public void distToHolders(AtMachineState state);
+
+    public long getAssetHoldersCount(AtMachineState state);
+
+    public long getAssetCirculating(AtMachineState state);
+
+    public long getActivationFee(AtMachineState state);
 
     /**
      * $addr1 is timestamp calculated from $addr2

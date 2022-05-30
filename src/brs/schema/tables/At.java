@@ -160,12 +160,12 @@ public class At extends TableImpl<AtRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.AT_AT_AP_CODE_HASH_ID_INDEX, Indexes.AT_AT_CREATOR_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.AT_AT_AP_CODE_HASH_ID_INDEX, Indexes.AT_AT_CREATOR_ID_HEIGHT_IDX);
     }
 
     @Override
@@ -179,8 +179,8 @@ public class At extends TableImpl<AtRecord> {
     }
 
     @Override
-    public List<UniqueKey<AtRecord>> getKeys() {
-        return Arrays.<UniqueKey<AtRecord>>asList(Keys.KEY_AT_PRIMARY, Keys.KEY_AT_AT_ID_HEIGHT_IDX);
+    public List<UniqueKey<AtRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_AT_AT_ID_HEIGHT_IDX);
     }
 
     @Override

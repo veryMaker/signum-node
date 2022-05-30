@@ -6,12 +6,14 @@ package brs.schema;
 
 import brs.schema.tables.Account;
 import brs.schema.tables.AccountAsset;
+import brs.schema.tables.AccountBalance;
 import brs.schema.tables.Alias;
 import brs.schema.tables.AliasOffer;
 import brs.schema.tables.AskOrder;
 import brs.schema.tables.Asset;
 import brs.schema.tables.AssetTransfer;
 import brs.schema.tables.At;
+import brs.schema.tables.AtMap;
 import brs.schema.tables.AtState;
 import brs.schema.tables.BidOrder;
 import brs.schema.tables.Block;
@@ -62,6 +64,11 @@ public class Db extends SchemaImpl {
     public final AccountAsset ACCOUNT_ASSET = AccountAsset.ACCOUNT_ASSET;
 
     /**
+     * The table <code>DB.account_balance</code>.
+     */
+    public final AccountBalance ACCOUNT_BALANCE = AccountBalance.ACCOUNT_BALANCE;
+
+    /**
      * The table <code>DB.alias</code>.
      */
     public final Alias ALIAS = Alias.ALIAS;
@@ -90,6 +97,11 @@ public class Db extends SchemaImpl {
      * The table <code>DB.at</code>.
      */
     public final At AT = At.AT;
+
+    /**
+     * The table <code>DB.at_map</code>.
+     */
+    public final AtMap AT_MAP = AtMap.AT_MAP;
 
     /**
      * The table <code>DB.at_state</code>.
@@ -191,15 +203,17 @@ public class Db extends SchemaImpl {
 
     @Override
     public final List<Table<?>> getTables() {
-        return Arrays.<Table<?>>asList(
+        return Arrays.asList(
             Account.ACCOUNT,
             AccountAsset.ACCOUNT_ASSET,
+            AccountBalance.ACCOUNT_BALANCE,
             Alias.ALIAS,
             AliasOffer.ALIAS_OFFER,
             AskOrder.ASK_ORDER,
             Asset.ASSET,
             AssetTransfer.ASSET_TRANSFER,
             At.AT,
+            AtMap.AT_MAP,
             AtState.AT_STATE,
             BidOrder.BID_ORDER,
             Block.BLOCK,
@@ -216,6 +230,7 @@ public class Db extends SchemaImpl {
             Subscription.SUBSCRIPTION,
             Trade.TRADE,
             Transaction.TRANSACTION,
-            UnconfirmedTransaction.UNCONFIRMED_TRANSACTION);
+            UnconfirmedTransaction.UNCONFIRMED_TRANSACTION
+        );
     }
 }

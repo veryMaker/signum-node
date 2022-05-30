@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.bouncycastle.util.encoders.Hex;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -137,9 +136,10 @@ public final class ParameterParser {
 
   public static long getRecipientId(HttpServletRequest req) throws ParameterException {
     String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
-    if (recipientValue == null
-        || (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN) && Parameters.isZero(recipientValue))
-        ) {
+    if (recipientValue == null ||  Parameters.isZero(recipientValue)) {
+      if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)){
+        return 0L;
+      }
       throw new ParameterException(MISSING_RECIPIENT);
     }
     long recipientId;
@@ -148,12 +148,12 @@ public final class ParameterParser {
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
-    if (recipientId == 0 && !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+    if (recipientId == 0) {
       throw new ParameterException(INCORRECT_RECIPIENT);
     }
     return recipientId;
   }
-  
+
   static String getRecipientPublicKey(HttpServletRequest req) throws ParameterException {
     String recipientPublicKeyValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PUBLIC_KEY_PARAMETER));
     if(recipientPublicKeyValue == null) {
@@ -227,12 +227,17 @@ public final class ParameterParser {
     try {
       String creationBytes = req.getParameter(CREATION_BYTES_PARAMETER);
       if(creationBytes == null) {
-        // Check the body for the creationBytes as an alternative
-        creationBytes = req.getReader().readLine();
-        creationBytes = creationBytes.replace("\"", "");
+        // Check the body for the creationBytes as an optional alternative
+        try {
+          creationBytes = req.getReader().readLine();
+          creationBytes = creationBytes.replace("\"", "");
+        }
+        catch (Exception ignored){
+          return null;
+        }
       }
       return Convert.parseHexString(creationBytes);
-    } catch (RuntimeException | IOException e) {
+    } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_CREATION_BYTES);
     }
   }
@@ -262,7 +267,7 @@ public final class ParameterParser {
     }
     return amountNQT;
   }
-  
+
   public static byte getByte(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
     String retString = Convert.emptyToNull(req.getParameter(param));
     if (retString == null && checkMissing) {
@@ -276,7 +281,7 @@ public final class ParameterParser {
       throw new ParameterException(JSONResponses.incorrect(param));
     }
   }
-  
+
   public static long getLong(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
     String retString = Convert.emptyToNull(req.getParameter(param));
     if (retString == null && checkMissing) {
@@ -288,7 +293,7 @@ public final class ParameterParser {
       throw new ParameterException(JSONResponses.incorrect(param));
     }
   }
-  
+
   public static byte[] getByteArray(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
     try {
       String stringValue = req.getParameter(param);
@@ -298,13 +303,13 @@ public final class ParameterParser {
       if(stringValue == null) {
         return null;
       }
-      
+
       return Convert.parseHexString(stringValue);
     } catch (RuntimeException e) {
       throw new ParameterException(JSONResponses.incorrect(param));
     }
   }
-  
+
   public static String getString(HttpServletRequest req, String param, boolean checkMissing) throws ParameterException {
     String stringValue = req.getParameter(param);
     if(stringValue == null && checkMissing) {

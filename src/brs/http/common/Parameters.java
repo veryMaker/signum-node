@@ -18,6 +18,8 @@ public final class Parameters {
   public static final String GOODS_PARAMETER = "goods";
   public static final String ORDER_PARAMETER = "order";
   public static final String QUANTITY_PARAMETER = "quantity";
+  public static final String ASSET_IDS_PARAMETER = "assetIds";
+  public static final String QUANTITIES_QNT_PARAMETER = "quantitiesQNT";
   public static final String ENCRYPTED_MESSAGE_DATA_PARAMETER = "encryptedMessageData";
   public static final String ENCRYPTED_MESSAGE_NONCE_PARAMETER = "encryptedMessageNonce";
   public static final String MESSAGE_TO_ENCRYPT_PARAMETER = "messageToEncrypt";
@@ -53,6 +55,8 @@ public final class Parameters {
   public static final String DESCRIPTION_PARAMETER = "description";
   public static final String FREQUENCY_PARAMETER = "frequency";
   public static final String AT_PARAMETER = "at";
+  public static final String KEY1_PARAMETER = "key1";
+  public static final String KEY2_PARAMETER = "key2";
   public static final String MACHINE_CODE_HASH_ID_PARAMETER = "machineCodeHashId";
   public static final String INCLUDE_DETAILS_PARAMETER = "includeDetails";
   public static final String CREATION_BYTES_PARAMETER = "creationBytes";

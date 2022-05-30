@@ -35,12 +35,12 @@ public abstract class AtController {
 
         state.setFreeze(false);
 
-        long stepFee = AtConstants.getInstance().stepFee(state.getCreationBlockHeight());
+        long stepFee = AtConstants.getInstance().stepFee(state.getVersion());
 
         int numSteps = 0;
 
         while (state.getMachineState().steps +
-                (numSteps = getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getCreationBlockHeight()))
+                (numSteps = processor.getNumSteps(state.getApCode().get(state.getMachineState().pc), state.getIndirectsCount()))
                 <= AtConstants.getInstance().maxSteps(state.getHeight())) {
 
             if ((state.getgBalance() < stepFee * numSteps)) {
@@ -82,13 +82,6 @@ public abstract class AtController {
         }
 
         return 5;
-    }
-
-    private static int getNumSteps(byte op, int height) {
-        if (op >= 0x32 && op < 0x38)
-            return (int) AtConstants.getInstance().apiStepMultiplier(height);
-
-        return 1;
     }
 
     public static void resetMachine(AtMachineState state) {
@@ -144,22 +137,22 @@ public abstract class AtController {
             b.getShort(); //future: reserved for future needs
 
             short codePages = b.getShort();
-            if (codePages > instance.maxMachineCodePages(height) || codePages < minCodePages) {
+            if (codePages > instance.maxMachineCodePages(version) || codePages < minCodePages) {
                 throw new AtException(AtError.INCORRECT_CODE_PAGES.getDescription());
             }
 
             short dataPages = b.getShort();
-            if (dataPages > instance.maxMachineDataPages(height) || dataPages < 0) {
+            if (dataPages > instance.maxMachineDataPages(version) || dataPages < 0) {
                 throw new AtException(AtError.INCORRECT_DATA_PAGES.getDescription());
             }
 
             short callStackPages = b.getShort();
-            if (callStackPages > instance.maxMachineCallStackPages(height) || callStackPages < 0) {
+            if (callStackPages > instance.maxMachineCallStackPages(version) || callStackPages < 0) {
                 throw new AtException(AtError.INCORRECT_CALL_PAGES.getDescription());
             }
 
             short userStackPages = b.getShort();
-            if (userStackPages > instance.maxMachineUserStackPages(height) || userStackPages < 0) {
+            if (userStackPages > instance.maxMachineUserStackPages(version) || userStackPages < 0) {
                 throw new AtException(AtError.INCORRECT_USER_PAGES.getDescription());
             }
 
@@ -167,6 +160,9 @@ public abstract class AtController {
             b.getLong();
 
             int codeLen = getLength(codePages, b);
+            if (codeLen == 0 && codePages == 1 && version > 2) {
+                codeLen = 256;
+            }
             if (codeLen < minCodePages || codeLen > codePages * 256) {
                 throw new AtException(AtError.INCORRECT_CODE_LENGTH.getDescription());
             }
@@ -174,6 +170,9 @@ public abstract class AtController {
             b.get(code, 0, codeLen);
 
             int dataLen = getLength(dataPages, b);
+            if (dataLen == 0 && dataPages == 1 && b.capacity() - b.position() == 256 && version > 2) {
+                dataLen = 256;
+            }
             if (dataLen < 0 || dataLen > dataPages * 256) {
                 throw new AtException(AtError.INCORRECT_DATA_LENGTH.getDescription());
             }
@@ -213,7 +212,7 @@ public abstract class AtController {
         return codeLen;
     }
 
-    public static AtBlock getCurrentBlockATs(int freePayload, int blockHeight, long generatorId) {
+    public static AtBlock getCurrentBlockATs(int freePayload, int blockHeight, long generatorId, int indirectsCount) {
         List<Long> orderedATs = AT.getOrderedATs();
         Iterator<Long> keys = orderedATs.iterator();
 
@@ -227,6 +226,7 @@ public abstract class AtController {
         while (payload <= freePayload - costOfOneAT && keys.hasNext()) {
             Long id = keys.next();
             AT at = AT.getAT(id);
+            at.addIndirectsCount(indirectsCount);
 
             long atAccountBalance = getATAccountBalance(id);
             long atStateBalance = at.getgBalance();
@@ -235,17 +235,18 @@ public abstract class AtController {
                 continue;
             }
 
-            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.getCreationBlockHeight())
-                    * AtConstants.getInstance().apiStepMultiplier(at.getCreationBlockHeight())) {
+            if (atAccountBalance >= AtConstants.getInstance().stepFee(at.getVersion())
+                    * AtConstants.getInstance().apiStepMultiplier(at.getVersion())) {
                 try {
                     at.setgBalance(atAccountBalance);
                     at.setHeight(blockHeight);
-                    at.clearTransactions();
+                    at.clearLists();
                     at.setWaitForNumberOfBlocks(at.getSleepBetween());
                     listCode(at, true, true);
                     runSteps(at);
+                    indirectsCount = at.getIndirectsCount();
 
-                    long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
+                    long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getVersion());
                     if (at.getMachineState().dead) {
                         fee += at.getgBalance();
                         at.setgBalance(0L);
@@ -300,13 +301,13 @@ public abstract class AtController {
             AT at = AT.getAT(atId);
             logger.debug("Running AT {}", Convert.toUnsignedLong(atIdLong));
             try {
-                at.clearTransactions();
+                at.clearLists();
                 at.setHeight(blockHeight);
                 at.setWaitForNumberOfBlocks(at.getSleepBetween());
 
                 long atAccountBalance = getATAccountBalance(atIdLong);
-                if (atAccountBalance < AtConstants.getInstance().stepFee(at.getCreationBlockHeight())
-                        * AtConstants.getInstance().apiStepMultiplier(at.getCreationBlockHeight())) {
+                if (atAccountBalance < AtConstants.getInstance().stepFee(at.getVersion())
+                        * AtConstants.getInstance().apiStepMultiplier(at.getVersion())) {
                     throw new AtException("AT has insufficient balance to run");
                 }
 
@@ -324,7 +325,7 @@ public abstract class AtController {
 
                 runSteps(at);
 
-                long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getCreationBlockHeight());
+                long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getVersion());
                 if (at.getMachineState().dead) {
                     fee += at.getgBalance();
                     at.setgBalance(0L);
@@ -357,6 +358,7 @@ public abstract class AtController {
         for (AT at : processedATs) {
             at.saveState();
         }
+        AT.saveMapUpdates(blockHeight, generatorId);
 
         return new AtBlock(totalFee, totalAmount, new byte[1]);
     }
@@ -430,15 +432,17 @@ public abstract class AtController {
             totalAmount += tx.getAmount();
             AT.addPendingTransaction(tx, blockHeight, generatorId);
             if (logger.isDebugEnabled()) {
-                logger.debug("Transaction to {}, amount {}", Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
+                logger.debug("Transaction to {}, amount {}", tx.getRecipientId() == null ? 0L : Convert.toUnsignedLong(AtApiHelper.getLong(tx.getRecipientId())), tx.getAmount());
             }
         }
+        AT.addMapUpdates(at.getMapUpdates(), blockHeight, generatorId);
+
         return totalAmount;
     }
 
     //platform based
     private static long getATAccountBalance(Long id) {
-        Account atAccount = Account.getAccount(id);
+        Account.Balance atAccount = Account.getAccountBalance(id);
 
         if (atAccount != null) {
             return atAccount.getBalanceNQT();

@@ -17,6 +17,8 @@ public interface AccountService {
 
   Account getAccount(long id);
 
+  Account.Balance getAccountBalance(long id);
+
   Account getAccount(long id, int height);
   
   Account getNullAccount();

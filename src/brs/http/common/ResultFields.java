@@ -52,6 +52,8 @@ public class ResultFields {
   public static final String NUMBER_OF_TRANSACTIONS_RESPONSE = "numberOfTransactions";
   public static final String TOTAL_AMOUNT_NQT_RESPONSE = "totalAmountNQT";
   public static final String TOTAL_FEE_NQT_RESPONSE = "totalFeeNQT";
+  public static final String TOTAL_FEE_CASH_BACK_NQT_RESPONSE = "totalFeeCashBackNQT";
+  public static final String TOTAL_FEE_BURNT_NQT_RESPONSE = "totalFeeBurntNQT";
   public static final String BLOCK_REWARD_RESPONSE = "blockReward";
   public static final String BLOCK_REWARD_NQT_RESPONSE = "blockRewardNQT";
   public static final String LAST_BLOCK_REWARD_RESPONSE = "lastBlockReward";
@@ -87,6 +89,7 @@ public class ResultFields {
   public static final String TAGS_RESPONSE = "tags";
   public static final String DELISTED_RESPONSE = "delisted";
   public static final String ASSET_IDS_RESPONSE = "assetIds";
+  public static final String QUANTITIES_QNT_RESPONSE = "quantitiesQNT";
   public static final String PURCHASE_RESPONSE = "purchase";
   public static final String BUYER_RESPONSE = "buyer";
   public static final String DELIVERY_DEADLINE_TIMESTAMP_RESPONSE = "deliveryDeadlineTimestamp";
@@ -118,6 +121,7 @@ public class ResultFields {
   public static final String SIGNERS_RESPONSE = "signers";
   public static final String ATS_RESPONSE = "ats";
   public static final String AT_IDS_RESPONSE = "atIds";
+  public static final String VALUE_RESPONSE = "value";
   public static final String TRADES_RESPONSE = "trades";
   public static final String ASK_ORDER_RESPONSE = "askOrder";
   public static final String BID_ORDER_RESPONSE = "bidOrder";
@@ -133,6 +137,7 @@ public class ResultFields {
   public static final String ATTACHMENT_BYTES_RESPONSE = "attachmentBytes";
   public static final String EC_BLOCK_ID_RESPONSE = "ecBlockId";
   public static final String EC_BLOCK_HEIGHT_RESPONSE = "ecBlockHeight";
+  public static final String CASH_BACK_ID_RESPONSE = "cashBackId";
   public static final String FREQUENCY_RESPONSE = "frequency";
   public static final String TIME_NEXT_RESPONSE = "timeNext";
   public static final String BLOCK_IDS_RESPONSE = "blockIds";

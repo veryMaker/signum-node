@@ -45,8 +45,8 @@ public class TransactionDuplicatesCheckerImplTest {
     BlockchainImpl mockBlockchain = mock(BlockchainImpl.class);
     when(mockBlockchain.getHeight()).thenReturn(4);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);
-    
-    doReturn(Constants.FEE_QUANT_CIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
+
+    doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
 
     TransactionType.init(mockBlockchain, mockFluxCapacitor, null, null, null, null, null, null);
 

@@ -20,32 +20,41 @@ public class FluxValues {
     public static final FluxEnable POC_PLUS = new FluxEnable(HistoricalMoments.POC_PLUS);
     public static final FluxEnable SPEEDWAY = new FluxEnable(HistoricalMoments.SPEEDWAY);
     public static final FluxEnable SMART_TOKEN = new FluxEnable(HistoricalMoments.SMART_TOKEN);
+    public static final FluxEnable SMART_FEES = new FluxEnable(HistoricalMoments.SMART_FEES);
+    public static final FluxEnable SMART_ATS = new FluxEnable(HistoricalMoments.SMART_ATS);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
     public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
     public static final FluxValue<Long> FEE_QUANT = new FluxValue<>(
         Constants.ONE_BURST,
-        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, Constants.FEE_QUANT_CIP3));
-    public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1, new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2));
+        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, Constants.FEE_QUANT_SIP3),
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_FEES, Constants.FEE_QUANT_SIP34)
+        );
+    public static final FluxValue<Short> AT_VERSION = new FluxValue<>((short) 1,
+      new FluxValue.ValueChange<>(HistoricalMoments.SODIUM, (short) 2),
+      new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, (short) 3)
+    );
 
     public static final FluxValue<Integer> MAX_NUMBER_TRANSACTIONS = new FluxValue<>(
         255,
-        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 4));
+        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 4),
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_FEES, 255 * 4 * 2));
     public static final FluxValue<Integer> MAX_PAYLOAD_LENGTH = new FluxValue<>(
         255 * 176,
-        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 176 * 4));
+        new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, 255 * 176 * 4),
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_FEES, 255 * (176 + 8) * 4 * 2));
 
     public static final FluxValue<Long> MIN_CAPACITY = new FluxValue<>(
         1000L);
     public static final FluxValue<Integer> COMMITMENT_WAIT = new FluxValue<>(
         Constants.COMMITMENT_WAIT,
-        new FluxValue.ValueChange<>(HistoricalMoments.NEXT_FORK, Constants.MAX_ROLLBACK));
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, Constants.MAX_ROLLBACK));
     public static final FluxValue<Long> AVERAGE_COMMITMENT_WINDOW = new FluxValue<>(
         24L,
         new FluxValue.ValueChange<>(HistoricalMoments.SPEEDWAY, 96L));
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
-        Version.parse("3.2.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.SMART_TOKEN, Version.parse("3.3.0-alpha4"))
+        Version.parse("3.3.0"),
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, Version.parse("3.4.0"))
         );
 }

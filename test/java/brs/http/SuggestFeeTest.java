@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.Constants.FEE_QUANT_CIP3;
+import static brs.Constants.FEE_QUANT_SIP3;
 import static brs.http.common.ResultFields.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -34,9 +34,9 @@ public class SuggestFeeTest {
   public void processRequest() throws BurstException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
-    final long cheap = 1 * FEE_QUANT_CIP3;
-    final long standard = 5 * FEE_QUANT_CIP3;
-    final long priority = 10 * FEE_QUANT_CIP3;
+    final long cheap = 1 * FEE_QUANT_SIP3;
+    final long standard = 5 * FEE_QUANT_SIP3;
+    final long priority = 10 * FEE_QUANT_SIP3;
     final FeeSuggestion feeSuggestion = new FeeSuggestion(cheap, standard, priority);
 
     when(feeSuggestionCalculator.giveFeeSuggestion()).thenReturn(feeSuggestion);

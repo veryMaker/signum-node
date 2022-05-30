@@ -7,12 +7,17 @@
 
 package brs.at;
 
+import java.math.BigInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
+import brs.Asset;
 import brs.Burst;
+import brs.TransactionType;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 
 class AtMachineProcessor {
 
@@ -35,6 +40,45 @@ class AtMachineProcessor {
         }
 
         return 0;
+    }
+
+    public int getNumSteps(byte op, int indirectsCount) {
+      int height = machineData.getCreationBlockHeight();
+      short version = machineData.getVersion();
+      if (op >= OpCode.E_OP_CODE_EXT_FIRST && op < OpCode.E_OP_CODE_EXT_LAST){
+          if (version > 2){
+            // special cases
+            if(op == OpCode.E_OP_CODE_EXT_FUN_RET){
+              if(getFunAddr() == 0 && getFuncNum() == OpCode.ISSUE_ASSET){
+                return (int) (AtConstants.getInstance().apiStepMultiplier(version) * TransactionType.BASELINE_ASSET_ISSUANCE_FACTOR);
+              }
+            }
+            if(op == OpCode.E_OP_CODE_EXT_FUN){
+              if(getFunAddr() == 0 && getFuncNum() == OpCode.DIST_TO_ASSET_HOLDERS){
+                int steps = (int) AtConstants.getInstance().apiStepMultiplier(version);
+
+                long minHolding = AtApiHelper.getLong(machineData.getB1());
+                long assetId = AtApiHelper.getLong(machineData.getB2());
+                Asset asset = Burst.getAssetExchange().getAsset(assetId);
+                int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+                int holdersCount = 0;
+
+                if(asset != null) {
+                  holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+                  if(indirectsCount + holdersCount <= maxIndirects){
+                    // distribution actually takes place only if we are not over the limit
+                    steps += holdersCount;
+                  }
+                }
+
+                return steps;
+              }
+            }
+          }
+          return (int) AtConstants.getInstance().apiStepMultiplier(version);
+      }
+
+      return 1;
     }
 
     private int getAddr(boolean isCode) {
@@ -112,7 +156,11 @@ class AtMachineProcessor {
         return 0;
     }
 
-    private int getFunAddr() {
+    protected short getFuncNum(){
+      return fun.fun;
+    }
+
+    protected int getFunAddr() {
         if (machineData.getMachineState().pc + 4 + 4 >= machineData.getcSize()) {
             return -1;
         }
@@ -402,11 +450,16 @@ class AtMachineProcessor {
                                                            String.format("%8s", fun.addr2).replace(' ', '0'),
                                                            String.format("%8s", fun.addr3).replace(' ', '0'));
                 } else {
-                        int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
+                      int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
                                          + machineData.getApData().getLong(fun.addr3 * 8) );
+                      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                        rc = -1;
+                      }
+                      else {
                         machineData.getApData().putLong(fun.addr1 * 8, machineData.getApData().getLong(addr * 8));
                         machineData.getMachineState().pc += rc;
                         machineData.getApData().clear();
+                      }
                 }
             }
           }
@@ -551,11 +604,16 @@ class AtMachineProcessor {
                                                            String.format("%8s", fun.addr2).replace(' ', '0'),
                                                            String.format("%8s", fun.addr3).replace(' ', '0'));
                 } else {
-                        int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
+                      int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
                                         + machineData.getApData().getLong(fun.addr2 * 8));
+                      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                        rc = -1;
+                      }
+                      else {
                         machineData.getApData().putLong(addr * 8, machineData.getApData().getLong( fun.addr3 * 8));
                         machineData.getMachineState().pc += rc;
                         machineData.getApData().clear();
+                      }
                 }
             }
           }
@@ -611,7 +669,63 @@ class AtMachineProcessor {
                     }
                 }
             }
-        } else if (op == OpCode.E_OP_CODE_SHL_DAT || op == OpCode.E_OP_CODE_SHR_DAT) {
+        }
+        else if (op == OpCode.E_OP_CODE_POW_DAT && machineData.getVersion() > 2){
+          rc = getAddrs();
+
+          if (rc == 0 || disassemble) {
+              rc = 9;
+              if (disassemble) {
+                  if (!determineJumps && logger.isDebugEnabled()) {
+                    logger.debug("POW @{} ${}", String.format("%8x", fun.addr1).replace(' ', '0'), String.format("%8x", fun.addr2).replace(' ', '0'));
+                  }
+              } else {
+                  machineData.getMachineState().pc += rc;
+                  double val = machineData.getApData().getLong(fun.addr1 * 8);
+                  double exp1_0000_0000 = machineData.getApData().getLong(fun.addr2 * 8);
+                  long result = 0L;
+
+                  if(val > 0){
+                    double doubleResult = Math.pow(val, exp1_0000_0000 / 1_0000_0000.0);
+                    if (!Double.isNaN(doubleResult) && doubleResult < Long.MAX_VALUE){
+                      result = (long)doubleResult;
+                    }
+                  }
+                  machineData.getApData().putLong(fun.addr1 * 8, result);
+              }
+          }
+        }
+        else if (op == OpCode.E_OP_CODE_MDV_DAT && machineData.getVersion() > 2){
+          rc = get3Addrs();
+
+          if (rc == 0 || disassemble) {
+              rc = 13;
+              if (disassemble) {
+                  if (!determineJumps && logger.isDebugEnabled()) {
+                    logger.debug("MDV @{} ${}", String.format("%8x", fun.addr1).replace(' ', '0'), String.format("%8x", fun.addr2).replace(' ', '0'));
+                  }
+              } else {
+                  machineData.getMachineState().pc += rc;
+                  long x = machineData.getApData().getLong(fun.addr1 * 8);
+                  long y = machineData.getApData().getLong(fun.addr2 * 8);
+                  long den = machineData.getApData().getLong(fun.addr3 * 8);
+
+                  long result = 0L;
+                  if(den != 0L){
+                    try{
+                      BigInteger bigResult = BigInteger.valueOf(x).multiply(BigInteger.valueOf(y)).divide(BigInteger.valueOf(den));
+                      result = bigResult.longValue();
+                    }
+                    catch(ArithmeticException ignored){
+                      // result will be 0L
+                    }
+                  }
+
+                  machineData.getApData().putLong(fun.addr1 * 8, result);
+              }
+          }
+        }
+        else if (op == OpCode.E_OP_CODE_SHL_DAT || op == OpCode.E_OP_CODE_SHR_DAT) {
             rc = getAddrs();
 
             if (rc == 0 || disassemble) {
@@ -808,7 +922,12 @@ class AtMachineProcessor {
             } else {
                 machineData.getMachineState().pc += rc;
                 machineData.getMachineState().stopped = true;
-                machineData.setFreeze(true);
+                if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight())) {
+                  machineData.setWaitForNumberOfBlocks(0);
+                }
+                else {
+                  machineData.setFreeze(true);
+                }
             }
 
         } else if (op == OpCode.E_OP_CODE_SET_PCS) {

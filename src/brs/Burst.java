@@ -41,12 +41,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.3.4");
+  public static final Version VERSION = Version.parse("v3.4.0");
   public static final String APPLICATION = "BRS";
 
   public static final String CONF_FOLDER = "./conf";
@@ -81,6 +82,7 @@ public final class Burst {
   private static BlockchainProcessorImpl blockchainProcessor;
   private static TransactionProcessorImpl transactionProcessor;
   private static TransactionService transactionService;
+  private static AssetExchange assetExchange;
 
   private static PropertyService propertyService;
   private static FluxCapacitor fluxCapacitor;
@@ -88,6 +90,8 @@ public final class Burst {
   private static DBCacheManagerImpl dbCacheManager;
 
   private static API api;
+
+  private static AtomicBoolean shuttingdown = new AtomicBoolean(false);
 
   private static PropertyService loadProperties(String confFolder) {
     logger.info("Initializing Signum Node version {}", VERSION);
@@ -129,6 +133,10 @@ public final class Burst {
 
   public static TransactionService getTransactionService() {
     return transactionService;
+  }
+
+  public static AssetExchange getAssetExchange() {
+    return assetExchange;
   }
 
   public static Stores getStores() {
@@ -239,7 +247,7 @@ public final class Burst {
       final DGSGoodsStoreService digitalGoodsStoreService = new DGSGoodsStoreServiceImpl(blockchain, stores.getDigitalGoodsStoreStore(), accountService);
       final EscrowService escrowService = new EscrowServiceImpl(stores.getEscrowStore(), blockchain, aliasService, accountService);
 
-      final AssetExchange assetExchange = new AssetExchangeImpl(accountService, stores.getTradeStore(), stores.getAccountStore(), stores.getAssetTransferStore(), stores.getAssetStore(), stores.getOrderStore());
+      assetExchange = new AssetExchangeImpl(accountService, stores.getTradeStore(), stores.getAccountStore(), stores.getAssetTransferStore(), stores.getAssetStore(), stores.getOrderStore());
 
       final IndirectIncomingService indirectIncomingService = new IndirectIncomingServiceImpl(stores.getIndirectIncomingStore(), propertyService);
 
@@ -258,7 +266,7 @@ public final class Burst {
       final ParameterService parameterService = new ParameterServiceImpl(accountService, aliasService, assetExchange,
           digitalGoodsStoreService, blockchain, blockchainProcessor, transactionProcessor, atService);
 
-      addBlockchainListeners(blockchainProcessor, accountService, digitalGoodsStoreService, blockchain, dbs.getTransactionDb());
+      addBlockchainListeners(blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService, blockchain, dbs.getTransactionDb());
 
       final APITransactionManager apiTransactionManager = new APITransactionManagerImpl(parameterService, transactionProcessor, blockchain, accountService, transactionService);
 
@@ -298,10 +306,10 @@ public final class Burst {
     (new Thread(Burst::commandHandler)).start();
   }
 
-  private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, DGSGoodsStoreService goodsService, Blockchain blockchain,
+  private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, AssetExchange assetExchange, DGSGoodsStoreService goodsService, Blockchain blockchain,
       TransactionDb transactionDb) {
 
-    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, blockchain, transactionDb);
+    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, transactionDb);
     final DGSGoodsStoreServiceImpl.ExpiredPurchaseListener devNullListener = new DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(accountService, goodsService);
 
     blockchainProcessor.addListener(handleATBlockTransactionListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
@@ -338,16 +346,22 @@ public final class Burst {
   }
 
   public static void shutdown(boolean ignoreDBShutdown) {
-    logger.info("Shutting down...");
+    if(!shuttingdown.get()){
+      logger.info("Shutting down...");
+      logger.info("Do not force exit or kill the node process.");
+    }
+
     if (api != null)
       api.shutdown();
     if (threadPool != null) {
       Peers.shutdown(threadPool);
       threadPool.shutdown();
     }
-    if(! ignoreDBShutdown) {
+    if(! ignoreDBShutdown && !shuttingdown.get()) {
+      shuttingdown.set(true);
       Db.shutdown();
     }
+
     if (dbCacheManager != null)
       dbCacheManager.close();
     if (blockchainProcessor != null && blockchainProcessor.getOclVerify()) {

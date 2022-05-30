@@ -243,7 +243,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   public Transaction parseTransaction(JsonObject transactionData) throws BurstException.NotValidException {
     return Transaction.parseTransaction(transactionData, blockchain.getHeight());
   }
-    
+
   @Override
   public void clearUnconfirmedTransactions() {
     synchronized (unconfirmedTransactionsSyncObj) {
@@ -274,7 +274,13 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public int getTransactionVersion(int previousBlockHeight) {
-    return Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
+    if(Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight)){
+      if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, previousBlockHeight)){
+        return 2;
+      }
+      return 1;
+    }
+    return 0;
   }
 
   // Watch: This is not really clean
@@ -293,9 +299,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 	  if (blockchain.getLastBlock().getTimestamp() < timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
       return new ArrayList<>();
     }
-    if (blockchain.getHeight() <= Constants.NQT_BLOCK) {
-      return new ArrayList<>();
-    }
+
     List<Transaction> transactions = new ArrayList<>();
     for (JsonElement transactionData : transactionsData) {
       try {
@@ -335,9 +339,6 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
           try {
             stores.beginTransaction();
-            if (blockchain.getHeight() < Constants.NQT_BLOCK) {
-              break; // not ready to process transactions
-            }
 
             if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || unconfirmedTransactionStore.exists(transaction.getId())) {
               stores.commitTransaction();

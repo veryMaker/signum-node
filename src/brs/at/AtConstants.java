@@ -51,11 +51,11 @@ public class AtConstants {
 
         // constants for AT version 2
         MIN_FEE.put((short) 2, 1000L);
-        STEP_FEE.put((short) 2, Constants.FEE_QUANT_CIP3 / 10L);
+        STEP_FEE.put((short) 2, Constants.FEE_QUANT_SIP3 / 10L);
         MAX_STEPS.put((short) 2, 100_000L);
         API_STEP_MULTIPLIER.put((short) 2, 10L);
 
-        COST_PER_PAGE.put((short) 2, Constants.FEE_QUANT_CIP3 * 10);
+        COST_PER_PAGE.put((short) 2, Constants.FEE_QUANT_SIP3 * 10);
 
         MAX_WAIT_FOR_NUM_OF_BLOCKS.put((short) 2, 31536000L);
         MAX_SLEEP_BETWEEN_BLOCKS.put((short) 2, 31536000L);
@@ -70,6 +70,28 @@ public class AtConstants {
         BLOCKS_FOR_RANDOM.put((short) 2, 15L); //for testing 2 -> normally 1440
         AVERAGE_BLOCK_MINUTES.put((short) 2, 4L);
         // end of AT version 2
+
+        // constants for AT version 3
+        MIN_FEE.put((short) 3, 1000L);
+        STEP_FEE.put((short) 3, Constants.FEE_QUANT_SIP34 / 10L);
+        MAX_STEPS.put((short) 3, 100_000L);
+        API_STEP_MULTIPLIER.put((short) 3, 10L);
+
+        COST_PER_PAGE.put((short) 3, Constants.FEE_QUANT_SIP34 * 10);
+
+        MAX_WAIT_FOR_NUM_OF_BLOCKS.put((short) 3, 31536000L);
+        MAX_SLEEP_BETWEEN_BLOCKS.put((short) 3, 31536000L);
+
+        PAGE_SIZE.put((short) 3, 256L);
+
+        MAX_MACHINE_CODE_PAGES.put((short) 3, 40L);
+        MAX_MACHINE_DATA_PAGES.put((short) 3, 10L);
+        MAX_MACHINE_USER_STACK_PAGES.put((short) 3, 10L);
+        MAX_MACHINE_CALL_STACK_PAGES.put((short) 3, 10L);
+
+        BLOCKS_FOR_RANDOM.put((short) 3, 15L); //for testing 2 -> normally 1440
+        AVERAGE_BLOCK_MINUTES.put((short) 3, 4L);
+        // end of AT version 3
     }
 
     public static AtConstants getInstance() {
@@ -80,8 +102,8 @@ public class AtConstants {
         return Burst.getFluxCapacitor().getValue(FluxValues.AT_VERSION, blockHeight);
     }
 
-    public long stepFee(int height) {
-        return STEP_FEE.get(atVersion(height));
+    public long stepFee(short version) {
+        return STEP_FEE.get(version);
     }
 
     public long maxSteps(int height) {
@@ -91,8 +113,8 @@ public class AtConstants {
         return MAX_STEPS.get(atVersion(height));
     }
 
-    public long apiStepMultiplier(int height) {
-        return API_STEP_MULTIPLIER.get(atVersion(height));
+    public long apiStepMultiplier(short version) {
+        return API_STEP_MULTIPLIER.get(version);
     }
 
     public long costPerPage(int height) {
@@ -107,24 +129,24 @@ public class AtConstants {
         return MAX_SLEEP_BETWEEN_BLOCKS.get(atVersion(height));
     }
 
-    public long pageSize(int height) {
-        return PAGE_SIZE.get(atVersion(height));
+    public long pageSize(short version) {
+        return PAGE_SIZE.get(version);
     }
 
-    public long maxMachineCodePages(int height) {
-        return MAX_MACHINE_CODE_PAGES.get(atVersion(height));
+    public long maxMachineCodePages(short version) {
+        return MAX_MACHINE_CODE_PAGES.get(version);
     }
 
-    public long maxMachineDataPages(int height) {
-        return MAX_MACHINE_DATA_PAGES.get(atVersion(height));
+    public long maxMachineDataPages(short version) {
+        return MAX_MACHINE_DATA_PAGES.get(atVersion(version));
     }
 
-    public long maxMachineUserStackPages(int height) {
-        return MAX_MACHINE_USER_STACK_PAGES.get(atVersion(height));
+    public long maxMachineUserStackPages(short version) {
+        return MAX_MACHINE_USER_STACK_PAGES.get(atVersion(version));
     }
 
-    public long maxMachineCallStackPages(int height) {
-        return MAX_MACHINE_CALL_STACK_PAGES.get(atVersion(height));
+    public long maxMachineCallStackPages(short version) {
+        return MAX_MACHINE_CALL_STACK_PAGES.get(atVersion(version));
     }
 
     public long blocksForRandom(int height) {

@@ -130,12 +130,12 @@ public class AskOrder extends TableImpl<AskOrderRecord> {
 
     @Override
     public Schema getSchema() {
-        return Db.DB;
+        return aliased() ? null : Db.DB;
     }
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.ASK_ORDER_ASK_ORDER_ACCOUNT_ID_IDX, Indexes.ASK_ORDER_ASK_ORDER_ASSET_ID_PRICE_IDX, Indexes.ASK_ORDER_ASK_ORDER_CREATION_IDX);
+        return Arrays.asList(Indexes.ASK_ORDER_ASK_ORDER_ACCOUNT_ID_IDX, Indexes.ASK_ORDER_ASK_ORDER_ASSET_ID_PRICE_IDX, Indexes.ASK_ORDER_ASK_ORDER_CREATION_IDX);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class AskOrder extends TableImpl<AskOrderRecord> {
     }
 
     @Override
-    public List<UniqueKey<AskOrderRecord>> getKeys() {
-        return Arrays.<UniqueKey<AskOrderRecord>>asList(Keys.KEY_ASK_ORDER_PRIMARY, Keys.KEY_ASK_ORDER_ASK_ORDER_ID_HEIGHT_IDX);
+    public List<UniqueKey<AskOrderRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ASK_ORDER_ASK_ORDER_ID_HEIGHT_IDX);
     }
 
     @Override

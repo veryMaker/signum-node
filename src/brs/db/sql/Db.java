@@ -136,7 +136,7 @@ public final class Db {
       throw new RuntimeException(e.toString(), e);
     }
   }
-  
+
   public static void clean() {
     try {
       flyway.clean();
@@ -167,10 +167,16 @@ public final class Db {
   }
 
   public static void shutdown() {
+    if (cp == null || cp.isClosed() ) {
+      return;
+    }
     if (dialect == SQLDialect.H2) {
-      try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
+      try{
+        Connection con = cp.getConnection();
+        Statement stmt = con.createStatement();
         // COMPACT is not giving good result.
         if(Burst.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+          logger.info("H2 defragmentation started, this can take a while");
           stmt.execute("SHUTDOWN DEFRAG");
         } else {
           stmt.execute("SHUTDOWN");
@@ -187,7 +193,7 @@ public final class Db {
       cp.close();
     }
   }
-  
+
   public static void backup(String filename) {
     if (dialect == SQLDialect.H2) {
       logger.info("Database backup to {} started, it might take a while.", filename);

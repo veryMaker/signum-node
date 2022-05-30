@@ -146,7 +146,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
     when(transaction.getId()).thenReturn(transactionId);
 
     ColoredCoinsAssetIssuance attachment = mock(ColoredCoinsAssetIssuance.class);
-    t.addAsset(transaction, attachment);
+    t.addAsset(transaction.getId(), transaction.getSenderId(), attachment);
 
     verify(assetTableMock).insert(savedAssetCaptor.capture());
 

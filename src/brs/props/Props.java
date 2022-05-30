@@ -1,19 +1,23 @@
 package brs.props;
 
 import brs.Burst;
+import brs.Constants;
+import brs.Genesis;
+import brs.util.Convert;
 
 public class Props {
-  
+
   public static final Prop<String> APPLICATION = new Prop<>("node.application", Burst.APPLICATION);
   public static final Prop<String> VERSION = new Prop<>("node.version", Burst.VERSION.toString());
-  
+
   // Structural parameters
   public static final Prop<Integer> BLOCK_TIME = new Prop<>("node.blockTime", 240);
   public static final Prop<Integer> DECIMAL_PLACES = new Prop<>("node.decimalPlaces", 8);
   public static final Prop<Integer> ONE_COIN_NQT = new Prop<>("node.coinFactor", 100_000_000);
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
-  public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", "Signum");
-  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", "3444294670862540038");
+  public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", Constants.SIGNUM_NETWORK_NAME);
+  public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));
+  public static final Prop<Integer> GENESIS_TIMESTAMP = new Prop<>("node.genesisTimestamp", 0);
   public static final Prop<String> ADDRESS_PREFIX = new Prop<>("node.addressPrefix", "S");
   public static final Prop<String> VALUE_SUFIX = new Prop<>("node.valueSuffix", "SIGNA");
   public static final Prop<Boolean> EXPERIMENTAL = new Prop<>("node.experimental", false);
@@ -23,14 +27,18 @@ public class Props {
   public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("node.blockRewardCycle", 95);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("node.blockLimitHeight", 972_000);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("node.blockLimitAmount", 100);
-  
+
+  // Transaction fee cash back options
+  public static final Prop<String> CASH_BACK_ID = new Prop<>("node.cashBackId", "8952122635653861124");
+  public static final Prop<Integer> CASH_BACK_FACTOR = new Prop<>("node.cashBackFactor", 4);
+
   public static final Prop<String> NETWORK_PARAMETERS = new Prop<>("node.network", null);
 
   // DEV options
   public static final Prop<Boolean> DEV_OFFLINE = new Prop<>("DEV.Offline", false);
   public static final Prop<Integer> DEV_TIMEWARP    = new Prop<>("DEV.TimeWarp", 1);
   public static final Prop<Boolean> DEV_MOCK_MINING = new Prop<>("DEV.mockMining", false);
-  public static final Prop<Integer> DEV_MOCK_MINING_DEADLINE = new Prop<>("DEV.mockMining.deadline", 10);
+  public static final Prop<Integer> DEV_MOCK_MINING_DEADLINE = new Prop<>("DEV.mockMining.deadline", 0);
 
   public static final Prop<String> DEV_DUMP_PEERS_VERSION = new Prop<>("DEV.dumpPeersVersion", "");
 
@@ -47,7 +55,9 @@ public class Props {
   public static final Prop<Integer> POC_PLUS_HEIGHT = new Prop<>("brs.pocPlus.startBlock", -1);
   public static final Prop<Integer> SPEEDWAY_HEIGHT = new Prop<>("brs.speedway.startBlock", -1);
   public static final Prop<Integer> SMART_TOKEN_HEIGHT = new Prop<>("brs.smartToken.startBlock", -1);
-  
+  public static final Prop<Integer> SMART_FEES_HEIGHT = new Prop<>("brs.smartFees.startBlock", -1);
+  public static final Prop<Integer> SMART_ATS_HEIGHT = new Prop<>("brs.smartAts.startBlock", -1);
+
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
@@ -60,8 +70,10 @@ public class Props {
   public static final Prop<Integer> BRS_COMMUNICATION_LOGGING_MASK = new Prop<>("brs.communicationLoggingMask", 0);
 
   public static final Prop<Integer> BRS_SHUTDOWN_TIMEOUT = new Prop<>("node.shutdownTimeout", 180);
-  
+
   public static final Prop<Integer> MAX_INDIRECTS_PER_BLOCK = new Prop<>("node.maxIndirectsPerBlock", 1_200_000);
+
+  public static final Prop<String> ICON_LOCATION = new Prop<>("node.iconLocation", "/images/signum_overlay_logo.png");
 
   // Checkpoint block for faster sync from empty database
   public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("node.checkPointHeight", 970_000);
@@ -92,7 +104,7 @@ public class Props {
 
   public static final Prop<Boolean> BRS_TEST_UNCONFIRMED_TRANSACTIONS = new Prop<>("brs.testUnconfirmedTransactions", false);
 
-  public static final Prop<Boolean> DB_H2_DEFRAG_ON_SHUTDOWN = new Prop<>("Db.H2.DefragOnShutdown", false);
+  public static final Prop<Boolean> DB_H2_DEFRAG_ON_SHUTDOWN = new Prop<>("Db.H2.DefragOnShutdown", true);
 
   public static final Prop<Integer> BRS_BLOCK_CACHE_MB = new Prop<>("node.blockCacheMB", 40);
 

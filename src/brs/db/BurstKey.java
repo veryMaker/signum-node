@@ -23,4 +23,8 @@ public interface BurstKey {
   interface LinkKeyFactory<T> extends Factory<T> {
     BurstKey newKey(long idA, long idB);
   }
+  
+  interface LinkKey3Factory<T> extends Factory<T> {
+    BurstKey newKey(long idA, long idB, long idC);
+  }
 }

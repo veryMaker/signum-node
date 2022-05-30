@@ -170,18 +170,26 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkAIsZero(AtMachineState state) {
-        return isZero(state.getA1())
+        boolean result = isZero(state.getA1())
                 && isZero(state.getA2())
                 && isZero(state.getA3())
-                && isZero(state.getA4()) ? 0 : 1; // TODO why return long?!
+                && isZero(state.getA4());
+        if(state.getVersion() > 2){
+          return result ? 1 : 0;
+        }
+        return result ? 0 : 1;
     }
 
     @Override
     public long checkBIsZero(AtMachineState state) {
-        return isZero(state.getB1())
+        boolean result = isZero(state.getB1())
                 && isZero(state.getB2())
                 && isZero(state.getB3())
-                && isZero(state.getB4()) ? 0 : 1; // TODO why return long?!
+                && isZero(state.getB4());
+        if(state.getVersion() > 2){
+          return result ? 1 : 0;
+        }
+        return result ? 0 : 1;
     }
 
     public long checkAEqualsB(AtMachineState state) {
@@ -645,6 +653,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public long checkSignBWithA(AtMachineState state) {
+      return platform.checkSignBWithA(state);
+    }
+
+    @Override
     public long getBlockTimestamp(AtMachineState state) {
         return platform.getBlockTimestamp(state);
 
@@ -683,6 +696,16 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public long getMapValueKeysInA(AtMachineState state) {
+        return platform.getMapValueKeysInA(state);
+    }
+
+    @Override
+    public void setMapValueKeysInA(AtMachineState state) {
+        platform.setMapValueKeysInA(state);
+    }
+
+    @Override
     public long getTimestampForTxInA(AtMachineState state) {
         return platform.getTimestampForTxInA(state);
     }
@@ -704,9 +727,18 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public void bToAssetsOfTxInA(AtMachineState state) {
+        platform.bToAssetsOfTxInA(state);
+    }
+
+    @Override
     public void bToAddressOfCreator(AtMachineState state) {
         platform.bToAddressOfCreator(state);
+    }
 
+    @Override
+    public long getCodeHashId(AtMachineState state) {
+        return platform.getCodeHashId(state);
     }
 
     @Override
@@ -774,5 +806,35 @@ public class AtApiImpl implements AtApi {
         state.setB2(AtApiHelper.getByteArray(shab.getLong(8)));
         state.setB3(AtApiHelper.getByteArray(shab.getLong(16)));
         state.setB4(AtApiHelper.getByteArray(shab.getLong(24)));
+    }
+
+    @Override
+    public long issueAsset(AtMachineState state) {
+      return platform.issueAsset(state);
+    }
+
+    @Override
+    public void mintAsset(AtMachineState state) {
+      platform.mintAsset(state);
+    }
+
+    @Override
+    public void distToHolders(AtMachineState state) {
+      platform.distToHolders(state);
+    }
+
+    @Override
+    public long getAssetHoldersCount(AtMachineState state) {
+      return platform.getAssetHoldersCount(state);
+    }
+
+    @Override
+    public long getAssetCirculating(AtMachineState state) {
+      return platform.getAssetCirculating(state);
+    }
+
+    @Override
+    public long getActivationFee(AtMachineState state) {
+      return platform.getActivationFee(state);
     }
 }
