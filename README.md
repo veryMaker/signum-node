@@ -95,7 +95,7 @@ In order to receive the 25% cashback on the fees for transactions created by you
 own account ID in the configuration file:
 
 ```properties
-# node.cashBackId = 8952122635653861124
+node.cashBackId = 8952122635653861124
 ```
 Note: the example ID above `8952122635653861124` is the [SNA](https://www.sna.signum.network/) account.
 
@@ -151,16 +151,6 @@ If you run the minimum requirement you can turn off the `indirectIncomingService
 ## but are not the direct recipient eg. Multi-Outs.
 node.indirectIncomingService.enable = false
 ```
-
-## Upgrade from 3.2.1 to 3.3.0 or higher
-
-If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup need **no** adjustments.
-
- 1. Install the new Signum-node as described above
- 2. Setup your config file `node.properties` as described above
- 3. Move the existing H2 file from the folder `/burst_db` to a new folder `/db` 
- 4. Rename the current name of the DB file from `burst.h2.mv.db`to `signum.mv.db`
- 5. Start the node
 
 
 ## Testnet
