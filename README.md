@@ -84,9 +84,20 @@ Starting with the release version 3.3.0 and higher the concept of the config fil
 To run the node for mainnet with the default options, no configuration change is needed.
 
 All default/recommended parameters are defined in code by the Signum Node but you can overwrite the parameter within the config file to suit your needs.
-The default values for the available settings are shown in the config file as commented out. 
+The default values for the available settings are shown in the `conf/node-default.properties` file as commented out. 
 
 ### Configuration Hints
+
+**Configure your cash-back**
+
+As an incentive for users to run their own full nodes, [SIP-35](https://github.com/signum-network/SIPs/blob/master/SIP/sip-35.md) introduced the concept of fee *cash-back*.
+In order to receive the 25% cashback on the fees for transactions created by your node, set your
+own account ID in the configuration file:
+
+```properties
+# node.cashBackId = 8952122635653861124
+```
+Note: the example ID above `8952122635653861124` is the [SNA](https://www.sna.signum.network/) account.
 
 **H2/MariaDB**
 
