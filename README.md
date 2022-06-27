@@ -20,10 +20,17 @@ The two supported database backends are:
 
 ## Network Specification
 
-- 4 minute block time
+- Block time is 4 minutes 
+- Block size is 375,360 byte
+- Minimum transaction size is 184 bytes
+- Minimum network fee is 0.01 Signa
+- TPS is 16
+- STPS is up to 5,000 [STPS](https://docs.signum.network/signum#ny-smart-layer-10)
+- Maximum 1,200,000 balance changes per block
 - Total Supply: [2,138,119,200 SIGNA up to block 972k + 100 SIGNA per block after that](https://github.com/signum-network/CIPs/blob/master/cip-0029.md)
-- Block reward starts at 10,000/block
-- Block reward decreases at 5% each month with a minimum mining incentive of 100 SIGNA per block
+- Block reward started at 10,000/block in 2014
+- Block reward decreased at 5% each month with a minimum mining incentive of 100 SIGNA per block
+- Automated burning of subscription interval payment fees and smart contract step fees from block 1,029,000 [SIP-36](https://github.com/signum-network/SIPs/blob/master/SIP/sip-36.md)
 
 ## Features
 
@@ -84,9 +91,22 @@ Starting with the release version 3.3.0 and higher the concept of the config fil
 To run the node for mainnet with the default options, no configuration change is needed.
 
 All default/recommended parameters are defined in code by the Signum Node but you can overwrite the parameter within the config file to suit your needs.
-The default values for the available settings are shown in the config file as commented out. 
+The default values for the available settings are shown in the `conf/node-default.properties` file as commented out. 
 
 ### Configuration Hints
+
+**Configure your cash-back**
+
+As an incentive for users to run their own full nodes, [SIP-35](https://github.com/signum-network/SIPs/blob/master/SIP/sip-35.md) introduced the concept of fee *cash-back*.
+In order to receive the 25% cashback on the fees for transactions created by your node, set your
+own account ID in the configuration file:
+
+```properties
+node.cashBackId = 8952122635653861124
+```
+Note: the example ID above `8952122635653861124` is the [SNA](https://www.sna.signum.network/) account.
+
+The cash-back is paid from block 1,029,000.
 
 **H2/MariaDB**
 
@@ -140,16 +160,6 @@ If you run the minimum requirement you can turn off the `indirectIncomingService
 ## but are not the direct recipient eg. Multi-Outs.
 node.indirectIncomingService.enable = false
 ```
-
-## Upgrade from 3.2.1 to 3.3.0 or higher
-
-If you run a Signum node with a version of 3.2.1 you need to do the following steps to keep your current H2 database. Nodes with a MariaDB setup need **no** adjustments.
-
- 1. Install the new Signum-node as described above
- 2. Setup your config file `node.properties` as described above
- 3. Move the existing H2 file from the folder `/burst_db` to a new folder `/db` 
- 4. Rename the current name of the DB file from `burst.h2.mv.db`to `signum.mv.db`
- 5. Start the node
 
 
 ## Testnet
