@@ -64,11 +64,13 @@ public final class JSONData {
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
     json.addProperty(MINTABLE_RESPONSE, asset.getMintable());
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQNT()));
-    json.addProperty(QUANTITY_CIRCULATING_QNT_RESPONSE, String.valueOf(circulatingSupply));
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(asset.getId()));
-    json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount);
-    json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount);
-    json.addProperty(NUMBER_OF_ACCOUNTS_RESPONSE, assetAccountsCount);
+    if(assetAccountsCount >= 0){
+      json.addProperty(QUANTITY_CIRCULATING_QNT_RESPONSE, String.valueOf(circulatingSupply));
+      json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount);
+      json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount);
+      json.addProperty(NUMBER_OF_ACCOUNTS_RESPONSE, assetAccountsCount);
+    }
     return json;
   }
 
@@ -382,7 +384,7 @@ public final class JSONData {
     json.addProperty(BLOCK_TIMESTAMP_RESPONSE, transaction.getBlockTimestamp());
     return json;
   }
-  
+
   public static JsonObject indirect(IndirectIncoming indirectIncoming, int currentBlockchainHeight) {
     JsonObject json = new JsonObject();
     json.addProperty(AMOUNT_NQT_RESPONSE, String.valueOf(indirectIncoming.getAmount()));
