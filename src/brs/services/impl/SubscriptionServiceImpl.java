@@ -185,7 +185,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   private void apply(Block block, int blockchainHeight, Subscription subscription) {
     Account sender = accountService.getAccount(subscription.getSenderId());
-    Account recipient = accountService.getAccount(subscription.getRecipientId());
+    Account recipient = accountService.getOrAddAccount(subscription.getRecipientId());
 
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(block.getHeight()));
 

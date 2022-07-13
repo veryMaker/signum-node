@@ -18,7 +18,7 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
   private final AssetExchange assetExchange;
 
   public GetAllAssets(AssetExchange assetExchange) {
-    super(new APITag[] {APITag.AE}, assetExchange, QUANTITY_MININUM_QNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
+    super(new APITag[] {APITag.AE}, assetExchange, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
     this.assetExchange = assetExchange;
   }
 
@@ -27,11 +27,10 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
   JsonElement processRequest(HttpServletRequest req) {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
-    long minimumQuantity = Convert.parseUnsignedLong(req.getParameter(QUANTITY_MININUM_QNT_PARAMETER));
 
     JsonObject response = new JsonObject();
 
-    response.add(ASSETS_RESPONSE, assetsToJson(assetExchange.getAllAssets(firstIndex, lastIndex).iterator(), minimumQuantity));
+    response.add(ASSETS_RESPONSE, assetsToJson(assetExchange.getAllAssets(firstIndex, lastIndex).iterator(), -1));
 
     return response;
   }
