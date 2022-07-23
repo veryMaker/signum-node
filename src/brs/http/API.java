@@ -36,7 +36,8 @@ public final class API {
 
   private static final Logger logger = LoggerFactory.getLogger(API.class);
 
-  private static final String API_PATH = "/burst";
+  private static final String LEGACY_API_PATH = "/burst";
+  private static final String API_PATH = "/api";
   public static final String API_TEST_PATH = "/api-doc";
 
   private final Server apiServer;
@@ -139,9 +140,7 @@ public final class API {
       // soLingerTime
       apiServer.addConnector(connector);
 
-      HandlerList apiHandlers = new HandlerList();
-
-      ServletContextHandler apiHandler = new ServletContextHandler();
+      ServletContextHandler servletContextHandler = new ServletContextHandler();
       String apiResourceBase = propertyService.getString(Props.API_UI_DIR);
       if (apiResourceBase != null) {
         ServletHolder defaultServletHolder = new ServletHolder(new DefaultServlet());
@@ -150,8 +149,20 @@ public final class API {
         defaultServletHolder.setInitParameter("welcomeServlets", "true");
         defaultServletHolder.setInitParameter("redirectWelcome", "true");
         defaultServletHolder.setInitParameter("gzip", "true");
-        apiHandler.addServlet(defaultServletHolder, "/*");
-        apiHandler.setWelcomeFiles(new String[]{"index.html"});
+        servletContextHandler.addServlet(defaultServletHolder, "/*");
+        servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
+      }
+
+      Boolean apiDocResourceBase = propertyService.getBoolean(Props.API_DOCS_ENABLED);
+      if (apiDocResourceBase) {
+        ServletHolder defaultServletHolder = new ServletHolder(new DefaultServlet());
+        defaultServletHolder.setInitParameter("resourceBase",    "html");
+        defaultServletHolder.setInitParameter("dirAllowed",      "false");
+        defaultServletHolder.setInitParameter("welcomeServlets", "true");
+        defaultServletHolder.setInitParameter("redirectWelcome", "true");
+        defaultServletHolder.setInitParameter("gzip", "true");
+        servletContextHandler.addServlet(defaultServletHolder, "/api-doc-v2/*");
+        servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
       }
 
       APIServlet apiServlet = new APIServlet(transactionProcessor, blockchain, blockchainProcessor, parameterService,
@@ -160,35 +171,25 @@ public final class API {
               apiTransactionManager, feeSuggestionCalculator, deepLinkQRCodeGenerator, indirectIncomingService,
               allowedBotHosts, params);
       ServletHolder apiServletHolder = new ServletHolder(apiServlet);
-      apiHandler.addServlet(apiServletHolder, API_PATH);
+      servletContextHandler.addServlet(apiServletHolder, API_PATH);
+      servletContextHandler.addServlet(apiServletHolder, LEGACY_API_PATH);
 
       if (propertyService.getBoolean(Props.JETTY_API_DOS_FILTER)) {
-        FilterHolder dosFilterHolder = apiHandler.addFilter(DoSFilter.class, API_PATH, null);
-        dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
-        dosFilterHolder.setInitParameter("throttledRequests", propertyService.getString(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS));
-        dosFilterHolder.setInitParameter("delayMs",           propertyService.getString(Props.JETTY_API_DOS_FILTER_DELAY_MS));
-        dosFilterHolder.setInitParameter("maxWaitMs",         propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_WAIT_MS));
-        dosFilterHolder.setInitParameter("maxRequestMs",      propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_MS));
-        dosFilterHolder.setInitParameter("maxthrottleMs",     propertyService.getString(Props.JETTY_API_DOS_FILTER_THROTTLE_MS));
-        dosFilterHolder.setInitParameter("maxIdleTrackerMs",  propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_IDLE_TRACKER_MS));
-        dosFilterHolder.setInitParameter("trackSessions",     propertyService.getString(Props.JETTY_API_DOS_FILTER_TRACK_SESSIONS));
-        dosFilterHolder.setInitParameter("insertHeaders",     propertyService.getString(Props.JETTY_API_DOS_FILTER_INSERT_HEADERS));
-        dosFilterHolder.setInitParameter("remotePort",        propertyService.getString(Props.JETTY_API_DOS_FILTER_REMOTE_PORT));
-        dosFilterHolder.setInitParameter("ipWhitelist",       propertyService.getString(Props.JETTY_API_DOS_FILTER_IP_WHITELIST));
-        dosFilterHolder.setInitParameter("managedAttr",       propertyService.getString(Props.JETTY_API_DOS_FILTER_MANAGED_ATTR));
-        dosFilterHolder.setAsyncSupported(true);
+        addDOSFilterToServlet(LEGACY_API_PATH, servletContextHandler, propertyService);
+        addDOSFilterToServlet(API_PATH, servletContextHandler, propertyService);
       }
 
-      apiHandler.addServlet(new ServletHolder(new APITestServlet(apiServlet, allowedBotHosts, propertyService.getString(Props.NETWORK_NAME))), API_TEST_PATH);
+      servletContextHandler.addServlet(new ServletHolder(new APITestServlet(apiServlet, allowedBotHosts, propertyService.getString(Props.NETWORK_NAME))), API_TEST_PATH);
 
+      HandlerList apiHandlers = new HandlerList();
       if (propertyService.getBoolean(Props.JETTY_API_GZIP_FILTER)) {
         GzipHandler gzipHandler = new GzipHandler();
         gzipHandler.setIncludedMethodList("GET,POST");
         gzipHandler.setMinGzipSize(propertyService.getInt(Props.JETTY_API_GZIP_FILTER_MIN_GZIP_SIZE));
-        gzipHandler.setHandler(apiHandler);
+        gzipHandler.setHandler(servletContextHandler);
         apiHandlers.addHandler(gzipHandler);
       } else {
-        apiHandlers.addHandler(apiHandler);
+        apiHandlers.addHandler(servletContextHandler);
       }
 
       apiServer.setHandler(apiHandlers);
@@ -210,6 +211,23 @@ public final class API {
       logger.info("API server not enabled");
     }
 
+  }
+
+  private void addDOSFilterToServlet(String path, ServletContextHandler servletContextHandler, PropertyService propertyService){
+    FilterHolder dosFilterHolder = servletContextHandler.addFilter(DoSFilter.class, path, null);
+    dosFilterHolder.setInitParameter("maxRequestsPerSec", propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_PER_SEC));
+    dosFilterHolder.setInitParameter("throttledRequests", propertyService.getString(Props.JETTY_API_DOS_FILTER_THROTTLED_REQUESTS));
+    dosFilterHolder.setInitParameter("delayMs",           propertyService.getString(Props.JETTY_API_DOS_FILTER_DELAY_MS));
+    dosFilterHolder.setInitParameter("maxWaitMs",         propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_WAIT_MS));
+    dosFilterHolder.setInitParameter("maxRequestMs",      propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_REQUEST_MS));
+    dosFilterHolder.setInitParameter("maxthrottleMs",     propertyService.getString(Props.JETTY_API_DOS_FILTER_THROTTLE_MS));
+    dosFilterHolder.setInitParameter("maxIdleTrackerMs",  propertyService.getString(Props.JETTY_API_DOS_FILTER_MAX_IDLE_TRACKER_MS));
+    dosFilterHolder.setInitParameter("trackSessions",     propertyService.getString(Props.JETTY_API_DOS_FILTER_TRACK_SESSIONS));
+    dosFilterHolder.setInitParameter("insertHeaders",     propertyService.getString(Props.JETTY_API_DOS_FILTER_INSERT_HEADERS));
+    dosFilterHolder.setInitParameter("remotePort",        propertyService.getString(Props.JETTY_API_DOS_FILTER_REMOTE_PORT));
+    dosFilterHolder.setInitParameter("ipWhitelist",       propertyService.getString(Props.JETTY_API_DOS_FILTER_IP_WHITELIST));
+    dosFilterHolder.setInitParameter("managedAttr",       propertyService.getString(Props.JETTY_API_DOS_FILTER_MANAGED_ATTR));
+    dosFilterHolder.setAsyncSupported(true);
   }
 
   private void letsencryptToPkcs12(String letsencryptPath, String p12File, String password) throws Exception {

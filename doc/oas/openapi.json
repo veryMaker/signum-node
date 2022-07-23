@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Signum Node API",
+    "version": "1.0",
+    "x-logo": {
+      "url": ""
+    },
+    "description": "This is the API documentation of the Signum Node server"
+  },
+  "paths": {
+    "/burst?requestType=getAccount": {
+      "summary": "Gets Data of an Account",
+      "get": {
+        "tags": [
+          "account"
+        ]
+      },
+      "x-last-modified": 1658609256486,
+      "parameters": [
+        {
+          "name": "account",
+          "in": "query",
+          "required": false,
+          "deprecated": false,
+          "allowEmptyValue": false,
+          "x-last-modified": 1658609084684
+        },
+        {
+          "name": "height",
+          "in": "query",
+          "description": "Allows to see the requested accounts situation at the given block height",
+          "required": false,
+          "deprecated": false,
+          "x-last-modified": 1658608889954,
+          "allowEmptyValue": false
+        },
+        {
+          "name": "getCommittedAmount",
+          "in": "query",
+          "required": false,
+          "deprecated": false,
+          "schema": {
+            "type": "boolean"
+          },
+          "allowEmptyValue": false,
+          "x-last-modified": 1658608999496
+        }
+      ]
+    }
+  },
+  "components": {
+    "securitySchemes": {},
+    "schemas": {},
+    "headers": {},
+    "responses": {},
+    "parameters": {
+      "account": {
+        "name": "Account Id or Account Address",
+        "in": "query",
+        "required": true,
+        "deprecated": false,
+        "allowEmptyValue": false,
+        "x-last-modified": 1658608731962
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "account",
+      "description": "account",
+      "externalDocs": {},
+      "x-last-modified": 1658609186642
+    },
+    {
+      "name": "contract",
+      "description": "contract",
+      "externalDocs": {},
+      "x-last-modified": 1658609194772
+    },
+    {
+      "name": "token",
+      "description": "token",
+      "externalDocs": {},
+      "x-last-modified": 1658609198333
+    },
+    {
+      "name": "util",
+      "description": "util",
+      "externalDocs": {},
+      "x-last-modified": 1658609203058
+    },
+    {
+      "name": "admin",
+      "description": "admin",
+      "externalDocs": {},
+      "x-last-modified": 1658609205106
+    },
+    {
+      "name": "block",
+      "description": "block",
+      "externalDocs": {},
+      "x-last-modified": 1658609210866
+    },
+    {
+      "name": "transaction",
+      "description": "transaction",
+      "externalDocs": {},
+      "x-last-modified": 1658609230287
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.example.io",
+      "description": "",
+      "variables": {},
+      "x-last-modified": 1658609176787
+    }
+  ],
+  "security": []
+}

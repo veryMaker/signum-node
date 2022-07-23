@@ -153,6 +153,7 @@ public class Props {
   public static final Prop<String> API_LISTEN  = new Prop<>("API.Listen", "127.0.0.1");
 
   public static final Prop<String> API_UI_DIR  = new Prop<>("API.UI_Dir", "html/ui");
+  public static final Prop<Boolean> API_DOCS_ENABLED  = new Prop<>("API.EnableDocs", true);
   public static final Prop<String> API_SSL_KEY_STORE_PATH     = new Prop<>("API.SSL_keyStorePath", "keystore");
   public static final Prop<String> API_SSL_KEY_STORE_PASSWORD = new Prop<>("API.SSL_keyStorePassword", "password");
   public static final Prop<String> API_SSL_LETSENCRYPT_PATH = new Prop<>("API.SSL_letsencryptPath", "");
