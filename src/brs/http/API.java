@@ -161,7 +161,7 @@ public final class API {
         defaultServletHolder.setInitParameter("welcomeServlets", "true");
         defaultServletHolder.setInitParameter("redirectWelcome", "true");
         defaultServletHolder.setInitParameter("gzip", "true");
-        servletContextHandler.addServlet(defaultServletHolder, "/api-doc-v2/*");
+        servletContextHandler.addServlet(defaultServletHolder, "/doc/*");
         servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
       }
 
