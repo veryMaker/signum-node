@@ -1,0 +1,30 @@
+{
+  "description": "Error Response - Error Responses always come with a HTTP Status Code 200. ",
+  "content": {
+    "application/json": {
+      "schema": {
+        "type": "object",
+        "required": [
+          "errorCode",
+          "errorDescription"
+        ],
+        "example": {
+          "errorCode": 5,
+          "errorDescription": "Unknown account",
+          "requestProcessingTime": 2
+        },
+        "properties": {
+          "errorDescription": {
+            "type": "string",
+            "description": "The error message indicating what the issue is"
+          },
+          "errorCode": {
+            "type": "integer",
+            "description": "The internal error code"
+          }
+        },
+        "description": "The generic error response object. Keep in mind that the API is returning always HTTP status code 200, even on errors."
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "string",
+  "description": "The amount is always returned in Planck, that is Signa multiplied by 10E8",
+  "pattern": "^\\d+$",
+  "example": [
+    "100000000"
+  ]
+}

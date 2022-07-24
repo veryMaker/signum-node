@@ -1,0 +1,250 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Signum Node API",
+    "version": "1.0",
+    "description": "This is the API documentation of the Signum Node",
+    "x-logo": {
+      "url": ""
+    }
+  },
+  "paths": {
+    "/api?requestType=getAccount": {
+      "get": {
+        "summary": "Gets Account Data",
+        "description": "Get account information, like balances and commitment of an account. Mind that all returned values are in _Planck_, i.e. must be divided by 1E10^8 (100000000)",
+        "tags": [
+          "account"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "balanceNQT",
+                    "unconfirmedBalanceNQT",
+                    "forgedBalanceNQT",
+                    "guaranteedBalanceNQT",
+                    "account",
+                    "accountRS"
+                  ],
+                  "properties": {
+                    "balanceNQT": {
+                      "description": "Your total balance, including commitment and reserved orders",
+                      "type": "string",
+                      "pattern": "^\\d+$",
+                      "example": [
+                        "100000000"
+                      ]
+                    },
+                    "unconfirmedBalanceNQT": {
+                      "description": "The currently available balance",
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                    },
+                    "committedBalanceNQT": {
+                      "description": "Your committed balance",
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                    },
+                    "forgedBalanceNQT": {
+                      "description": "The balance forged by you (Solo-Mining only)",
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                    },
+                    "guaranteedBalanceNQT": {
+                      "description": "Your total balance, including commitment and reserved orders",
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                    },
+                    "commitmentNQT": {
+                      "description": "The current network commitment estimate per TiB",
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                    },
+                    "account": {
+                      "type": "string",
+                      "description": "The account identifier as numeric Id",
+                      "pattern": "^\\d+$",
+                      "example": [
+                        "895212263565386112"
+                      ]
+                    },
+                    "accountRS": {
+                      "type": "string",
+                      "description": "The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+                      "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
+                      "example": [
+                        "S-5MS6-5FBY-74H4-9N4HS",
+                        "TS-5MS6-5FBY-74H4-9N4HS"
+                      ]
+                    },
+                    "accountRSExtended": {
+                      "type": "string"
+                    },
+                    "publicKey": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "assetBalances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "asset": {
+                            "type": "string"
+                          },
+                          "balanceQNT": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "unconfirmedAssetBalances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "asset": {
+                            "type": "string"
+                          },
+                          "unconfirmedBalanceQNT": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Account response"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "account",
+          "in": "query",
+          "allowEmptyValue": false,
+          "description": "The account identifier",
+          "schema": {
+            "$ref": "#/components/schemas/address"
+          }
+        },
+        {
+          "name": "getCommittedAmount",
+          "schema": {
+            "type": "boolean"
+          },
+          "in": "query",
+          "required": false,
+          "allowEmptyValue": false,
+          "description": "Returns the entire commitment"
+        },
+        {
+          "name": "height",
+          "schema": {
+            "type": "integer"
+          },
+          "in": "query",
+          "required": false,
+          "allowEmptyValue": false,
+          "description": "When set this blockheight the accounts situation at the given height will be returned"
+        },
+        {
+          "name": "estimateCommitment",
+          "in": "query",
+          "description": "If set `true` the estimated commitment per TiB will be returned",
+          "required": false,
+          "allowEmptyValue": false,
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "address": {
+        "type": "string",
+        "description": "The account identifier as numeric Id or Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+        "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$|^\\d+$",
+        "example": [
+          "S-5MS6-5FBY-74H4-9N4HS",
+          "TS-5MS6-5FBY-74H4-9N4HS",
+          "895212263565386112"
+        ]
+      }
+    },
+    "headers": {},
+    "responses": {
+      "error": {
+        "description": "Error Response - Error Responses always come with a HTTP Status Code 200. ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "errorCode",
+                "errorDescription"
+              ],
+              "example": {
+                "errorCode": 5,
+                "errorDescription": "Unknown account",
+                "requestProcessingTime": 2
+              },
+              "properties": {
+                "errorDescription": {
+                  "type": "string",
+                  "description": "The error message indicating what the issue is"
+                },
+                "errorCode": {
+                  "type": "integer",
+                  "description": "The internal error code"
+                }
+              },
+              "description": "The generic error response object. Keep in mind that the API is returning always HTTP status code 200, even on errors."
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "account",
+      "description": "All Account related operations"
+    },
+    {
+      "name": "contract",
+      "description": "All operations related to Smart Contracts"
+    },
+    {
+      "name": "token",
+      "description": "All operations related to Tokens"
+    },
+    {
+      "name": "util",
+      "description": "Additional utility operations"
+    },
+    {
+      "name": "admin",
+      "description": "Administrative operation which requires the API Key to be configured in the node"
+    },
+    {
+      "name": "block",
+      "description": "All Block related operations"
+    },
+    {
+      "name": "transaction",
+      "description": "Everything about transactions"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Signum Node API",
+    "version": "1.0",
+    "description": "This is the API documentation of the Signum Node",
+    "x-logo": {
+      "url": ""
+    }
+  },
+  "paths": {
+    "/api?requestType=getAccount": {
+      "$ref": "./paths/getAccount.json"
+    }
+  },
+  "components": {
+    "schemas": {
+      "address": {
+        "$ref": "./schemas/address.json"
+      }
+    },
+    "headers": {},
+    "responses": {
+      "error": {
+        "$ref": "./responses/error.json"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "account",
+      "description": "All Account related operations"
+    },
+    {
+      "name": "contract",
+      "description": "All operations related to Smart Contracts"
+    },
+    {
+      "name": "token",
+      "description": "All operations related to Tokens"
+    },
+    {
+      "name": "util",
+      "description": "Additional utility operations"
+    },
+    {
+      "name": "admin",
+      "description": "Administrative operation which requires the API Key to be configured in the node"
+    },
+    {
+      "name": "block",
+      "description": "All Block related operations"
+    },
+    {
+      "name": "transaction",
+      "description": "Everything about transactions"
+    }
+  ]
+}

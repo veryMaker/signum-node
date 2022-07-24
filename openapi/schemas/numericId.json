@@ -1,0 +1,8 @@
+{
+  "type": "string",
+  "description": "The account identifier as numeric Id",
+  "pattern": "^\\d+$",
+  "example": [
+    "895212263565386112"
+  ]
+}

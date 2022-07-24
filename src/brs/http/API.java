@@ -153,17 +153,6 @@ public final class API {
         servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
       }
 
-      Boolean apiDocResourceBase = propertyService.getBoolean(Props.API_DOCS_ENABLED);
-      if (apiDocResourceBase) {
-        ServletHolder defaultServletHolder = new ServletHolder(new DefaultServlet());
-        defaultServletHolder.setInitParameter("resourceBase",    "html");
-        defaultServletHolder.setInitParameter("dirAllowed",      "false");
-        defaultServletHolder.setInitParameter("welcomeServlets", "true");
-        defaultServletHolder.setInitParameter("redirectWelcome", "true");
-        defaultServletHolder.setInitParameter("gzip", "true");
-        servletContextHandler.addServlet(defaultServletHolder, "/doc/*");
-        servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
-      }
 
       APIServlet apiServlet = new APIServlet(transactionProcessor, blockchain, blockchainProcessor, parameterService,
               accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
@@ -174,12 +163,27 @@ public final class API {
       servletContextHandler.addServlet(apiServletHolder, API_PATH);
       servletContextHandler.addServlet(apiServletHolder, LEGACY_API_PATH);
 
+      String apiDocResourceBase = propertyService.getString(Props.API_DOC_MODE);
+      if (apiDocResourceBase.equals("legacy")) {
+        servletContextHandler.addServlet(new ServletHolder(new APITestServlet(apiServlet, allowedBotHosts, propertyService.getString(Props.NETWORK_NAME))), API_TEST_PATH);
+      } else if (apiDocResourceBase.equals("off")) {
+        // no operation
+      } else {
+        ServletHolder defaultServletHolder = new ServletHolder(new DefaultServlet());
+        defaultServletHolder.setInitParameter("resourceBase",    "html");
+        defaultServletHolder.setInitParameter("dirAllowed",      "false");
+        defaultServletHolder.setInitParameter("welcomeServlets", "true");
+        defaultServletHolder.setInitParameter("redirectWelcome", "true");
+        defaultServletHolder.setInitParameter("gzip", "true");
+        servletContextHandler.addServlet(defaultServletHolder, "/api-doc/*");
+        servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
+      }
+
       if (propertyService.getBoolean(Props.JETTY_API_DOS_FILTER)) {
         addDOSFilterToServlet(LEGACY_API_PATH, servletContextHandler, propertyService);
         addDOSFilterToServlet(API_PATH, servletContextHandler, propertyService);
       }
 
-      servletContextHandler.addServlet(new ServletHolder(new APITestServlet(apiServlet, allowedBotHosts, propertyService.getString(Props.NETWORK_NAME))), API_TEST_PATH);
 
       HandlerList apiHandlers = new HandlerList();
       if (propertyService.getBoolean(Props.JETTY_API_GZIP_FILTER)) {

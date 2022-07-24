@@ -1,0 +1,27 @@
+<!doctype html> <!-- Important: must specify -->
+<html>
+<head>
+  <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
+  <script type="module" src="./rapidoc-min.js"></script>
+</head>
+<body>
+  <rapi-doc
+            id="signumdoc"
+            spec-url = "./signum-api.json"
+            allow-spec-url-load="false"
+            allow-authentication="false"
+            show-header="false"
+            schema-style="table"
+            theme="dark"
+            allow-advanced-search="true"
+  >
+    <img
+      slot="nav-logo"
+      src="./signum_logo.png"
+    />
+  </rapi-doc>
+</body>
+</html>

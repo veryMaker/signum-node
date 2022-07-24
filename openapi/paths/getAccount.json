@@ -1,0 +1,138 @@
+{
+  "get": {
+    "summary": "Gets Account Data",
+    "description": "Get account information, like balances and commitment of an account. Mind that all returned values are in _Planck_, i.e. must be divided by 1E10^8 (100000000)",
+    "tags": [
+      "account"
+    ],
+    "responses": {
+      "200": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["balanceNQT", "unconfirmedBalanceNQT", "forgedBalanceNQT", "guaranteedBalanceNQT", "account", "accountRS"],
+              "properties": {
+                "balanceNQT": {
+                  "description": "Your total balance, including commitment and reserved orders",
+                  "$ref": "../schemas/amount.json"
+                },
+                "unconfirmedBalanceNQT": {
+                  "description": "The currently available balance",
+                  "$ref": "../schemas/amount.json"
+                },
+                "committedBalanceNQT": {
+                  "description": "Your committed balance",
+                  "$ref": "../schemas/amount.json"
+                },
+                "forgedBalanceNQT": {
+                  "description": "The balance forged by you (Solo-Mining only)",
+                  "$ref": "../schemas/amount.json"
+                },
+                "guaranteedBalanceNQT": {
+                  "description": "Your total balance, including commitment and reserved orders",
+                  "$ref": "../schemas/amount.json"
+                },
+                "commitmentNQT": {
+                  "description": "The current network commitment estimate per TiB",
+                  "$ref": "../schemas/amount.json"
+                },
+                "account": {
+                  "$ref": "../schemas/numericId.json"
+                },
+                "accountRS": {
+                  "$ref": "../schemas/rsAddress.json"
+                },
+                "accountRSExtended": {
+                  "type": "string"
+                },
+                "publicKey": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "assetBalances": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "asset": {
+                        "type": "string"
+                      },
+                      "balanceQNT": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "unconfirmedAssetBalances": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "asset": {
+                        "type": "string"
+                      },
+                      "unconfirmedBalanceQNT": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Account response"
+      },
+      "500" : {
+        "$ref": "../responses/error.json"
+      }
+    }
+  },
+  "parameters": [
+    {
+      "name": "account",
+      "in": "query",
+      "allowEmptyValue": false,
+      "description": "The account identifier",
+      "schema": {
+        "$ref": "../schemas/address.json"
+      }
+    },
+    {
+      "name": "getCommittedAmount",
+      "schema": {
+        "type": "boolean"
+      },
+      "in": "query",
+      "required": false,
+      "allowEmptyValue": false,
+      "description": "Returns the entire commitment"
+    },
+    {
+      "name": "height",
+      "schema": {
+        "type": "integer"
+      },
+      "in": "query",
+      "required": false,
+      "allowEmptyValue": false,
+      "description": "When set this blockheight the accounts situation at the given height will be returned"
+    },
+    {
+      "name": "estimateCommitment",
+      "in": "query",
+      "description": "If set `true` the estimated commitment per TiB will be returned",
+      "required": false,
+      "allowEmptyValue": false,
+      "schema": {
+        "type": "boolean"
+      }
+    }
+  ]
+}
