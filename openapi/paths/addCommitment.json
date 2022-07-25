@@ -59,7 +59,7 @@
       },
       {
         "$ref": "../parameters/transaction/encryptToSelfMessageNonce.json"
-      },
+      }
     ],
     "responses": {
       "200": {

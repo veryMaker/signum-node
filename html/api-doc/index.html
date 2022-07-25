@@ -35,24 +35,26 @@
   schema-style="table"
   theme="dark"
   allow-advanced-search="true"
-  default-schema-tab="model"
+  allow-server-selection="false"
 >
   <div id='nav-logo-section' slot="nav-logo">
     <img src="./signum_logo.png"/>
     <div class='toggle-wrapper'>
+      <small id="toggle-label"></small>
       <div class='toggle-switch'>
         <label>
           <input type='checkbox' onclick="toggleTheme()">
           <span class='slider'></span>
         </label>
       </div>
-      <div id="toggle-label"></div>
     </div>
+    <hr class="section-divider">
+  </div>
 </rapi-doc>
 <script>
   (() => {
     const label = document.getElementById('toggle-label')
-    label.innerText =  `Switch to ${getCurrentTheme() === 'dark' ? 'light' : 'dark'} theme`
+    label.innerText = `Switch to ${getCurrentTheme() === 'dark' ? 'light' : 'dark'} theme`
   })()
 </script>
 </body>

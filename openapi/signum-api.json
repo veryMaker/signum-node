@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Signum Node API",
-    "version": "1.0",
+    "version": "3.4.2",
     "description": "This is the API documentation of the Signum Node",
     "x-logo": {
       "url": ""
