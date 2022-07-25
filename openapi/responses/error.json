@@ -1,5 +1,5 @@
 {
-  "description": "Error Response - Error Responses always come with a HTTP Status Code 200. ",
+  "description": "Error Response - __IMPORTANT: Error Responses always come with a HTTP Status Code 200 \uD83E\uDD37__ ",
   "content": {
     "application/json": {
       "schema": {
