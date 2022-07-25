@@ -4,24 +4,56 @@
   <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Roboto+Mono&display=swap"
+        rel="stylesheet">
+  <link href="main.css" rel="stylesheet">
   <script type="module" src="./rapidoc-min.js"></script>
+  <script type="application/javascript">
+
+    function getCurrentTheme() {
+      return document.getElementById('signumdoc').getAttribute('theme')
+    }
+
+    function toggleTheme() {
+      const doc = document.getElementById('signumdoc')
+      const wasDark = getCurrentTheme() === 'dark'
+      doc.setAttribute('theme', wasDark ? 'light' : 'dark')
+
+      const label = document.getElementById('toggle-label')
+      label.innerText = `Switch to ${wasDark ? 'dark' : 'light'} theme`
+    }
+  </script>
+
 </head>
 <body>
-  <rapi-doc
-            id="signumdoc"
-            spec-url = "./signum-api.json"
-            allow-spec-url-load="false"
-            allow-authentication="false"
-            show-header="false"
-            schema-style="table"
-            theme="dark"
-            allow-advanced-search="true"
-  >
-    <img
-      slot="nav-logo"
-      src="./signum_logo.png"
-    />
-  </rapi-doc>
+<rapi-doc
+  id="signumdoc"
+  spec-url="./signum-api.json"
+  allow-spec-url-load="false"
+  allow-authentication="false"
+  show-header="false"
+  schema-style="table"
+  theme="dark"
+  allow-advanced-search="true"
+  default-schema-tab="model"
+>
+  <div id='nav-logo-section' slot="nav-logo">
+    <img src="./signum_logo.png"/>
+    <div class='toggle-wrapper'>
+      <div class='toggle-switch'>
+        <label>
+          <input type='checkbox' onclick="toggleTheme()">
+          <span class='slider'></span>
+        </label>
+      </div>
+      <div id="toggle-label"></div>
+    </div>
+</rapi-doc>
+<script>
+  (() => {
+    const label = document.getElementById('toggle-label')
+    label.innerText =  `Switch to ${getCurrentTheme() === 'dark' ? 'light' : 'dark'} theme`
+  })()
+</script>
 </body>
 </html>

@@ -11,13 +11,53 @@
   "paths": {
     "/api?requestType=getAccount": {
       "get": {
-        "summary": "Gets Account Data",
-        "description": "Get account information, like balances and commitment of an account. Mind that all returned values are in _Planck_, i.e. must be divided by 1E10^8 (100000000)",
+        "summary": "Get Account",
+        "description": "Get account information, like balances, commitment and token balances of an account.",
         "tags": [
           "account"
         ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The account identifier",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "getCommittedAmount",
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Returns the entire commitment"
+          },
+          {
+            "name": "height",
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "When set this blockheight the accounts situation at the given height will be returned"
+          },
+          {
+            "name": "estimateCommitment",
+            "in": "query",
+            "description": "If set `true` the estimated commitment per TiB will be returned",
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
+            "description": "Account response",
             "content": {
               "application/json": {
                 "schema": {
@@ -33,48 +73,33 @@
                   "properties": {
                     "balanceNQT": {
                       "description": "Your total balance, including commitment and reserved orders",
-                      "type": "string",
-                      "pattern": "^\\d+$",
-                      "example": [
-                        "100000000"
-                      ]
+                      "$ref": "#/components/schemas/amount"
                     },
                     "unconfirmedBalanceNQT": {
                       "description": "The currently available balance",
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                      "$ref": "#/components/schemas/amount"
                     },
                     "committedBalanceNQT": {
                       "description": "Your committed balance",
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                      "$ref": "#/components/schemas/amount"
                     },
                     "forgedBalanceNQT": {
                       "description": "The balance forged by you (Solo-Mining only)",
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                      "$ref": "#/components/schemas/amount"
                     },
                     "guaranteedBalanceNQT": {
                       "description": "Your total balance, including commitment and reserved orders",
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                      "$ref": "#/components/schemas/amount"
                     },
                     "commitmentNQT": {
                       "description": "The current network commitment estimate per TiB",
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/balanceNQT"
+                      "$ref": "#/components/schemas/amount"
                     },
                     "account": {
-                      "type": "string",
-                      "description": "The account identifier as numeric Id",
-                      "pattern": "^\\d+$",
-                      "example": [
-                        "895212263565386112"
-                      ]
+                      "$ref": "#/components/schemas/numericId"
                     },
                     "accountRS": {
-                      "type": "string",
-                      "description": "The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
-                      "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
-                      "example": [
-                        "S-5MS6-5FBY-74H4-9N4HS",
-                        "TS-5MS6-5FBY-74H4-9N4HS"
-                      ]
+                      "$ref": "#/components/schemas/rsAddress"
                     },
                     "accountRSExtended": {
                       "type": "string"
@@ -94,10 +119,15 @@
                         "type": "object",
                         "properties": {
                           "asset": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/numericId"
                           },
                           "balanceQNT": {
-                            "type": "string"
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "The quantity is a tokens amount. It depends on the decimals a token supports, e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+                            "example": [
+                              "10000"
+                            ]
                           }
                         }
                       }
@@ -108,10 +138,10 @@
                         "type": "object",
                         "properties": {
                           "asset": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/numericId"
                           },
                           "unconfirmedBalanceQNT": {
-                            "type": "string"
+                            "$ref": "#/paths/~1api%3FrequestType%3DgetAccount/get/responses/200/content/application~1json/schema/properties/assetBalances/items/properties/balanceQNT"
                           }
                         }
                       }
@@ -119,71 +149,421 @@
                   }
                 }
               }
-            },
-            "description": "Account response"
+            }
           },
           "500": {
             "$ref": "#/components/responses/error"
           }
         }
-      },
-      "parameters": [
-        {
-          "name": "account",
-          "in": "query",
-          "allowEmptyValue": false,
-          "description": "The account identifier",
-          "schema": {
-            "$ref": "#/components/schemas/address"
+      }
+    },
+    "/api?requestType=addCommitment": {
+      "post": {
+        "summary": "Add Commitment",
+        "description": "Adds commitment to improve mining power. The commitment will be blocked, but never leave your account.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [removeCommitment](#get-/api-requestType-removeCommitment) ",
+        "tags": [
+          "account",
+          "transaction",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "name": "feeNQT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The fee for this transaction expressed in Planck, i.e. 0.01 Signa = 0.01 * 10E8 Planck = 1000000 Planck - The fee depends on the transaction type, but minimum fee is 0.01 Signa<br/>Read more about the fees [here](https://github.com/signum-network/SIPs/blob/master/SIP/sip-34.md)",
+            "schema": {
+              "$ref": "#/components/schemas/amount"
+            }
+          },
+          {
+            "name": "secretPhrase",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "The secret passphrase.<br/>🔓 __Security Advice: It's not recommended to pass this parameter to remote nodes unless you trust the node operator.__",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "publicKey",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "The public key of the sending account.<br/>If you send this key instead of the `secretPhrase`, you get the _unsigned_ transaction back, which can then be signed locally. In that case the transaction is not being published.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "description": "A hexedecimal hash string"
+            }
+          },
+          {
+            "name": "deadline",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The deadline for how long the transaction may stay in the nodes mempool expressed in minutes until the transaction is being discarded",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "min": 1,
+              "max": 1440,
+              "example": [
+                60,
+                120,
+                1440
+              ]
+            }
+          },
+          {
+            "name": "broadcast",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "If set `false` the transaction will not be broadcast to the network",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          },
+          {
+            "name": "recipientPublicKey",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "If you send a the recipients public key with a transaction you can automatically register (and activate) an account within the blockchain.",
+            "schema": {
+              "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/3/schema"
+            }
+          },
+          {
+            "name": "referencedTransactionFullHash",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Using this field allows to make a transaction dependent on other transactions. This field will also be used for referencing carbon contracts",
+            "schema": {
+              "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/3/schema"
+            }
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "It's possible to attach arbitrary data (in form of messages) to a transaction. The maximum limit is 1000 characters, either text or binary (in hex form)",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "name": "messageIsText",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Determines if the attached `message` is either text or binary data (hexadecimal string)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "messageToEncrypt",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "It's possible to attach P2P encrypted arbitrary data (in form of messages) to a transaction. The maximum limit is 1000 characters, either text or binary (in hex form).<br/> When using P2P encryption you need to pass `recipientPublicKey` also.<br/> 🔓 __Security Advice: When you use this you are sending the message in plain text to the node.__",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "name": "messageToEncryptIsText",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Determines if the attached `messageToEncrypt` is either text or binary data (hexadecimal string)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "encryptedMessageData",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptedMessageNonce` also.",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "name": "encryptedMessageNonce",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptedMessageData` also.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageToEncryptToSelf",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "When encrypting messages to yourself, you may want to use this field.",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "name": "messageToEncryptToSelfIsText",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Determines if the attached `messageToEncryptToSelf` is either text or binary data (hexadecimal string)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "encryptToSelfMessageData",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageNonce` also.",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "name": "encryptToSelfMessageNonce",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageData` also.",
+            "schema": {
+              "type": "string"
+            }
           }
-        },
-        {
-          "name": "getCommittedAmount",
-          "schema": {
-            "type": "boolean"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
           },
-          "in": "query",
-          "required": false,
-          "allowEmptyValue": false,
-          "description": "Returns the entire commitment"
-        },
-        {
-          "name": "height",
-          "schema": {
-            "type": "integer"
-          },
-          "in": "query",
-          "required": false,
-          "allowEmptyValue": false,
-          "description": "When set this blockheight the accounts situation at the given height will be returned"
-        },
-        {
-          "name": "estimateCommitment",
-          "in": "query",
-          "description": "If set `true` the estimated commitment per TiB will be returned",
-          "required": false,
-          "allowEmptyValue": false,
-          "schema": {
-            "type": "boolean"
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
-      ]
+      }
+    },
+    "/api?requestType=removeCommitment": {
+      "post": {
+        "summary": "Remove Commitment",
+        "description": "Remove commitment. The commitment gets unblocked, and will be available for free use. Removing commitment is only possible after 1440 blocks after last mined block.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [addCommitment](#get-/api-requestType-addCommitment) ",
+        "tags": [
+          "account",
+          "transaction",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/1"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/2"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/3"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/4"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/5"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/6"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/7"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/8"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/9"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/10"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/11"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/12"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/13"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/14"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/15"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/16"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/17"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=setRewardRecipient": {
+      "post": {
+        "summary": "Set Reward Recipient (Join Pool)",
+        "description": "Sets another account to receive your mining reward. This feature is necessary when you want mine in a pool. The recipient is the address of the pool. <br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining)",
+        "tags": [
+          "account",
+          "transaction",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/1"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/2"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/3"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/4"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/5"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/6"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/7"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/8"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/9"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/10"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/11"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/12"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/13"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/14"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/15"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/16"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DaddCommitment/post/parameters/17"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
       "address": {
         "type": "string",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          {
+            "$ref": "#/components/schemas/numericId"
+          }
+        ],
         "description": "The account identifier as numeric Id or Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
-        "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$|^\\d+$",
         "example": [
           "S-5MS6-5FBY-74H4-9N4HS",
           "TS-5MS6-5FBY-74H4-9N4HS",
+          "895212263565386113"
+        ]
+      },
+      "amount": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The amount is always returned in Planck, that is Signa multiplied by 10E8",
+        "example": [
+          "100000000"
+        ]
+      },
+      "numericId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The account identifier as numeric Id",
+        "example": [
           "895212263565386112"
+        ]
+      },
+      "rsAddress": {
+        "type": "string",
+        "description": "The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+        "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
+        "example": [
+          "S-5MS6-5FBY-74H4-9N4HS",
+          "TS-5MS6-5FBY-74H4-9N4HS"
         ]
       }
     },
     "headers": {},
+    "parameters": {
+      "amountNQT": {
+        "name": "amountNQT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The amount expressed in Planck, i.e. 1 Signa = 10E8 Planck = 100000000 Planck",
+        "schema": {
+          "$ref": "#/components/schemas/amount"
+        }
+      }
+    },
     "responses": {
       "error": {
         "description": "Error Response - Error Responses always come with a HTTP Status Code 200. ",
@@ -209,8 +589,32 @@
                   "type": "integer",
                   "description": "The internal error code"
                 }
+              }
+            }
+          }
+        }
+      },
+      "transaction": {
+        "description": "Transaction Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "errorCode": 5,
+                "errorDescription": "Unknown account",
+                "requestProcessingTime": 2
               },
-              "description": "The generic error response object. Keep in mind that the API is returning always HTTP status code 200, even on errors."
+              "properties": {
+                "errorDescription": {
+                  "type": "string",
+                  "description": "The error message indicating what the issue is"
+                },
+                "errorCode": {
+                  "type": "integer",
+                  "description": "The internal error code"
+                }
+              }
             }
           }
         }
@@ -245,6 +649,10 @@
     {
       "name": "transaction",
       "description": "Everything about transactions"
+    },
+    {
+      "name": "mining",
+      "description": "All mining related methods"
     }
   ]
 }

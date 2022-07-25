@@ -11,18 +11,44 @@
   "paths": {
     "/api?requestType=getAccount": {
       "$ref": "./paths/getAccount.json"
+    },
+    "/api?requestType=addCommitment": {
+      "$ref": "./paths/addCommitment.json"
+    },
+    "/api?requestType=removeCommitment": {
+      "$ref": "./paths/removeCommitment.json"
+    },
+    "/api?requestType=setRewardRecipient": {
+      "$ref": "./paths/setRewardRecipient.json"
     }
   },
   "components": {
     "schemas": {
       "address": {
         "$ref": "./schemas/address.json"
+      },
+      "amount": {
+        "$ref": "./schemas/amount.json"
+      },
+      "numericId": {
+        "$ref": "./schemas/numericId.json"
+      },
+      "rsAddress": {
+        "$ref": "./schemas/rsAddress.json"
       }
     },
     "headers": {},
+    "parameters": {
+      "amountNQT": {
+        "$ref": "./parameters/transaction/amountNQT.json"
+      }
+    },
     "responses": {
       "error": {
         "$ref": "./responses/error.json"
+      },
+      "transaction": {
+        "$ref": "./responses/transaction.json"
       }
     }
   },
@@ -54,6 +80,10 @@
     {
       "name": "transaction",
       "description": "Everything about transactions"
+    },
+    {
+      "name": "mining",
+      "description": "All mining related methods"
     }
   ]
 }

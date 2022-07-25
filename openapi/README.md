@@ -27,6 +27,7 @@ Adding or changing new endpoints would require the creation or adjustment of a f
 `getAccount` become `./paths/getAccount.json`. Please refer to the OAS to learn how to describe an API Endpoint
 
 ```
+├── parameters ---> recurring parameter types
 ├── paths ---> the files per endpoint (your entry point to start off)
 ├── responses ---> recurring response objects, i.e. error, transaction
 ├── schemas ---> recurring object schemas, i.e. transaction, address, etc 
@@ -50,6 +51,8 @@ In the `openapi` folder run `npm run dev`, which starts a file watcher and bundl
 As no hot reload is supported you'll need to hit Ctrl-F5 in the browser
 
 Now edit the files accordingly.
+
+Once ready, run `npm run dist` to create the final optimized spec file.
 
 ## Difference to OAS Spec
 

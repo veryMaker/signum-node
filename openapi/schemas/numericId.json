@@ -1,7 +1,7 @@
 {
-  "type": "string",
+  "type": "integer",
+  "format": "int64",
   "description": "The account identifier as numeric Id",
-  "pattern": "^\\d+$",
   "example": [
     "895212263565386112"
   ]

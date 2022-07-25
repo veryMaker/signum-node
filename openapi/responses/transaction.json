@@ -1,13 +1,9 @@
 {
-  "description": "Error Response - Error Responses always come with a HTTP Status Code 200. ",
+  "description": "Transaction Response",
   "content": {
     "application/json": {
       "schema": {
         "type": "object",
-        "required": [
-          "errorCode",
-          "errorDescription"
-        ],
         "example": {
           "errorCode": 5,
           "errorDescription": "Unknown account",
