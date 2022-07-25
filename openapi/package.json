@@ -7,7 +7,7 @@
     "build:prod": "swagger-cli bundle signum-api.json | mjson.js > ../html/api-doc/signum-api.json",
     "build": "swagger-cli bundle signum-api.json --outfile ../html/api-doc/signum-api.json",
     "dev": "npm-watch",
-    "prod": "npm run build:prod"
+    "dist": "npm run build:prod"
   },
   "watch": {
     "build": {

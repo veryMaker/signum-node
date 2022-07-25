@@ -30,17 +30,86 @@
       "amount": {
         "$ref": "./schemas/amount.json"
       },
+      "hash": {
+        "$ref": "./schemas/hash.json"
+      },
+      "hexString": {
+        "$ref": "./schemas/hexString.json"
+      },
+      "quantity": {
+        "$ref": "./schemas/quantity.json"
+      },
       "numericId": {
         "$ref": "./schemas/numericId.json"
       },
       "rsAddress": {
         "$ref": "./schemas/rsAddress.json"
+      },
+      "timestamp": {
+        "$ref": "./schemas/timestamp.json"
+      },
+      "transaction": {
+        "$ref": "./schemas/transaction.json"
+      },
+      "transactionId": {
+        "$ref": "./schemas/transactionId.json"
       }
     },
     "headers": {},
     "parameters": {
       "amountNQT": {
         "$ref": "./parameters/transaction/amountNQT.json"
+      },
+      "feeNQT": {
+        "$ref": "./parameters/transaction/feeNQT.json"
+      },
+      "secretPhrase": {
+        "$ref": "./parameters/transaction/secretPhrase.json"
+      },
+      "publicKey": {
+        "$ref": "./parameters/transaction/publicKey.json"
+      },
+      "deadline": {
+        "$ref": "./parameters/transaction/deadline.json"
+      },
+      "broadcast": {
+        "$ref": "./parameters/transaction/broadcast.json"
+      },
+      "recipientPublicKey": {
+        "$ref": "./parameters/transaction/recipientPublicKey.json"
+      },
+      "referencedTransactionFullHash": {
+        "$ref": "./parameters/transaction/referencedTransactionFullHash.json"
+      },
+      "message": {
+        "$ref": "./parameters/transaction/message.json"
+      },
+      "messageIsText": {
+        "$ref": "./parameters/transaction/messageIsText.json"
+      },
+      "messageToEncrypt": {
+        "$ref": "./parameters/transaction/messageToEncrypt.json"
+      },
+      "messageToEncryptIsText": {
+        "$ref": "./parameters/transaction/messageToEncryptIsText.json"
+      },
+      "encryptedMessageData": {
+        "$ref": "./parameters/transaction/encryptedMessageData.json"
+      },
+      "encryptedMessageNonce": {
+        "$ref": "./parameters/transaction/encryptedMessageNonce.json"
+      },
+      "messageToEncryptToSelf": {
+        "$ref": "./parameters/transaction/messageToEncryptToSelf.json"
+      },
+      "messageToEncryptToSelfIsText": {
+        "$ref": "./parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      "encryptToSelfMessageData": {
+        "$ref": "./parameters/transaction/encryptToSelfMessageData.json"
+      },
+      "encryptToSelfMessageNonce": {
+        "$ref": "./parameters/transaction/encryptToSelfMessageNonce.json"
       }
     },
     "responses": {
