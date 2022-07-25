@@ -1,11 +1,14 @@
 {
   "post": {
-    "summary": "Remove Commitment",
-    "description": "Remove commitment. The commitment gets unblocked, and will be available for free use. Removing commitment is only possible after 1440 blocks after last mined block.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [addCommitment](#get-/api-requestType-addCommitment) ",
+    "summary": "Send Signa",
+    "description": "Sends Signa to another account. This is the most basic send operation and sends a single amount to another account. Of course, you can attach additional message or data to this transactions.",
     "tags": [
-      "account", "mining"
+      "payment"
     ],
     "parameters": [
+      {
+        "$ref": "../parameters/transaction/recipient.json"
+      },
       {
         "$ref": "../parameters/transaction/amountNQT.json"
       },

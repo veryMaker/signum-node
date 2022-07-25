@@ -1,16 +1,26 @@
 {
   "post": {
-    "summary": "Remove Commitment",
-    "description": "Remove commitment. The commitment gets unblocked, and will be available for free use. Removing commitment is only possible after 1440 blocks after last mined block.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [addCommitment](#get-/api-requestType-addCommitment) ",
+    "summary": "Creates a subscription",
+    "description": "Sends Signa to another account at recurring frequency.",
     "tags": [
-      "account", "mining"
+      "payment"
     ],
     "parameters": [
+      {
+        "$ref": "../parameters/transaction/recipient.json"
+      },
       {
         "$ref": "../parameters/transaction/amountNQT.json"
       },
       {
         "$ref": "../parameters/transaction/feeNQT.json"
+      },
+      {
+        "type": "integer",
+        "format": "int32",
+        "min": 3600,
+        "description": "The frequency of the payment in seconds, e.g. per day is 86400 seconds, per month is 2592000 seconds. If no balance is available the subscription halts.",
+        "example": [86400,2592000]
       },
       {
         "$ref": "../parameters/transaction/secretPhrase.json"

@@ -11,7 +11,7 @@
   "description": "The account identifier as numeric Id or Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
   "example": [
     "S-5MS6-5FBY-74H4-9N4HS",
-    "TS-5MS6-5FBY-74H4-9N4HS",
+    "TS-QAJA-QW5Y-SWVP-4RVP4",
     "895212263565386113"
   ]
 }

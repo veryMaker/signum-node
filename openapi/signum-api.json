@@ -20,6 +20,18 @@
     },
     "/api?requestType=setRewardRecipient": {
       "$ref": "./paths/setRewardRecipient.json"
+    },
+    "/api?requestType=sendMoney": {
+      "$ref": "./paths/sendMoney.json"
+    },
+    "/api?requestType=sendMoneyMulti": {
+      "$ref": "./paths/sendMoneyMulti.json"
+    },
+    "/api?requestType=sendMoneyMultiSame": {
+      "$ref": "./paths/sendMoneyMultiSame.json"
+    },
+    "/api?requestType=sendMoneySubscription": {
+      "$ref": "./paths/sendMoneySubscription.json"
     }
   },
   "components": {
@@ -147,12 +159,20 @@
       "description": "All Block related operations"
     },
     {
-      "name": "transaction",
-      "description": "Everything about transactions"
+      "name": "sign",
+      "description": "These function require a digital signature from the sender"
+    },
+    {
+      "name": "transactions",
+      "description": "All functions which are related the blockchain"
     },
     {
       "name": "mining",
       "description": "All mining related methods"
+    },
+    {
+      "name": "payment",
+      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
     }
   ]
 }

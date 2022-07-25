@@ -1,1 +1,1264 @@
-{"openapi":"3.0.3","info":{"title":"Signum Node API","version":"3.4.2","description":"This is the API documentation of the Signum Node","x-logo":{"url":""}},"paths":{"/api?requestType=getAccount":{"get":{"summary":"Get Account","description":"Get account information, like balances, commitment and token balances of an account.","tags":["account"],"parameters":[{"name":"account","in":"query","required":true,"allowEmptyValue":false,"description":"The account identifier","schema":{"$ref":"#/components/schemas/address"}},{"name":"getCommittedAmount","schema":{"type":"boolean"},"in":"query","allowEmptyValue":false,"description":"Returns the entire commitment"},{"name":"height","schema":{"type":"integer"},"in":"query","allowEmptyValue":false,"description":"When set this blockheight the accounts situation at the given height will be returned"},{"name":"estimateCommitment","in":"query","description":"If set `true` the estimated commitment per TiB will be returned","allowEmptyValue":false,"schema":{"type":"boolean"}}],"responses":{"200":{"description":"Account response","content":{"application/json":{"schema":{"type":"object","required":["balanceNQT","unconfirmedBalanceNQT","forgedBalanceNQT","guaranteedBalanceNQT","account","accountRS"],"properties":{"balanceNQT":{"description":"Your total balance, including commitment and reserved orders","$ref":"#/components/schemas/amount"},"unconfirmedBalanceNQT":{"description":"The currently available balance","$ref":"#/components/schemas/amount"},"committedBalanceNQT":{"description":"Your committed balance","$ref":"#/components/schemas/amount"},"forgedBalanceNQT":{"description":"The balance forged by you (Solo-Mining only)","$ref":"#/components/schemas/amount"},"guaranteedBalanceNQT":{"description":"Your total balance, including commitment and reserved orders","$ref":"#/components/schemas/amount"},"commitmentNQT":{"description":"The current network commitment estimate per TiB","$ref":"#/components/schemas/amount"},"account":{"$ref":"#/components/schemas/numericId"},"accountRS":{"$ref":"#/components/schemas/rsAddress"},"accountRSExtended":{"type":"string"},"publicKey":{"type":"string"},"name":{"type":"string"},"description":{"type":"string"},"assetBalances":{"type":"array","items":{"type":"object","properties":{"asset":{"$ref":"#/components/schemas/numericId"},"balanceQNT":{"$ref":"#/components/schemas/quantity"}}}},"unconfirmedAssetBalances":{"type":"array","items":{"type":"object","properties":{"asset":{"$ref":"#/components/schemas/numericId"},"unconfirmedBalanceQNT":{"$ref":"#/components/schemas/quantity"}}}}}}}}},"500":{"$ref":"#/components/responses/error"}}}},"/api?requestType=addCommitment":{"post":{"summary":"Add Commitment","description":"Adds commitment to improve mining power. The commitment will be blocked, but never leave your account.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [removeCommitment](#get-/api-requestType-removeCommitment) ","tags":["account","transaction","mining"],"parameters":[{"$ref":"#/components/parameters/amountNQT"},{"$ref":"#/components/parameters/feeNQT"},{"$ref":"#/components/parameters/secretPhrase"},{"$ref":"#/components/parameters/publicKey"},{"$ref":"#/components/parameters/deadline"},{"$ref":"#/components/parameters/broadcast"},{"$ref":"#/components/parameters/recipientPublicKey"},{"$ref":"#/components/parameters/referencedTransactionFullHash"},{"$ref":"#/components/parameters/message"},{"$ref":"#/components/parameters/messageIsText"},{"$ref":"#/components/parameters/messageToEncrypt"},{"$ref":"#/components/parameters/messageToEncryptIsText"},{"$ref":"#/components/parameters/encryptedMessageData"},{"$ref":"#/components/parameters/encryptedMessageNonce"},{"$ref":"#/components/parameters/messageToEncryptToSelf"},{"$ref":"#/components/parameters/messageToEncryptToSelfIsText"},{"$ref":"#/components/parameters/encryptToSelfMessageData"},{"$ref":"#/components/parameters/encryptToSelfMessageNonce"}],"responses":{"200":{"$ref":"#/components/responses/transaction"},"500":{"$ref":"#/components/responses/error"}}}},"/api?requestType=removeCommitment":{"post":{"summary":"Remove Commitment","description":"Remove commitment. The commitment gets unblocked, and will be available for free use. Removing commitment is only possible after 1440 blocks after last mined block.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [addCommitment](#get-/api-requestType-addCommitment) ","tags":["account","transaction","mining"],"parameters":[{"$ref":"#/components/parameters/amountNQT"},{"$ref":"#/components/parameters/feeNQT"},{"$ref":"#/components/parameters/secretPhrase"},{"$ref":"#/components/parameters/publicKey"},{"$ref":"#/components/parameters/deadline"},{"$ref":"#/components/parameters/broadcast"},{"$ref":"#/components/parameters/recipientPublicKey"},{"$ref":"#/components/parameters/referencedTransactionFullHash"},{"$ref":"#/components/parameters/message"},{"$ref":"#/components/parameters/messageIsText"},{"$ref":"#/components/parameters/messageToEncrypt"},{"$ref":"#/components/parameters/messageToEncryptIsText"},{"$ref":"#/components/parameters/encryptedMessageData"},{"$ref":"#/components/parameters/encryptedMessageNonce"},{"$ref":"#/components/parameters/messageToEncryptToSelf"},{"$ref":"#/components/parameters/messageToEncryptToSelfIsText"},{"$ref":"#/components/parameters/encryptToSelfMessageData"},{"$ref":"#/components/parameters/encryptToSelfMessageNonce"}],"responses":{"200":{"$ref":"#/components/responses/transaction"},"500":{"$ref":"#/components/responses/error"}}}},"/api?requestType=setRewardRecipient":{"post":{"summary":"Set Reward Recipient (Join Pool)","description":"Sets another account to receive your mining reward. This feature is necessary when you want mine in a pool. The recipient is the address of the pool. <br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining)","tags":["account","transaction","mining"],"parameters":[{"$ref":"#/components/parameters/amountNQT"},{"$ref":"#/components/parameters/feeNQT"},{"$ref":"#/components/parameters/secretPhrase"},{"$ref":"#/components/parameters/publicKey"},{"$ref":"#/components/parameters/deadline"},{"$ref":"#/components/parameters/broadcast"},{"$ref":"#/components/parameters/recipientPublicKey"},{"$ref":"#/components/parameters/referencedTransactionFullHash"},{"$ref":"#/components/parameters/message"},{"$ref":"#/components/parameters/messageIsText"},{"$ref":"#/components/parameters/messageToEncrypt"},{"$ref":"#/components/parameters/messageToEncryptIsText"},{"$ref":"#/components/parameters/encryptedMessageData"},{"$ref":"#/components/parameters/encryptedMessageNonce"},{"$ref":"#/components/parameters/messageToEncryptToSelf"},{"$ref":"#/components/parameters/messageToEncryptToSelfIsText"},{"$ref":"#/components/parameters/encryptToSelfMessageData"},{"$ref":"#/components/parameters/encryptToSelfMessageNonce"}],"responses":{"200":{"$ref":"#/components/responses/transaction"},"500":{"$ref":"#/components/responses/error"}}}}},"components":{"schemas":{"address":{"type":"string","oneOf":[{"$ref":"#/components/schemas/rsAddress"},{"$ref":"#/components/schemas/numericId"}],"description":"The account identifier as numeric Id or Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX","example":["S-5MS6-5FBY-74H4-9N4HS","TS-5MS6-5FBY-74H4-9N4HS","895212263565386113"]},"amount":{"type":"integer","format":"int64","description":"The amount is always returned in Planck, that is Signa multiplied by 10E8","example":["100000000"]},"hash":{"type":"string","pattern":"^[a-fA-F0-9]{64}$","description":"A hexadecimal string of fixed size representing 256 Bit Hashes (SHA-256)"},"hexString":{"type":"string","pattern":"^[a-fA-F0-9]+$","description":"A hexadecimal string of arbitrary length"},"quantity":{"type":"integer","format":"int64","description":"The quantity is a tokens amount. It depends on the decimals a token supports, e.g. the quantity=100 of a token with 2 decimals is expressed as 10000","example":["10000"]},"numericId":{"type":"integer","format":"int64","description":"The account identifier as numeric Id","example":["895212263565386112"]},"rsAddress":{"type":"string","description":"The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX","pattern":"^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$","example":["S-5MS6-5FBY-74H4-9N4HS","TS-5MS6-5FBY-74H4-9N4HS"]},"timestamp":{"type":"integer","format":"int64","description":"The time in seconds since first Block (Genesis) of the chain."},"transaction":{"type":"object","description":"The transaction object","example":[{"type":1,"subtype":0,"timestamp":251047549,"deadline":24,"senderPublicKey":"c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a","recipient":"6502115112683865257","recipientRS":"TS-K37B-9V85-FB95-793HN","amountNQT":"0","feeNQT":"1000000","signature":"9204b3eca152b72141cdfebbdbfad14c4c79a7f68f04eb5daf7f04a817495f09cca5cf85566ea2b28178702fba7aedae29728af7cd640f5b1e02b8facb21134c","signatureHash":"78c4b094c0b8b1d35c23738a5fabdcabbafd1e73a99a90e3280abf98452d783a","fullHash":"6ce8970b66bf8360108df8d4675c275ab2acd549219928c4d0ae4a62a284b1c7","transaction":"6954612694592252012","attachment":{"version.Message":1,"message":"test","messageIsText":true},"attachmentBytes":"010400008074657374","sender":"2402520554221019656","senderRS":"TS-QAJA-QW5Y-SWVP-4RVP4","height":2147483647,"version":2,"ecBlockId":"7594592439957689464","ecBlockHeight":442244,"cashBackId":"8952122635653861124","block":"13680738303626126726","confirmations":68148,"blockTimestamp":232452172}],"required":["type","subtype","timestamp","deadline","senderPublicKey","recipient","recipientRS","amountNQT","feeNQT","signature","signatureHash","fullHash","transaction","sender","senderRS","height","version","ecBlockId","ecBlockHeight","cashBackId"],"properties":{"transaction":{"$ref":"#/components/schemas/transactionId"},"type":{"type":"integer","description":"The transaction type. See also [getConstants]() and [here](https://docs.signum.network/signum/transaction-types)"},"subtype":{"type":"integer","description":"The transaction subtype. See also [getConstants]() and [here](https://docs.signum.network/signum/transaction-types)"},"timestamp":{"$ref":"#/components/schemas/timestamp"},"deadline":{"type":"integer","description":"The deadline in minutes "},"sender":{"$ref":"#/components/schemas/numericId"},"senderRS":{"$ref":"#/components/schemas/rsAddress"},"senderPublicKey":{"$ref":"#/components/schemas/hash"},"recipient":{"$ref":"#/components/schemas/numericId"},"recipientRS":{"$ref":"#/components/schemas/rsAddress"},"amountNQT":{"$ref":"#/components/schemas/amount"},"feeNQT":{"$ref":"#/components/schemas/amount"},"signature":{"$ref":"#/components/schemas/hexString"},"signatureHash":{"$ref":"#/components/schemas/hash"},"fullHash":{"$ref":"#/components/schemas/hash"},"attachment":{"type":"object","description":"This is an arbitrary object carrying additional data, which depends mostly on the transaction type. It has no fixed structure. It always comes with a `version.<type>` field.","example":[{"version.Message":1,"message":"Some Message","messageIsText":true}]},"attachmentBytes":{"$ref":"#/components/schemas/hexString"},"height":{"type":"integer","description":"The block height"},"version":{"type":"integer","description":"The version number of this structure"},"ecBlockId":{"type":"integer","format":"int64"},"ecBlockHeight":{"type":"integer","format":"int32"},"cashBackId":{"type":"integer","format":"int64","description":"The Account Id where part of the fees is being paid to.<br/>Read more about cashback [here](https://github.com/signum-network/SIPs/blob/master/SIP/sip-35.md)"},"block":{"type":"integer","format":"int64","description":"The block Id of the transaction. This field is only available on forged/accepted transactions."},"blockTimestamp":{"$ref":"#/components/schemas/timestamp","description":"The chains timestamp of the block where this transaction belongs to"}}},"transactionId":{"type":"integer","format":"int64","description":"The transaction identifier","required":true,"example":["6954612694592252012"]}},"headers":{},"parameters":{"amountNQT":{"name":"amountNQT","in":"query","allowEmptyValue":false,"required":true,"description":"The amount expressed in Planck, i.e. 1 Signa = 10E8 Planck = 100000000 Planck","schema":{"$ref":"#/components/schemas/amount"}},"feeNQT":{"name":"feeNQT","in":"query","allowEmptyValue":false,"required":true,"description":"The fee for this transaction expressed in Planck, i.e. 0.01 Signa = 0.01 * 10E8 Planck = 1000000 Planck - The fee depends on the transaction type, but minimum fee is 0.01 Signa<br/>Read more about the fees [here](https://github.com/signum-network/SIPs/blob/master/SIP/sip-34.md)","schema":{"$ref":"#/components/schemas/amount"}},"secretPhrase":{"name":"secretPhrase","in":"query","allowEmptyValue":false,"description":"The secret passphrase.<br/>🔓 __Security Advice: It's not recommended to pass this parameter to remote nodes unless you trust the node operator.__","schema":{"type":"string"}},"publicKey":{"name":"publicKey","in":"query","allowEmptyValue":false,"description":"The public key of the sending account.<br/>If you send this key instead of the `secretPhrase`, you get the _unsigned_ transaction back, which can then be signed locally. In that case the transaction is not being published.","schema":{"$ref":"#/components/schemas/hash"}},"deadline":{"name":"deadline","in":"query","allowEmptyValue":false,"required":true,"description":"The deadline for how long the transaction may stay in the nodes mempool expressed in minutes until the transaction is being discarded","schema":{"type":"integer","format":"int32","min":1,"max":1440,"example":[60,120,1440]}},"broadcast":{"name":"broadcast","in":"query","allowEmptyValue":false,"description":"If set `false` the transaction will not be broadcast to the network","schema":{"type":"boolean","example":[true,false]}},"recipientPublicKey":{"name":"recipientPublicKey","in":"query","allowEmptyValue":false,"description":"If you send a the recipients public key with a transaction you can automatically register (and activate) an account within the blockchain.","schema":{"$ref":"#/components/schemas/hash"}},"referencedTransactionFullHash":{"name":"referencedTransactionFullHash","in":"query","allowEmptyValue":false,"description":"Using this field allows to make a transaction dependent on other transactions. This field will also be used for referencing carbon contracts","schema":{"$ref":"#/components/schemas/hash"}},"message":{"name":"message","in":"query","allowEmptyValue":false,"description":"It's possible to attach arbitrary data (in form of messages) to a transaction. The maximum limit is 1000 characters, either text or binary (in hex form)","schema":{"type":"string","maxLength":1000}},"messageIsText":{"name":"messageIsText","in":"query","allowEmptyValue":false,"description":"Determines if the attached `message` is either text or binary data (hexadecimal string)","schema":{"type":"boolean"}},"messageToEncrypt":{"name":"messageToEncrypt","in":"query","allowEmptyValue":false,"description":"It's possible to attach P2P encrypted arbitrary data (in form of messages) to a transaction. The maximum limit is 1000 characters, either text or binary (in hex form).<br/> When using P2P encryption you need to pass `recipientPublicKey` also.<br/> 🔓 __Security Advice: When you use this you are sending the message in plain text to the node.__","schema":{"type":"string","maxLength":1000}},"messageToEncryptIsText":{"name":"messageToEncryptIsText","in":"query","allowEmptyValue":false,"description":"Determines if the attached `messageToEncrypt` is either text or binary data (hexadecimal string)","schema":{"type":"boolean"}},"encryptedMessageData":{"name":"encryptedMessageData","in":"query","allowEmptyValue":false,"description":"It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptedMessageNonce` also.","schema":{"type":"string","maxLength":1000}},"encryptedMessageNonce":{"name":"encryptedMessageNonce","in":"query","allowEmptyValue":false,"description":"It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptedMessageData` also.","schema":{"type":"string"}},"messageToEncryptToSelf":{"name":"messageToEncryptToSelf","in":"query","allowEmptyValue":false,"description":"When encrypting messages to yourself, you may want to use this field.","schema":{"type":"string","maxLength":1000}},"messageToEncryptToSelfIsText":{"name":"messageToEncryptToSelfIsText","in":"query","allowEmptyValue":false,"description":"Determines if the attached `messageToEncryptToSelf` is either text or binary data (hexadecimal string)","schema":{"type":"boolean"}},"encryptToSelfMessageData":{"name":"encryptToSelfMessageData","in":"query","allowEmptyValue":false,"description":"It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageNonce` also.","schema":{"type":"string","maxLength":1000}},"encryptToSelfMessageNonce":{"name":"encryptToSelfMessageNonce","in":"query","allowEmptyValue":false,"description":"It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageData` also.","schema":{"type":"string"}}},"responses":{"error":{"description":"Error Response - __IMPORTANT: Error Responses always come with a HTTP Status Code 200 🤷__ ","content":{"application/json":{"schema":{"type":"object","required":["errorCode","errorDescription"],"example":{"errorCode":5,"errorDescription":"Unknown account","requestProcessingTime":2},"properties":{"errorDescription":{"type":"string","description":"The error message indicating what the issue is"},"errorCode":{"type":"integer","description":"The internal error code"}}}}}},"transaction":{"description":"Transaction Response","content":{"application/json":{"schema":{"oneOf":[{"type":"object","example":[{"broadcasted":true,"transaction":"6954612694592252012","fullHash":"6ce8970b66bf8360108df8d4675c275ab2acd549219928c4d0ae4a62a284b1c7","transactionBytes":"01207daef60e1800c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4aa98438cc3e273c5a000000000000000040420f000000000000000000000000000000000000000000000000000000000000000000000000009204b3eca152b72141cdfebbdbfad14c4c79a7f68f04eb5daf7f04a817495f09cca5cf85566ea2b28178702fba7aedae29728af7cd640f5b1e02b8facb21134c0100000084bf060078948b159669656904cfe1531b543c7c010400008074657374","signatureHash":"78c4b094c0b8b1d35c23738a5fabdcabbafd1e73a99a90e3280abf98452d783a","numberPeersSentTo":14,"unsignedTransactionBytes":"01207daef60e1800c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4aa98438cc3e273c5a000000000000000040420f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000084bf060078948b159669656904cfe1531b543c7c010400008074657374","transactionJSON":{"type":1,"subtype":0,"timestamp":251047549,"deadline":24,"senderPublicKey":"c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a","recipient":"6502115112683865257","recipientRS":"TS-K37B-9V85-FB95-793HN","amountNQT":"0","feeNQT":"1000000","signature":"9204b3eca152b72141cdfebbdbfad14c4c79a7f68f04eb5daf7f04a817495f09cca5cf85566ea2b28178702fba7aedae29728af7cd640f5b1e02b8facb21134c","signatureHash":"78c4b094c0b8b1d35c23738a5fabdcabbafd1e73a99a90e3280abf98452d783a","fullHash":"6ce8970b66bf8360108df8d4675c275ab2acd549219928c4d0ae4a62a284b1c7","transaction":"6954612694592252012","attachment":{"version.Message":1,"message":"test","messageIsText":true},"attachmentBytes":"010400008074657374","sender":"2402520554221019656","senderRS":"TS-QAJA-QW5Y-SWVP-4RVP4","height":2147483647,"version":2,"ecBlockId":"7594592439957689464","ecBlockHeight":442244,"cashBackId":"8952122635653861124"}}],"required":["transaction","fullHash"],"properties":{"transaction":{"$ref":"#/components/schemas/transactionId"},"fullHash":{"$ref":"#/components/schemas/hash"},"transactionBytes":{"type":"string","pattern":"^[a-fA-F0-9]+$","description":"The binary representation of the entire transaction. This can be parsed with (parseTransactionBytes)[]"},"signatureHash":{"$ref":"#/components/schemas/hash"},"numberPeersSentTo":{"type":"integer","format":"int32"},"broadcasted":{"type":"boolean"},"unsignedTransactionBytes":{"type":"string","pattern":"^[a-fA-F0-9]+$","description":"The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"},"transactionJSON":{"$ref":"#/components/schemas/transaction"},"requestProcessingTime":{"type":"integer"}}},{"type":"object","example":[{"broadcasted":false,"unsignedTransactionBytes":"0120f2bef60e18007210b8941929030324540238450e985899989a7ad0267e0c76f668fde3b1016ba98438cc3e273c5a000000000000000040420f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000096bf0600f1a6038feba76e9804cfe1531b543c7c0109000080536f6d652074657874","transactionJSON":{"type":1,"subtype":0,"timestamp":251051762,"deadline":24,"senderPublicKey":"7210b8941929030324540238450e985899989a7ad0267e0c76f668fde3b1016b","recipient":"6502115112683865257","recipientRS":"TS-K37B-9V85-FB95-793HN","amountNQT":"0","feeNQT":"1000000","attachment":{"version.Message":1,"message":"Some text","messageIsText":true},"attachmentBytes":"0109000080536f6d652074657874","sender":"6502115112683865257","senderRS":"TS-K37B-9V85-FB95-793HN","height":2147483647,"version":2,"ecBlockId":"10983901171361752817","ecBlockHeight":442262,"cashBackId":"8952122635653861124"},"requestProcessingTime":11}],"required":["unsignedTransactionBytes","transactionJSON"],"properties":{"broadcasted":{"type":"boolean","description":"This will be always false"},"unsignedTransactionBytes":{"type":"string","pattern":"^[a-fA-F0-9]+$","description":"The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"},"transactionJSON":{"$ref":"#/components/schemas/transaction"},"requestProcessingTime":{"type":"integer"}}}]}}}}}},"tags":[{"name":"account","description":"All Account related operations"},{"name":"contract","description":"All operations related to Smart Contracts"},{"name":"token","description":"All operations related to Tokens"},{"name":"util","description":"Additional utility operations"},{"name":"admin","description":"Administrative operation which requires the API Key to be configured in the node"},{"name":"block","description":"All Block related operations"},{"name":"transaction","description":"Everything about transactions"},{"name":"mining","description":"All mining related methods"}]}
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Signum Node API",
+    "version": "3.4.2",
+    "description": "This is the API documentation of the Signum Node",
+    "x-logo": {
+      "url": ""
+    }
+  },
+  "paths": {
+    "/api?requestType=getAccount": {
+      "get": {
+        "summary": "Get Account",
+        "description": "Get account information, like balances, commitment and token balances of an account.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The account identifier",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "getCommittedAmount",
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Returns the entire commitment"
+          },
+          {
+            "name": "height",
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "When set this blockheight the accounts situation at the given height will be returned"
+          },
+          {
+            "name": "estimateCommitment",
+            "in": "query",
+            "description": "If set `true` the estimated commitment per TiB will be returned",
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "balanceNQT",
+                    "unconfirmedBalanceNQT",
+                    "forgedBalanceNQT",
+                    "guaranteedBalanceNQT",
+                    "account",
+                    "accountRS"
+                  ],
+                  "properties": {
+                    "balanceNQT": {
+                      "description": "Your total balance, including commitment and reserved orders",
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "unconfirmedBalanceNQT": {
+                      "description": "The currently available balance",
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "committedBalanceNQT": {
+                      "description": "Your committed balance",
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "forgedBalanceNQT": {
+                      "description": "The balance forged by you (Solo-Mining only)",
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "guaranteedBalanceNQT": {
+                      "description": "Your total balance, including commitment and reserved orders",
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "commitmentNQT": {
+                      "description": "The current network commitment estimate per TiB",
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "account": {
+                      "$ref": "#/components/schemas/numericId"
+                    },
+                    "accountRS": {
+                      "$ref": "#/components/schemas/rsAddress"
+                    },
+                    "accountRSExtended": {
+                      "type": "string"
+                    },
+                    "publicKey": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "assetBalances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "asset": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "balanceQNT": {
+                            "$ref": "#/components/schemas/quantity"
+                          }
+                        }
+                      }
+                    },
+                    "unconfirmedAssetBalances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "asset": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "unconfirmedBalanceQNT": {
+                            "$ref": "#/components/schemas/quantity"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=addCommitment": {
+      "post": {
+        "summary": "Add Commitment",
+        "description": "Adds commitment to improve mining power. The commitment will be blocked, but never leave your account.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [removeCommitment](#get-/api-requestType-removeCommitment) ",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=removeCommitment": {
+      "post": {
+        "summary": "Remove Commitment",
+        "description": "Remove commitment. The commitment gets unblocked, and will be available for free use. Removing commitment is only possible after 1440 blocks after last mined block.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [addCommitment](#get-/api-requestType-addCommitment) ",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=setRewardRecipient": {
+      "post": {
+        "summary": "Set Reward Recipient (Join Pool)",
+        "description": "Sets another account to receive your mining reward. This feature is necessary when you want mine in a pool. The recipient is the address of the pool. <br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining)",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=sendMoney": {
+      "post": {
+        "summary": "Send Signa",
+        "description": "Sends Signa to another account. This is the most basic send operation and sends a single amount to another account. Of course, you can attach additional message or data to this transactions.",
+        "tags": [
+          "payment"
+        ],
+        "parameters": [
+          {
+            "name": "recipient",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The recipients address",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=sendMoneyMulti": {
+      "post": {
+        "summary": "Send Signa To Many",
+        "description": "Sends different amounts of Signa to up to 64 recipients. As this operation occupies the attachment section no further attachments, like messages are possible",
+        "tags": [
+          "payment"
+        ],
+        "parameters": [
+          {
+            "name": "recipients",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "A list of (numericIds:amountNQT)-tuples. You can have at maximum 64 entries. __Attention: Duplicated addresses make this transaction fail__",
+            "schema": {
+              "type": "string",
+              "pattern": "(\\d+:\\d+;?){1,64}$"
+            },
+            "example": [
+              "16107620026796983538:10000000000;2402520554221019656:12000000000"
+            ]
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=sendMoneyMultiSame": {
+      "post": {
+        "summary": "Send Same Signa To Many",
+        "description": "Sends the same amount of Signa to up to 128 account. As this operation occupies the attachment section no further attachments, like messages are possible",
+        "tags": [
+          "payment"
+        ],
+        "parameters": [
+          {
+            "name": "recipients",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "A list of account Ids. You can have at maximum 128 entries. __Attention: Duplicated addresses make this transaction fail__",
+            "schema": {
+              "type": "string",
+              "pattern": "d+{1,128}$"
+            },
+            "example": [
+              "16107620026796983538;2402520554221019656"
+            ]
+          },
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=sendMoneySubscription": {
+      "post": {
+        "summary": "Creates a subscription",
+        "description": "Sends Signa to another account at recurring frequency.",
+        "tags": [
+          "payment"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DsendMoney/post/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/amountNQT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "min": 3600,
+            "description": "The frequency of the payment in seconds, e.g. per day is 86400 seconds, per month is 2592000 seconds. If no balance is available the subscription halts.",
+            "example": [
+              86400,
+              2592000
+            ]
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "address": {
+        "type": "string",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          {
+            "$ref": "#/components/schemas/numericId"
+          }
+        ],
+        "description": "The account identifier as numeric Id or Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+        "example": [
+          "S-5MS6-5FBY-74H4-9N4HS",
+          "TS-QAJA-QW5Y-SWVP-4RVP4",
+          "895212263565386113"
+        ]
+      },
+      "amount": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The amount is always returned in Planck, that is Signa multiplied by 10E8",
+        "example": [
+          "100000000",
+          "1000000"
+        ]
+      },
+      "hash": {
+        "type": "string",
+        "pattern": "^[a-fA-F0-9]{64}$",
+        "description": "A hexadecimal string of fixed size representing 256 Bit Hashes (SHA-256)"
+      },
+      "hexString": {
+        "type": "string",
+        "pattern": "^[a-fA-F0-9]+$",
+        "description": "A hexadecimal string of arbitrary length"
+      },
+      "quantity": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The quantity is a tokens amount. It depends on the decimals a token supports, e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+        "example": [
+          "10000"
+        ]
+      },
+      "numericId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The account identifier as numeric Id",
+        "example": [
+          "895212263565386112"
+        ]
+      },
+      "rsAddress": {
+        "type": "string",
+        "description": "The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+        "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
+        "example": [
+          "S-5MS6-5FBY-74H4-9N4HS",
+          "TS-QAJA-QW5Y-SWVP-4RVP4"
+        ]
+      },
+      "timestamp": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The time in seconds since first Block (Genesis) of the chain."
+      },
+      "transaction": {
+        "type": "object",
+        "description": "The transaction object",
+        "example": [
+          {
+            "type": 1,
+            "subtype": 0,
+            "timestamp": 251047549,
+            "deadline": 24,
+            "senderPublicKey": "c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a",
+            "recipient": "6502115112683865257",
+            "recipientRS": "TS-K37B-9V85-FB95-793HN",
+            "amountNQT": "0",
+            "feeNQT": "1000000",
+            "signature": "9204b3eca152b72141cdfebbdbfad14c4c79a7f68f04eb5daf7f04a817495f09cca5cf85566ea2b28178702fba7aedae29728af7cd640f5b1e02b8facb21134c",
+            "signatureHash": "78c4b094c0b8b1d35c23738a5fabdcabbafd1e73a99a90e3280abf98452d783a",
+            "fullHash": "6ce8970b66bf8360108df8d4675c275ab2acd549219928c4d0ae4a62a284b1c7",
+            "transaction": "6954612694592252012",
+            "attachment": {
+              "version.Message": 1,
+              "message": "test",
+              "messageIsText": true
+            },
+            "attachmentBytes": "010400008074657374",
+            "sender": "2402520554221019656",
+            "senderRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+            "height": 2147483647,
+            "version": 2,
+            "ecBlockId": "7594592439957689464",
+            "ecBlockHeight": 442244,
+            "cashBackId": "8952122635653861124",
+            "block": "13680738303626126726",
+            "confirmations": 68148,
+            "blockTimestamp": 232452172
+          }
+        ],
+        "required": [
+          "type",
+          "subtype",
+          "timestamp",
+          "deadline",
+          "senderPublicKey",
+          "recipient",
+          "recipientRS",
+          "amountNQT",
+          "feeNQT",
+          "signature",
+          "signatureHash",
+          "fullHash",
+          "transaction",
+          "sender",
+          "senderRS",
+          "height",
+          "version",
+          "ecBlockId",
+          "ecBlockHeight",
+          "cashBackId"
+        ],
+        "properties": {
+          "transaction": {
+            "$ref": "#/components/schemas/transactionId"
+          },
+          "type": {
+            "type": "integer",
+            "description": "The transaction type. See also [getConstants]() and [here](https://docs.signum.network/signum/transaction-types)"
+          },
+          "subtype": {
+            "type": "integer",
+            "description": "The transaction subtype. See also [getConstants]() and [here](https://docs.signum.network/signum/transaction-types)"
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/timestamp"
+          },
+          "deadline": {
+            "type": "integer",
+            "description": "The deadline in minutes "
+          },
+          "sender": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "senderRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "senderPublicKey": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "recipientRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "amountNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "feeNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "signature": {
+            "$ref": "#/components/schemas/hexString"
+          },
+          "signatureHash": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "fullHash": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "attachment": {
+            "type": "object",
+            "description": "This is an arbitrary object carrying additional data, which depends mostly on the transaction type. It has no fixed structure. It always comes with a `version.<type>` field.",
+            "example": [
+              {
+                "version.Message": 1,
+                "message": "Some Message",
+                "messageIsText": true
+              }
+            ]
+          },
+          "attachmentBytes": {
+            "$ref": "#/components/schemas/hexString"
+          },
+          "height": {
+            "type": "integer",
+            "description": "The block height"
+          },
+          "version": {
+            "type": "integer",
+            "description": "The version number of this structure"
+          },
+          "ecBlockId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ecBlockHeight": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cashBackId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The Account Id where part of the fees is being paid to.<br/>Read more about cashback [here](https://github.com/signum-network/SIPs/blob/master/SIP/sip-35.md)"
+          },
+          "block": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The block Id of the transaction. This field is only available on forged/accepted transactions."
+          },
+          "blockTimestamp": {
+            "$ref": "#/components/schemas/timestamp",
+            "description": "The chains timestamp of the block where this transaction belongs to"
+          }
+        }
+      },
+      "transactionId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The transaction identifier",
+        "required": true,
+        "example": [
+          "6954612694592252012"
+        ]
+      }
+    },
+    "headers": {},
+    "parameters": {
+      "amountNQT": {
+        "name": "amountNQT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The amount expressed in Planck, i.e. 1 Signa = 10E8 Planck = 100000000 Planck",
+        "schema": {
+          "$ref": "#/components/schemas/amount"
+        }
+      },
+      "feeNQT": {
+        "name": "feeNQT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The fee for this transaction expressed in Planck, i.e. 0.01 Signa = 0.01 * 10E8 Planck = 1000000 Planck - The fee depends on the transaction type, but minimum fee is 0.01 Signa<br/>Read more about the fees [here](https://github.com/signum-network/SIPs/blob/master/SIP/sip-34.md)",
+        "schema": {
+          "$ref": "#/components/schemas/amount"
+        }
+      },
+      "secretPhrase": {
+        "name": "secretPhrase",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "_Your_ secret passphrase.<br/>🔓 __Security Advice: It's not recommended to pass this parameter to remote nodes unless you trust the node operator.__",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "publicKey": {
+        "name": "publicKey",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "The public key of the sending account.<br/>If you send this key instead of the `secretPhrase`, you get the _unsigned_ transaction back, which can then be signed locally. In that case the transaction is not being published.",
+        "schema": {
+          "$ref": "#/components/schemas/hash"
+        }
+      },
+      "deadline": {
+        "name": "deadline",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The deadline for how long the transaction may stay in the nodes mempool expressed in minutes until the transaction is being discarded",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "min": 1,
+          "max": 1440,
+          "example": [
+            60,
+            120,
+            1440
+          ]
+        }
+      },
+      "broadcast": {
+        "name": "broadcast",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "If set `false` the transaction will not be broadcast to the network",
+        "schema": {
+          "type": "boolean",
+          "example": [
+            true,
+            false
+          ]
+        }
+      },
+      "recipientPublicKey": {
+        "name": "recipientPublicKey",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "If you send a the recipients public key with a transaction you can automatically register (and activate) an account within the blockchain.",
+        "schema": {
+          "$ref": "#/components/schemas/hash"
+        }
+      },
+      "referencedTransactionFullHash": {
+        "name": "referencedTransactionFullHash",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "Using this field allows to make a transaction dependent on other transactions. This field will also be used for referencing carbon contracts",
+        "schema": {
+          "$ref": "#/components/schemas/hash"
+        }
+      },
+      "message": {
+        "name": "message",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "It's possible to attach arbitrary data (in form of messages) to a transaction. The maximum limit is 1000 characters, either text or binary (in hex form)",
+        "schema": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "messageIsText": {
+        "name": "messageIsText",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "Determines if the attached `message` is either text or binary data (hexadecimal string)",
+        "schema": {
+          "type": "boolean"
+        },
+        "example": [
+          true,
+          false
+        ]
+      },
+      "messageToEncrypt": {
+        "name": "messageToEncrypt",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "It's possible to attach P2P encrypted arbitrary data (in form of messages) to a transaction. The maximum limit is 1000 characters, either text or binary (in hex form).<br/> When using P2P encryption you need to pass `recipientPublicKey` also.<br/> 🔓 __Security Advice: When you use this you are sending the message in plain text to the node.__",
+        "schema": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "messageToEncryptIsText": {
+        "name": "messageToEncryptIsText",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "Determines if the attached `messageToEncrypt` is either text or binary data (hexadecimal string)",
+        "schema": {
+          "type": "boolean"
+        },
+        "example": [
+          true,
+          false
+        ]
+      },
+      "encryptedMessageData": {
+        "name": "encryptedMessageData",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptedMessageNonce` also.",
+        "schema": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "encryptedMessageNonce": {
+        "name": "encryptedMessageNonce",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptedMessageData` also.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "messageToEncryptToSelf": {
+        "name": "messageToEncryptToSelf",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "When encrypting messages to yourself, you may want to use this field.",
+        "schema": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "messageToEncryptToSelfIsText": {
+        "name": "messageToEncryptToSelfIsText",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "Determines if the attached `messageToEncryptToSelf` is either text or binary data (hexadecimal string)",
+        "schema": {
+          "type": "boolean"
+        },
+        "example": [
+          true,
+          false
+        ]
+      },
+      "encryptToSelfMessageData": {
+        "name": "encryptToSelfMessageData",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageNonce` also.",
+        "schema": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "encryptToSelfMessageNonce": {
+        "name": "encryptToSelfMessageNonce",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageData` also.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "error": {
+        "description": "Error Response - __IMPORTANT: Error Responses always come with a HTTP Status Code 200 🤷__ ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "errorCode",
+                "errorDescription"
+              ],
+              "example": {
+                "errorCode": 5,
+                "errorDescription": "Unknown account",
+                "requestProcessingTime": 2
+              },
+              "properties": {
+                "errorDescription": {
+                  "type": "string",
+                  "description": "The error message indicating what the issue is"
+                },
+                "errorCode": {
+                  "type": "integer",
+                  "description": "The internal error code"
+                }
+              }
+            }
+          }
+        }
+      },
+      "transaction": {
+        "description": "Transaction Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "example": [
+                    {
+                      "broadcasted": true,
+                      "transaction": "6954612694592252012",
+                      "fullHash": "6ce8970b66bf8360108df8d4675c275ab2acd549219928c4d0ae4a62a284b1c7",
+                      "transactionBytes": "01207daef60e1800c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4aa98438cc3e273c5a000000000000000040420f000000000000000000000000000000000000000000000000000000000000000000000000009204b3eca152b72141cdfebbdbfad14c4c79a7f68f04eb5daf7f04a817495f09cca5cf85566ea2b28178702fba7aedae29728af7cd640f5b1e02b8facb21134c0100000084bf060078948b159669656904cfe1531b543c7c010400008074657374",
+                      "signatureHash": "78c4b094c0b8b1d35c23738a5fabdcabbafd1e73a99a90e3280abf98452d783a",
+                      "numberPeersSentTo": 14,
+                      "unsignedTransactionBytes": "01207daef60e1800c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4aa98438cc3e273c5a000000000000000040420f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000084bf060078948b159669656904cfe1531b543c7c010400008074657374",
+                      "transactionJSON": {
+                        "type": 1,
+                        "subtype": 0,
+                        "timestamp": 251047549,
+                        "deadline": 24,
+                        "senderPublicKey": "c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a",
+                        "recipient": "6502115112683865257",
+                        "recipientRS": "TS-K37B-9V85-FB95-793HN",
+                        "amountNQT": "0",
+                        "feeNQT": "1000000",
+                        "signature": "9204b3eca152b72141cdfebbdbfad14c4c79a7f68f04eb5daf7f04a817495f09cca5cf85566ea2b28178702fba7aedae29728af7cd640f5b1e02b8facb21134c",
+                        "signatureHash": "78c4b094c0b8b1d35c23738a5fabdcabbafd1e73a99a90e3280abf98452d783a",
+                        "fullHash": "6ce8970b66bf8360108df8d4675c275ab2acd549219928c4d0ae4a62a284b1c7",
+                        "transaction": "6954612694592252012",
+                        "attachment": {
+                          "version.Message": 1,
+                          "message": "test",
+                          "messageIsText": true
+                        },
+                        "attachmentBytes": "010400008074657374",
+                        "sender": "2402520554221019656",
+                        "senderRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+                        "height": 2147483647,
+                        "version": 2,
+                        "ecBlockId": "7594592439957689464",
+                        "ecBlockHeight": 442244,
+                        "cashBackId": "8952122635653861124"
+                      }
+                    }
+                  ],
+                  "required": [
+                    "transaction",
+                    "fullHash"
+                  ],
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/transactionId"
+                    },
+                    "fullHash": {
+                      "$ref": "#/components/schemas/hash"
+                    },
+                    "transactionBytes": {
+                      "type": "string",
+                      "pattern": "^[a-fA-F0-9]+$",
+                      "description": "The binary representation of the entire transaction. This can be parsed with (parseTransactionBytes)[]"
+                    },
+                    "signatureHash": {
+                      "$ref": "#/components/schemas/hash"
+                    },
+                    "numberPeersSentTo": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "broadcasted": {
+                      "type": "boolean"
+                    },
+                    "unsignedTransactionBytes": {
+                      "type": "string",
+                      "pattern": "^[a-fA-F0-9]+$",
+                      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"
+                    },
+                    "transactionJSON": {
+                      "$ref": "#/components/schemas/transaction"
+                    },
+                    "requestProcessingTime": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "example": [
+                    {
+                      "broadcasted": false,
+                      "unsignedTransactionBytes": "0120f2bef60e18007210b8941929030324540238450e985899989a7ad0267e0c76f668fde3b1016ba98438cc3e273c5a000000000000000040420f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000096bf0600f1a6038feba76e9804cfe1531b543c7c0109000080536f6d652074657874",
+                      "transactionJSON": {
+                        "type": 1,
+                        "subtype": 0,
+                        "timestamp": 251051762,
+                        "deadline": 24,
+                        "senderPublicKey": "7210b8941929030324540238450e985899989a7ad0267e0c76f668fde3b1016b",
+                        "recipient": "6502115112683865257",
+                        "recipientRS": "TS-K37B-9V85-FB95-793HN",
+                        "amountNQT": "0",
+                        "feeNQT": "1000000",
+                        "attachment": {
+                          "version.Message": 1,
+                          "message": "Some text",
+                          "messageIsText": true
+                        },
+                        "attachmentBytes": "0109000080536f6d652074657874",
+                        "sender": "6502115112683865257",
+                        "senderRS": "TS-K37B-9V85-FB95-793HN",
+                        "height": 2147483647,
+                        "version": 2,
+                        "ecBlockId": "10983901171361752817",
+                        "ecBlockHeight": 442262,
+                        "cashBackId": "8952122635653861124"
+                      },
+                      "requestProcessingTime": 11
+                    }
+                  ],
+                  "required": [
+                    "unsignedTransactionBytes",
+                    "transactionJSON"
+                  ],
+                  "properties": {
+                    "broadcasted": {
+                      "type": "boolean",
+                      "description": "This will be always false"
+                    },
+                    "unsignedTransactionBytes": {
+                      "type": "string",
+                      "pattern": "^[a-fA-F0-9]+$",
+                      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"
+                    },
+                    "transactionJSON": {
+                      "$ref": "#/components/schemas/transaction"
+                    },
+                    "requestProcessingTime": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "account",
+      "description": "All Account related operations"
+    },
+    {
+      "name": "contract",
+      "description": "All operations related to Smart Contracts"
+    },
+    {
+      "name": "token",
+      "description": "All operations related to Tokens"
+    },
+    {
+      "name": "util",
+      "description": "Additional utility operations"
+    },
+    {
+      "name": "admin",
+      "description": "Administrative operation which requires the API Key to be configured in the node"
+    },
+    {
+      "name": "block",
+      "description": "All Block related operations"
+    },
+    {
+      "name": "sign",
+      "description": "These function require a digital signature from the sender"
+    },
+    {
+      "name": "transactions",
+      "description": "All functions which are related the blockchain"
+    },
+    {
+      "name": "mining",
+      "description": "All mining related methods"
+    },
+    {
+      "name": "payment",
+      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
+    }
+  ]
+}
