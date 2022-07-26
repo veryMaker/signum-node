@@ -8,6 +8,7 @@
         rel="stylesheet">
   <link href="main.css" rel="stylesheet">
   <script type="module" src="./rapidoc-min.js"></script>
+  <script type="application/javascript" src="./converter.js"></script>
   <script type="application/javascript">
 
     function getCurrentTheme() {
@@ -22,6 +23,13 @@
       const label = document.getElementById('toggle-label')
       label.innerText = `Switch to ${wasDark ? 'dark' : 'light'} theme`
     }
+
+    function quantityChanged(e) {
+      if (e.target.value) {
+        window.converter.setQuantity(parseInt(e.target.value))
+      }
+    }
+
   </script>
 
 </head>
@@ -46,9 +54,25 @@
       <small id="toggle-label"></small>
       <div class='toggle-switch'>
         <label>
-          <input type='checkbox' onclick="toggleTheme()">
+          <input id="toggle-input" type='checkbox' onclick="toggleTheme()">
           <span class='slider'></span>
         </label>
+      </div>
+    </div>
+    <hr class="section-divider">
+    <div class='converter-wrapper'>
+      <p>Quantity Converter</p>
+      <div>
+        <label for="quantity">Quantity:</label>
+        <input id="quantity" type="number" onchange="" min="0">
+      </div>
+      <div>
+        <label for="value">Value:</label>
+        <input id="value" type="number" min="0">
+      </div>
+      <div>
+        <label for="decimals">Decimals:</label>
+        <input id="decimals" type="number" value="8" max="8" min="0">
       </div>
     </div>
     <hr class="section-divider">
@@ -56,8 +80,27 @@
 </rapi-doc>
 <script>
   (() => {
-    const label = document.getElementById('toggle-label')
-    label.innerText = `Switch to ${getCurrentTheme() === 'dark' ? 'light' : 'dark'} theme`
+    const labelEl = document.getElementById('toggle-label')
+    labelEl.innerText = `Switch to ${getCurrentTheme() === 'dark' ? 'light' : 'dark'} theme`
+
+
+    const quantityEl = document.getElementById('quantity')
+    const valueEl = document.getElementById('value')
+    const decimalsEl = document.getElementById('decimals')
+
+    quantityEl.addEventListener('keypress', ({target}) => {
+      window.converter.setQuantity(parseInt(target.value || '0'))
+    })
+    valueEl.addEventListener('keypress', ({target}) => {
+      window.converter.setValue(parseFloat(target.value || '0'))
+    })
+    decimalsEl.addEventListener('keypress', ({target}) => {
+      window.converter.setDecimals(parseInt(target.value || '0'))
+    })
+
+    document.addEventListener('convert', (detail) => {
+      console.log('details', detail)
+    })
   })()
 </script>
 </body>

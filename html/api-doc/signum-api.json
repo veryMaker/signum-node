@@ -611,6 +611,67 @@
           }
         }
       }
+    },
+    "/api?requestType=setAccountInfo": {
+      "post": {
+        "summary": "Set Account Information",
+        "description": "Add or edit your accounts name and description.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": true,
+            "description": "Set an arbitrary name for your account. This will show up in diverse tools of the ecosystem",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "description",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "Set an arbitrary description.",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
     }
   },
   "components": {

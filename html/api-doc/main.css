@@ -29,7 +29,7 @@
 ;
 }
 
-label {
+.toggle-switch > label {
   position: absolute;
   width: 100%;
   height: 24px;
@@ -38,12 +38,12 @@ label {
   cursor: pointer;
 }
 
-input {
+.toggle-switch input {
   position: absolute;
   display: none;
 }
 
-.slider {
+.toggle-switch .slider {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -51,11 +51,11 @@ input {
   transition: 0.3s;
 }
 
-input:checked ~ .slider {
+.toggle-switch input:checked ~ .slider {
   background-color: var(--light);
 }
 
-.slider::before {
+.toggle-switch .slider::before {
   content: "";
   position: absolute;
   top: 0;
@@ -68,7 +68,7 @@ input:checked ~ .slider {
   transition: 0.3s;
 }
 
-input:checked ~ .slider::before {
+.toggle-switch input:checked ~ .slider::before {
   transform: translateX(24px);
   background-color: var(--dark);
   box-shadow: none;
@@ -78,4 +78,10 @@ input:checked ~ .slider::before {
   margin-top: 1.75rem;
   border: none;
   border-top: 1px solid var(--dark-grey);
+}
+
+.converter-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75rem;
 }

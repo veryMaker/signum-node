@@ -32,6 +32,9 @@
     },
     "/api?requestType=sendMoneySubscription": {
       "$ref": "./paths/sendMoneySubscription.json"
+    },
+    "/api?requestType=setAccountInfo": {
+      "$ref": "./paths/setAccountInfo.json"
     }
   },
   "components": {
