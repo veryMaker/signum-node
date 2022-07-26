@@ -5,10 +5,10 @@
       "schema": {
         "oneOf": [
           {
-            "$ref": "./_signedTransaction.json"
+            "$ref": "../schemas/signedTransaction.json"
           },
           {
-            "$ref": "./_unsignedTransaction.json"
+            "$ref": "../schemas/unsignedTransaction.json"
           }
         ]
       }

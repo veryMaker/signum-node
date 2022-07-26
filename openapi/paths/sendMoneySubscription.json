@@ -1,7 +1,7 @@
 {
   "post": {
-    "summary": "Creates a subscription",
-    "description": "Sends Signa to another account at recurring frequency.",
+    "summary": "Create subscription",
+    "description": "Sends Signa to another account at recurring frequency. See also [Cancel Subscription](#post-/api-requestType-subscriptionCancel)",
     "tags": [
       "payment"
     ],
@@ -16,10 +16,14 @@
         "$ref": "../parameters/transaction/feeNQT.json"
       },
       {
-        "type": "integer",
-        "format": "int32",
-        "min": 3600,
+        "name": "frequency",
+        "in": "query",
         "description": "The frequency of the payment in seconds, e.g. per day is 86400 seconds, per month is 2592000 seconds. If no balance is available the subscription halts.",
+        "schema" : {
+          "type": "integer",
+          "format": "int32",
+          "min": 3600
+        },
         "example": [86400,2592000]
       },
       {

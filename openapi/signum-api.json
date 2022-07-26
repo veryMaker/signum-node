@@ -33,8 +33,20 @@
     "/api?requestType=sendMoneySubscription": {
       "$ref": "./paths/sendMoneySubscription.json"
     },
+    "/api?requestType=subscriptionCancel": {
+      "$ref": "./paths/subscriptionCancel.json"
+    },
     "/api?requestType=setAccountInfo": {
       "$ref": "./paths/setAccountInfo.json"
+    },
+    "/api?requestType=signTransaction": {
+      "$ref": "./paths/signTransaction.json"
+    },
+    "/api?requestType=broadcastTransaction": {
+      "$ref": "./paths/broadcastTransaction.json"
+    },
+    "/api?requestType=parseTransaction": {
+      "$ref": "./paths/parseTransaction.json"
     }
   },
   "components": {
@@ -150,8 +162,8 @@
       "description": "All operations related to Tokens"
     },
     {
-      "name": "util",
-      "description": "Additional utility operations"
+      "name": "utility",
+      "description": "Additional utility and/or low-level operations"
     },
     {
       "name": "admin",
@@ -160,10 +172,6 @@
     {
       "name": "block",
       "description": "All Block related operations"
-    },
-    {
-      "name": "sign",
-      "description": "These function require a digital signature from the sender"
     },
     {
       "name": "transactions",

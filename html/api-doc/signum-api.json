@@ -296,36 +296,6 @@
           },
           {
             "$ref": "#/components/parameters/referencedTransactionFullHash"
-          },
-          {
-            "$ref": "#/components/parameters/message"
-          },
-          {
-            "$ref": "#/components/parameters/messageIsText"
-          },
-          {
-            "$ref": "#/components/parameters/messageToEncrypt"
-          },
-          {
-            "$ref": "#/components/parameters/messageToEncryptIsText"
-          },
-          {
-            "$ref": "#/components/parameters/encryptedMessageData"
-          },
-          {
-            "$ref": "#/components/parameters/encryptedMessageNonce"
-          },
-          {
-            "$ref": "#/components/parameters/messageToEncryptToSelf"
-          },
-          {
-            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
-          },
-          {
-            "$ref": "#/components/parameters/encryptToSelfMessageData"
-          },
-          {
-            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
           }
         ],
         "responses": {
@@ -528,8 +498,8 @@
     },
     "/api?requestType=sendMoneySubscription": {
       "post": {
-        "summary": "Creates a subscription",
-        "description": "Sends Signa to another account at recurring frequency.",
+        "summary": "Create subscription",
+        "description": "Sends Signa to another account at recurring frequency. See also [Cancel Subscription](#post-/api-requestType-subscriptionCancel)",
         "tags": [
           "payment"
         ],
@@ -544,10 +514,14 @@
             "$ref": "#/components/parameters/feeNQT"
           },
           {
-            "type": "integer",
-            "format": "int32",
-            "min": 3600,
+            "name": "frequency",
+            "in": "query",
             "description": "The frequency of the payment in seconds, e.g. per day is 86400 seconds, per month is 2592000 seconds. If no balance is available the subscription halts.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "min": 3600
+            },
             "example": [
               86400,
               2592000
@@ -600,6 +574,49 @@
           },
           {
             "$ref": "#/components/parameters/encryptToSelfMessageNonce"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=subscriptionCancel": {
+      "post": {
+        "summary": "Cancel subscription",
+        "description": "Cancels a running subscription. See also [Create Subscription](#post-/api-requestType-sendMoneySubscription)",
+        "tags": [
+          "payment"
+        ],
+        "parameters": [
+          {
+            "name": "subscription",
+            "in": "query",
+            "description": "The subscription identifier. See [getAccountSubscriptions]()",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
           }
         ],
         "responses": {
@@ -666,6 +683,187 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=signTransaction": {
+      "post": {
+        "summary": "Sign Transaction",
+        "description": "Signs a transaction, which can be [broadcast](#post-/api-requestType-broadcastTransaction) to the network then. This is merely a low-level API endpoint.<br/>To get an _unsigned_ transaction object you use your public key to post transactions instead of your passphrase.",
+        "tags": [
+          "utility"
+        ],
+        "parameters": [
+          {
+            "name": "unsignedTransactionBytes",
+            "description": "The _unsigned_ transaction bytes in hexadecimal representation.",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/hexString"
+            }
+          },
+          {
+            "name": "unsignedTransactionJSON",
+            "description": "The _unsigned_ transaction and _stringified_ JSON object. It's recommended to use the `unsignedTransactionBytes` instead.",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed Transaction Response. Use the returned `transactionBytes` with [broadcastTransaction](#post-/api-requestType-broadcastTransaction)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "The signed transaction response",
+                  "required": [
+                    "transaction",
+                    "transactionBytes",
+                    "fullHash",
+                    "signatureHash",
+                    "verify"
+                  ],
+                  "example": {
+                    "transaction": "17286979857310322585",
+                    "fullHash": "998f500297b0e7ef9e4e1c18ac7921c74d76a1aabded8c36972896f8d444a2b5",
+                    "transactionBytes": "00203c3af80e1800c213e4144ba84af94aae2458308fae1f0cb0838...",
+                    "signatureHash": "a645cb3cc93176dda1b9bc172c53449dc42b2c27100b5754f70c1eb84b491230",
+                    "verify": true
+                  },
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/transactionId"
+                    },
+                    "fullHash": {
+                      "$ref": "#/components/schemas/hash"
+                    },
+                    "transactionBytes": {
+                      "description": "Bla",
+                      "$ref": "#/components/schemas/hexString"
+                    },
+                    "signatureHash": {
+                      "$ref": "#/components/schemas/hash"
+                    },
+                    "verify": {
+                      "type": "boolean",
+                      "description": "Indicates whether the transaction could be verified or not."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=broadcastTransaction": {
+      "post": {
+        "summary": "Broadcast Transaction",
+        "description": "Sends a _signed_ transaction to the network. This is merely a low-level API endpoint",
+        "tags": [
+          "utility"
+        ],
+        "parameters": [
+          {
+            "name": "transactionBytes",
+            "description": "The _signed_ transaction bytes in hexadecimal representation",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/hexString"
+            }
+          },
+          {
+            "name": "transactionTransactionJSON",
+            "description": "The _signed_ transaction and _stringified_ JSON object. It's recommended to use the `transactionBytes` instead.",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Broadcast Transaction Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "The broadcast transaction response",
+                  "required": [
+                    "numberPeersSentTo",
+                    "transaction",
+                    "fullHash"
+                  ],
+                  "example": {
+                    "numberPeersSentTo": 15,
+                    "transaction": "17286979857310322585",
+                    "fullHash": "998f500297b0e7ef9e4e1c18ac7921c74d76a1aabded8c36972896f8d444a2b5"
+                  },
+                  "properties": {
+                    "transaction": {
+                      "$ref": "#/components/schemas/transactionId"
+                    },
+                    "fullHash": {
+                      "$ref": "#/components/schemas/hash"
+                    },
+                    "numberPeersSentTo": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=parseTransaction": {
+      "post": {
+        "summary": "Parse Transaction Bytes",
+        "description": "Parses a _signed_ and/or _unsigned_ transaction bytes and returns as JSON object. This is merely a low-level API endpoint.",
+        "tags": [
+          "utility"
+        ],
+        "parameters": [
+          {
+            "name": "transactionBytes",
+            "description": "The _signed_ and/or _unsigned_ transaction bytes in hexadecimal representation.",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/hexString"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The parsed JSON object of the transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/transaction"
+                }
+              }
+            }
           },
           "500": {
             "$ref": "#/components/responses/error"
@@ -1294,8 +1492,8 @@
       "description": "All operations related to Tokens"
     },
     {
-      "name": "util",
-      "description": "Additional utility operations"
+      "name": "utility",
+      "description": "Additional utility and/or low-level operations"
     },
     {
       "name": "admin",
@@ -1304,10 +1502,6 @@
     {
       "name": "block",
       "description": "All Block related operations"
-    },
-    {
-      "name": "sign",
-      "description": "These function require a digital signature from the sender"
     },
     {
       "name": "transactions",
