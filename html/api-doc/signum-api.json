@@ -317,14 +317,7 @@
         ],
         "parameters": [
           {
-            "name": "recipient",
-            "in": "query",
-            "allowEmptyValue": false,
-            "required": true,
-            "description": "The recipients address",
-            "schema": {
-              "$ref": "#/components/schemas/address"
-            }
+            "$ref": "#/components/parameters/recipient"
           },
           {
             "$ref": "#/components/parameters/amountNQT"
@@ -505,7 +498,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DsendMoney/post/parameters/0"
+            "$ref": "#/components/parameters/recipient"
           },
           {
             "$ref": "#/components/parameters/amountNQT"
@@ -520,12 +513,85 @@
             "schema": {
               "type": "integer",
               "format": "int32",
-              "min": 3600
+              "minimum": 3600
             },
             "example": [
               86400,
               2592000
             ]
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=sendMessage": {
+      "post": {
+        "summary": "Send Message",
+        "description": "Sends a plain or P2P encrypted message to another account. The message can be either a textual message or binary data in form of a hexadecimal string.<br/>In contrast to [Send Signa](#post-/api-requestType-sendMoney) you don't have to send any amount, but the fee only. The fee depends on the amount of characters you send, and can be between 0.01 and 0.06 Signa.",
+        "tags": [
+          "payment"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/recipient"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
           },
           {
             "$ref": "#/components/parameters/secretPhrase"
@@ -749,7 +815,6 @@
                       "$ref": "#/components/schemas/hash"
                     },
                     "transactionBytes": {
-                      "description": "Bla",
                       "$ref": "#/components/schemas/hexString"
                     },
                     "signatureHash": {
@@ -864,6 +929,122 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=backupDB": {
+      "post": {
+        "summary": "Backup Database",
+        "description": "This allows you to dump the database in a file. __Attention: This is a very long running operation__",
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "description": "The name of the resulting file",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/apiKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/empty"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=popOff": {
+      "post": {
+        "summary": "Pop off Transactions",
+        "description": "This allows to remove up to 1440 most recent transactions in the nodes database. Use this to get your database in sync with network when you are on a fork. __Attention: This operation can take some minutes__",
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "name": "numBlocks",
+            "description": "The amount of blocks to be removed",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440
+            }
+          },
+          {
+            "name": "height",
+            "description": "The block height to which it should be reset. Only block heights which are at maximum 1440 blocks in the past",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/apiKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/empty"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=clearUnconfirmedTransactions": {
+      "post": {
+        "summary": "Clear Unconfirmed Transactions",
+        "description": "Prunes unconfirmed transactions.",
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apiKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/empty"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=fullReset": {
+      "post": {
+        "summary": "Full Node Reset",
+        "description": "Resets the node and forces a resync.",
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apiKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/empty"
           },
           "500": {
             "$ref": "#/components/responses/error"
@@ -1088,8 +1269,7 @@
             "description": "The block Id of the transaction. This field is only available on forged/accepted transactions."
           },
           "blockTimestamp": {
-            "$ref": "#/components/schemas/timestamp",
-            "description": "The chains timestamp of the block where this transaction belongs to"
+            "$ref": "#/components/schemas/timestamp"
           }
         }
       },
@@ -1105,6 +1285,15 @@
     },
     "headers": {},
     "parameters": {
+      "apiKey": {
+        "name": "apiKey",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "Any arbitrary string.<br/>🔓 __Security Advice: Use a very strong and truly random key, or even disable admin operation entirely in your node config. Exposing admin operations is a security risk.__",
+        "schema": {
+          "type": "string"
+        }
+      },
       "amountNQT": {
         "name": "amountNQT",
         "in": "query",
@@ -1152,8 +1341,8 @@
         "schema": {
           "type": "integer",
           "format": "int32",
-          "min": 1,
-          "max": 1440,
+          "minimum": 1,
+          "maximum": 1440,
           "example": [
             60,
             120,
@@ -1172,6 +1361,16 @@
             true,
             false
           ]
+        }
+      },
+      "recipient": {
+        "name": "recipient",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The recipients address",
+        "schema": {
+          "$ref": "#/components/schemas/address"
         }
       },
       "recipientPublicKey": {
@@ -1301,6 +1500,9 @@
       }
     },
     "responses": {
+      "empty": {
+        "description": "Empty response. Operation executed successfully"
+      },
       "error": {
         "description": "Error Response - __IMPORTANT: Error Responses always come with a HTTP Status Code 200 🤷__ ",
         "content": {
@@ -1497,7 +1699,7 @@
     },
     {
       "name": "admin",
-      "description": "Administrative operation which requires the API Key to be configured in the node"
+      "description": "Administrative operations which requires an API Key to be configured in the node.</br>🔓 __Security Advice: Use a very strong and truly random key, or even disable admin operation entirely in your node config. Exposing admin operations is a security risk.__"
     },
     {
       "name": "block",

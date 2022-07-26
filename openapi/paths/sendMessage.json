@@ -1,7 +1,7 @@
 {
   "post": {
-    "summary": "Create subscription",
-    "description": "Sends Signa to another account at recurring frequency. See also [Cancel Subscription](#post-/api-requestType-subscriptionCancel)",
+    "summary": "Send Message",
+    "description": "Sends a plain or P2P encrypted message to another account. The message can be either a textual message or binary data in form of a hexadecimal string.<br/>In contrast to [Send Signa](#post-/api-requestType-sendMoney) you don't have to send any amount, but the fee only. The fee depends on the amount of characters you send, and can be between 0.01 and 0.06 Signa.",
     "tags": [
       "payment"
     ],
@@ -10,21 +10,7 @@
         "$ref": "../parameters/transaction/recipient.json"
       },
       {
-        "$ref": "../parameters/transaction/amountNQT.json"
-      },
-      {
         "$ref": "../parameters/transaction/feeNQT.json"
-      },
-      {
-        "name": "frequency",
-        "in": "query",
-        "description": "The frequency of the payment in seconds, e.g. per day is 86400 seconds, per month is 2592000 seconds. If no balance is available the subscription halts.",
-        "schema" : {
-          "type": "integer",
-          "format": "int32",
-          "minimum": 3600
-        },
-        "example": [86400,2592000]
       },
       {
         "$ref": "../parameters/transaction/secretPhrase.json"

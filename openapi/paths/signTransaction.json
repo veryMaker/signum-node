@@ -57,7 +57,6 @@
                   "$ref" : "../schemas/hash.json"
                 },
                 "transactionBytes": {
-                  "description": "Bla",
                   "$ref" : "../schemas/hexString.json"
                 },
                 "signatureHash": {

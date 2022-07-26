@@ -33,6 +33,9 @@
     "/api?requestType=sendMoneySubscription": {
       "$ref": "./paths/sendMoneySubscription.json"
     },
+    "/api?requestType=sendMessage": {
+      "$ref": "./paths/sendMessage.json"
+    },
     "/api?requestType=subscriptionCancel": {
       "$ref": "./paths/subscriptionCancel.json"
     },
@@ -47,6 +50,18 @@
     },
     "/api?requestType=parseTransaction": {
       "$ref": "./paths/parseTransaction.json"
+    },
+    "/api?requestType=backupDB": {
+      "$ref": "./paths/admin/backupDB.json"
+    },
+    "/api?requestType=popOff": {
+      "$ref": "./paths/admin/popOff.json"
+    },
+    "/api?requestType=clearUnconfirmedTransactions": {
+      "$ref": "./paths/admin/clearUnconfirmedTransactions.json"
+    },
+    "/api?requestType=fullReset": {
+      "$ref": "./paths/admin/fullReset.json"
     }
   },
   "components": {
@@ -84,6 +99,9 @@
     },
     "headers": {},
     "parameters": {
+      "apiKey": {
+        "$ref": "./parameters/apiKey.json"
+      },
       "amountNQT": {
         "$ref": "./parameters/transaction/amountNQT.json"
       },
@@ -101,6 +119,9 @@
       },
       "broadcast": {
         "$ref": "./parameters/transaction/broadcast.json"
+      },
+      "recipient": {
+        "$ref": "./parameters/transaction/recipient.json"
       },
       "recipientPublicKey": {
         "$ref": "./parameters/transaction/recipientPublicKey.json"
@@ -140,6 +161,9 @@
       }
     },
     "responses": {
+      "empty": {
+        "$ref": "./responses/empty.json"
+      },
       "error": {
         "$ref": "./responses/error.json"
       },
@@ -167,7 +191,7 @@
     },
     {
       "name": "admin",
-      "description": "Administrative operation which requires the API Key to be configured in the node"
+      "description": "Administrative operations which requires an API Key to be configured in the node.</br>\uD83D\uDD13 __Security Advice: Use a very strong and truly random key, or even disable admin operation entirely in your node config. Exposing admin operations is a security risk.__"
     },
     {
       "name": "block",

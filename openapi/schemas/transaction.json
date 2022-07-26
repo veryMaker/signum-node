@@ -146,8 +146,7 @@
       "description": "The block Id of the transaction. This field is only available on forged/accepted transactions."
     },
     "blockTimestamp": {
-      "$ref": "./timestamp.json",
-      "description": "The chains timestamp of the block where this transaction belongs to"
+      "$ref": "./timestamp.json"
     }
   }
 }
