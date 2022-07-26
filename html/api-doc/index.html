@@ -24,12 +24,10 @@
       label.innerText = `Switch to ${wasDark ? 'dark' : 'light'} theme`
     }
 
-    function quantityChanged(e) {
-      if (e.target.value) {
-        window.converter.setQuantity(parseInt(e.target.value))
-      }
+    function toggleExpand() {
+      document.getElementById('expander').classList.toggle('expanded')
+      document.getElementById('expander-btn').classList.toggle('expanded')
     }
-
   </script>
 
 </head>
@@ -61,18 +59,26 @@
     </div>
     <hr class="section-divider">
     <div class='converter-wrapper'>
-      <p>Quantity Converter</p>
-      <div>
-        <label for="quantity">Quantity:</label>
-        <input id="quantity" type="number" onchange="" min="0">
-      </div>
-      <div>
-        <label for="value">Value:</label>
-        <input id="value" type="number" min="0">
-      </div>
-      <div>
-        <label for="decimals">Decimals:</label>
-        <input id="decimals" type="number" value="8" max="8" min="0">
+      <header>
+        <span class="inline">
+          <h3>Quantity Converter</h3>
+          <button id="expander-btn" onclick="toggleExpand()"></button>
+        </span>
+        <p><small>Convert Signa, Planck and Token Quantities</small></p>
+      </header>
+      <div id="expander">
+        <div class="input-component">
+          <label for="amount">Signa/Amount</label>
+          <input id="amount">
+        </div>
+        <div class="input-component">
+          <label for="quantity">Planck/Quantity</label>
+          <input id="quantity">
+        </div>
+        <div class="input-component">
+          <label for="decimals">Decimals</label>
+          <input id="decimals" type="number" value="8" max="8" min="0">
+        </div>
       </div>
     </div>
     <hr class="section-divider">
@@ -83,23 +89,24 @@
     const labelEl = document.getElementById('toggle-label')
     labelEl.innerText = `Switch to ${getCurrentTheme() === 'dark' ? 'light' : 'dark'} theme`
 
-
     const quantityEl = document.getElementById('quantity')
-    const valueEl = document.getElementById('value')
+    const valueEl = document.getElementById('amount')
     const decimalsEl = document.getElementById('decimals')
 
-    quantityEl.addEventListener('keypress', ({target}) => {
+    quantityEl.addEventListener('keyup', ({target}) => {
       window.converter.setQuantity(parseInt(target.value || '0'))
     })
-    valueEl.addEventListener('keypress', ({target}) => {
+    valueEl.addEventListener('change', ({target}) => {
       window.converter.setValue(parseFloat(target.value || '0'))
     })
-    decimalsEl.addEventListener('keypress', ({target}) => {
+    decimalsEl.addEventListener('input', ({target}) => {
       window.converter.setDecimals(parseInt(target.value || '0'))
     })
 
-    document.addEventListener('convert', (detail) => {
-      console.log('details', detail)
+    document.addEventListener('convert', ({detail}) => {
+      quantityEl.value = detail.quantity
+      valueEl.value = detail.value.toFixed(detail.decimals)
+      decimalsEl.value = detail.decimals
     })
   })()
 </script>

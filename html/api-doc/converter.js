@@ -32,7 +32,6 @@ class Converter {
     this._quantity = this._value * ( 10 ** this._decimals)
     this._value = this._quantity / (10 ** this._decimals)
     this.dispatch()
-
   }
 
   setValue(v){

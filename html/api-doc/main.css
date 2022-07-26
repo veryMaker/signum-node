@@ -85,3 +85,85 @@
   flex-direction: column;
   margin-top: 0.75rem;
 }
+
+.converter-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75rem;
+}
+
+.converter-wrapper h3 {
+  font-size: var(--font-size-regular);
+  font-weight: bold;
+}
+
+.converter-wrapper p {
+  margin: 0.5rem 0;
+  font-size: smaller;
+}
+
+.converter-wrapper .input-component {
+  font-size: small;
+  position: relative;
+  margin: 0.25rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.converter-wrapper .input-component label {
+  font-size: small;
+  margin-bottom: 0.25rem;
+}
+
+.converter-wrapper .input-component input {
+  border-radius:2px;
+  border: 1px solid var(--nav-accent-color);
+  background-color: var(--dark);
+  color: var(--light);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--font-size-small);
+  transition: border 0.2s ease 0s;
+  padding: 6px 5px;
+}
+
+input:focus, input:focus-visible {
+  border-radius:2px;
+  border: 1px solid var(--nav-accent-color);
+  background-color: var(--dark);
+  color: var(--light);
+}
+
+.inline {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#expander {
+  height: 0;
+  transition: height ease-in-out 250ms;
+  position: relative;
+  overflow: hidden;
+}
+
+#expander.expanded {
+  height: 168px;
+}
+
+#expander-btn::before {
+  content: "▼";
+}
+#expander-btn {
+  background-color: transparent;
+  color: var(--light);
+  border: none;
+  transform: rotate(0);
+  transition: transform ease-in-out 250ms;
+  cursor: pointer;
+}
+
+#expander-btn.expanded {
+  transform: rotate(180deg);
+}
