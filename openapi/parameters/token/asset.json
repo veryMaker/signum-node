@@ -3,7 +3,7 @@
   "in": "query",
   "allowEmptyValue": false,
   "required": true,
-  "description": "The token identifier",
+  "description": "The related token identifier",
   "schema": {
     "$ref": "../../schemas/assetId.json"
   }

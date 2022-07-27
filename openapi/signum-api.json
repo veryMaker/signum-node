@@ -68,6 +68,12 @@
     },
     "/api?requestType=mintAsset": {
       "$ref": "./paths/token/mintAsset.json"
+    },
+    "/api?requestType=addAssetTreasuryAccount": {
+      "$ref": "./paths/token/addAssetTreasuryAccount.json"
+    },
+    "/api?requestType=distributeToAssetHolders": {
+      "$ref": "./paths/token/distributeToAssetHolders.json"
     }
   },
   "components": {

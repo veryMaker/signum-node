@@ -1235,7 +1235,130 @@
             "in": "query",
             "allowEmptyValue": false,
             "required": true,
-            "description": "The token identifier",
+            "description": "The related token identifier",
+            "schema": {
+              "$ref": "#/paths/~1api%3FrequestType%3DdistributeToAssetHolders/post/parameters/3/schema"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/quantityQNT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=addAssetTreasuryAccount": {
+      "post": {
+        "summary": "Mark Treasury Account",
+        "description": "When marking an account as treasury account, the accounts token balance will not be considered for circulating supply and is also not eligible for token distribution.<br/>This operation is not revertible!<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#define-treasury-accounts)",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "name": "recipient",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The accounts address that should be marked as treasury account.",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "referencedTransactionFullHash",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Use this field to reference to the tokens issue transaction hash. This is the way to link to the asset!<br/>Mind, that Smart Contracts cannot be marked as treasury accounts and only the creator can mark accounts as treasury accounts.",
+            "schema": {
+              "$ref": "#/components/schemas/hash"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=distributeToAssetHolders": {
+      "post": {
+        "summary": "Distribute To Token Holders",
+        "description": "This function distributes Signa __and/or__ Tokens to token holders (excluding treasury accounts).<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders)",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DmintAsset/post/parameters/0"
+          },
+          {
+            "name": "quantityMinimumQNT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "The minimum quantity of tokens a holder needs to be eligible for distribution",
+            "schema": {
+              "$ref": "#/components/schemas/quantity"
+            }
+          },
+          {
+            "name": "amountNQT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "The _total_ amount in Signa to be distributed to the token holders.",
+            "schema": {
+              "$ref": "#/components/schemas/amount"
+            }
+          },
+          {
+            "name": "assetToDistribute",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "The token that shall be distributed.<br/>Mind that it's possible to distribute either a token, Signa, or both together.",
             "schema": {
               "type": "integer",
               "format": "int64",
@@ -1247,10 +1370,22 @@
             }
           },
           {
-            "$ref": "#/components/parameters/quantityQNT"
+            "name": "quantityQNT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "The _total_ quantity of the token (from `assetToDistribute`) to be distributed",
+            "schema": {
+              "$ref": "#/components/schemas/quantity"
+            }
           },
           {
-            "$ref": "#/components/parameters/feeNQT"
+            "name": "feeNQT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "To distribute tokens to holder a special fee [calculation applies](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders), i.e. `0.01 + (0.001 * number of eligble recipients)` Signa.<br/>You may run this call upfront without broadcasting to get an idea of the value you have to pay.",
+            "schema": {
+              "$ref": "#/components/schemas/amount"
+            }
           },
           {
             "$ref": "#/components/parameters/secretPhrase"
