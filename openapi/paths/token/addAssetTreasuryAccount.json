@@ -1,7 +1,7 @@
 {
   "post": {
-    "summary": "Mark Treasury Account",
-    "description": "When marking an account as treasury account, the accounts token balance will not be considered for circulating supply and is also not eligible for token distribution.<br/>This operation is not revertible!<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#define-treasury-accounts)",
+    "summary": "Add Treasury Account",
+    "description": "Adds/Marks an account as treasury account.When marking an account as treasury account, the accounts token balance will not be considered for circulating supply and is also not eligible for token distribution.<br/>This operation is not revertible!<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#define-treasury-accounts)",
     "tags": [
       "token"
     ],

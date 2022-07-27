@@ -27,7 +27,7 @@
         }
       },
       {
-        "$ref": "../../parameters/transaction/quantityQNT.json"
+        "$ref": "../../parameters/token/quantityQNT.json"
       },
       {
         "name": "decimals",

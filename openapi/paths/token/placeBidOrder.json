@@ -1,7 +1,7 @@
 {
   "post": {
-    "summary": "Mint Token",
-    "description": "Adds more supply to a token (called minting). The fees for minting are as low as for any common transaction",
+    "summary": "Place Bid Order (Buy Token)",
+    "description": "Places an Bid Order (as an intent to __buy__ a token) for a specific token on the native on-chain token exchange. See also [Cancel Bid Order]() or [getBidOrders]()",
     "tags": [
       "token"
     ],
@@ -11,6 +11,9 @@
       },
       {
         "$ref": "../../parameters/token/quantityQNT.json"
+      },
+      {
+        "$ref": "../../parameters/token/priceNQT.json"
       },
       {
         "$ref": "../../parameters/transaction/feeNQT.json"
@@ -35,7 +38,7 @@
       "200": {
         "$ref": "../../responses/transaction.json"
       },
-      "500" : {
+      "500": {
         "$ref": "../../responses/error.json"
       }
     }

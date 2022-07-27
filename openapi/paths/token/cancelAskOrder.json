@@ -1,16 +1,13 @@
 {
   "post": {
-    "summary": "Mint Token",
-    "description": "Adds more supply to a token (called minting). The fees for minting are as low as for any common transaction",
+    "summary": "Cancel Ask Order (Cancel Sale)",
+    "description": "Cancels a pending Ask Order. See also [Place Ask Order]() or [getAskOrders]()",
     "tags": [
       "token"
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/token/asset.json"
-      },
-      {
-        "$ref": "../../parameters/token/quantityQNT.json"
+        "$ref": "../../parameters/token/order.json"
       },
       {
         "$ref": "../../parameters/transaction/feeNQT.json"
@@ -35,7 +32,7 @@
       "200": {
         "$ref": "../../responses/transaction.json"
       },
-      "500" : {
+      "500": {
         "$ref": "../../responses/error.json"
       }
     }

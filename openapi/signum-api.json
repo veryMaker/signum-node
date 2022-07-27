@@ -74,15 +74,39 @@
     },
     "/api?requestType=distributeToAssetHolders": {
       "$ref": "./paths/token/distributeToAssetHolders.json"
+    },
+    "/api?requestType=transferAsset": {
+      "$ref": "./paths/token/transferAsset.json"
+    },
+    "/api?requestType=transferAssetMulti": {
+      "$ref": "./paths/token/transferAssetMulti.json"
+    },
+    "/api?requestType=placeAskOrder": {
+      "$ref": "./paths/token/placeAskOrder.json"
+    },
+    "/api?requestType=cancelAskOrder": {
+      "$ref": "./paths/token/cancelAskOrder.json"
+    },
+    "/api?requestType=placeBidOrder": {
+      "$ref": "./paths/token/placeBidOrder.json"
+    },
+    "/api?requestType=cancelBidOrder": {
+      "$ref": "./paths/token/cancelBidOrder.json"
     }
   },
   "components": {
     "schemas": {
+      "account": {
+        "$ref": "./schemas/account.json"
+      },
       "address": {
         "$ref": "./schemas/address.json"
       },
       "amount": {
         "$ref": "./schemas/amount.json"
+      },
+      "assetId": {
+        "$ref": "./schemas/assetId.json"
       },
       "hash": {
         "$ref": "./schemas/hash.json"
@@ -90,14 +114,20 @@
       "hexString": {
         "$ref": "./schemas/hexString.json"
       },
-      "quantity": {
-        "$ref": "./schemas/quantity.json"
-      },
       "numericId": {
         "$ref": "./schemas/numericId.json"
       },
+      "orderId": {
+        "$ref": "./schemas/orderId.json"
+      },
+      "quantity": {
+        "$ref": "./schemas/quantity.json"
+      },
       "rsAddress": {
         "$ref": "./schemas/rsAddress.json"
+      },
+      "signedTransaction": {
+        "$ref": "./schemas/signedTransaction.json"
       },
       "timestamp": {
         "$ref": "./schemas/timestamp.json"
@@ -107,6 +137,9 @@
       },
       "transactionId": {
         "$ref": "./schemas/transactionId.json"
+      },
+      "unsignedTransaction": {
+        "$ref": "./schemas/unsignedTransaction.json"
       }
     },
     "headers": {},
@@ -118,7 +151,7 @@
         "$ref": "./parameters/transaction/amountNQT.json"
       },
       "quantityQNT": {
-        "$ref": "./parameters/transaction/quantityQNT.json"
+        "$ref": "./parameters/token/quantityQNT.json"
       },
       "feeNQT": {
         "$ref": "./parameters/transaction/feeNQT.json"
