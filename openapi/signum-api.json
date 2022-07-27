@@ -92,6 +92,18 @@
     },
     "/api?requestType=cancelBidOrder": {
       "$ref": "./paths/token/cancelBidOrder.json"
+    },
+    "/api?requestType=setAlias": {
+      "$ref": "./paths/alias/setAlias.json"
+    },
+    "/api?requestType=sellAlias": {
+      "$ref": "./paths/alias/sellAlias.json"
+    },
+    "/api?requestType=buyAlias": {
+      "$ref": "./paths/alias/buyAlias.json"
+    },
+    "/api?requestType=submitNonce": {
+      "$ref": "./paths/submitNonce.json"
     }
   },
   "components": {
@@ -101,6 +113,9 @@
       },
       "address": {
         "$ref": "./schemas/address.json"
+      },
+      "aliasId": {
+        "$ref": "./schemas/aliasId.json"
       },
       "amount": {
         "$ref": "./schemas/amount.json"
@@ -144,14 +159,26 @@
     },
     "headers": {},
     "parameters": {
+      "alias": {
+        "$ref": "./parameters/alias/alias.json"
+      },
+      "quantityQNT": {
+        "$ref": "./parameters/token/quantityQNT.json"
+      },
+      "priceNQT": {
+        "$ref": "./parameters/token/priceNQT.json"
+      },
+      "order": {
+        "$ref": "./parameters/token/order.json"
+      },
+      "asset": {
+        "$ref": "./parameters/token/asset.json"
+      },
       "apiKey": {
         "$ref": "./parameters/apiKey.json"
       },
       "amountNQT": {
         "$ref": "./parameters/transaction/amountNQT.json"
-      },
-      "quantityQNT": {
-        "$ref": "./parameters/token/quantityQNT.json"
       },
       "feeNQT": {
         "$ref": "./parameters/transaction/feeNQT.json"
@@ -227,11 +254,11 @@
     },
     {
       "name": "payment",
-      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
+      "description": "Functions which are related to value transfers of the base currency \"Signa\"<br/><br/>The platform offers different types of payments:<ul><li>Single Payments (with attached messages)</li><li>Multiple Payments within a single transaction</li><li>Recurring Payments a la Subscriptions</li><ul/>"
     },
     {
       "name": "token",
-      "description": "All operations related to Tokens and Tokenomics"
+      "description": "All operations related to Tokens and Tokenomics.<br/><br/>The native fungible token engine is very versatile offering the following features: <ul><li>On-chain Decentralized Exchange</li><li>Mintable/Burnable Tokens</li><li>Single or Multiple Token Transfer within a single transaction</li><li>Ultra-Fast Distributions to Token Holders (up to 1.2M holders per block)</li><ul/>"
     },
     {
       "name": "contract",
@@ -240,6 +267,10 @@
     {
       "name": "network",
       "description": "All network and or node related operations"
+    },
+    {
+      "name": "alias",
+      "description": "All Alias related operations.<br/><br/>The Alias feature allows to assign __mutable__ content to a fixed identifier. This makes it possible to have something like a Account Name Service (ANS) or other interesting use cases. It gets even more interesting, because Aliases are tradeable."
     },
     {
       "name": "mining",

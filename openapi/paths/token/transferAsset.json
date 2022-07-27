@@ -1,7 +1,7 @@
 {
   "post": {
     "summary": "Transfer Token",
-    "description": "Transfer token quantities to another account.",
+    "description": "Transfer token quantities to another account. To burn a token simply [send tokens](#post-/api-requestType-transferAsset) to the Burn Address `0` (`S-2222-2222-2222-22222`)",
     "tags": [
       "token"
     ],

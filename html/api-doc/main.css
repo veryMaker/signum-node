@@ -86,10 +86,8 @@
   margin-top: 0.75rem;
 }
 
-.converter-wrapper {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.75rem;
+.converter-wrapper header {
+  cursor: pointer;
 }
 
 .converter-wrapper h3 {

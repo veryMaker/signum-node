@@ -1063,20 +1063,13 @@
     "/api?requestType=mintAsset": {
       "post": {
         "summary": "Mint Token",
-        "description": "Adds more supply to a token (called minting). The fees for minting are as low as for any common transaction",
+        "description": "Adds more supply to a token (called minting). The fees for minting are as low as for any common transaction. To burn tokens simply [send tokens](#post-/api-requestType-transferAsset) to the Burn Address `0` (`S-2222-2222-2222-22222`)",
         "tags": [
           "token"
         ],
         "parameters": [
           {
-            "name": "asset",
-            "in": "query",
-            "allowEmptyValue": false,
-            "required": true,
-            "description": "The related token identifier",
-            "schema": {
-              "$ref": "#/components/schemas/assetId"
-            }
+            "$ref": "#/components/parameters/asset"
           },
           {
             "$ref": "#/components/parameters/quantityQNT"
@@ -1172,7 +1165,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DmintAsset/post/parameters/0"
+            "$ref": "#/components/parameters/asset"
           },
           {
             "name": "quantityMinimumQNT",
@@ -1248,7 +1241,7 @@
     "/api?requestType=transferAsset": {
       "post": {
         "summary": "Transfer Token",
-        "description": "Transfer token quantities to another account.",
+        "description": "Transfer token quantities to another account. To burn a token simply [send tokens](#post-/api-requestType-transferAsset) to the Burn Address `0` (`S-2222-2222-2222-22222`)",
         "tags": [
           "token"
         ],
@@ -1257,7 +1250,7 @@
             "$ref": "#/components/parameters/recipient"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DmintAsset/post/parameters/0"
+            "$ref": "#/components/parameters/asset"
           },
           {
             "$ref": "#/components/parameters/quantityQNT"
@@ -1403,20 +1396,13 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DmintAsset/post/parameters/0"
+            "$ref": "#/components/parameters/asset"
           },
           {
             "$ref": "#/components/parameters/quantityQNT"
           },
           {
-            "name": "priceNQT",
-            "in": "query",
-            "allowEmptyValue": false,
-            "required": true,
-            "description": "The price in Planck",
-            "schema": {
-              "$ref": "#/components/schemas/amount"
-            }
+            "$ref": "#/components/parameters/priceNQT"
           },
           {
             "$ref": "#/components/parameters/feeNQT"
@@ -1456,14 +1442,7 @@
         ],
         "parameters": [
           {
-            "name": "order",
-            "in": "query",
-            "allowEmptyValue": false,
-            "required": true,
-            "description": "An order identifier",
-            "schema": {
-              "$ref": "#/components/schemas/orderId"
-            }
+            "$ref": "#/components/parameters/order"
           },
           {
             "$ref": "#/components/parameters/feeNQT"
@@ -1503,13 +1482,13 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DmintAsset/post/parameters/0"
+            "$ref": "#/components/parameters/asset"
           },
           {
             "$ref": "#/components/parameters/quantityQNT"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DplaceAskOrder/post/parameters/2"
+            "$ref": "#/components/parameters/priceNQT"
           },
           {
             "$ref": "#/components/parameters/feeNQT"
@@ -1549,7 +1528,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DcancelAskOrder/post/parameters/0"
+            "$ref": "#/components/parameters/order"
           },
           {
             "$ref": "#/components/parameters/feeNQT"
@@ -1576,6 +1555,282 @@
           },
           "500": {
             "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=setAlias": {
+      "post": {
+        "summary": "Set Alias",
+        "description": "Create or edit an alias. An alias allows to have __mutable__ content (up to 1000 chars), i.e. you can use this as an on-chain Name Service, or other interesting things. Additionally, it's possible to trade aliases!",
+        "tags": [
+          "alias"
+        ],
+        "parameters": [
+          {
+            "name": "aliasName",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": true,
+            "description": "If not exists already, you create an alias with the given __unique__ name. If you are the owner of the alias, then you can update the content. - Like a database _upsert_ operation.",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "aliasURI",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": true,
+            "description": "Sets/Updates the arbitrary _content_ of this alias.<br/>Historically, the alias system was considered for Name Service operations only, that's why it is called URI.<br/>The legacy format for account aliases is `acct:<rsAddress-content>@burst`. You may check for that format for legacy account aliases",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=sellAlias": {
+      "post": {
+        "summary": "Sell Alias",
+        "description": "Sets an alias for sale. Once on sale others can [buy the alias](#post-/api-requestType-buyAlias).",
+        "tags": [
+          "alias"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/alias"
+          },
+          {
+            "name": "aliasName",
+            "in": "query",
+            "allowEmptyValue": true,
+            "description": "Instead of `alias` you can use the alias' name also.",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "recipient",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "priceNQT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The amount you want for the alias.",
+            "schema": {
+              "$ref": "#/components/schemas/amount"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/recipientPublicKey"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=buyAlias": {
+      "post": {
+        "summary": "Buy Alias",
+        "description": "Buy an alias that is [on sale](#post-/api-requestType-sellAlias).",
+        "tags": [
+          "alias"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/alias"
+          },
+          {
+            "name": "aliasName",
+            "in": "query",
+            "allowEmptyValue": true,
+            "description": "Instead of `alias` you can use the alias' name also.",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "recipient",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "amountNQT",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The amount you want to pay for the alias, but must be at least the minimum price asked for.",
+            "schema": {
+              "$ref": "#/components/schemas/amount"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=submitNonce": {
+      "post": {
+        "summary": "Submit Nonce",
+        "description": "Submits a nonce trying to validate a block. This is _the_ endpoint for (solo) miners",
+        "tags": [
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "name": "blockheight",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The block height for the submitted nonce.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "nonce",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The nonce",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "accountId",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "Instead of sending the passphrase you can send the accountId. The account id must be allowed in the configuration of the node.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "This is the generic response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "result",
+                    "deadline"
+                  ],
+                  "example": {
+                    "result": "success",
+                    "deadline": 12453
+                  },
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "description": "\"success\" in case of successful submission, otherwise a detailed message of what went wrong"
+                    },
+                    "errorCode": {
+                      "type": "integer",
+                      "description": "The calculated deadline for the submission"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1763,6 +2018,15 @@
           "S-5MS6-5FBY-74H4-9N4HS",
           "TS-QAJA-QW5Y-SWVP-4RVP4",
           "895212263565386113"
+        ]
+      },
+      "aliasId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The alias identifier",
+        "required": true,
+        "example": [
+          "4498738268646491227"
         ]
       },
       "amount": {
@@ -2131,6 +2395,55 @@
     },
     "headers": {},
     "parameters": {
+      "alias": {
+        "name": "alias",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "The related alias identifier",
+        "schema": {
+          "$ref": "#/components/schemas/aliasId"
+        }
+      },
+      "quantityQNT": {
+        "name": "quantityQNT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The quantity of tokens expressed as an integer value, considering the number of decimals of the related token. If a token has two decimals the quantity value for 100 token is 10000.",
+        "schema": {
+          "$ref": "#/components/schemas/quantity"
+        }
+      },
+      "priceNQT": {
+        "name": "priceNQT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The price in Planck",
+        "schema": {
+          "$ref": "#/components/schemas/amount"
+        }
+      },
+      "order": {
+        "name": "order",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "An order identifier",
+        "schema": {
+          "$ref": "#/components/schemas/orderId"
+        }
+      },
+      "asset": {
+        "name": "asset",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The related token identifier",
+        "schema": {
+          "$ref": "#/components/schemas/assetId"
+        }
+      },
       "apiKey": {
         "name": "apiKey",
         "in": "query",
@@ -2148,16 +2461,6 @@
         "description": "The amount expressed in Planck, i.e. 1 Signa = 10E8 Planck = 100000000 Planck",
         "schema": {
           "$ref": "#/components/schemas/amount"
-        }
-      },
-      "quantityQNT": {
-        "name": "quantityQNT",
-        "in": "query",
-        "allowEmptyValue": false,
-        "required": true,
-        "description": "The quantity of tokens expressed as an integer value, considering the number of decimals of the related token. If a token has two decimals the quantity value for 100 token is 10000.",
-        "schema": {
-          "$ref": "#/components/schemas/quantity"
         }
       },
       "feeNQT": {
@@ -2224,7 +2527,7 @@
         "in": "query",
         "allowEmptyValue": false,
         "required": true,
-        "description": "The recipients address",
+        "description": "The recipients address. If the recipients address is `0` or `S-2222-2222-2222-22222` then you burn the tokens or coins sent to it.",
         "schema": {
           "$ref": "#/components/schemas/address"
         }
@@ -2414,11 +2717,11 @@
     },
     {
       "name": "payment",
-      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
+      "description": "Functions which are related to value transfers of the base currency \"Signa\"<br/><br/>The platform offers different types of payments:<ul><li>Single Payments (with attached messages)</li><li>Multiple Payments within a single transaction</li><li>Recurring Payments a la Subscriptions</li><ul/>"
     },
     {
       "name": "token",
-      "description": "All operations related to Tokens and Tokenomics"
+      "description": "All operations related to Tokens and Tokenomics.<br/><br/>The native fungible token engine is very versatile offering the following features: <ul><li>On-chain Decentralized Exchange</li><li>Mintable/Burnable Tokens</li><li>Single or Multiple Token Transfer within a single transaction</li><li>Ultra-Fast Distributions to Token Holders (up to 1.2M holders per block)</li><ul/>"
     },
     {
       "name": "contract",
@@ -2427,6 +2730,10 @@
     {
       "name": "network",
       "description": "All network and or node related operations"
+    },
+    {
+      "name": "alias",
+      "description": "All Alias related operations.<br/><br/>The Alias feature allows to assign __mutable__ content to a fixed identifier. This makes it possible to have something like a Account Name Service (ANS) or other interesting use cases. It gets even more interesting, because Aliases are tradeable."
     },
     {
       "name": "mining",
