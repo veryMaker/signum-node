@@ -43,7 +43,7 @@
     "unsignedTransactionBytes": {
       "type": "string",
       "pattern": "^[a-fA-F0-9]+$",
-      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"
+      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[#post-/api-requestType-parseTransaction]"
     },
     "transactionJSON": {
       "$ref": "../schemas/transaction.json"

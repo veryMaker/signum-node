@@ -1,6 +1,6 @@
 {
   "post": {
-    "summary": "Clear Unconfirmed Transactions",
+    "summary": "⚠️ Clear Unconfirmed Transactions",
     "description": "Prunes unconfirmed transactions.",
     "tags": [
       "admin"

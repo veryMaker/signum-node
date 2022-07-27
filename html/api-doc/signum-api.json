@@ -30,28 +30,34 @@
           {
             "name": "getCommittedAmount",
             "schema": {
-              "type": "boolean"
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
             },
             "in": "query",
-            "allowEmptyValue": false,
-            "description": "Returns the entire commitment"
+            "description": "Returns the entire commitment amount"
           },
           {
             "name": "height",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "minimum": 0
             },
             "in": "query",
-            "allowEmptyValue": false,
             "description": "When set this blockheight the accounts situation at the given height will be returned"
           },
           {
             "name": "estimateCommitment",
             "in": "query",
             "description": "If set `true` the estimated commitment per TiB will be returned",
-            "allowEmptyValue": false,
             "schema": {
-              "type": "boolean"
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
             }
           }
         ],
@@ -938,7 +944,7 @@
     },
     "/api?requestType=backupDB": {
       "post": {
-        "summary": "Backup Database",
+        "summary": "⚠️ Backup Database",
         "description": "This allows you to dump the database in a file. __Attention: This is a very long running operation__",
         "tags": [
           "admin"
@@ -969,7 +975,7 @@
     },
     "/api?requestType=popOff": {
       "post": {
-        "summary": "Pop off Transactions",
+        "summary": "⚠️ Pop off Transactions",
         "description": "This allows to remove up to 1440 most recent transactions in the nodes database. Use this to get your database in sync with network when you are on a fork. __Attention: This operation can take some minutes__",
         "tags": [
           "admin"
@@ -1010,7 +1016,7 @@
     },
     "/api?requestType=clearUnconfirmedTransactions": {
       "post": {
-        "summary": "Clear Unconfirmed Transactions",
+        "summary": "⚠️ Clear Unconfirmed Transactions",
         "description": "Prunes unconfirmed transactions.",
         "tags": [
           "admin"
@@ -1032,7 +1038,7 @@
     },
     "/api?requestType=fullReset": {
       "post": {
-        "summary": "Full Node Reset",
+        "summary": "⚠️ Full Node Reset",
         "description": "Resets the node and forces a resync.",
         "tags": [
           "admin"
@@ -1045,6 +1051,144 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/empty"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=issueAsset": {
+      "post": {
+        "summary": "Issue Token",
+        "description": "Issues a new token. Tokens can be issued as _mintable_ that is they have no fixed supply and the supply can be [increased by the creator](#post-/api-requestType-mintAsset) of this token<br/>Mind, that issuing a token has [elevated fees involved](https://github.com/signum-network/SIPs/blob/master/SIP/sip-31.md#specification), i.e. 150 Signa.",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The tokens name and also its ticker symbol. You can only use up to ten alphanumeric characters and no special chars",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9]{1,10}$"
+            }
+          },
+          {
+            "name": "description",
+            "in": "query",
+            "description": "Any arbitrary description up to 1000 characters length.",
+            "schema": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          {
+            "$ref": "#/components/parameters/quantityQNT"
+          },
+          {
+            "name": "decimals",
+            "in": "query",
+            "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8
+            }
+          },
+          {
+            "name": "mintable",
+            "in": "query",
+            "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
+            "schema": {
+              "type": "boolean"
+            },
+            "example": [
+              true,
+              false
+            ]
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=mintAsset": {
+      "post": {
+        "summary": "Mint Token",
+        "description": "Adds more supply to a token (called minting). The fees for minting are as low as for any common transaction",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The token identifier",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "The token identifier",
+              "required": true,
+              "example": [
+                "6954612694592252012"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/quantityQNT"
+          },
+          {
+            "$ref": "#/components/parameters/feeNQT"
+          },
+          {
+            "$ref": "#/components/parameters/secretPhrase"
+          },
+          {
+            "$ref": "#/components/parameters/publicKey"
+          },
+          {
+            "$ref": "#/components/parameters/deadline"
+          },
+          {
+            "$ref": "#/components/parameters/broadcast"
+          },
+          {
+            "$ref": "#/components/parameters/referencedTransactionFullHash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/transaction"
           },
           "500": {
             "$ref": "#/components/responses/error"
@@ -1302,6 +1446,16 @@
         "description": "The amount expressed in Planck, i.e. 1 Signa = 10E8 Planck = 100000000 Planck",
         "schema": {
           "$ref": "#/components/schemas/amount"
+        }
+      },
+      "quantityQNT": {
+        "name": "quantityQNT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The quantity of tokens expressed as an integer value, considering the number of decimals of the related token. If a token has two decimals the quantity value for 100 token is 10000.",
+        "schema": {
+          "$ref": "#/components/schemas/quantity"
         }
       },
       "feeNQT": {
@@ -1593,7 +1747,7 @@
                     "transactionBytes": {
                       "type": "string",
                       "pattern": "^[a-fA-F0-9]+$",
-                      "description": "The binary representation of the entire transaction. This can be parsed with (parseTransactionBytes)[]"
+                      "description": "The binary representation of the entire transaction. This can be parsed with (parseTransactionBytes)[#post-/api-requestType-parseTransaction]"
                     },
                     "signatureHash": {
                       "$ref": "#/components/schemas/hash"
@@ -1608,7 +1762,7 @@
                     "unsignedTransactionBytes": {
                       "type": "string",
                       "pattern": "^[a-fA-F0-9]+$",
-                      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"
+                      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[#post-/api-requestType-parseTransaction]"
                     },
                     "transactionJSON": {
                       "$ref": "#/components/schemas/transaction"
@@ -1663,7 +1817,7 @@
                     "unsignedTransactionBytes": {
                       "type": "string",
                       "pattern": "^[a-fA-F0-9]+$",
-                      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[]"
+                      "description": "The binary representation of the entire _unsigned_ transaction. This can be parsed with (parseTransactionBytes)[#post-/api-requestType-parseTransaction]"
                     },
                     "transactionJSON": {
                       "$ref": "#/components/schemas/transaction"
@@ -1686,12 +1840,24 @@
       "description": "All Account related operations"
     },
     {
+      "name": "payment",
+      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
+    },
+    {
+      "name": "token",
+      "description": "All operations related to Tokens and Tokenomics"
+    },
+    {
       "name": "contract",
       "description": "All operations related to Smart Contracts"
     },
     {
-      "name": "token",
-      "description": "All operations related to Tokens"
+      "name": "network",
+      "description": "All network and or node related operations"
+    },
+    {
+      "name": "mining",
+      "description": "All mining related methods"
     },
     {
       "name": "utility",
@@ -1700,22 +1866,6 @@
     {
       "name": "admin",
       "description": "Administrative operations which requires an API Key to be configured in the node.</br>🔓 __Security Advice: Use a very strong and truly random key, or even disable admin operation entirely in your node config. Exposing admin operations is a security risk.__"
-    },
-    {
-      "name": "block",
-      "description": "All Block related operations"
-    },
-    {
-      "name": "transactions",
-      "description": "All functions which are related the blockchain"
-    },
-    {
-      "name": "mining",
-      "description": "All mining related methods"
-    },
-    {
-      "name": "payment",
-      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
     }
   ]
 }

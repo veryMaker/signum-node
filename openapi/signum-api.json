@@ -62,6 +62,12 @@
     },
     "/api?requestType=fullReset": {
       "$ref": "./paths/admin/fullReset.json"
+    },
+    "/api?requestType=issueAsset": {
+      "$ref": "./paths/token/issueAsset.json"
+    },
+    "/api?requestType=mintAsset": {
+      "$ref": "./paths/token/mintAsset.json"
     }
   },
   "components": {
@@ -104,6 +110,9 @@
       },
       "amountNQT": {
         "$ref": "./parameters/transaction/amountNQT.json"
+      },
+      "quantityQNT": {
+        "$ref": "./parameters/transaction/quantityQNT.json"
       },
       "feeNQT": {
         "$ref": "./parameters/transaction/feeNQT.json"
@@ -178,12 +187,24 @@
       "description": "All Account related operations"
     },
     {
+      "name": "payment",
+      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
+    },
+    {
+      "name": "token",
+      "description": "All operations related to Tokens and Tokenomics"
+    },
+    {
       "name": "contract",
       "description": "All operations related to Smart Contracts"
     },
     {
-      "name": "token",
-      "description": "All operations related to Tokens"
+      "name": "network",
+      "description": "All network and or node related operations"
+    },
+    {
+      "name": "mining",
+      "description": "All mining related methods"
     },
     {
       "name": "utility",
@@ -193,21 +214,5 @@
       "name": "admin",
       "description": "Administrative operations which requires an API Key to be configured in the node.</br>\uD83D\uDD13 __Security Advice: Use a very strong and truly random key, or even disable admin operation entirely in your node config. Exposing admin operations is a security risk.__"
     },
-    {
-      "name": "block",
-      "description": "All Block related operations"
-    },
-    {
-      "name": "transactions",
-      "description": "All functions which are related the blockchain"
-    },
-    {
-      "name": "mining",
-      "description": "All mining related methods"
-    },
-    {
-      "name": "payment",
-      "description": "Functions which are related to value transfers of the base token, i.e. Signa"
-    }
   ]
 }

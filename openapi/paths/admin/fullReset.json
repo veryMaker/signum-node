@@ -1,6 +1,6 @@
 {
   "post": {
-    "summary": "Full Node Reset",
+    "summary": "⚠️ Full Node Reset",
     "description": "Resets the node and forces a resync.",
     "tags": [
       "admin"

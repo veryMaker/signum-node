@@ -1,6 +1,6 @@
 {
   "post": {
-    "summary": "Pop off Transactions",
+    "summary": "⚠️ Pop off Transactions",
     "description": "This allows to remove up to 1440 most recent transactions in the nodes database. Use this to get your database in sync with network when you are on a fork. __Attention: This operation can take some minutes__",
     "tags": [
       "admin"

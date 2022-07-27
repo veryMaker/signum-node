@@ -19,28 +19,28 @@
       {
         "name": "getCommittedAmount",
         "schema": {
-          "type": "boolean"
+          "type": "boolean",
+          "example": [true, false]
         },
         "in": "query",
-        "allowEmptyValue": false,
-        "description": "Returns the entire commitment"
+        "description": "Returns the entire commitment amount"
       },
       {
         "name": "height",
         "schema": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         },
         "in": "query",
-        "allowEmptyValue": false,
         "description": "When set this blockheight the accounts situation at the given height will be returned"
       },
       {
         "name": "estimateCommitment",
         "in": "query",
         "description": "If set `true` the estimated commitment per TiB will be returned",
-        "allowEmptyValue": false,
         "schema": {
-          "type": "boolean"
+          "type": "boolean",
+          "example": [true, false]
         }
       }
     ],
