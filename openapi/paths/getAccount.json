@@ -20,7 +20,10 @@
         "name": "getCommittedAmount",
         "schema": {
           "type": "boolean",
-          "example": [true, false]
+          "example": [
+            true,
+            false
+          ]
         },
         "in": "query",
         "description": "Returns the entire commitment amount"
@@ -40,7 +43,10 @@
         "description": "If set `true` the estimated commitment per TiB will be returned",
         "schema": {
           "type": "boolean",
-          "example": [true, false]
+          "example": [
+            true,
+            false
+          ]
         }
       }
     ],
@@ -50,87 +56,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "object",
-              "required": [
-                "balanceNQT",
-                "unconfirmedBalanceNQT",
-                "forgedBalanceNQT",
-                "guaranteedBalanceNQT",
-                "account",
-                "accountRS"
-              ],
-              "properties": {
-                "balanceNQT": {
-                  "description": "Your total balance, including commitment and reserved orders",
-                  "$ref": "../schemas/amount.json"
-                },
-                "unconfirmedBalanceNQT": {
-                  "description": "The currently available balance",
-                  "$ref": "../schemas/amount.json"
-                },
-                "committedBalanceNQT": {
-                  "description": "Your committed balance",
-                  "$ref": "../schemas/amount.json"
-                },
-                "forgedBalanceNQT": {
-                  "description": "The balance forged by you (Solo-Mining only)",
-                  "$ref": "../schemas/amount.json"
-                },
-                "guaranteedBalanceNQT": {
-                  "description": "Your total balance, including commitment and reserved orders",
-                  "$ref": "../schemas/amount.json"
-                },
-                "commitmentNQT": {
-                  "description": "The current network commitment estimate per TiB",
-                  "$ref": "../schemas/amount.json"
-                },
-                "account": {
-                  "$ref": "../schemas/numericId.json"
-                },
-                "accountRS": {
-                  "$ref": "../schemas/rsAddress.json"
-                },
-                "accountRSExtended": {
-                  "type": "string"
-                },
-                "publicKey": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "assetBalances": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "asset": {
-                        "$ref": "../schemas/numericId.json"
-                      },
-                      "balanceQNT": {
-                        "$ref": "../schemas/quantity.json"
-                      }
-                    }
-                  }
-                },
-                "unconfirmedAssetBalances": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "asset": {
-                        "$ref": "../schemas/numericId.json"
-                      },
-                      "unconfirmedBalanceQNT": {
-                        "$ref": "../schemas/quantity.json"
-                      }
-                    }
-                  }
-                }
-              }
+              "$ref": "../schemas/account.json"
             }
           }
         }
