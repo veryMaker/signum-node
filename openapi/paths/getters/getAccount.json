@@ -13,7 +13,7 @@
         "allowEmptyValue": false,
         "description": "The account identifier",
         "schema": {
-          "$ref": "../schemas/address.json"
+          "$ref": "../../schemas/address.json"
         }
       },
       {
@@ -56,13 +56,13 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "../schemas/account.json"
+              "$ref": "../../schemas/account.json"
             }
           }
         }
       },
       "500": {
-        "$ref": "../responses/error.json"
+        "$ref": "../../responses/error.json"
       }
     }
   }

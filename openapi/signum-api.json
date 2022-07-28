@@ -9,9 +9,6 @@
     }
   },
   "paths": {
-    "/api?requestType=getAccount": {
-      "$ref": "./paths/getAccount.json"
-    },
     "/api?requestType=addCommitment": {
       "$ref": "./paths/addCommitment.json"
     },
@@ -104,6 +101,15 @@
     },
     "/api?requestType=submitNonce": {
       "$ref": "./paths/submitNonce.json"
+    },
+    "/api?requestType=getAccount": {
+      "$ref": "./paths/getters/getAccount.json"
+    },
+    "/api?requestType=getTransaction": {
+      "$ref": "./paths/getters/getTransaction.json"
+    },
+    "/api?requestType=getUnconfirmedTransactions": {
+      "$ref": "./paths/getters/getUnconfirmedTransactions.json"
     }
   },
   "components": {

@@ -1,7 +1,7 @@
 {
   "type": "object",
   "description": "The transaction object",
-  "example": [
+  "example":
     {
       "type": 1,
       "subtype": 0,
@@ -32,8 +32,7 @@
       "block": "13680738303626126726",
       "confirmations": 68148,
       "blockTimestamp": 232452172
-    }
-  ],
+    },
   "required": [
     "type",
     "subtype",

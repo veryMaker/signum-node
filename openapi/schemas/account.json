@@ -11,7 +11,12 @@
   "properties": {
     "balanceNQT": {
       "description": "Your total balance, including commitment and reserved orders",
-      "$ref": "../schemas/amount.json"
+      "type": "integer",
+      "format": "int64",
+      "example": [
+        "100000000",
+        "1000000"
+      ]
     },
     "unconfirmedBalanceNQT": {
       "description": "The currently available balance.<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",

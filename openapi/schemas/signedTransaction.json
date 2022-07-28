@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "example": [
+  "example":
     {
       "broadcasted": true,
       "transaction": "6954612694592252012",
@@ -38,7 +38,7 @@
         "cashBackId": "8952122635653861124"
       }
     }
-  ],
+  ,
   "required": [
     "transaction",
     "fullHash"

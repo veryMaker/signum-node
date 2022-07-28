@@ -14,7 +14,7 @@
         "schema": {
           "$ref": "../schemas/hexString.json"
         }
-      },
+      }
     ],
     "responses": {
       "200": {
