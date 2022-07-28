@@ -12,7 +12,7 @@
           "transactions" : {
             "type":"array",
             "items": {
-              "$ref": "../../schema/signedTransaction.json"
+              "$ref": "../schemas/signedTransaction.json"
             },
             "maxLength": 500
           }

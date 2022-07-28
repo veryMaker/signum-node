@@ -1960,6 +1960,54 @@
         }
       }
     },
+    "/api?requestType=getAccountsWithRewardRecipient": {
+      "get": {
+        "summary": "Get Reward Recipient Accounts (Pool Accounts)",
+        "description": "Get all account identifiers with a specific reward recipient, i.e. the accounts of a pool",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The reward recipient, i.e. the pool address",
+            "schema": {
+              "$ref": "#/components/schemas/numericId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account Id List response<br/>A list with one (mostly self) or more accounts. If the only account in the list is identical to the passed parameter, then the given account has no reward recipient set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "accounts"
+                  ],
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/numericId"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getAccountATs": {
       "get": {
         "summary": "Get Account Contracts",
@@ -2464,6 +2512,31 @@
         }
       }
     },
+    "/api?requestType=getMiningInfo": {
+      "get": {
+        "summary": "Get Mining Info",
+        "description": "Get the information necessary for the miners.",
+        "tags": [
+          "mining",
+          "network"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mining Info response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/miningInfo"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getUnconfirmedTransactions": {
       "get": {
         "summary": "Get Pending Transactions",
@@ -2648,6 +2721,65 @@
                     "priority": {
                       "$ref": "#/components/schemas/amount"
                     }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getConstants": {
+      "get": {
+        "summary": "Get Blockchain Parameters",
+        "description": "Get this blockchains constant parameters ",
+        "tags": [
+          "network"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/constants"
+          }
+        }
+      }
+    },
+    "/api?requestType=getMyInfo": {
+      "get": {
+        "summary": "Get Self Info",
+        "description": "Get the information of this node/peer.",
+        "tags": [
+          "network"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mining Info response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "host",
+                    "address",
+                    "UUID"
+                  ],
+                  "properties": {
+                    "host": {
+                      "description": "The host IP",
+                      "type": "string"
+                    },
+                    "address": {
+                      "description": "The host IP",
+                      "type": "string"
+                    },
+                    "UUID": {
+                      "description": "The UUID",
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "host": "127.0.0.1",
+                    "address": "127.0.0.1",
+                    "UUID": "11e1784d-5157-433d-b729-49295ea51eb6"
                   }
                 }
               }
@@ -2915,6 +3047,62 @@
         "example": [
           "895212263565386112"
         ]
+      },
+      "miningInfo": {
+        "type": "object",
+        "required": [
+          "height",
+          "generationSignature",
+          "baseTarget",
+          "averageCommitmentNQT",
+          "lastBlockReward",
+          "lastBlockRewardNQT",
+          "timestamp"
+        ],
+        "properties": {
+          "height": {
+            "description": "The height of the current block to be forged",
+            "type": "integer",
+            "format": "int32"
+          },
+          "generationSignature": {
+            "description": "The generation signature ",
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "baseTarget": {
+            "description": "The base target",
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageCommitmentNQT": {
+            "description": "The networks average commitment per TiB expressed in Planck",
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastBlockReward": {
+            "description": "The last block reward in Signa.",
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastBlockRewardNQT": {
+            "description": "The last block reward in Planck.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/timestamp"
+          },
+          "example": {
+            "height": "1041112",
+            "generationSignature": "01a793a91f7abf9e81c4f57050b8a4ed4581f6db0a0b81959f52dfdcd6abcfec",
+            "baseTarget": "399933",
+            "averageCommitmentNQT": "350475714560",
+            "lastBlockReward": "100",
+            "lastBlockRewardNQT": "10000000000",
+            "timestamp": "251323162"
+          }
+        }
       },
       "orderId": {
         "type": "integer",
@@ -3504,6 +3692,324 @@
       }
     },
     "responses": {
+      "constants": {
+        "description": "The constants of this blockchain chain instance - This information are the constant attributes of this blockchain",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "networkName": "Signum",
+                "genesisBlockId": "3444294670862540038",
+                "genesisAccountId": "0",
+                "maxBlockPayloadLength": 375360,
+                "maxArbitraryMessageLength": 1000,
+                "ordinaryTransactionLength": 176,
+                "addressPrefix": "S",
+                "valueSuffix": "SIGNA",
+                "blockTime": 240,
+                "decimalPlaces": 8,
+                "feeQuantNQT": 1000000,
+                "cashBackId": "8952122635653861124",
+                "cashBackFactor": 4,
+                "transactionTypes": [
+                  {
+                    "value": 21,
+                    "description": "Advanced Payment",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Escrow Creation",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 1,
+                        "description": "Escrow Sign",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 2,
+                        "description": "Escrow Result",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 3,
+                        "description": "Subscription Subscribe",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 4,
+                        "description": "Subscription Cancel",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 5,
+                        "description": "Subscription Payment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 2,
+                    "description": "Colored coins",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Asset Issuance",
+                        "minimumFeeConstantNQT": 15000000000,
+                        "minimumFeeAppendagesNQT": 0
+                      },
+                      {
+                        "value": 1,
+                        "description": "Asset Transfer",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 2,
+                        "description": "Ask Order Placement",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 3,
+                        "description": "Bid Order Placement",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 4,
+                        "description": "Ask Order Cancellation",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 5,
+                        "description": "Bid Order Cancellation",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 6,
+                        "description": "Asset Mint",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 7,
+                        "description": "Asset Add Treasury Account",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 8,
+                        "description": "Asset Distribute to Holders",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 9,
+                        "description": "Asset Multi-Transfer",
+                        "minimumFeeConstantNQT": 2000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 3,
+                    "description": "Digital Goods",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Listing",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 1,
+                        "description": "Delisting",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 2,
+                        "description": "Price Change",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 3,
+                        "description": "Quantity Change",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 4,
+                        "description": "Purchase",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 5,
+                        "description": "Delivery",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 6,
+                        "description": "Feedback",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 7,
+                        "description": "Refund",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 4,
+                    "description": "Account Control",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Effective Balance Leasing",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 0,
+                    "description": "Payment",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Ordinary Payment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 1,
+                        "description": "Multi-out payment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 2,
+                        "description": "Multi-out Same Payment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 22,
+                    "description": "Automated Transactions",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "AT Creation",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 1,
+                        "description": "AT Payment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 20,
+                    "description": "Mining",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Reward Recipient Assignment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 1,
+                        "description": "Add Commitment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 2,
+                        "description": "Remove Commitment",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  },
+                  {
+                    "value": 1,
+                    "description": "Messaging",
+                    "subtypes": [
+                      {
+                        "value": 0,
+                        "description": "Arbitrary Message",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 1,
+                        "description": "Alias Assignment",
+                        "minimumFeeConstantNQT": 20000000,
+                        "minimumFeeAppendagesNQT": 0
+                      },
+                      {
+                        "value": 5,
+                        "description": "Account Info",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 6,
+                        "description": "Alias Sell",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      },
+                      {
+                        "value": 7,
+                        "description": "Alias Buy",
+                        "minimumFeeConstantNQT": 1000000,
+                        "minimumFeeAppendagesNQT": 1000000
+                      }
+                    ]
+                  }
+                ],
+                "peerStates": [
+                  {
+                    "value": 0,
+                    "description": "Non-connected"
+                  },
+                  {
+                    "value": 1,
+                    "description": "Connected"
+                  },
+                  {
+                    "value": 2,
+                    "description": "Disconnected"
+                  }
+                ],
+                "requestProcessingTime": 0
+              }
+            }
+          }
+        }
+      },
       "empty": {
         "description": "Empty response. Operation executed successfully"
       },
@@ -3552,6 +4058,29 @@
             }
           }
         }
+      },
+      "transactionList": {
+        "description": "Transaction List Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "A list of transactions.<br/>__Note__: For performance/stability reasons a node returns at maximum 500 items. All transaction query methods offer `firstIndex` and `lastIndex` to paginate through the transaction.",
+              "required": [
+                "transactions"
+              ],
+              "properties": {
+                "transactions": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/signedTransaction"
+                  },
+                  "maxLength": 500
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -3574,7 +4103,7 @@
     },
     {
       "name": "network",
-      "description": "All network and or node related operations"
+      "description": "All network, blockchain and or node related operations"
     },
     {
       "name": "alias",
@@ -3582,7 +4111,7 @@
     },
     {
       "name": "mining",
-      "description": "All mining related methods"
+      "description": "All mining related methods. Leran more about mining [here](https://signum.network/mining) and also in the [community wiki](https://signum.community/signum-mining/)"
     },
     {
       "name": "utility",

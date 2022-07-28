@@ -1,0 +1,24 @@
+{
+  "get": {
+    "summary": "Get Mining Info",
+    "description": "Get the information necessary for the miners.",
+    "tags": [
+      "mining", "network"
+    ],
+    "responses": {
+      "200": {
+        "description": "Mining Info response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/miningInfo.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

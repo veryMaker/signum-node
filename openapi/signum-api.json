@@ -108,6 +108,9 @@
     "/api?requestType=getAccount": {
       "$ref": "./paths/getters/getAccount.json"
     },
+    "/api?requestType=getAccountsWithRewardRecipient": {
+      "$ref": "./paths/getters/getAccountsWithRewardRecipient.json"
+    },
     "/api?requestType=getAccountATs": {
       "$ref": "./paths/getters/getAccountATs.json"
     },
@@ -129,6 +132,9 @@
     "/api?requestType=getTransaction": {
       "$ref": "./paths/getters/getTransaction.json"
     },
+    "/api?requestType=getMiningInfo": {
+      "$ref": "./paths/getters/getMiningInfo.json"
+    },
     "/api?requestType=getUnconfirmedTransactions": {
       "$ref": "./paths/getters/getUnconfirmedTransactions.json"
     },
@@ -137,6 +143,12 @@
     },
     "/api?requestType=suggestFee": {
       "$ref": "./paths/getters/suggestFee.json"
+    },
+    "/api?requestType=getConstants": {
+      "$ref": "./paths/getters/getConstants.json"
+    },
+    "/api?requestType=getMyInfo": {
+      "$ref": "./paths/getters/getMyInfo.json"
     }
   },
   "components": {
@@ -155,7 +167,6 @@
       },
       "assetId": {
         "$ref": "./schemas/assetId.json"
-
       },
       "contractAddress": {
         "$ref": "./schemas/contractAddress.json"
@@ -174,6 +185,9 @@
       },
       "numericId": {
         "$ref": "./schemas/numericId.json"
+      },
+      "miningInfo": {
+        "$ref": "./schemas/miningInfo.json"
       },
       "orderId": {
         "$ref": "./schemas/orderId.json"
@@ -279,6 +293,9 @@
       }
     },
     "responses": {
+      "constants": {
+        "$ref": "./responses/constants.json"
+      },
       "empty": {
         "$ref": "./responses/empty.json"
       },
@@ -287,6 +304,9 @@
       },
       "transaction": {
         "$ref": "./responses/transaction.json"
+      },
+      "transactionList": {
+        "$ref": "./responses/transactionList.json"
       }
     }
   },
@@ -309,7 +329,7 @@
     },
     {
       "name": "network",
-      "description": "All network and or node related operations"
+      "description": "All network, blockchain and or node related operations"
     },
     {
       "name": "alias",
@@ -317,7 +337,7 @@
     },
     {
       "name": "mining",
-      "description": "All mining related methods"
+      "description": "All mining related methods. Leran more about mining [here](https://signum.network/mining) and also in the [community wiki](https://signum.community/signum-mining/)"
     },
     {
       "name": "utility",
