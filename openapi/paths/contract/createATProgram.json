@@ -16,7 +16,7 @@
         }
       },
       {
-        "$ref": "../parameters/description.json"
+        "$ref": "../../parameters/description.json"
       },
       {
         "name": "code",
@@ -76,7 +76,7 @@
         "required": true,
         "description": "The minimum amount to dispatch the contracts execution expressed in Planck, i.e. 1 Signa = 10E8 Planck = 100000000 Planck. <br/>This value should be chosen in a way, that the contract never runs out of balance.",
         "schema": {
-          "$ref": "../schemas/amount.json"
+          "$ref": "../../schemas/amount.json"
         }
       },
       {
@@ -91,27 +91,27 @@
         }
       },
       {
-        "$ref": "../parameters/transaction/feeNQT.json"
+        "$ref": "../../parameters/transaction/feeNQT.json"
       },
       {
-        "$ref": "../parameters/transaction/secretPhrase.json"
+        "$ref": "../../parameters/transaction/secretPhrase.json"
       },
       {
-        "$ref": "../parameters/transaction/publicKey.json"
+        "$ref": "../../parameters/transaction/publicKey.json"
       },
       {
-        "$ref": "../parameters/transaction/deadline.json"
+        "$ref": "../../parameters/transaction/deadline.json"
       },
       {
-        "$ref": "../parameters/transaction/broadcast.json"
+        "$ref": "../../parameters/transaction/broadcast.json"
       }
     ],
     "responses": {
       "200": {
-        "$ref": "../responses/transaction.json"
+        "$ref": "../../responses/transaction.json"
       },
       "500": {
-        "$ref": "../responses/error.json"
+        "$ref": "../../responses/error.json"
       }
     }
   }

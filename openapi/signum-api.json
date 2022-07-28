@@ -103,13 +103,16 @@
       "$ref": "./paths/submitNonce.json"
     },
     "/api?requestType=createATProgram": {
-      "$ref": "./paths/createATProgram.json"
+      "$ref": "./paths/contract/createATProgram.json"
     },
     "/api?requestType=getAccount": {
       "$ref": "./paths/getters/getAccount.json"
     },
     "/api?requestType=getAccountATs": {
       "$ref": "./paths/getters/getAccountATs.json"
+    },
+    "/api?requestType=getAT": {
+      "$ref": "./paths/getters/getAT.json"
     },
     "/api?requestType=getAccountAssets": {
       "$ref": "./paths/getters/getAccountAssets.json"

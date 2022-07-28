@@ -4,6 +4,6 @@
   "description": "The numeric contract identifier",
   "required": true,
   "example": [
-    "16380523479488112662"
+    "848571112765341814","16380523479488112662"
   ]
 }
