@@ -1,7 +1,7 @@
 {
   "post": {
     "summary": "Distribute To Token Holders",
-    "description": "This function distributes Signa __and/or__ Tokens to token holders (excluding treasury accounts).<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders)",
+    "description": "This function distributes Signa __and/or__ Tokens to token holders (excluding treasury accounts).<br/><br/>This method efficiently runs a proportional distribution to token holders at a speed of approx. 1.2M payouts per block.<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders)",
     "tags": [
       "token"
     ],
@@ -22,7 +22,7 @@
         "name": "amountNQT",
         "in": "query",
         "allowEmptyValue": false,
-        "description": "The _total_ amount in Signa to be distributed to the token holders.",
+        "description": "The _total_ amount in Signa to be distributed to the token holders.<br/>Once distributed, you can get the individual payout per account using [Get Distribution Amount](#post-/api-requestType-distributeToAssetHolders)",
         "schema": {
           "$ref": "../../schemas/amount.json"
         }

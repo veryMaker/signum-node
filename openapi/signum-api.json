@@ -110,6 +110,9 @@
     },
     "/api?requestType=getUnconfirmedTransactions": {
       "$ref": "./paths/getters/getUnconfirmedTransactions.json"
+    },
+    "/api?requestType=getIndirectIncoming": {
+      "$ref": "./paths/getters/getIndirectIncoming.json"
     }
   },
   "components": {
@@ -289,6 +292,6 @@
     {
       "name": "admin",
       "description": "Administrative operations which requires an API Key to be configured in the node.</br>\uD83D\uDD13 __Security Advice: Use a very strong and truly random key, or even disable admin operation entirely in your node config. Exposing admin operations is a security risk.__"
-    },
+    }
   ]
 }

@@ -1090,7 +1090,7 @@
     "/api?requestType=distributeToAssetHolders": {
       "post": {
         "summary": "Distribute To Token Holders",
-        "description": "This function distributes Signa __and/or__ Tokens to token holders (excluding treasury accounts).<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders)",
+        "description": "This function distributes Signa __and/or__ Tokens to token holders (excluding treasury accounts).<br/><br/>This method efficiently runs a proportional distribution to token holders at a speed of approx. 1.2M payouts per block.<br/>See also [the specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders)",
         "tags": [
           "token"
         ],
@@ -1111,7 +1111,7 @@
             "name": "amountNQT",
             "in": "query",
             "allowEmptyValue": false,
-            "description": "The _total_ amount in Signa to be distributed to the token holders.",
+            "description": "The _total_ amount in Signa to be distributed to the token holders.<br/>Once distributed, you can get the individual payout per account using [Get Distribution Amount](#post-/api-requestType-distributeToAssetHolders)",
             "schema": {
               "$ref": "#/components/schemas/amount"
             }
@@ -1925,6 +1925,93 @@
                       "items": {
                         "$ref": "#/components/schemas/transaction"
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getIndirectIncoming": {
+      "get": {
+        "summary": "Get Distribution Amount",
+        "description": "Get the paid amount per account of a mass distribution.<br/><br/>Due to the nature of how mass distribution works (at the speed of 1.2M payouts per block), an accounts received payout does not appear in the common transaction. The common transaction carries the total distributed amount. So, one need this method to get the individually paid amount.",
+        "tags": [
+          "payment",
+          "token",
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "transaction",
+            "in": "query",
+            "description": "The id of a [distribution transaction](#post-/api-requestType-distributeToAssetHolders).",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "The transaction identifier",
+              "required": true,
+              "example": [
+                "18383595669062938305",
+                "6410546525214667156"
+              ]
+            }
+          },
+          {
+            "name": "account",
+            "description": "The receiving account.<br/>__Note__At this moment, it has to be the numeric id. Reed-Solomon addresses do not work, due to an inconsistency.",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "The account identifier",
+              "required": true,
+              "example": [
+                "1014710993121171028",
+                "5016"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "amountNQT",
+                    "confirmations",
+                    "height",
+                    "quantityQNT"
+                  ],
+                  "example": {
+                    "amountNQT": "45600",
+                    "quantityQNT": "0",
+                    "height": 369509,
+                    "confirmations": 73793,
+                    "requestProcessingTime": 1
+                  },
+                  "description": "Individual Distribution Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the `transaction`",
+                  "properties": {
+                    "amountNQT": {
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "quantityQNT": {
+                      "$ref": "#/components/schemas/quantity"
+                    },
+                    "height": {
+                      "description": "The block height number of occurred payment.",
+                      "type": "integer"
+                    },
+                    "confirmations": {
+                      "description": "Number of confirmations",
+                      "type": "integer"
                     }
                   }
                 }
