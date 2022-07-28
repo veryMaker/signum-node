@@ -105,6 +105,9 @@
     "/api?requestType=getAccount": {
       "$ref": "./paths/getters/getAccount.json"
     },
+    "/api?requestType=getAccountATs": {
+      "$ref": "./paths/getters/getAccountATs.json"
+    },
     "/api?requestType=getTransaction": {
       "$ref": "./paths/getters/getTransaction.json"
     },
@@ -113,6 +116,9 @@
     },
     "/api?requestType=getIndirectIncoming": {
       "$ref": "./paths/getters/getIndirectIncoming.json"
+    },
+    "/api?requestType=suggestFee": {
+      "$ref": "./paths/getters/suggestFee.json"
     }
   },
   "components": {

@@ -1835,6 +1835,220 @@
         }
       }
     },
+    "/api?requestType=getAccountATs": {
+      "get": {
+        "summary": "Get Account Contracts",
+        "description": "Gets the contracts a given account created.",
+        "tags": [
+          "account",
+          "contract"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The account identifier",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "machineCodeHashId",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "description": "This hash identifies a specific code. Using this parameter as additional filter to search only for a specific class of contracts, i.e. NFTSRC40.<br/>See also the [green contract specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-30.md)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract List Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "ats"
+                  ],
+                  "properties": {
+                    "ats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "balanceNQT",
+                          "unconfirmedBalanceNQT",
+                          "forgedBalanceNQT",
+                          "guaranteedBalanceNQT",
+                          "account",
+                          "accountRS"
+                        ],
+                        "properties": {
+                          "at": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "The numeric contract identifier",
+                            "required": true,
+                            "example": [
+                              "16380523479488112662"
+                            ]
+                          },
+                          "atRS": {
+                            "type": "string",
+                            "description": "The contracts address as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+                            "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
+                            "example": [
+                              "\tS-LJ5Q-XTHJ-MY9B-2UPKR",
+                              "TS-DC2Q-C6GX-R56T-GHUN8"
+                            ]
+                          },
+                          "name": {
+                            "description": "The name of this contract ",
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9]{1,30}$"
+                          },
+                          "description": {
+                            "description": "The description of the contract",
+                            "type": "string",
+                            "maxLength": 1000
+                          },
+                          "machineData": {
+                            "description": "The current data stack of the contract in hexadecimal form. You can inspect the data using the [Contract Inspector](https://contracts-inspector.ohager.vercel.app/)",
+                            "type": "string",
+                            "pattern": "^[a-fA-F0-9]+$"
+                          },
+                          "balanceNQT": {
+                            "description": "The contracts current balance.<br/>Mind that contracts without balance do not run at all.<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",
+                            "type": "integer",
+                            "format": "int64",
+                            "example": [
+                              "100000000",
+                              "1000000"
+                            ]
+                          },
+                          "prevBalanceNQT": {
+                            "description": "The contracts previous balance.",
+                            "type": "integer",
+                            "format": "int64",
+                            "example": [
+                              "100000000",
+                              "1000000"
+                            ]
+                          },
+                          "nextBlock": {
+                            "description": "The next block when this contract will be ready to run",
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "frozen": {
+                            "description": "Indicates if a contract is stuck, i.e. due to insufficient balance.<br/>Do not rely on that status. Once frozen, this status never gets rest to zero, although the contract is able to run.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+                            "type": "boolean",
+                            "example": [
+                              true,
+                              false
+                            ]
+                          },
+                          "stopped": {
+                            "description": "Indicates if a contract stopped (by sleep or halt instruction) and waiting for continuation.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+                            "type": "boolean",
+                            "example": [
+                              true,
+                              false
+                            ]
+                          },
+                          "finished": {
+                            "description": "Indicates that a contract finished entirely his current execution cycle.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+                            "type": "boolean",
+                            "example": [
+                              true,
+                              false
+                            ]
+                          },
+                          "dead": {
+                            "description": "Indicates that a contract suffered a severe error and is lost. <br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+                            "type": "boolean",
+                            "example": [
+                              true,
+                              false
+                            ]
+                          },
+                          "machineCode": {
+                            "description": "The code",
+                            "type": "string",
+                            "pattern": "^[a-fA-F0-9]+$"
+                          },
+                          "machineCodeHashId": {
+                            "description": "The hash id for the contracts code. So, we can identify different instances of the same contract code by this identifier.",
+                            "type": "integer",
+                            "format": "int64",
+                            "example": [
+                              "17139226199807531405"
+                            ]
+                          },
+                          "atVersion": {
+                            "description": "The version of this contract",
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "creator": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "creatorRS": {
+                            "$ref": "#/components/schemas/rsAddress"
+                          },
+                          "minActivation": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "The amount needed to activate an execution of the contract, i.e.is always returned in Planck, that is Signa multiplied by 10E8",
+                            "example": [
+                              "25000000"
+                            ]
+                          },
+                          "creationBlock": {
+                            "description": "The block when this contract was created.",
+                            "type": "integer",
+                            "format": "int32"
+                          }
+                        },
+                        "example": {
+                          "at": "16380523479488112662",
+                          "machineData": "0000000000000000...",
+                          "balanceNQT": "0",
+                          "prevBalanceNQT": "0",
+                          "nextBlock": 440889,
+                          "frozen": false,
+                          "running": false,
+                          "stopped": true,
+                          "finished": false,
+                          "dead": false,
+                          "machineCodeHashId": "17139226199807531405",
+                          "atVersion": 3,
+                          "atRS": "TS-DC2Q-C6GX-R56T-GHUN8",
+                          "name": "RESTPOOL",
+                          "description": "Some description",
+                          "creator": "2402520554221019656",
+                          "creatorRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+                          "machineCode": "12ed000000303304030300...",
+                          "minActivation": "25000000",
+                          "creationBlock": 440889
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getTransaction": {
       "get": {
         "summary": "Get Transaction",
@@ -2020,6 +2234,48 @@
           },
           "500": {
             "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=suggestFee": {
+      "get": {
+        "summary": "Get Current Base Fee",
+        "description": "This method may help to determine the minimum fee for the current block. See also the [fee policies](https://github.com/signum-network/SIPs/blob/master/SIP/sip-34.md) ",
+        "tags": [
+          "utility"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "cheap",
+                    "standard",
+                    "priority"
+                  ],
+                  "example": {
+                    "cheap": 1000000,
+                    "standard": 2000000,
+                    "priority": 3000000
+                  },
+                  "description": "Fee suggestions. The higher the fee the more prioritized its validation, i.e. chances are higher to make it into the next block.",
+                  "properties": {
+                    "cheap": {
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "standard": {
+                      "$ref": "#/components/schemas/amount"
+                    },
+                    "priority": {
+                      "$ref": "#/components/schemas/amount"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
