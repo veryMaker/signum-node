@@ -114,6 +114,15 @@
     "/api?requestType=getAT": {
       "$ref": "./paths/getters/getAT.json"
     },
+    "/api?requestType=getATDetails": {
+      "$ref": "./paths/getters/getATDetails.json"
+    },
+    "/api?requestType=getATIds": {
+      "$ref": "./paths/getters/getATIds.json"
+    },
+    "/api?requestType=getATMapValue": {
+      "$ref": "./paths/getters/getATMapValue.json"
+    },
     "/api?requestType=getAccountAssets": {
       "$ref": "./paths/getters/getAccountAssets.json"
     },
@@ -146,6 +155,16 @@
       },
       "assetId": {
         "$ref": "./schemas/assetId.json"
+
+      },
+      "contractAddress": {
+        "$ref": "./schemas/contractAddress.json"
+      },
+      "contractData": {
+        "$ref": "./schemas/contractData.json"
+      },
+      "contractId": {
+        "$ref": "./schemas/contractId.json"
       },
       "hash": {
         "$ref": "./schemas/hash.json"

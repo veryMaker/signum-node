@@ -2022,8 +2022,8 @@
         "500": {
           "$ref": "#/components/responses/error"
         },
-        "summary": "Get Smart Contract",
-        "description": "Gets a specific contract",
+        "summary": "Get Contract",
+        "description": "Gets a specific smart contract",
         "tags": [
           "contract"
         ],
@@ -2035,14 +2035,7 @@
             "required": true,
             "description": "The contracts address.",
             "schema": {
-              "type": "integer",
-              "format": "int64",
-              "description": "The numeric contract identifier",
-              "required": true,
-              "example": [
-                "848571112765341814",
-                "16380523479488112662"
-              ]
+              "$ref": "#/components/schemas/contractId"
             }
           }
         ],
@@ -2063,16 +2056,10 @@
                   ],
                   "properties": {
                     "at": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/0/schema"
+                      "$ref": "#/components/schemas/contractId"
                     },
                     "atRS": {
-                      "type": "string",
-                      "description": "The contracts address as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
-                      "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
-                      "example": [
-                        "\tS-LJ5Q-XTHJ-MY9B-2UPKR",
-                        "TS-DC2Q-C6GX-R56T-GHUN8"
-                      ]
+                      "$ref": "#/components/schemas/contractAddress"
                     },
                     "name": {
                       "description": "The name of this contract ",
@@ -2203,6 +2190,151 @@
                     "machineCode": "12ed000000303304030300...",
                     "minActivation": "25000000",
                     "creationBlock": 440889
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getATDetails": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Contract History",
+        "description": "Gets a specific contracts situation at a given moment in the past",
+        "tags": [
+          "contract"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/0"
+          },
+          {
+            "name": "height",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "in": "query",
+            "description": "When set this block height the contracts situation at the given height will be returned"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/responses/200/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getATIds": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Contract Ids",
+        "description": "Gets all smart contract ids. You can optionally filter by the machine code hash, to get only contracts of a specific type",
+        "tags": [
+          "contract"
+        ],
+        "parameters": [
+          {
+            "name": "machineCodeHashId",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "description": "This hash identifies a specific code. Using this parameter as additional filter to search only for a specific class of contracts, i.e. NFTSRC40.<br/>See also the [green contract specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-30.md)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "atIds"
+                  ],
+                  "properties": {
+                    "atIds": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/contractId"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getATMapValue": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Contract Map Value",
+        "description": "Gets a value from a smart contract from its [data store](https://github.com/signum-network/SIPs/blob/master/SIP/sip-38.md).<br/>Non existing keys result always in `0`(Zero)",
+        "tags": [
+          "contract"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/0"
+          },
+          {
+            "name": "key1",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "description": "The 1st key of the map"
+          },
+          {
+            "name": "key2",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "in": "query",
+            "description": "The 2nd key of the map"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "value"
+                  ],
+                  "example": {
+                    "value": "5"
+                  },
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "description": "The value"
+                    }
                   }
                 }
               }
@@ -2739,6 +2871,31 @@
         "required": true,
         "example": [
           "6954612694592252012"
+        ]
+      },
+      "contractAddress": {
+        "type": "string",
+        "description": "The contracts address as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+        "pattern": "^S|TS-[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{4}[0-9A-Z]{5}$",
+        "example": [
+          "\tS-LJ5Q-XTHJ-MY9B-2UPKR",
+          "TS-DC2Q-C6GX-R56T-GHUN8"
+        ]
+      },
+      "contractData": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The contract identifier",
+        "required": true
+      },
+      "contractId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The numeric contract identifier",
+        "required": true,
+        "example": [
+          "848571112765341814",
+          "16380523479488112662"
         ]
       },
       "hash": {
