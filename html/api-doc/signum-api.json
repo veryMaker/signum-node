@@ -2752,7 +2752,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Mining Info response",
+            "description": "Info response",
             "content": {
               "application/json": {
                 "schema": {
@@ -2780,6 +2780,554 @@
                     "host": "127.0.0.1",
                     "address": "127.0.0.1",
                     "UUID": "11e1784d-5157-433d-b729-49295ea51eb6"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getBlockchainStatus": {
+      "get": {
+        "summary": "Get Blockchain Info",
+        "description": "Get some basic information of the current blockchains status.",
+        "tags": [
+          "network"
+        ],
+        "responses": {
+          "200": {
+            "description": "Blockchain Info response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "application",
+                    "version",
+                    "time",
+                    "lastBlock",
+                    "lastBlockTimestamp",
+                    "cumulativeDifficulty",
+                    "averageCommitmentNQT",
+                    "numberOfBlocks",
+                    "lastBlockchainFeeder",
+                    "lastBlockchainFeederHeight",
+                    "isScanning"
+                  ],
+                  "properties": {
+                    "application": {
+                      "description": "The configured name of the node, usually 'BRS'. But can be different for other chains/networks",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The [_semantic_](https://semver.org/) version of this node.",
+                      "type": "string"
+                    },
+                    "time": {
+                      "description": "The current time as a timestamp in seconds since block 0.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastBlock": {
+                      "description": "The last forged block id",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastBlockTimestamp": {
+                      "description": "The last forged block timestamp",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "cumulativeDifficulty": {
+                      "description": "The networks current network difficulty",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "averageCommitmentNQT": {
+                      "description": "The networks average commitment per TiB expressed in Planck",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfBlocks": {
+                      "description": "The number of blocks including the current non-forged block",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastBlockchainFeeder": {
+                      "description": "The public available name of the last node that communicated with this node",
+                      "type": "string"
+                    },
+                    "lastBlockchainFeederHeight": {
+                      "description": "The last block height this nodes got from the feeder",
+                      "type": "string"
+                    },
+                    "isScanning": {
+                      "description": "Indicates if this node is scanning/syncing",
+                      "type": "boolean"
+                    }
+                  },
+                  "example": {
+                    "application": "BRS",
+                    "version": "v3.4.0",
+                    "time": 251548095,
+                    "lastBlock": "11270170188371478756",
+                    "lastBlockTimestamp": 251547917,
+                    "cumulativeDifficulty": "57884336750738710",
+                    "averageCommitmentNQT": 49884640051200,
+                    "numberOfBlocks": 444342,
+                    "lastBlockchainFeeder": "SIGNUM.theworkpc.com:7123",
+                    "lastBlockchainFeederHeight": 444341,
+                    "isScanning": false,
+                    "requestProcessingTime": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getPeer": {
+      "get": {
+        "summary": "Get Node/Peer Info",
+        "description": "Get information about a specific Peer. See also [Get Node/Peer Id List]()",
+        "tags": [
+          "network"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "in": "query",
+            "description": "The nodes IP. You can get it from [Get Connected Nodes/Peers]()",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Node/Peer Info response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "state",
+                    "announcedAddress",
+                    "shareAddress",
+                    "downloadedVolume",
+                    "uploadedVolume",
+                    "application",
+                    "version",
+                    "platform",
+                    "blacklisted",
+                    "lastUpdated"
+                  ],
+                  "properties": {
+                    "application": {
+                      "description": "The configured name of the node, usually 'BRS'. But can be different for other chains/networks",
+                      "type": "string"
+                    },
+                    "platform": {
+                      "description": "The platform name. Can be any name, but must be a receiver address for the [Signum Network Reward Program](https://signum.community/signum-snr-awards/)",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The [_semantic_](https://semver.org/) version of this node.",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "The state of the node,<br/><ul><li>0 - Not Connected</li><li>1 - Connected</li><li>2 - Disconnected</li></ul>",
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        2
+                      ]
+                    },
+                    "announcedAddress": {
+                      "description": "The announce address of this node, if public",
+                      "type": "string"
+                    },
+                    "shareAddress": {
+                      "description": "Indicator if the address is shared publicly. This is relevant for the [Signum Network Reward Program](https://signum.community/signum-snr-awards/)",
+                      "type": "boolean"
+                    },
+                    "downloadedVolume": {
+                      "description": "The downloaded volume in bytes",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "uploadedVolume": {
+                      "description": "The uploaded volume in bytes",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastUpdated": {
+                      "description": "The last know update in block timestamp, i.e. seconds since block 0 (Genesis Block)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "blacklisted": {
+                      "description": "Indicator if the node is blacklisted.",
+                      "type": "boolean"
+                    }
+                  },
+                  "example": {
+                    "state": 0,
+                    "announcedAddress": null,
+                    "shareAddress": true,
+                    "downloadedVolume": 23845866,
+                    "uploadedVolume": 51546404,
+                    "application": "BRS",
+                    "version": "v3.4.1",
+                    "platform": "PC",
+                    "blacklisted": false,
+                    "lastUpdated": 251548859,
+                    "requestProcessingTime": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getPeers": {
+      "get": {
+        "summary": "Get Known Peers/Nodes",
+        "description": "Get a list of known peers/nodes. See also [Get Node/Peer](#get-/api-requestType-getPeer)",
+        "tags": [
+          "network"
+        ],
+        "parameters": [
+          {
+            "name": "active",
+            "in": "query",
+            "description": "Select whether active or inactive, i.e. `NON_CONNECTED` peers should be listed.",
+            "example": [
+              true,
+              false
+            ],
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Query peers by one of the states",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NON_CONNECTED",
+                "CONNECTED",
+                "DISCONNECTED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peer IP List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "peers"
+                  ],
+                  "properties": {
+                    "peers": {
+                      "description": "The IPs of registered nodes",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "example": {
+                    "peers": [
+                      "138.2.137.23",
+                      "71.87.114.2",
+                      "91.9.186.216",
+                      "78.142.26.26"
+                    ],
+                    "requestProcessingTime": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getTime": {
+      "get": {
+        "summary": "Get Chain Timestamp",
+        "description": "Get the chains time stamp in seconds since Block 0",
+        "tags": [
+          "network"
+        ],
+        "responses": {
+          "200": {
+            "description": "Time response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "time"
+                  ],
+                  "properties": {
+                    "time": {
+                      "description": "The time since beginning of the chain (Block 0)",
+                      "type": "integer",
+                      "format": "int64"
+                    }
+                  },
+                  "example": {
+                    "time": 251558197,
+                    "requestProcessingTime": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getState": {
+      "get": {
+        "summary": "Get Blockchain Status",
+        "description": "Get a bunch of information about the current chains status. This method returns more information than [Get Blockchain Info](#get-/api-requestType-getBlockchainStatus)",
+        "tags": [
+          "network",
+          "admin"
+        ],
+        "parameters": [
+          {
+            "name": "includeCounts",
+            "in": "query",
+            "description": "Includes additional counts. This operation requires the `apiKey` and can take a significant amount of time.",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/apiKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "application",
+                    "version",
+                    "time",
+                    "lastBlock",
+                    "cumulativeDifficulty",
+                    "totalMinedNQT",
+                    "numberOfBlocks",
+                    "numberOfTransactions",
+                    "numberOfATs",
+                    "numberOfAssets",
+                    "numberOfOrders",
+                    "numberOfAskOrders",
+                    "numberOfBidOrders",
+                    "numberOfTrades",
+                    "numberOfTransfers",
+                    "numberOfAliases",
+                    "numberOfPeers",
+                    "numberOfUnlockedAccounts",
+                    "lastBlockchainFeeder",
+                    "lastBlockchainFeederHeight",
+                    "isScanning",
+                    "availableProcessors",
+                    "maxMemory",
+                    "totalMemory",
+                    "freeMemory",
+                    "indirectIncomingServiceEnabled"
+                  ],
+                  "properties": {
+                    "application": {
+                      "description": "The configured name of the node, usually 'BRS'. But can be different for other chains/networks",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "The [_semantic_](https://semver.org/) version of this node.",
+                      "type": "string"
+                    },
+                    "time": {
+                      "description": "The current time as a timestamp in seconds since block 0.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastBlock": {
+                      "description": "The last forged block id",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "cumulativeDifficulty": {
+                      "description": "The networks current network difficulty",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "totalMinedNQT": {
+                      "description": "The total of mined coins in Planck (only available if `includeCounts` is true)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "totalEffectiveBalance": {
+                      "description": "The total supply of the network in Signa (only available if `includeCounts` is true)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "totalEffectiveBalanceNQT": {
+                      "description": "The total supply of the network in Planck (only available if `includeCounts` is true)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "totalCommittedNQT": {
+                      "description": "The total amount of commitment of the network in Planck (only available if `includeCounts` is true)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfBlocks": {
+                      "description": "The number of blocks including the current non-forged block",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfTransactions": {
+                      "description": "The number of transactions",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfATs": {
+                      "description": "The number of smart contracts",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfAssets": {
+                      "description": "The number of issued tokens",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfOrders": {
+                      "description": "The number of token orders (bids and asks)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfAskOrders": {
+                      "description": "The number of ask token orders",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfBidOrders": {
+                      "description": "The number of bid token orders",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfTrades": {
+                      "description": "The number of token trades",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfTransfers": {
+                      "description": "The number of token transfers",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfAliases": {
+                      "description": "The number of aliases",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfPeers": {
+                      "description": "The number of peers/nodes",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "numberOfUnlockedAccounts": {
+                      "description": "The number of peers/nodes",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastBlockchainFeeder": {
+                      "description": "The public available name of the last node that communicated with this node",
+                      "type": "string"
+                    },
+                    "lastBlockchainFeederHeight": {
+                      "description": "The last block height this nodes got from the feeder",
+                      "type": "string"
+                    },
+                    "isScanning": {
+                      "description": "Indicates if this node is scanning/syncing",
+                      "type": "boolean"
+                    },
+                    "indirectIncomingServiceEnabled": {
+                      "description": "Indicates if this node has `indirectIncoming` functionality (token distribution) enabled",
+                      "type": "boolean"
+                    },
+                    "availableProcessors": {
+                      "description": "Number of processors of this node",
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "maxMemory": {
+                      "description": "Amount of maximum available memory of the node (in bytes)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "totalMemory": {
+                      "description": "Amount used memory of the node (in bytes)",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "freeMemory": {
+                      "description": "Amount of free memory of the node (in bytes)",
+                      "type": "integer",
+                      "format": "int64"
+                    }
+                  },
+                  "example": {
+                    "application": "BRS",
+                    "version": "v3.4.2",
+                    "time": 251558479,
+                    "lastBlock": "2679896531895690186",
+                    "cumulativeDifficulty": "152067828601794126565",
+                    "totalMinedNQT": 214511790000000000,
+                    "numberOfBlocks": 1042087,
+                    "numberOfTransactions": 9593626,
+                    "numberOfATs": 30939,
+                    "numberOfAssets": 537,
+                    "numberOfOrders": 3900,
+                    "numberOfAskOrders": 3429,
+                    "numberOfBidOrders": 471,
+                    "numberOfTrades": 133752,
+                    "numberOfTransfers": 172090,
+                    "numberOfAliases": 60644,
+                    "numberOfPeers": 448,
+                    "numberOfUnlockedAccounts": 0,
+                    "lastBlockchainFeeder": "79.32.110.163",
+                    "lastBlockchainFeederHeight": 1042086,
+                    "isScanning": false,
+                    "availableProcessors": 4,
+                    "maxMemory": 3078619136,
+                    "totalMemory": 1641021440,
+                    "freeMemory": 229195688,
+                    "indirectIncomingServiceEnabled": true,
+                    "requestProcessingTime": 4626
                   }
                 }
               }

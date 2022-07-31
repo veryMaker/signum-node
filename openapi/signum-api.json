@@ -149,6 +149,21 @@
     },
     "/api?requestType=getMyInfo": {
       "$ref": "./paths/getters/getMyInfo.json"
+    },
+    "/api?requestType=getBlockchainStatus": {
+      "$ref": "./paths/getters/getBlockchainStatus.json"
+    },
+    "/api?requestType=getPeer": {
+      "$ref": "./paths/getters/getPeer.json"
+    },
+    "/api?requestType=getPeers": {
+      "$ref": "./paths/getters/getPeers.json"
+    },
+    "/api?requestType=getTime": {
+      "$ref": "./paths/getters/getTime.json"
+    },
+    "/api?requestType=getState": {
+      "$ref": "./paths/getters/getState.json"
     }
   },
   "components": {

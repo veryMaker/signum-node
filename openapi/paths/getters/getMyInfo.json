@@ -7,7 +7,7 @@
     ],
     "responses": {
       "200": {
-        "description": "Mining Info response",
+        "description": "Info response",
         "content": {
           "application/json": {
             "schema": {
