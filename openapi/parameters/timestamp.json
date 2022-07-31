@@ -1,0 +1,8 @@
+{
+  "name": "timestamp",
+  "description": "The timestamp from which should be searched. The time in seconds since first Block (Genesis) of the chain.",
+  "schema": {
+    "type": "integer",
+    "format": "int64"
+  }
+}

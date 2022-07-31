@@ -111,6 +111,9 @@
     "/api?requestType=getAccountsWithRewardRecipient": {
       "$ref": "./paths/getters/getAccountsWithRewardRecipient.json"
     },
+    "/api?requestType=getRewardRecipient": {
+      "$ref": "./paths/getters/getRewardRecipient.json"
+    },
     "/api?requestType=getAccountATs": {
       "$ref": "./paths/getters/getAccountATs.json"
     },
@@ -164,6 +167,9 @@
     },
     "/api?requestType=getState": {
       "$ref": "./paths/getters/getState.json"
+    },
+    "/api?requestType=getAliases": {
+      "$ref": "./paths/getters/getAliases.json"
     }
   },
   "components": {
@@ -305,6 +311,9 @@
       },
       "encryptToSelfMessageNonce": {
         "$ref": "./parameters/transaction/encryptToSelfMessageNonce.json"
+      },
+      "timestamp": {
+        "$ref": "./parameters/timestamp.json"
       }
     },
     "responses": {

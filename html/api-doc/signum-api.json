@@ -2008,6 +2008,57 @@
         }
       }
     },
+    "/api?requestType=getRewardRecipient": {
+      "get": {
+        "summary": "Get Reward Recipient",
+        "description": "Get the reward recipient of an account, i.e. check if an account joined a mining pool.",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The account to be checked for",
+            "schema": {
+              "$ref": "#/components/schemas/numericId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account that gets the mining reward, i.e. a mining pools account address. If the responded account is identical to the input, then the account did not join a pool.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "rewardRecipient"
+                  ],
+                  "properties": {
+                    "rewardRecipient": {
+                      "type": "string",
+                      "items": {
+                        "$ref": "#/components/schemas/numericId"
+                      }
+                    }
+                  },
+                  "example": {
+                    "rewardRecipient": "2402520554221019656"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getAccountATs": {
       "get": {
         "summary": "Get Account Contracts",
@@ -2018,14 +2069,7 @@
         ],
         "parameters": [
           {
-            "name": "account",
-            "in": "query",
-            "required": true,
-            "allowEmptyValue": false,
-            "description": "The account identifier",
-            "schema": {
-              "$ref": "#/components/schemas/address"
-            }
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
           },
           {
             "name": "machineCodeHashId",
@@ -2401,23 +2445,13 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAccountATs/get/parameters/0"
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
           },
           {
-            "name": "firstIndex",
-            "in": "query",
-            "description": "The first index to be returned. Use this for pagination.",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/2"
           },
           {
-            "name": "lastIndex",
-            "in": "query",
-            "description": "The last index to be returned. Use this for pagination. If not set, at maximum 500 items beginning at `firstIndex` will be returned",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/3"
           }
         ],
         "responses": {
@@ -3335,6 +3369,157 @@
           }
         }
       }
+    },
+    "/api?requestType=getAliases": {
+      "get": {
+        "summary": "Get Account Aliases",
+        "description": "Get aliases of an account.",
+        "tags": [
+          "account",
+          "alias"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "description": "The account identifier",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/timestamp"
+          },
+          {
+            "name": "firstIndex",
+            "in": "query",
+            "description": "The first index to be returned. Use this for pagination.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "lastIndex",
+            "in": "query",
+            "description": "The last index to be returned. Use this for pagination. If not set, at maximum 500 items beginning at `firstIndex` will be returned",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of aliases this account owns.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "aliases"
+                  ],
+                  "properties": {
+                    "aliases": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "account",
+                          "accountRS",
+                          "aliasName",
+                          "timestamp",
+                          "alias"
+                        ],
+                        "properties": {
+                          "account": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "accountRS": {
+                            "$ref": "#/components/schemas/rsAddress"
+                          },
+                          "aliasName": {
+                            "description": "The name of the alias",
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9]{30}$"
+                          },
+                          "aliasURI": {
+                            "description": "The content of the alias",
+                            "type": "string",
+                            "maxLength": 1000
+                          },
+                          "priceNQT": {
+                            "description": "The price in Planck wanted for the alias.When an alias has this field is it available for buying, i.e. it is On Sale.",
+                            "type": "integer",
+                            "format": "int64",
+                            "example": [
+                              "100000000",
+                              "1000000"
+                            ]
+                          },
+                          "buyer": {
+                            "description": "The pontential buyer of this alias. When this field is given, only that account can buy the alias",
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "timestamp": {
+                            "$ref": "#/components/schemas/timestamp"
+                          },
+                          "example": {
+                            "account": "2402520554221019656",
+                            "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+                            "aliasName": "superduperalias",
+                            "aliasURI": "Contentchange....",
+                            "timestamp": 251224892,
+                            "alias": "8468600040485258181",
+                            "priceNQT": "500000000",
+                            "buyer": "6502115112683865257"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "aliases": [
+                      {
+                        "account": "2402520554221019656",
+                        "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+                        "aliasName": "devcamp2019",
+                        "aliasURI": "acct:burst-qaja-qw5y-swvp-4rvp4@burst",
+                        "timestamp": 157831922,
+                        "alias": "4498738268646491227"
+                      },
+                      {
+                        "account": "2402520554221019656",
+                        "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+                        "aliasName": "QAJA",
+                        "aliasURI": "magic",
+                        "timestamp": 251228597,
+                        "alias": "6442930183499063033",
+                        "priceNQT": "1500000000"
+                      },
+                      {
+                        "account": "2402520554221019656",
+                        "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+                        "aliasName": "superduperalias",
+                        "aliasURI": "Contentchange....",
+                        "timestamp": 251224892,
+                        "alias": "8468600040485258181",
+                        "priceNQT": "500000000",
+                        "buyer": "6502115112683865257"
+                      }
+                    ],
+                    "requestProcessingTime": 35
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3593,7 +3778,8 @@
         "format": "int64",
         "description": "The account identifier as numeric Id",
         "example": [
-          "895212263565386112"
+          "895212263565386112",
+          "2402520554221019656"
         ]
       },
       "miningInfo": {
@@ -4236,6 +4422,14 @@
         "description": "It's possible to encrypt the data locally and send the encrypted data for maximum security. Together with this field you need to send `encryptToSelfMessageData` also.",
         "schema": {
           "type": "string"
+        }
+      },
+      "timestamp": {
+        "name": "timestamp",
+        "description": "The timestamp from which should be searched. The time in seconds since first Block (Genesis) of the chain.",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
