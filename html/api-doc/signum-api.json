@@ -565,7 +565,7 @@
             "in": "query",
             "required": true,
             "allowEmptyValue": true,
-            "description": "Set an arbitrary name for your account. This will show up in diverse tools of the ecosystem",
+            "description": "Set an arbitrary name for your account. This will show up in diverse tools of the ecosystem. This name is not unique!",
             "schema": {
               "type": "string"
             }
@@ -1506,7 +1506,8 @@
             "description": "If not exists already, you create an alias with the given __unique__ name. If you are the owner of the alias, then you can update the content. - Like a database _upsert_ operation.",
             "schema": {
               "type": "string",
-              "maxLength": 100
+              "maxLength": 100,
+              "pattern": "^[a-zA-Z0-9]{1,100}$"
             }
           },
           {
@@ -2448,10 +2449,10 @@
             "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/2"
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/3"
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
           }
         ],
         "responses": {
@@ -3393,20 +3394,10 @@
             "$ref": "#/components/parameters/timestamp"
           },
           {
-            "name": "firstIndex",
-            "in": "query",
-            "description": "The first index to be returned. Use this for pagination.",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
           },
           {
-            "name": "lastIndex",
-            "in": "query",
-            "description": "The last index to be returned. Use this for pagination. If not set, at maximum 500 items beginning at `firstIndex` will be returned",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
           }
         ],
         "responses": {
@@ -3423,59 +3414,7 @@
                     "aliases": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "required": [
-                          "account",
-                          "accountRS",
-                          "aliasName",
-                          "timestamp",
-                          "alias"
-                        ],
-                        "properties": {
-                          "account": {
-                            "$ref": "#/components/schemas/numericId"
-                          },
-                          "accountRS": {
-                            "$ref": "#/components/schemas/rsAddress"
-                          },
-                          "aliasName": {
-                            "description": "The name of the alias",
-                            "type": "string",
-                            "pattern": "^[a-zA-Z0-9]{30}$"
-                          },
-                          "aliasURI": {
-                            "description": "The content of the alias",
-                            "type": "string",
-                            "maxLength": 1000
-                          },
-                          "priceNQT": {
-                            "description": "The price in Planck wanted for the alias.When an alias has this field is it available for buying, i.e. it is On Sale.",
-                            "type": "integer",
-                            "format": "int64",
-                            "example": [
-                              "100000000",
-                              "1000000"
-                            ]
-                          },
-                          "buyer": {
-                            "description": "The pontential buyer of this alias. When this field is given, only that account can buy the alias",
-                            "type": "integer",
-                            "format": "int64"
-                          },
-                          "timestamp": {
-                            "$ref": "#/components/schemas/timestamp"
-                          },
-                          "example": {
-                            "account": "2402520554221019656",
-                            "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                            "aliasName": "superduperalias",
-                            "aliasURI": "Contentchange....",
-                            "timestamp": 251224892,
-                            "alias": "8468600040485258181",
-                            "priceNQT": "500000000",
-                            "buyer": "6502115112683865257"
-                          }
-                        }
+                        "$ref": "#/components/schemas/alias"
                       }
                     }
                   },
@@ -3517,6 +3456,619 @@
           },
           "500": {
             "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAlias": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Alias",
+        "description": "Get an alias by its id or unique name",
+        "tags": [
+          "alias"
+        ],
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "query",
+            "description": "The alias Id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "aliasName",
+            "in": "query",
+            "description": "The unique alias name",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": "100",
+              "pattern": "^[a-zA-Z0-9]{1,100}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Alias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/alias"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getBlock": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Block",
+        "description": "Get a specific block. Returns the last block if no argument is given.",
+        "tags": [
+          "network"
+        ],
+        "parameters": [
+          {
+            "name": "block",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": "15665862983517409283"
+            }
+          },
+          {
+            "name": "height",
+            "in": "query",
+            "description": "The block height number (more commonly used)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": 440000
+            }
+          },
+          {
+            "ref": "../../parameters/timestamp.json"
+          },
+          {
+            "name": "includeTransactions",
+            "in": "query",
+            "description": "If set `true` the transaction objects will be returned, otherwise the transaction identifiers",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Block",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/block"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getBlocks": {
+      "get": {
+        "summary": "Get Block Range",
+        "description": "Gets a range of blocks. Return the most recent 500 blocks if no argument is given",
+        "tags": [
+          "network"
+        ],
+        "parameters": [
+          {
+            "name": "firstIndex",
+            "in": "query",
+            "description": "The first index to be returned. Use this for pagination.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "lastIndex",
+            "in": "query",
+            "description": "The last index to be returned. Use this for pagination. If not set, at maximum 500 items beginning at `firstIndex` will be returned",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "includeTransactions",
+            "in": "query",
+            "description": "If set `true` the transaction objects will be returned, otherwise the transaction identifiers",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of blockBlock",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "blocks"
+                  ],
+                  "properties": {
+                    "blocks": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/block"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountBlocks": {
+      "get": {
+        "summary": "Get Accounts Forged Blocks",
+        "description": "Gets the blocks an account forged.",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/timestamp"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          },
+          {
+            "name": "includeTransactions",
+            "in": "query",
+            "description": "If set `true` the transaction objects will be returned, otherwise the transaction identifiers",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of forged blocks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "blocks"
+                  ],
+                  "properties": {
+                    "blocks": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/block"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountCurrentAskOrders": {
+      "get": {
+        "summary": "Get Accounts Ask Orders",
+        "description": "Gets the current ask orders of an account",
+        "tags": [
+          "account",
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of __Ask Orders__",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "askOrders"
+                  ],
+                  "properties": {
+                    "askOrders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountCurrentBidOrders": {
+      "get": {
+        "summary": "Get Accounts Bid Orders",
+        "description": "Gets the current bid orders of an account",
+        "tags": [
+          "account",
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of __Bid Orders__",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "bidOrders"
+                  ],
+                  "properties": {
+                    "askOrders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAllOpenAskOrders": {
+      "get": {
+        "summary": "Get Open Ask Orders",
+        "description": "Gets all open ask orders",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of __Ask Orders__",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "askOrders"
+                  ],
+                  "properties": {
+                    "askOrders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAllOpenBidOrders": {
+      "get": {
+        "summary": "Get Open Bid Orders",
+        "description": "Gets all open bid orders",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of __Bid Orders__",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "bidOrders"
+                  ],
+                  "properties": {
+                    "bidOrders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAskOrder": {
+      "get": {
+        "summary": "Get Ask Order",
+        "description": "Get a single ask order",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested order object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/order"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAskOrders": {
+      "get": {
+        "summary": "Get Tokens Ask Orders",
+        "description": "Get a range of ask orders from a token",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of __Ask Orders__",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "askOrders"
+                  ],
+                  "properties": {
+                    "askOrders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getBidOrder": {
+      "get": {
+        "summary": "Get Bid Order",
+        "description": "Get a single bid order",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested order object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/order"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getBidOrders": {
+      "get": {
+        "summary": "Get Tokens Bid Orders",
+        "description": "Get a range of bid orders from a token",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of __Bid Orders__",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "bidOrders"
+                  ],
+                  "properties": {
+                    "bidOrders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAsset": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Token",
+        "description": "Get a token",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "name": "quantityMinimumQNT",
+            "in": "query",
+            "description": "Use parameter to filter for the `numberOfAccounts` in the response. This helps you to calculate the fees upfront for [Distribution to Token  holders](#post-/api-requestType-distributeToAssetHolders)",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/asset"
+                }
+              }
+            }
           }
         }
       }
@@ -3711,6 +4263,61 @@
           "895212263565386113"
         ]
       },
+      "alias": {
+        "type": "object",
+        "required": [
+          "account",
+          "accountRS",
+          "aliasName",
+          "timestamp",
+          "alias"
+        ],
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "accountRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "aliasName": {
+            "description": "The name of the alias",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]{30}$"
+          },
+          "aliasURI": {
+            "description": "The content of the alias",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "priceNQT": {
+            "description": "The price in Planck wanted for the alias.When an alias has this field is it available for buying, i.e. it is On Sale.",
+            "type": "integer",
+            "format": "int64",
+            "example": [
+              "100000000",
+              "1000000"
+            ]
+          },
+          "buyer": {
+            "description": "The potential buyer of this alias. When this field is given, only that account can buy the alias",
+            "type": "integer",
+            "format": "int64"
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/timestamp"
+          }
+        },
+        "example": {
+          "account": "2402520554221019656",
+          "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+          "aliasName": "superduperalias",
+          "aliasURI": "Contentchange....",
+          "timestamp": 251224892,
+          "alias": "8468600040485258181",
+          "priceNQT": "500000000",
+          "buyer": "6502115112683865257"
+        }
+      },
       "aliasId": {
         "type": "integer",
         "format": "int64",
@@ -3729,6 +4336,101 @@
           "1000000"
         ]
       },
+      "asset": {
+        "type": "object",
+        "required": [
+          "account",
+          "accountRS",
+          "name",
+          "description",
+          "decimals",
+          "mintable",
+          "quantityQNT",
+          "quantityCirculatingQNT",
+          "asset",
+          "numberOfTrades",
+          "numberOfTransfers",
+          "numberOfAccounts"
+        ],
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/assetId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "accountRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "name": {
+            "$ref": "#/components/schemas/assetName"
+          },
+          "description": {
+            "type": "integer",
+            "description": "The description"
+          },
+          "generatorPublicKey": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "decimals": {
+            "type": "integer",
+            "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+            "minimum": 0,
+            "maximum": 8
+          },
+          "mintable": {
+            "type": "boolen",
+            "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
+            "example": [
+              true,
+              false
+            ]
+          },
+          "quantityQNT": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The total quantity (maximum supply) expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+            "example": [
+              "25000000"
+            ]
+          },
+          "quantityCirculatingQNT": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The __circulating__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+            "example": [
+              "25000000"
+            ]
+          },
+          "numberOfTrades": {
+            "type": "integer",
+            "description": "Total number of trades"
+          },
+          "numberOfTransfers": {
+            "type": "integer",
+            "description": "Total number of transfers"
+          },
+          "numberOfAccounts": {
+            "type": "integer",
+            "description": "Total number of accounts owning this token"
+          }
+        },
+        "example": {
+          "account": "8703144722673801264",
+          "accountRS": "TS-M83J-2GDW-9YVZ-9AYKK",
+          "name": "TRESTC",
+          "description": "Token issued and controlled by smart contract ID: 8703144722673801264",
+          "decimals": 2,
+          "mintable": true,
+          "quantityQNT": "0",
+          "quantityCirculatingQNT": "29500000",
+          "asset": "9224329060507884640",
+          "numberOfTrades": 0,
+          "numberOfTransfers": 1,
+          "numberOfAccounts": 1,
+          "requestProcessingTime": 67
+        }
+      },
       "assetId": {
         "type": "integer",
         "format": "int64",
@@ -3737,6 +4439,175 @@
         "example": [
           "6954612694592252012"
         ]
+      },
+      "assetName": {
+        "type": "string",
+        "description": "The name and symbol of this token. You can only use up to ten alphanumeric characters and no special chars",
+        "pattern": "^a-zA-Z0-9{1,10}$"
+      },
+      "blockId": {
+        "type": "integer",
+        "format": "int64",
+        "description": "The block identifier",
+        "required": true,
+        "example": [
+          "11398460215168332532"
+        ]
+      },
+      "block": {
+        "type": "object",
+        "required": [
+          "block",
+          "height",
+          "generator",
+          "generatorRS",
+          "generatorPublicKey",
+          "nonce",
+          "scoopNum",
+          "timestamp",
+          "numberOfTransactions",
+          "totalAmountNQT",
+          "totalFeeNQT",
+          "totalFeeCashBackNQT",
+          "totalFeeBurntNQT",
+          "blockRewardNQT",
+          "blockReward",
+          "payloadLength",
+          "version",
+          "baseTarget",
+          "averageCommitmentNQT",
+          "previousBlock",
+          "payloadHash",
+          "generationSignature",
+          "previousBlockHash",
+          "blockSignature",
+          "transactions"
+        ],
+        "properties": {
+          "block": {
+            "$ref": "#/components/schemas/blockId"
+          },
+          "height": {
+            "type": "integer",
+            "description": "The block height"
+          },
+          "generator": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "generatorRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "generatorPublicKey": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "nonce": {
+            "type": "integer",
+            "description": "The nonce"
+          },
+          "scoopNum": {
+            "type": "integer",
+            "description": "The scoop number"
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/timestamp"
+          },
+          "numberOfTransactions": {
+            "type": "integer",
+            "description": "Amount of transaction in this block"
+          },
+          "totalAmountNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "totalFeeNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "totalFeeCashBackNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "totalFeeBurntNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "blockRewardNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "averageCommitmentNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "blockReward": {
+            "type": "number",
+            "description": "The block reward in Signa"
+          },
+          "payloadLength": {
+            "type": "integer",
+            "description": "The total payload length of this block in bytes"
+          },
+          "version": {
+            "type": "integer",
+            "description": "The version number"
+          },
+          "baseTarget": {
+            "type": "integer",
+            "description": "The base target"
+          },
+          "previousBlock": {
+            "$ref": "#/components/schemas/blockId"
+          },
+          "nextBlockBlock": {
+            "$ref": "#/components/schemas/blockId"
+          },
+          "payloadHash": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "previousBlockHash": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "generationSignature": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "blockSignature": {
+            "$ref": "#/components/schemas/hash"
+          },
+          "transactions": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/transactionId"
+              },
+              {
+                "$ref": "#/components/schemas/transaction"
+              }
+            ]
+          }
+        },
+        "example": {
+          "block": "15665862983517409283",
+          "height": 440000,
+          "generator": "5812913123670292755",
+          "generatorRS": "TS-7YAM-Q2DB-UXXS-7XWC3",
+          "generatorPublicKey": "8fb6c5d4796456db486f13787556025d43ea45313e9700edb7235393927bb10b",
+          "nonce": "602132449",
+          "scoopNum": 3626,
+          "timestamp": 250505935,
+          "numberOfTransactions": 1,
+          "totalAmountNQT": "80928699501",
+          "totalFeeNQT": "2367500",
+          "totalFeeCashBackNQT": "500000",
+          "totalFeeBurntNQT": "367500",
+          "blockRewardNQT": "128500000000",
+          "blockReward": "1285",
+          "payloadLength": 306,
+          "version": 4,
+          "baseTarget": "77907000",
+          "averageCommitmentNQT": "64900286119936",
+          "previousBlock": "5842492053646632379",
+          "nextBlock": "148718892402808269",
+          "payloadHash": "f21fe20434e01844766b8e3ec5a026396f1242a3c6e85d55d7a049efbc0eb739",
+          "generationSignature": "a478945d1348fa27db4909e2ad682f228c24b6caf876abb3f3b3a859c679b969",
+          "previousBlockHash": "bb65a66491b3145176d80eeb9a3d79c43ee4197afa3dcd3c0f588bc25dd308e9",
+          "blockSignature": "dc9a26ca67f602d0f27afcde2f9a0e02c2089cab60f0cb58553db0b70736280610284676d146baac5e6a1edf990c12cde6bdf57999ba1f2ddf7805ccdc801c6a",
+          "transactions": [
+            "10353980237237387409"
+          ]
+        }
       },
       "contractAddress": {
         "type": "string",
@@ -3846,6 +4717,62 @@
         "example": [
           "6954612694592252012"
         ]
+      },
+      "order": {
+        "type": "object",
+        "description": "The order object",
+        "required": [
+          "order",
+          "asset",
+          "account",
+          "accountRS",
+          "quantityQNT",
+          "priceNQT",
+          "height",
+          "type"
+        ],
+        "properties": {
+          "order": {
+            "$ref": "#/components/schemas/orderId"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/assetId"
+          },
+          "account": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "accountRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "quantityQNT": {
+            "$ref": "#/components/schemas/quantity"
+          },
+          "priceNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "height": {
+            "type": "integer",
+            "description": "The block height"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the order",
+            "enum": [
+              "ask",
+              "bid"
+            ]
+          }
+        },
+        "example": {
+          "order": "12287063733956918204",
+          "asset": "2742339563614125644",
+          "account": "5812913123670292755",
+          "accountRS": "S-7YAM-Q2DB-UXXS-7XWC3",
+          "quantityQNT": "1301635506",
+          "priceNQT": "600",
+          "height": 1042886,
+          "type": "ask"
+        }
       },
       "quantity": {
         "type": "integer",

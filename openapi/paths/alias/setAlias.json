@@ -14,7 +14,8 @@
         "description": "If not exists already, you create an alias with the given __unique__ name. If you are the owner of the alias, then you can update the content. - Like a database _upsert_ operation.",
         "schema": {
           "type": "string",
-          "maxLength": 100
+          "maxLength": 100,
+          "pattern": "^[a-zA-Z0-9]{1,100}$"
         }
       },
       {

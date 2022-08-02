@@ -11,7 +11,7 @@
         "in": "query",
         "required": true,
         "allowEmptyValue": true,
-        "description": "Set an arbitrary name for your account. This will show up in diverse tools of the ecosystem",
+        "description": "Set an arbitrary name for your account. This will show up in diverse tools of the ecosystem. This name is not unique!",
         "schema": {
           "type": "string"
         }

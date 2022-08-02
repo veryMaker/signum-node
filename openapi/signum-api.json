@@ -170,6 +170,45 @@
     },
     "/api?requestType=getAliases": {
       "$ref": "./paths/getters/getAliases.json"
+    },
+    "/api?requestType=getAlias": {
+      "$ref": "./paths/getters/getAlias.json"
+    },
+    "/api?requestType=getBlock": {
+      "$ref": "./paths/getters/getBlock.json"
+    },
+    "/api?requestType=getBlocks": {
+      "$ref": "./paths/getters/getBlocks.json"
+    },
+    "/api?requestType=getAccountBlocks": {
+      "$ref": "./paths/getters/getAccountBlocks.json"
+    },
+    "/api?requestType=getAccountCurrentAskOrders": {
+      "$ref": "./paths/getters/getAccountCurrentAskOrders.json"
+    },
+    "/api?requestType=getAccountCurrentBidOrders": {
+      "$ref": "./paths/getters/getAccountCurrentBidOrders.json"
+    },
+    "/api?requestType=getAllOpenAskOrders": {
+      "$ref": "./paths/getters/getAllOpenAskOrders.json"
+    },
+    "/api?requestType=getAllOpenBidOrders": {
+      "$ref": "./paths/getters/getAllOpenBidOrders.json"
+    },
+    "/api?requestType=getAskOrder": {
+      "$ref": "./paths/getters/getAskOrder.json"
+    },
+    "/api?requestType=getAskOrders": {
+      "$ref": "./paths/getters/getAskOrders.json"
+    },
+    "/api?requestType=getBidOrder": {
+      "$ref": "./paths/getters/getBidOrder.json"
+    },
+    "/api?requestType=getBidOrders": {
+      "$ref": "./paths/getters/getBidOrders.json"
+    },
+    "/api?requestType=getAsset": {
+      "$ref": "./paths/getters/getAsset.json"
     }
   },
   "components": {
@@ -180,14 +219,29 @@
       "address": {
         "$ref": "./schemas/address.json"
       },
+      "alias": {
+        "$ref": "./schemas/alias.json"
+      },
       "aliasId": {
         "$ref": "./schemas/aliasId.json"
       },
       "amount": {
         "$ref": "./schemas/amount.json"
       },
+      "asset": {
+        "$ref": "./schemas/asset.json"
+      },
       "assetId": {
         "$ref": "./schemas/assetId.json"
+      },
+      "assetName": {
+        "$ref": "./schemas/assetName.json"
+      },
+      "blockId": {
+        "$ref": "./schemas/blockId.json"
+      },
+      "block": {
+        "$ref": "./schemas/block.json"
       },
       "contractAddress": {
         "$ref": "./schemas/contractAddress.json"
@@ -212,6 +266,9 @@
       },
       "orderId": {
         "$ref": "./schemas/orderId.json"
+      },
+      "order": {
+        "$ref": "./schemas/order.json"
       },
       "quantity": {
         "$ref": "./schemas/quantity.json"
