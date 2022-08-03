@@ -49,7 +49,7 @@
         "name": "feeNQT",
         "in": "query",
         "allowEmptyValue": false,
-        "description": "To distribute tokens to holder a special fee [calculation applies](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders), i.e. `0.01 + (0.001 * number of eligble recipients)` Signa.<br/>You may run this call upfront without broadcasting to get an idea of the value you have to pay.",
+        "description": "To distribute tokens to holder a special fee [calculation applies](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders), i.e. `0.01 + (0.001 * number of eligble recipients)` Signa.<br/>To calculate the fee you may use [Get Token](#get-/api-requestType-getAsset) with your minimum and use `numberOfAccounts` from the response.",
         "schema": {
           "$ref": "../../schemas/amount.json"
         }

@@ -209,6 +209,24 @@
     },
     "/api?requestType=getAsset": {
       "$ref": "./paths/getters/getAsset.json"
+    },
+    "/api?requestType=getAllAssets": {
+      "$ref": "./paths/getters/getAllAssets.json"
+    },
+    "/api?requestType=getAssetIds": {
+      "$ref": "./paths/getters/getAssetIds.json"
+    },
+    "/api?requestType=getAssetAccounts": {
+      "$ref": "./paths/getters/getAssetAccounts.json"
+    },
+    "/api?requestType=getAssetsByIssuer": {
+      "$ref": "./paths/getters/getAssetsByIssuer.json"
+    },
+    "/api?requestType=getAllTrades": {
+      "$ref": "./paths/getters/getAllTrades.json"
+    },
+    "/api?requestType=getAssetTransfers": {
+      "$ref": "./paths/getters/getAssetTransfers.json"
     }
   },
   "components": {
@@ -281,6 +299,9 @@
       },
       "timestamp": {
         "$ref": "./schemas/timestamp.json"
+      },
+      "trade": {
+        "$ref": "./schemas/trade.json"
       },
       "transaction": {
         "$ref": "./schemas/transaction.json"

@@ -1,11 +1,17 @@
 {
   "get": {
-    "summary": "Get Token",
-    "description": "Get a token",
+    "summary": "Get Multiple Tokens",
+    "description": "Get up to three tokens in a call",
     "tags": [
       "token"
     ],
     "parameters": [
+      {
+        "$ref": "../../parameters/token/asset.json"
+      },
+      {
+        "$ref": "../../parameters/token/asset.json"
+      },
       {
         "$ref": "../../parameters/token/asset.json"
       },
@@ -21,7 +27,7 @@
     ],
     "responses": {
       "200": {
-        "description": "The Token",
+        "description": "The Token List",
         "content": {
           "application/json": {
             "schema": {

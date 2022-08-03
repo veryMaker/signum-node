@@ -1138,7 +1138,7 @@
             "name": "feeNQT",
             "in": "query",
             "allowEmptyValue": false,
-            "description": "To distribute tokens to holder a special fee [calculation applies](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders), i.e. `0.01 + (0.001 * number of eligble recipients)` Signa.<br/>You may run this call upfront without broadcasting to get an idea of the value you have to pay.",
+            "description": "To distribute tokens to holder a special fee [calculation applies](https://github.com/signum-network/SIPs/blob/master/SIP/sip-33.md#payment-to-token-holders), i.e. `0.01 + (0.001 * number of eligble recipients)` Signa.<br/>To calculate the fee you may use [Get Token](#get-/api-requestType-getAsset) with your minimum and use `numberOfAccounts` from the response.",
             "schema": {
               "$ref": "#/components/schemas/amount"
             }
@@ -2439,14 +2439,14 @@
     "/api?requestType=getAccountAssets": {
       "get": {
         "summary": "Get Account Tokens",
-        "description": "Gets the tokens an account owns.",
+        "description": "Get the tokens an account owns.",
         "tags": [
           "account",
           "token"
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/asset"
           },
           {
             "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
@@ -4052,7 +4052,7 @@
           {
             "name": "quantityMinimumQNT",
             "in": "query",
-            "description": "Use parameter to filter for the `numberOfAccounts` in the response. This helps you to calculate the fees upfront for [Distribution to Token  holders](#post-/api-requestType-distributeToAssetHolders)",
+            "description": "Count only accounts with given minimum quantity. This parameter affects for the `numberOfAccounts` in the response. This helps you to calculate the fees upfront for [Distribution to Token  holders](#post-/api-requestType-distributeToAssetHolders)",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -4066,6 +4066,412 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/asset"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getAllAssets": {
+      "get": {
+        "summary": "Get All Tokens",
+        "description": "Get all tokens, but at maximum 500 per call.",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          },
+          {
+            "name": "quantityMinimumQNT",
+            "in": "query",
+            "description": "Count only accounts with given minimum quantity.. This parameter affects the `numberOfAccounts` in the response. This helps you to calculate the fees upfront for [Distribution to Token  holders](#post-/api-requestType-distributeToAssetHolders)<br/>❕️This parameter __does not filter__ the result!",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Token List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "assets"
+                  ],
+                  "properties": {
+                    "assets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/asset"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAssetIds": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Token Ids",
+        "description": "Get token ids.",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token Id List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "assetIds"
+                  ],
+                  "properties": {
+                    "assetIds": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/assetId"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getAssetAccounts": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Token Holders",
+        "description": "Get a list of token holder.",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "name": "ignoreTreasury",
+            "in": "query",
+            "description": "If set `true`, [Treasury Accounts](#post-/api-requestType-addAssetTreasuryAccount) won't be returned. Default is false",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          },
+          {
+            "name": "quantityMinimumQNT",
+            "in": "query",
+            "description": "Returns only accounts with given minimum quantity.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token Id List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "accountAssets"
+                  ],
+                  "properties": {
+                    "accountAssets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "account",
+                          "accountRS",
+                          "asset",
+                          "quantityQNT",
+                          "unconfirmedQuantityQNT"
+                        ],
+                        "properties": {
+                          "account": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "accountRS": {
+                            "$ref": "#/components/schemas/rsAddress"
+                          },
+                          "asset": {
+                            "$ref": "#/components/schemas/assetId"
+                          },
+                          "quantityQNT": {
+                            "$ref": "#/components/schemas/quantity"
+                          },
+                          "unconfirmedQuantityQNT": {
+                            "$ref": "#/components/schemas/quantity"
+                          }
+                        },
+                        "example": {
+                          "account": "16655635797853184825",
+                          "accountRS": "S-5ATT-JF5P-Q4H2-GN7BG",
+                          "asset": "12402415494995249540",
+                          "quantityQNT": "104510429825",
+                          "unconfirmedQuantityQNT": "104510429825"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api?requestType=getAssetsByIssuer": {
+      "get": {
+        "summary": "Get Accounts Issued Tokens",
+        "description": "Get all tokens an account issued",
+        "tags": [
+          "token",
+          "account"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          },
+          {
+            "name": "quantityMinimumQNT",
+            "in": "query",
+            "description": "Count only accounts with given minimum quantity. This parameter affects the `numberOfAccounts` in the response. This helps you to calculate the fees upfront for [Distribution to Token  holders](#post-/api-requestType-distributeToAssetHolders)<br/>❕️This parameter __does not filter__ the result!",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Token List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "assets"
+                  ],
+                  "properties": {
+                    "assets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/asset"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAllTrades": {
+      "get": {
+        "summary": "Get All Trades",
+        "description": "Get trades within a given range.",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/timestamp"
+          },
+          {
+            "name": "includeAssetInfo",
+            "in": "query",
+            "description": "If set `true` (default), the tokens `name` and `decimals` is included in the response",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Trade List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "trades"
+                  ],
+                  "properties": {
+                    "trades": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/trade"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAssetTransfers": {
+      "get": {
+        "500": {
+          "$ref": "#/components/responses/error"
+        },
+        "summary": "Get Token Transfers",
+        "description": "Get a list of token transfers.",
+        "tags": [
+          "token"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/asset"
+          },
+          {
+            "name": "account",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "description": "The optional account identifier",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token Id List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "transfers"
+                  ],
+                  "properties": {
+                    "transfers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "account",
+                          "accountRS",
+                          "asset",
+                          "quantityQNT",
+                          "unconfirmedQuantityQNT"
+                        ],
+                        "properties": {
+                          "assetTransfer": {
+                            "$ref": "#/components/schemas/transactionId"
+                          },
+                          "asset": {
+                            "$ref": "#/components/schemas/assetId"
+                          },
+                          "sender": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "senderRS": {
+                            "$ref": "#/components/schemas/rsAddress"
+                          },
+                          "recipient": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "recipientRS": {
+                            "$ref": "#/components/schemas/rsAddress"
+                          },
+                          "quantityQNT": {
+                            "$ref": "#/components/schemas/quantity"
+                          }
+                        },
+                        "example": {
+                          "assetTransfer": "18220965629044570406",
+                          "asset": "914948012239561046",
+                          "sender": "2506235206957628963",
+                          "senderRS": "TS-LZK5-NKK6-NET2-4HZK7",
+                          "recipient": "16357368130745732388",
+                          "recipientRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+                          "quantityQNT": "100000000",
+                          "height": 306944,
+                          "timestamp": 216268384,
+                          "name": "TTH",
+                          "decimals": 8
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -4437,7 +4843,8 @@
         "description": "The token identifier",
         "required": true,
         "example": [
-          "6954612694592252012"
+          "12402415494995249540",
+          "914948012239561046"
         ]
       },
       "assetName": {
@@ -4873,6 +5280,114 @@
         "type": "integer",
         "format": "int64",
         "description": "The time in seconds since first Block (Genesis) of the chain."
+      },
+      "trade": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "quantityQNT",
+          "priceNQT",
+          "asset",
+          "askOrder",
+          "bidOrder",
+          "askOrderHeight",
+          "seller",
+          "sellerRS",
+          "buyer",
+          "buyerRS",
+          "block",
+          "height",
+          "tradeType"
+        ],
+        "properties": {
+          "timestamp": {
+            "$ref": "#/components/schemas/timestamp"
+          },
+          "quantityQNT": {
+            "$ref": "#/components/schemas/quantity"
+          },
+          "priceNQT": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/assetId"
+          },
+          "askOrder": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The transaction identifier for the related ask order",
+            "example": [
+              "4637171108934095676"
+            ]
+          },
+          "bidOrder": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The transaction identifier for the related bid order",
+            "example": [
+              "4401563845482941630"
+            ]
+          },
+          "askOrderHeight": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The block height of the ask order"
+          },
+          "seller": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "sellerRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "buyer": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "buyerRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The block height"
+          },
+          "tradeType": {
+            "type": "string",
+            "enum": [
+              "buy",
+              "sell"
+            ],
+            "description": "The type of this trade"
+          },
+          "decimals": {
+            "type": "integer",
+            "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+            "minimum": 0,
+            "maximum": 8
+          },
+          "name": {
+            "$ref": "#/components/schemas/assetName"
+          }
+        },
+        "example": {
+          "timestamp": 250731878,
+          "quantityQNT": "1000000000",
+          "priceNQT": "9900",
+          "asset": "13868324881938171674",
+          "askOrder": "15660969901831666464",
+          "bidOrder": "5514091683995249090",
+          "askOrderHeight": 440941,
+          "seller": "17986607040762404199",
+          "sellerRS": "TS-XRD9-TTTL-EVJP-H5C9M",
+          "buyer": "5812913123670292755",
+          "buyerRS": "TS-7YAM-Q2DB-UXXS-7XWC3",
+          "block": "2706031161374132414",
+          "height": 440941,
+          "tradeType": "buy",
+          "name": "TEST",
+          "decimals": 4
+        }
       },
       "transaction": {
         "type": "object",
@@ -5353,7 +5868,7 @@
       },
       "timestamp": {
         "name": "timestamp",
-        "description": "The timestamp from which should be searched. The time in seconds since first Block (Genesis) of the chain.",
+        "description": "The timestamp from which should be searched. Us this to get items only since that time. The time in seconds since first Block (Genesis) of the chain.",
         "schema": {
           "type": "integer",
           "format": "int64"

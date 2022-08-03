@@ -1,6 +1,6 @@
 {
   "name": "timestamp",
-  "description": "The timestamp from which should be searched. The time in seconds since first Block (Genesis) of the chain.",
+  "description": "The timestamp from which should be searched. Us this to get items only since that time. The time in seconds since first Block (Genesis) of the chain.",
   "schema": {
     "type": "integer",
     "format": "int64"

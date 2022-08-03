@@ -1,14 +1,14 @@
 {
   "get": {
     "summary": "Get Account Tokens",
-    "description": "Gets the tokens an account owns.",
+    "description": "Get the tokens an account owns.",
     "tags": [
       "account",
       "token"
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/account/account.json"
+        "$ref": "../../parameters/token/asset.json"
       },
       {
         "$ref": "../../parameters/firstIndex.json"

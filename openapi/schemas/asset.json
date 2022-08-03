@@ -34,7 +34,6 @@
     "generatorPublicKey": {
       "$ref": "./hash.json"
     },
-
     "decimals": {
       "type": "integer",
       "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",

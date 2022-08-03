@@ -4,6 +4,6 @@
   "description": "The token identifier",
   "required": true,
   "example": [
-    "6954612694592252012"
+    "12402415494995249540", "914948012239561046"
   ]
 }
