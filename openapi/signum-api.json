@@ -2,11 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Signum Node API",
-    "version": "3.4.2",
-    "description": "This is the API documentation of the Signum Node",
-    "x-logo": {
-      "url": ""
-    }
+    "version": "3.4.3",
+    "description": "This is the API documentation of the Signum Node"
   },
   "paths": {
     "/api?requestType=addCommitment": {
