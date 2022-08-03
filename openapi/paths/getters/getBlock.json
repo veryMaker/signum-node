@@ -14,7 +14,6 @@
           "type": "integer",
           "format": "int64",
           "example": "15665862983517409283"
-
         }
       },
       {
@@ -29,7 +28,7 @@
         }
       },
       {
-        "ref": "../../parameters/timestamp.json"
+        "$ref": "../../parameters/timestamp.json"
       },
       {
         "name": "includeTransactions",
@@ -55,10 +54,10 @@
             }
           }
         }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
       }
-    },
-    "500": {
-      "$ref": "../../responses/error.json"
     }
   }
 }

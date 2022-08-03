@@ -60,23 +60,23 @@
                       "unconfirmedQuantityQNT"
                     ],
                     "properties": {
-                        "account" : {
-                          "$ref": "../../schemas/numericId.json"
-                        },
-                        "accountRS" : {
-                          "$ref": "../../schemas/rsAddress.json"
-                        },
-                        "asset" : {
-                          "$ref": "../../schemas/assetId.json"
-                        },
-                        "quantityQNT" : {
-                          "$ref": "../../schemas/quantity.json"
-                        },
-                        "unconfirmedQuantityQNT" : {
-                          "$ref": "../../schemas/quantity.json"
-                        }
+                      "account": {
+                        "$ref": "../../schemas/numericId.json"
+                      },
+                      "accountRS": {
+                        "$ref": "../../schemas/rsAddress.json"
+                      },
+                      "asset": {
+                        "$ref": "../../schemas/assetId.json"
+                      },
+                      "quantityQNT": {
+                        "$ref": "../../schemas/quantity.json"
+                      },
+                      "unconfirmedQuantityQNT": {
+                        "$ref": "../../schemas/quantity.json"
+                      }
                     },
-                    "example":         {
+                    "example": {
                       "account": "16655635797853184825",
                       "accountRS": "S-5ATT-JF5P-Q4H2-GN7BG",
                       "asset": "12402415494995249540",
@@ -89,10 +89,10 @@
             }
           }
         }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
       }
-    },
-    "500": {
-      "$ref": "../../responses/error.json"
     }
   }
 }

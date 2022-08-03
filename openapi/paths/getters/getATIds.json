@@ -37,10 +37,10 @@
             }
           }
         }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
       }
-    },
-    "500": {
-      "$ref": "../../responses/error.json"
     }
   }
 }

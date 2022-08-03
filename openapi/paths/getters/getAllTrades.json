@@ -10,7 +10,7 @@
         "$ref": "../../parameters/firstIndex.json"
       },
       {
-        "$ref": "../../parameters/firstIndex.json"
+        "$ref": "../../parameters/lastIndex.json"
       },
       {
         "$ref": "../../parameters/timestamp.json"

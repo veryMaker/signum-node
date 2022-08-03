@@ -41,6 +41,7 @@
     ],
     "responses": {
       "200": {
+        "description": "Individual Distribution Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the `transaction`",
         "content": {
           "application/json": {
             "schema": {
@@ -58,7 +59,6 @@
                 "confirmations": 73793,
                 "requestProcessingTime": 1
               },
-              "description": "Individual Distribution Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the `transaction`",
               "properties": {
                 "amountNQT": {
                   "$ref": "../../schemas/amount.json"

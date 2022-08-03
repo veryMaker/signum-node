@@ -2070,7 +2070,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "name": "machineCodeHashId",
@@ -2096,7 +2096,7 @@
                     "ats": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/responses/200/content/application~1json/schema"
+                        "$ref": "#/components/schemas/contract"
                       }
                     }
                   }
@@ -2112,9 +2112,6 @@
     },
     "/api?requestType=getAT": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Contract",
         "description": "Gets a specific smart contract",
         "tags": [
@@ -2122,14 +2119,7 @@
         ],
         "parameters": [
           {
-            "name": "at",
-            "in": "query",
-            "allowEmptyValue": false,
-            "required": true,
-            "description": "The contracts address.",
-            "schema": {
-              "$ref": "#/components/schemas/contractId"
-            }
+            "$ref": "#/components/parameters/at"
           }
         ],
         "responses": {
@@ -2138,164 +2128,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "balanceNQT",
-                    "unconfirmedBalanceNQT",
-                    "forgedBalanceNQT",
-                    "guaranteedBalanceNQT",
-                    "account",
-                    "accountRS"
-                  ],
-                  "properties": {
-                    "at": {
-                      "$ref": "#/components/schemas/contractId"
-                    },
-                    "atRS": {
-                      "$ref": "#/components/schemas/contractAddress"
-                    },
-                    "name": {
-                      "description": "The name of this contract ",
-                      "type": "string",
-                      "pattern": "^[a-zA-Z0-9]{1,30}$"
-                    },
-                    "description": {
-                      "description": "The description of the contract",
-                      "type": "string",
-                      "maxLength": 1000
-                    },
-                    "machineData": {
-                      "description": "The current data stack of the contract in hexadecimal form. You can inspect the data using the [Contract Inspector](https://contracts-inspector.ohager.vercel.app/)",
-                      "type": "string",
-                      "pattern": "^[a-fA-F0-9]+$"
-                    },
-                    "balanceNQT": {
-                      "description": "The contracts current balance.<br/>Mind that contracts without balance do not run at all.<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",
-                      "type": "integer",
-                      "format": "int64",
-                      "example": [
-                        "100000000",
-                        "1000000"
-                      ]
-                    },
-                    "prevBalanceNQT": {
-                      "description": "The contracts previous balance.",
-                      "type": "integer",
-                      "format": "int64",
-                      "example": [
-                        "100000000",
-                        "1000000"
-                      ]
-                    },
-                    "nextBlock": {
-                      "description": "The next block when this contract will be ready to run",
-                      "type": "integer",
-                      "format": "int32"
-                    },
-                    "frozen": {
-                      "description": "Indicates if a contract is stuck, i.e. due to insufficient balance.<br/>Do not rely on that status. Once frozen, this status never gets rest to zero, although the contract is able to run.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
-                      "type": "boolean",
-                      "example": [
-                        true,
-                        false
-                      ]
-                    },
-                    "stopped": {
-                      "description": "Indicates if a contract stopped (by sleep or halt instruction) and waiting for continuation.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
-                      "type": "boolean",
-                      "example": [
-                        true,
-                        false
-                      ]
-                    },
-                    "finished": {
-                      "description": "Indicates that a contract finished entirely his current execution cycle.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
-                      "type": "boolean",
-                      "example": [
-                        true,
-                        false
-                      ]
-                    },
-                    "dead": {
-                      "description": "Indicates that a contract suffered a severe error and is lost. <br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
-                      "type": "boolean",
-                      "example": [
-                        true,
-                        false
-                      ]
-                    },
-                    "machineCode": {
-                      "description": "The code",
-                      "type": "string",
-                      "pattern": "^[a-fA-F0-9]+$"
-                    },
-                    "machineCodeHashId": {
-                      "description": "The hash id for the contracts code. So, we can identify different instances of the same contract code by this identifier.",
-                      "type": "integer",
-                      "format": "int64",
-                      "example": [
-                        "17139226199807531405"
-                      ]
-                    },
-                    "atVersion": {
-                      "description": "The version of this contract",
-                      "type": "integer",
-                      "format": "int32"
-                    },
-                    "creator": {
-                      "$ref": "#/components/schemas/numericId"
-                    },
-                    "creatorRS": {
-                      "$ref": "#/components/schemas/rsAddress"
-                    },
-                    "minActivation": {
-                      "type": "integer",
-                      "format": "int64",
-                      "description": "The amount needed to activate an execution of the contract, i.e.is always returned in Planck, that is Signa multiplied by 10E8",
-                      "example": [
-                        "25000000"
-                      ]
-                    },
-                    "creationBlock": {
-                      "description": "The block when this contract was created.",
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "example": {
-                    "at": "16380523479488112662",
-                    "machineData": "0000000000000000...",
-                    "balanceNQT": "0",
-                    "prevBalanceNQT": "0",
-                    "nextBlock": 440889,
-                    "frozen": false,
-                    "running": false,
-                    "stopped": true,
-                    "finished": false,
-                    "dead": false,
-                    "machineCodeHashId": "17139226199807531405",
-                    "atVersion": 3,
-                    "atRS": "TS-DC2Q-C6GX-R56T-GHUN8",
-                    "name": "RESTPOOL",
-                    "description": "Some description",
-                    "creator": "2402520554221019656",
-                    "creatorRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                    "machineCode": "12ed000000303304030300...",
-                    "minActivation": "25000000",
-                    "creationBlock": 440889
-                  }
+                  "$ref": "#/components/schemas/contract"
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
     },
     "/api?requestType=getATDetails": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Contract History",
         "description": "Gets a specific contracts situation at a given moment in the past",
         "tags": [
@@ -2303,7 +2148,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/0"
+            "$ref": "#/components/parameters/at"
           },
           {
             "name": "height",
@@ -2321,19 +2166,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/responses/200/content/application~1json/schema"
+                  "$ref": "#/components/schemas/contract"
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
     },
     "/api?requestType=getATIds": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Contract Ids",
         "description": "Gets all smart contract ids. You can optionally filter by the machine code hash, to get only contracts of a specific type",
         "tags": [
@@ -2371,15 +2216,15 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
     },
     "/api?requestType=getATMapValue": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Contract Map Value",
         "description": "Gets a value from a smart contract from its [data store](https://github.com/signum-network/SIPs/blob/master/SIP/sip-38.md).<br/>Non existing keys result always in `0`(Zero)",
         "tags": [
@@ -2387,7 +2232,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/0"
+            "$ref": "#/components/parameters/at"
           },
           {
             "name": "key1",
@@ -2432,6 +2277,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
@@ -2449,10 +2297,10 @@
             "$ref": "#/components/parameters/asset"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -2561,7 +2409,61 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/miningInfo"
+                  "type": "object",
+                  "description": "Information for miner software.",
+                  "required": [
+                    "height",
+                    "generationSignature",
+                    "baseTarget",
+                    "averageCommitmentNQT",
+                    "lastBlockReward",
+                    "lastBlockRewardNQT",
+                    "timestamp"
+                  ],
+                  "example": {
+                    "height": "1041112",
+                    "generationSignature": "01a793a91f7abf9e81c4f57050b8a4ed4581f6db0a0b81959f52dfdcd6abcfec",
+                    "baseTarget": "399933",
+                    "averageCommitmentNQT": "350475714560",
+                    "lastBlockReward": "100",
+                    "lastBlockRewardNQT": "10000000000",
+                    "timestamp": "251323162"
+                  },
+                  "properties": {
+                    "height": {
+                      "description": "The height of the current block to be forged",
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "generationSignature": {
+                      "description": "The generation signature ",
+                      "type": "string",
+                      "pattern": "^[a-fA-F0-9]{64}$"
+                    },
+                    "baseTarget": {
+                      "description": "The base target",
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "averageCommitmentNQT": {
+                      "description": "The networks average commitment per TiB expressed in Planck",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "lastBlockReward": {
+                      "description": "The last block reward in Signa.",
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "lastBlockRewardNQT": {
+                      "description": "The last block reward in Planck.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "timestamp": {
+                      "$ref": "#/components/schemas/timestamp"
+                    }
+                  }
                 }
               }
             }
@@ -2678,6 +2580,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Individual Distribution Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the `transaction`",
             "content": {
               "application/json": {
                 "schema": {
@@ -2695,7 +2598,6 @@
                     "confirmations": 73793,
                     "requestProcessingTime": 1
                   },
-                  "description": "Individual Distribution Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the `transaction`",
                   "properties": {
                     "amountNQT": {
                       "$ref": "#/components/schemas/amount"
@@ -2731,6 +2633,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Fee suggestions. The higher the fee the more prioritized its validation, i.e. chances are higher to make it into the next block.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2745,7 +2648,6 @@
                     "standard": 2000000,
                     "priority": 3000000
                   },
-                  "description": "Fee suggestions. The higher the fee the more prioritized its validation, i.e. chances are higher to make it into the next block.",
                   "properties": {
                     "cheap": {
                       "$ref": "#/components/schemas/amount"
@@ -3381,23 +3283,16 @@
         ],
         "parameters": [
           {
-            "name": "account",
-            "in": "query",
-            "required": true,
-            "allowEmptyValue": false,
-            "description": "The account identifier",
-            "schema": {
-              "$ref": "#/components/schemas/address"
-            }
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/timestamp"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -3462,9 +3357,6 @@
     },
     "/api?requestType=getAlias": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Alias",
         "description": "Get an alias by its id or unique name",
         "tags": [
@@ -3503,15 +3395,15 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
     },
     "/api?requestType=getBlock": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Block",
         "description": "Get a specific block. Returns the last block if no argument is given.",
         "tags": [
@@ -3540,7 +3432,7 @@
             }
           },
           {
-            "ref": "../../parameters/timestamp.json"
+            "$ref": "#/components/parameters/timestamp"
           },
           {
             "name": "includeTransactions",
@@ -3566,6 +3458,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
@@ -3579,20 +3474,10 @@
         ],
         "parameters": [
           {
-            "name": "firstIndex",
-            "in": "query",
-            "description": "The first index to be returned. Use this for pagination.",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "name": "lastIndex",
-            "in": "query",
-            "description": "The last index to be returned. Use this for pagination. If not set, at maximum 500 items beginning at `firstIndex` will be returned",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "name": "includeTransactions",
@@ -3646,16 +3531,16 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/timestamp"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "name": "includeTransactions",
@@ -3709,16 +3594,16 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/timestamp"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -3757,16 +3642,16 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/asset"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -3807,16 +3692,16 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/asset"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -3856,10 +3741,10 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -3899,10 +3784,10 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -3974,10 +3859,10 @@
             "$ref": "#/components/parameters/asset"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -4049,10 +3934,10 @@
             "$ref": "#/components/parameters/asset"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -4085,9 +3970,6 @@
     },
     "/api?requestType=getAsset": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Token",
         "description": "Get a token",
         "tags": [
@@ -4117,6 +3999,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
@@ -4130,10 +4015,10 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "name": "quantityMinimumQNT",
@@ -4175,9 +4060,6 @@
     },
     "/api?requestType=getAssetIds": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Token Ids",
         "description": "Get token ids.",
         "tags": [
@@ -4185,10 +4067,10 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -4212,15 +4094,15 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
     },
     "/api?requestType=getAssetAccounts": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Token Holders",
         "description": "Get a list of token holder.",
         "tags": [
@@ -4252,10 +4134,10 @@
             }
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -4310,6 +4192,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
@@ -4324,13 +4209,13 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "name": "quantityMinimumQNT",
@@ -4379,10 +4264,10 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "$ref": "#/components/parameters/timestamp"
@@ -4430,9 +4315,6 @@
     },
     "/api?requestType=getAssetTransfers": {
       "get": {
-        "500": {
-          "$ref": "#/components/responses/error"
-        },
         "summary": "Get Token Transfers",
         "description": "Get a list of token transfers.",
         "tags": [
@@ -4453,10 +4335,10 @@
             }
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           }
         ],
         "responses": {
@@ -4523,6 +4405,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
           }
         }
       }
@@ -4536,7 +4421,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           }
         ],
         "responses": {
@@ -4574,7 +4459,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           }
         ],
         "responses": {
@@ -4610,7 +4495,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           }
         ],
         "responses": {
@@ -4750,16 +4635,16 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/timestamp"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "name": "type",
@@ -4842,16 +4727,16 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           },
           {
             "$ref": "#/components/parameters/timestamp"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+            "$ref": "#/components/parameters/firstIndex"
           },
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+            "$ref": "#/components/parameters/lastIndex"
           },
           {
             "name": "type",
@@ -4974,7 +4859,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+            "$ref": "#/components/parameters/account"
           }
         ],
         "responses": {
@@ -5350,7 +5235,7 @@
             "maximum": 8
           },
           "mintable": {
-            "type": "boolen",
+            "type": "boolean",
             "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
             "example": [
               true,
@@ -5606,6 +5491,154 @@
           "16380523479488112662"
         ]
       },
+      "contract": {
+        "type": "object",
+        "required": [
+          "balanceNQT",
+          "unconfirmedBalanceNQT",
+          "forgedBalanceNQT",
+          "guaranteedBalanceNQT",
+          "account",
+          "accountRS"
+        ],
+        "properties": {
+          "at": {
+            "$ref": "#/components/schemas/contractId"
+          },
+          "atRS": {
+            "$ref": "#/components/schemas/contractAddress"
+          },
+          "name": {
+            "description": "The name of this contract ",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]{1,30}$"
+          },
+          "description": {
+            "description": "The description of the contract",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "machineData": {
+            "description": "The current data stack of the contract in hexadecimal form. You can inspect the data using the [Contract Inspector](https://contracts-inspector.ohager.vercel.app/)",
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]+$"
+          },
+          "balanceNQT": {
+            "description": "The contracts current balance.<br/>Mind that contracts without balance do not run at all.<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",
+            "type": "integer",
+            "format": "int64",
+            "example": [
+              "100000000",
+              "1000000"
+            ]
+          },
+          "prevBalanceNQT": {
+            "description": "The contracts previous balance.",
+            "type": "integer",
+            "format": "int64",
+            "example": [
+              "100000000",
+              "1000000"
+            ]
+          },
+          "nextBlock": {
+            "description": "The next block when this contract will be ready to run",
+            "type": "integer",
+            "format": "int32"
+          },
+          "frozen": {
+            "description": "Indicates if a contract is stuck, i.e. due to insufficient balance.<br/>Do not rely on that status. Once frozen, this status never gets rest to zero, although the contract is able to run.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+            "type": "boolean",
+            "example": [
+              true,
+              false
+            ]
+          },
+          "stopped": {
+            "description": "Indicates if a contract stopped (by sleep or halt instruction) and waiting for continuation.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+            "type": "boolean",
+            "example": [
+              true,
+              false
+            ]
+          },
+          "finished": {
+            "description": "Indicates that a contract finished entirely his current execution cycle.<br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+            "type": "boolean",
+            "example": [
+              true,
+              false
+            ]
+          },
+          "dead": {
+            "description": "Indicates that a contract suffered a severe error and is lost. <br/>Read about contract states also [here](https://github.com/deleterium/SmartC/blob/stable/docs/1-Basis.md#contract-states)",
+            "type": "boolean",
+            "example": [
+              true,
+              false
+            ]
+          },
+          "machineCode": {
+            "description": "The code",
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]+$"
+          },
+          "machineCodeHashId": {
+            "description": "The hash id for the contracts code. So, we can identify different instances of the same contract code by this identifier.",
+            "type": "integer",
+            "format": "int64",
+            "example": [
+              "17139226199807531405"
+            ]
+          },
+          "atVersion": {
+            "description": "The version of this contract",
+            "type": "integer",
+            "format": "int32"
+          },
+          "creator": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "creatorRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "minActivation": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The amount needed to activate an execution of the contract, i.e.is always returned in Planck, that is Signa multiplied by 10E8",
+            "example": [
+              "25000000"
+            ]
+          },
+          "creationBlock": {
+            "description": "The block when this contract was created.",
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "at": "16380523479488112662",
+          "machineData": "0000000000000000...",
+          "balanceNQT": "0",
+          "prevBalanceNQT": "0",
+          "nextBlock": 440889,
+          "frozen": false,
+          "running": false,
+          "stopped": true,
+          "finished": false,
+          "dead": false,
+          "machineCodeHashId": "17139226199807531405",
+          "atVersion": 3,
+          "atRS": "TS-DC2Q-C6GX-R56T-GHUN8",
+          "name": "RESTPOOL",
+          "description": "Some description",
+          "creator": "2402520554221019656",
+          "creatorRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
+          "machineCode": "12ed000000303304030300...",
+          "minActivation": "25000000",
+          "creationBlock": 440889
+        }
+      },
       "hash": {
         "type": "string",
         "pattern": "^[a-fA-F0-9]{64}$",
@@ -5625,62 +5658,6 @@
           "895212263565386112",
           "2402520554221019656"
         ]
-      },
-      "miningInfo": {
-        "type": "object",
-        "required": [
-          "height",
-          "generationSignature",
-          "baseTarget",
-          "averageCommitmentNQT",
-          "lastBlockReward",
-          "lastBlockRewardNQT",
-          "timestamp"
-        ],
-        "properties": {
-          "height": {
-            "description": "The height of the current block to be forged",
-            "type": "integer",
-            "format": "int32"
-          },
-          "generationSignature": {
-            "description": "The generation signature ",
-            "type": "string",
-            "pattern": "^[a-fA-F0-9]{64}$"
-          },
-          "baseTarget": {
-            "description": "The base target",
-            "type": "integer",
-            "format": "int32"
-          },
-          "averageCommitmentNQT": {
-            "description": "The networks average commitment per TiB expressed in Planck",
-            "type": "integer",
-            "format": "int64"
-          },
-          "lastBlockReward": {
-            "description": "The last block reward in Signa.",
-            "type": "integer",
-            "format": "int32"
-          },
-          "lastBlockRewardNQT": {
-            "description": "The last block reward in Planck.",
-            "type": "integer",
-            "format": "int64"
-          },
-          "timestamp": {
-            "$ref": "#/components/schemas/timestamp"
-          },
-          "example": {
-            "height": "1041112",
-            "generationSignature": "01a793a91f7abf9e81c4f57050b8a4ed4581f6db0a0b81959f52dfdcd6abcfec",
-            "baseTarget": "399933",
-            "averageCommitmentNQT": "350475714560",
-            "lastBlockReward": "100",
-            "lastBlockRewardNQT": "10000000000",
-            "timestamp": "251323162"
-          }
-        }
       },
       "orderId": {
         "type": "integer",
@@ -6494,6 +6471,42 @@
         "schema": {
           "type": "integer",
           "format": "int64"
+        }
+      },
+      "firstIndex": {
+        "name": "firstIndex",
+        "in": "query",
+        "description": "The first index to be returned. Use this for pagination.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "lastIndex": {
+        "name": "lastIndex",
+        "in": "query",
+        "description": "The last index to be returned. Use this for pagination. If not set, at maximum 500 items beginning at `firstIndex` will be returned",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "account": {
+        "name": "account",
+        "in": "query",
+        "required": true,
+        "allowEmptyValue": false,
+        "description": "The account identifier",
+        "schema": {
+          "$ref": "#/components/schemas/address"
+        }
+      },
+      "at": {
+        "name": "at",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The contracts address.",
+        "schema": {
+          "$ref": "#/components/schemas/contractId"
         }
       }
     },

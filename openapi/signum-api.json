@@ -300,6 +300,9 @@
       "contractId": {
         "$ref": "./schemas/contractId.json"
       },
+      "contract": {
+        "$ref": "./schemas/contract.json"
+      },
       "hash": {
         "$ref": "./schemas/hash.json"
       },
@@ -308,9 +311,6 @@
       },
       "numericId": {
         "$ref": "./schemas/numericId.json"
-      },
-      "miningInfo": {
-        "$ref": "./schemas/miningInfo.json"
       },
       "orderId": {
         "$ref": "./schemas/orderId.json"
@@ -425,6 +425,18 @@
       },
       "timestamp": {
         "$ref": "./parameters/timestamp.json"
+      },
+      "firstIndex": {
+        "$ref": "./parameters/firstIndex.json"
+      },
+      "lastIndex": {
+        "$ref": "./parameters/lastIndex.json"
+      },
+      "account": {
+        "$ref": "./parameters/account/account.json"
+      },
+      "at": {
+        "$ref": "./parameters/contract/at.json"
       }
     },
     "responses": {

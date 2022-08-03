@@ -9,7 +9,6 @@
       {
         "$ref": "../../parameters/token/asset.json"
       },
-
       {
         "name": "account",
         "in": "query",
@@ -70,7 +69,7 @@
                       },
                       "quantityQNT": {
                         "$ref": "../../schemas/quantity.json"
-                      },
+                      }
                     },
                     "example": {
                       "assetTransfer": "18220965629044570406",
@@ -91,10 +90,10 @@
             }
           }
         }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
       }
-    },
-    "500": {
-      "$ref": "../../responses/error.json"
     }
   }
 }

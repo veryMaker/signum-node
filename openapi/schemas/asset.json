@@ -41,7 +41,7 @@
       "maximum": 8
     },
     "mintable": {
-      "type": "boolen",
+      "type": "boolean",
       "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
       "example" : [true, false]
     },

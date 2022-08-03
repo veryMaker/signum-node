@@ -5,6 +5,7 @@
     "tags": ["utility"],
     "responses": {
       "200": {
+        "description": "Fee suggestions. The higher the fee the more prioritized its validation, i.e. chances are higher to make it into the next block.",
         "content": {
           "application/json": {
             "schema": {
@@ -19,7 +20,6 @@
                 "standard": 2000000,
                 "priority": 3000000
               },
-              "description": "Fee suggestions. The higher the fee the more prioritized its validation, i.e. chances are higher to make it into the next block.",
               "properties": {
                 "cheap": {
                   "$ref": "../../schemas/amount.json"
