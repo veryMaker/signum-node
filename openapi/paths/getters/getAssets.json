@@ -1,0 +1,44 @@
+{
+  "get": {
+    "summary": "Get Multiple Tokens",
+    "description": "Get up to three tokens in a call",
+    "tags": [
+      "token"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/token/asset.json"
+      },
+      {
+        "$ref": "../../parameters/token/asset.json"
+      },
+      {
+        "$ref": "../../parameters/token/asset.json"
+      },
+      {
+        "name": "quantityMinimumQNT",
+        "in": "query",
+        "description": "Count only accounts with given minimum quantity. This parameter affects for the `numberOfAccounts` in the response. This helps you to calculate the fees upfront for [Distribution to Token  holders](#post-/api-requestType-distributeToAssetHolders)",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "The Token List",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/asset.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

@@ -80,9 +80,6 @@ public class GetAllAssetsTest extends AbstractUnitTest {
     assertEquals(mockAsset.getDecimals(), JSON.getAsByte(assetResult.get(DECIMALS_RESPONSE)));
     assertEquals("" + mockAsset.getQuantityQNT(), JSON.getAsString(assetResult.get(QUANTITY_QNT_RESPONSE)));
     assertEquals("" + mockAsset.getId(), JSON.getAsString(assetResult.get(ASSET_RESPONSE)));
-    assertEquals(1, JSON.getAsInt(assetResult.get(NUMBER_OF_ACCOUNTS_RESPONSE)));
-    assertEquals(2, JSON.getAsInt(assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE)));
-    assertEquals(3, JSON.getAsInt(assetResult.get(NUMBER_OF_TRADES_RESPONSE)));
   }
 
 }

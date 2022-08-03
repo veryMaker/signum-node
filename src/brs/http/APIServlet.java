@@ -255,7 +255,7 @@ public final class APIServlet extends HttpServlet {
   }
 
   private static void writeJsonToResponse(HttpServletResponse resp, JsonElement msg) throws IOException {
-    resp.setContentType("text/plain; charset=UTF-8");
+    resp.setContentType("application/json; charset=UTF-8");
     try (Writer writer = resp.getWriter()) {
       JSON.writeTo(msg, writer);
     }
