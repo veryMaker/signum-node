@@ -90,6 +90,10 @@
   cursor: pointer;
 }
 
+.converter-wrapper header:hover {
+  color: var(--nav-hover-text-color) !important;
+}
+
 .converter-wrapper h3 {
   font-size: var(--font-size-regular);
   font-weight: bold;
