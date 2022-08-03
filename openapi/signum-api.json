@@ -183,6 +183,9 @@
     "/api?requestType=getAccountBlocks": {
       "$ref": "./paths/getters/getAccountBlocks.json"
     },
+    "/api?requestType=getAccountBlockIds": {
+      "$ref": "./paths/getters/getAccountBlockIds.json"
+    },
     "/api?requestType=getAccountCurrentAskOrders": {
       "$ref": "./paths/getters/getAccountCurrentAskOrders.json"
     },
@@ -227,6 +230,33 @@
     },
     "/api?requestType=getAssetTransfers": {
       "$ref": "./paths/getters/getAssetTransfers.json"
+    },
+    "/api?requestType=getAccountPublicKey": {
+      "$ref": "./paths/getters/getAccountPublicKey.json"
+    },
+    "/api?requestType=getAccountSubscriptions": {
+      "$ref": "./paths/getters/getAccountSubscriptions.json"
+    },
+    "/api?requestType=getSubscriptionsToAccount": {
+      "$ref": "./paths/getters/getSubscriptionsToAccount.json"
+    },
+    "/api?requestType=getSubscription": {
+      "$ref": "./paths/getters/getSubscription.json"
+    },
+    "/api?requestType=getUnconfirmedTransactionIds": {
+      "$ref": "./paths/getters/getUnconfirmedTransactionIds.json"
+    },
+    "/api?requestType=getAccountTransactions": {
+      "$ref": "./paths/getters/getAccountTransactions.json"
+    },
+    "/api?requestType=getAccountTransactionIds": {
+      "$ref": "./paths/getters/getAccountTransactionIds.json"
+    },
+    "/api?requestType=getAccountsWithName": {
+      "$ref": "./paths/getters/getAccountsWithName.json"
+    },
+    "/api?requestType=getBalance": {
+      "$ref": "./paths/getters/getBalance.json"
     }
   },
   "components": {
@@ -296,6 +326,9 @@
       },
       "signedTransaction": {
         "$ref": "./schemas/signedTransaction.json"
+      },
+      "subscription": {
+        "$ref": "./schemas/subscription.json"
       },
       "timestamp": {
         "$ref": "./schemas/timestamp.json"

@@ -3699,6 +3699,54 @@
         }
       }
     },
+    "/api?requestType=getAccountBlockIds": {
+      "get": {
+        "summary": "Get Accounts Forged Block Ids",
+        "description": "Gets the blocks an account forged.",
+        "tags": [
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/timestamp"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of forged block ids",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "blockId"
+                  ],
+                  "properties": {
+                    "blockIds": {
+                      "type": "integer",
+                      "format": "int64"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getAccountCurrentAskOrders": {
       "get": {
         "summary": "Get Accounts Ask Orders",
@@ -4478,6 +4526,523 @@
           }
         }
       }
+    },
+    "/api?requestType=getAccountPublicKey": {
+      "get": {
+        "summary": "Get Accounts Public Key",
+        "description": "Get account public key. Useful to check if an account exists or is activated",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "publicKey"
+                  ],
+                  "properties": {
+                    "publicKey": {
+                      "$ref": "#/components/schemas/hash"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountSubscriptions": {
+      "get": {
+        "summary": "Get Accounts Subscriptions",
+        "description": "Get accounts running subscriptions, i.e. recurring payments. These are outgoing subscriptions. See [incoming subscriptions](#get-/api-requestType-getSubscriptionsToAccount)",
+        "tags": [
+          "account",
+          "payments"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription List response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "required": [
+                    "subscriptions"
+                  ],
+                  "items": {
+                    "$ref": "#/components/schemas/subscription"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getSubscriptionsToAccount": {
+      "get": {
+        "summary": "Get Recipient Subscriptions",
+        "description": "Get subscriptions sent to an account/recipient, incoming subscriptions. See [outgoing subscriptions](#get-/api-requestType-getAccountSubscriptions)",
+        "tags": [
+          "account",
+          "payments"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription List response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "required": [
+                    "subscriptions"
+                  ],
+                  "items": {
+                    "$ref": "#/components/schemas/subscription"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getSubscription": {
+      "get": {
+        "summary": "Get Subscription",
+        "description": "Get a subscription, i.e. recurring payment.",
+        "tags": [
+          "payments"
+        ],
+        "parameters": [
+          {
+            "name": "subscription",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The identifier of a subscription, i.e. its initial transaction id",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/subscription"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getUnconfirmedTransactionIds": {
+      "get": {
+        "summary": "Get Pending Transaction Ids",
+        "description": "Get all pending transaction identifiers or of a specific account.<br/>Each Transaction may carry an additional attachment with a different structure. This structure depends on it's [`type` and `subtype`](https://docs.signum.network/signum/transaction-types)",
+        "tags": [
+          "payment",
+          "alias",
+          "contract",
+          "token",
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "description": "When given, only pending transactions of this account are returned. If not, _all_ pending transactions of the network are returned",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "name": "includeIndirect",
+            "description": "When set true, multiple payment transactions are returned also. This option applies only when using `account`",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending Transaction Id List Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A list of pending transactions.",
+                  "required": [
+                    "unconfirmedTransactionIds"
+                  ],
+                  "properties": {
+                    "unconfirmedTransactionIds": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/transactionId"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountTransactions": {
+      "get": {
+        "summary": "Get Account Transactions",
+        "description": "Get account transactions",
+        "tags": [
+          "payment",
+          "alias",
+          "contract",
+          "token",
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/timestamp"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          },
+          {
+            "name": "type",
+            "description": "The primary type of wanted transactions. This allows to filter by transaction types.<br/>See [Transaction Types](https://docs.signum.network/signum/transaction-types) and or [Get Blockchain Parameters](#get-/api-requestType-getConstants)",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "subtype",
+            "description": "The secondary type of wanted transactions. This allows to filter by transaction types.<br/>See [Transaction Types](https://docs.signum.network/signum/transaction-types) and or [Get Blockchain Parameters](#get-/api-requestType-getConstants)",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "numberOfConfirmation",
+            "description": "The minimum number of confirmations for wanted transactions.",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "includeIndirect",
+            "description": "When set true, multiple payment transactions are returned also.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction List Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A list of transactions.<br/>__Note__: For performance/stability reasons a node returns at maximum 500 items. All transaction query methods offer `firstIndex` and `lastIndex` to paginate through the transaction.",
+                  "required": [
+                    "transactions"
+                  ],
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/transaction"
+                      },
+                      "maxLength": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountTransactionIds": {
+      "get": {
+        "summary": "Get Account Transaction Ids",
+        "description": "Get account transaction identifiers.",
+        "tags": [
+          "payment",
+          "alias",
+          "contract",
+          "token",
+          "account",
+          "mining"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          },
+          {
+            "$ref": "#/components/parameters/timestamp"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/0"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/parameters/1"
+          },
+          {
+            "name": "type",
+            "description": "The primary type of wanted transactions. This allows to filter by transaction types.<br/>See [Transaction Types](https://docs.signum.network/signum/transaction-types) and or [Get Blockchain Parameters](#get-/api-requestType-getConstants)",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "subtype",
+            "description": "The secondary type of wanted transactions. This allows to filter by transaction types.<br/>See [Transaction Types](https://docs.signum.network/signum/transaction-types) and or [Get Blockchain Parameters](#get-/api-requestType-getConstants)",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "numberOfConfirmation",
+            "description": "The minimum number of confirmations for wanted transactions.",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "includeIndirect",
+            "description": "When set true, multiple payment transactions are returned also.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction Id List Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A list of transactions identifiers.",
+                  "required": [
+                    "transactionIds"
+                  ],
+                  "properties": {
+                    "transactionIds": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/transactionId"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAccountsWithName": {
+      "get": {
+        "summary": "Get Accounts By Name",
+        "description": "Get account identifiers by their name. See als [Set Account Information](#post-/api-requestType-setAccountInfo)",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "description": "The name of the accounts",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account Id List Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A list of account identifiers.",
+                  "required": [
+                    "accounts"
+                  ],
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/numericId"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getBalance": {
+      "get": {
+        "summary": "Get Account Balance",
+        "description": "Get an accounts balance information.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAliases/get/parameters/0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account Balance response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "balanceNQT",
+                    "unconfirmedBalanceNQT",
+                    "forgedBalanceNQT",
+                    "guaranteedBalanceNQT"
+                  ],
+                  "properties": {
+                    "balanceNQT": {
+                      "description": "Your total balance, including commitment and reserved orders",
+                      "type": "integer",
+                      "format": "int64",
+                      "example": [
+                        "100000000",
+                        "1000000"
+                      ]
+                    },
+                    "unconfirmedBalanceNQT": {
+                      "description": "The currently available balance.<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",
+                      "type": "integer",
+                      "format": "int64",
+                      "example": [
+                        "100000000",
+                        "1000000"
+                      ]
+                    },
+                    "forgedBalanceNQT": {
+                      "description": "The balance forged by you (Solo-Mining only).<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",
+                      "type": "integer",
+                      "format": "int64",
+                      "example": [
+                        "100000000",
+                        "1000000"
+                      ]
+                    },
+                    "guaranteedBalanceNQT": {
+                      "description": "Your total balance, including commitment and reserved orders.<br/>The amount is always returned in Planck, that is Signa multiplied by 10E8",
+                      "type": "integer",
+                      "format": "int64",
+                      "example": [
+                        "100000000",
+                        "1000000"
+                      ]
+                    }
+                  },
+                  "example": {
+                    "balanceNQT": "6175175744000",
+                    "unconfirmedBalanceNQT": "6175175744000",
+                    "forgedBalanceNQT": "0",
+                    "guaranteedBalanceNQT": "6175175744000"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5044,7 +5609,8 @@
       "hash": {
         "type": "string",
         "pattern": "^[a-fA-F0-9]{64}$",
-        "description": "A hexadecimal string of fixed size representing 256 Bit Hashes (SHA-256)"
+        "description": "A hexadecimal string of fixed size representing 256 Bit Hashes (SHA-256)",
+        "example": "c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a"
       },
       "hexString": {
         "type": "string",
@@ -5273,6 +5839,61 @@
           },
           "requestProcessingTime": {
             "type": "integer"
+          }
+        }
+      },
+      "subscription": {
+        "type": "object",
+        "description": "The subscription object",
+        "required": [
+          "id",
+          "sender",
+          "senderRS",
+          "recipient",
+          "recipientRS",
+          "amountNQT",
+          "frequency",
+          "timeNext"
+        ],
+        "example": {
+          "id": "8619057454706151122",
+          "sender": "14978592240935099976",
+          "senderRS": "TS-RRLA-B3Y7-L4EU-E8PRZ",
+          "recipient": "13379979993382958865",
+          "recipientRS": "TS-TFSK-X9RQ-6WDQ-DWTDM",
+          "amountNQT": "500000000",
+          "frequency": 3600,
+          "timeNext": 251815720
+        },
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/transactionId"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "senderRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/numericId"
+          },
+          "recipientRS": {
+            "$ref": "#/components/schemas/rsAddress"
+          },
+          "amountNQT": {
+            "$ref": "#/components/schemas/amount"
+          },
+          "frequency": {
+            "description": "The frequency of the payment in seconds, e.g. per day is 86400 seconds, per month is 2592000 seconds. If no balance is available the subscription halts.",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 3600
+          },
+          "timeNext": {
+            "description": "The timestamp of the next payment.",
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5868,7 +6489,8 @@
       },
       "timestamp": {
         "name": "timestamp",
-        "description": "The timestamp from which should be searched. Us this to get items only since that time. The time in seconds since first Block (Genesis) of the chain.",
+        "in": "query",
+        "description": "The timestamp from which should be searched. Use this to get items only since that time. The time in seconds since first Block (Genesis) of the chain.",
         "schema": {
           "type": "integer",
           "format": "int64"
