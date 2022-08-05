@@ -254,6 +254,9 @@
     },
     "/api?requestType=getBalance": {
       "$ref": "./paths/getters/getBalance.json"
+    },
+    "/api?requestType=getTrades": {
+      "$ref": "./paths/getters/getTrades.json"
     }
   },
   "components": {

@@ -7,14 +7,19 @@
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/token/asset.json"
+        "name": "asset",
+        "in": "query",
+        "required": false,
+        "description": "The related token identifier. You can use this alone or together with `account`",
+        "schema": {
+          "$ref": "../../schemas/assetId.json"
+        }
       },
       {
         "name": "account",
         "in": "query",
         "required": false,
-        "allowEmptyValue": false,
-        "description": "The optional account identifier",
+        "description": "The account identifier. You can use this alone or together with `asset`",
         "schema": {
           "$ref": "../../schemas/address.json"
         }
