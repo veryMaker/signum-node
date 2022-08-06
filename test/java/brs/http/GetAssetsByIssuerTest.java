@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.Account;
 import brs.Asset;
+import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -44,7 +45,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws ParameterException {
+  public void processRequest() throws BurstException {
     final int firstIndex = 1;
     final int lastIndex = 2;
 
