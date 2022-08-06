@@ -1,7 +1,7 @@
 {
   "get": {
     "summary": "Get Distribution Amount",
-    "description": "Get the paid amount per account of a mass distribution.<br/><br/>Due to the nature of how mass distribution works (at the speed of 1.2M payouts per block), an accounts received payout does not appear in the common transaction. The common transaction carries the total distributed amount. So, one need this method to get the individually paid amount.",
+    "description": "Get the paid amount per account of a mass distribution or multi out payments.<br/><br/>Due to the nature of how multiple payouts or distribution works, an accounts received payout does not appear in the common transaction amount field. The common transaction carries the total distributed/paid amount. So, one need this method to get the individually paid amount.",
     "tags": [
       "payment",
       "token",
@@ -11,7 +11,7 @@
       {
         "name": "transaction",
         "in": "query",
-        "description": "The id of a [distribution transaction](#post-/api-requestType-distributeToAssetHolders).",
+        "description": "The id of a [distribution transaction](#post-/api-requestType-distributeToAssetHolders) or [multiple payout](#post-/api-requestType-sendMoneyMulti)",
         "schema": {
           "type": "integer",
           "format": "int64",
@@ -41,7 +41,7 @@
     ],
     "responses": {
       "200": {
-        "description": "Individual Distribution Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the `transaction`",
+        "description": "Individual Payout Response.<br/> __Note__: The response does not carry the related asset information. You need to pull this from the related `transaction`",
         "content": {
           "application/json": {
             "schema": {
