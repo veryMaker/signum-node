@@ -12,6 +12,7 @@ import brs.db.store.IndirectIncomingStore;
 import brs.fluxcapacitor.FluxValues;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
+
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -52,11 +53,9 @@ public class SqlBlockchainStore implements BlockchainStore {
       if (timestamp > 0) {
         query.and(BLOCK.TIMESTAMP.ge(timestamp));
       }
-      if(from > 0 || to > 0) {
-        int blockchainHeight = Burst.getBlockchain().getHeight();
-        query.and(BLOCK.HEIGHT.between(blockchainHeight - Math.max(to, 0)).and(blockchainHeight - Math.max(from, 0)));
-      }
-      return getBlocks(query.orderBy(BLOCK.HEIGHT.desc()).fetch());
+      SelectQuery<BlockRecord> selectQuery = query.orderBy(BLOCK.HEIGHT.desc()).getQuery();
+      DbUtils.applyLimits(selectQuery, from, to);
+      return getBlocks(selectQuery.fetch());
     });
   }
 
