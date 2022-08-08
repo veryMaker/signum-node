@@ -57,7 +57,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
 
     final Account mockAccount = mock(Account.class);
     when(mockAccount.getId()).thenReturn(1l);
-    when(mockParameterService.getAccounts(eq(req))).thenReturn(Arrays.asList(mockAccount));
+    when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
 
     final long mockAssetId = 1;
 
@@ -83,11 +83,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
     assertNotNull(assetsForAccountsResult);
     assertEquals(1, assetsForAccountsResult.size());
 
-    final JsonArray assetsForAccount1Result = (JsonArray) assetsForAccountsResult.get(0);
-    assertNotNull(assetsForAccount1Result);
-    assertEquals(1, assetsForAccount1Result.size());
-
-    final JsonObject assetResult = (JsonObject) assetsForAccount1Result.get(0);
+    final JsonObject assetResult = (JsonObject) assetsForAccountsResult.get(0);
     assertNotNull(assetResult);
 
     assertEquals(mockAsset.getName(), JSON.getAsString(assetResult.get(NAME_RESPONSE)));
@@ -95,9 +91,6 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
     assertEquals(mockAsset.getDecimals(), JSON.getAsByte(assetResult.get(DECIMALS_RESPONSE)));
     assertEquals("" + mockAsset.getQuantityQNT(), JSON.getAsString(assetResult.get(QUANTITY_QNT_RESPONSE)));
     assertEquals("" + mockAsset.getId(), JSON.getAsString(assetResult.get(ASSET_RESPONSE)));
-    assertEquals(1, JSON.getAsInt(assetResult.get(NUMBER_OF_ACCOUNTS_RESPONSE)));
-    assertEquals(2, JSON.getAsInt(assetResult.get(NUMBER_OF_TRANSFERS_RESPONSE)));
-    assertEquals(3, JSON.getAsInt(assetResult.get(NUMBER_OF_TRADES_RESPONSE)));
   }
 
 }
