@@ -227,10 +227,12 @@ public class SqlAccountStore implements AccountStore {
   }
 
   @Override
-  public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury) {
+  public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury, boolean unconfirmed) {
     return Db.useDSLContext(ctx -> {
 
-      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY)).from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
+      SelectConditionStep<Record1<BigDecimal>> select = ctx.select(DSL.sum(
+        unconfirmed ? ACCOUNT_ASSET.UNCONFIRMED_QUANTITY : ACCOUNT_ASSET.QUANTITY))
+        .from(ACCOUNT_ASSET).where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId()))
           .and(ACCOUNT_ASSET.LATEST.isTrue())
           .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
 
