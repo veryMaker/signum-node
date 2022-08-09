@@ -1204,7 +1204,7 @@ public abstract class TransactionType {
           return false;
         }
 
-        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false);
+        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, true);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
           return false;
@@ -1247,7 +1247,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Invalid asset mint: " + JSON.toJsonString(attachment.getJsonObject()));
         }
 
-        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false);
+        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, true);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
           throw new BurstException.NotCurrentlyValidException("Maximum circulating supply QNT is " + Constants.MAX_ASSET_QUANTITY_QNT);
@@ -1456,7 +1456,7 @@ public abstract class TransactionType {
           throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
                   " does not exist yet");
         }
-        long circulatingQuantity = assetExchange.getAssetCirculatingSupply(asset, true);
+        long circulatingQuantity = assetExchange.getAssetCirculatingSupply(asset, true, true);
         if (circulatingQuantity <= 0L) {
           throw new BurstException.NotValidException("Asset has no circulating supply: " + JSON.toJsonString(attachment.getJsonObject()));
         }

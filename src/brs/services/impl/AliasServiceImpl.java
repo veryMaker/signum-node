@@ -49,6 +49,11 @@ public class AliasServiceImpl implements AliasService {
   public Collection<Alias> getAliasesByOwner(long accountId, int from, int to) {
     return aliasStore.getAliasesByOwner(accountId, from, to);
   }
+  
+  @Override
+  public Collection<Alias.Offer> getAliasOffers(int from, int to) {
+    return aliasStore.getAliasOffers(from, to);
+  }
 
   @Override
   public void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment) {

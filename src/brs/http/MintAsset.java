@@ -32,7 +32,7 @@ public final class MintAsset extends CreateTransaction {
     Asset asset = parameterService.getAsset(req);
     long quantityQNT = ParameterParser.getQuantityQNT(req);
     Account account = parameterService.getSenderAccount(req);
-    
+
     if(asset.getMintable() == false) {
       return JSONResponses.incorrect("this asset is not mintable");
     }
@@ -42,8 +42,8 @@ public final class MintAsset extends CreateTransaction {
     if(asset.getAccountId() != account.getId()) {
       return JSONResponses.incorrect("only the asset issuer can mint new coins");
     }
-    
-    long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false);
+
+    long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, true);
     long newSupply = circulatingSupply + quantityQNT;
     if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
       throw new ParameterException(INCORRECT_ASSET_QUANTITY);

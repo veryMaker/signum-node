@@ -135,6 +135,11 @@ public class SqlAliasStore implements AliasStore {
   public Collection<Alias> getAliasesByOwner(long accountId, int from, int to) {
     return aliasTable.getManyBy(brs.schema.Tables.ALIAS.ACCOUNT_ID.eq(accountId), from, to);
   }
+  
+  @Override
+  public Collection<Alias.Offer> getAliasOffers(int from, int to) {
+    return offerTable.getManyBy(brs.schema.Tables.ALIAS_OFFER.LATEST.eq(true), from, to);
+  }
 
   @Override
   public Alias getAlias(String aliasName) {
