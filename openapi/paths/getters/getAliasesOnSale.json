@@ -1,7 +1,7 @@
 {
   "get": {
     "summary": "Get Aliases On Sale",
-    "description": "Get all aliases, which are available for sale.",
+    "description": "Get all aliases, which are on sale, i.e. can be bought.",
     "tags": [
       "alias"
     ],
