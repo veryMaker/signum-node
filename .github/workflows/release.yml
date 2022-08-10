@@ -20,6 +20,7 @@ jobs:
         run: |
           cd ./ci
           ./updatePhoenix.sh
+      - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
           node-version: 14
