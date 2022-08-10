@@ -257,6 +257,9 @@
     },
     "/api?requestType=getTrades": {
       "$ref": "./paths/getters/getTrades.json"
+    },
+    "/api?requestType=getAliasesOnSale": {
+      "$ref": "./paths/getters/getAliasesOnSale.json"
     }
   },
   "components": {

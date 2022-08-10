@@ -24,19 +24,7 @@
         }
       },
       {
-        "name": "account",
-        "description": "The receiving account.<br/>__Note__At this moment, it has to be the numeric id. Reed-Solomon addresses do not work, due to an inconsistency.",
-        "in": "query",
-        "schema": {
-          "type": "integer",
-          "format": "int64",
-          "description": "The account identifier",
-          "required": true,
-          "example": [
-            "1014710993121171028",
-            "5016"
-          ]
-        }
+        "$ref": "../../parameters/account/account.json"
       }
     ],
     "responses": {
