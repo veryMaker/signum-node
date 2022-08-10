@@ -4992,7 +4992,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The list of aliases this account owns.",
+            "description": "The list of aliases.",
             "content": {
               "application/json": {
                 "schema": {
