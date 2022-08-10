@@ -4,7 +4,7 @@
     "description": "Get accounts running subscriptions, i.e. recurring payments. These are outgoing subscriptions. See [incoming subscriptions](#get-/api-requestType-getSubscriptionsToAccount)",
     "tags": [
       "account",
-      "payments"
+      "payment"
     ],
     "parameters": [
       {
