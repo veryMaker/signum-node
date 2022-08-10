@@ -20,10 +20,10 @@ jobs:
         run: |
           cd ./ci
           ./updatePhoenix.sh
-      - name: Bundle OpenApi Doc
         uses: actions/setup-node@v2
         with:
           node-version: 14
+      - name: Bundle OpenApi Doc
         run: |
           cd ./openapi
           npm ci
