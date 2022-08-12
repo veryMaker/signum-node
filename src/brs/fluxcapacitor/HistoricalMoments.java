@@ -11,6 +11,7 @@ public class HistoricalMoments {
     public static HistoricalMoments AT_FIX_BLOCK_2 = new HistoricalMoments(67000, Props.AT_FIX_BLOCK_2_BLOCK_HEIGHT);
     public static HistoricalMoments AT_FIX_BLOCK_3 = new HistoricalMoments(92000, Props.AT_FIX_BLOCK_3_BLOCK_HEIGHT);
     public static HistoricalMoments AT_FIX_BLOCK_4 = new HistoricalMoments(255000, Props.AT_FIX_BLOCK_4_BLOCK_HEIGHT);
+    public static HistoricalMoments AT_FIX_BLOCK_5 = new HistoricalMoments(Integer.MAX_VALUE, Props.AT_FIX_BLOCK_5_BLOCK_HEIGHT);
     public static HistoricalMoments PRE_POC2 = new HistoricalMoments(500000, Props.PRE_POC2_BLOCK_HEIGHT);
     public static HistoricalMoments POC2 = new HistoricalMoments(502000, Props.POC2_BLOCK_HEIGHT);
     public static HistoricalMoments SODIUM = new HistoricalMoments(765_000, Props.SODIUM_BLOCK_HEIGHT);
