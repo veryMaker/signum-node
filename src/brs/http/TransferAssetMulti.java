@@ -2,7 +2,7 @@ package brs.http;
 
 import static brs.http.JSONResponses.NOT_ENOUGH_ASSETS;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_IDS_PARAMETER;
+import static brs.http.common.Parameters.ASSET_IDS_AND_QUANTITY_PARAMETER;
 import static brs.http.common.Parameters.QUANTITIES_QNT_PARAMETER;
 import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
 
@@ -31,7 +31,7 @@ public final class TransferAssetMulti extends CreateTransaction {
   private final AccountService accountService;
 
   public TransferAssetMulti(ParameterService parameterService, Blockchain blockchain, APITransactionManager apiTransactionManager, AccountService accountService) {
-    super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER, ASSET_IDS_PARAMETER, AMOUNT_NQT_PARAMETER);
+    super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER, ASSET_IDS_AND_QUANTITY_PARAMETER, AMOUNT_NQT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
     this.accountService = accountService;
@@ -44,10 +44,10 @@ public final class TransferAssetMulti extends CreateTransaction {
     long recipient = ParameterParser.getRecipientId(req);
     Account account = parameterService.getSenderAccount(req);
 
-    String assetIdsString = Convert.emptyToNull(req.getParameter(ASSET_IDS_PARAMETER));
+    String assetIdsString = Convert.emptyToNull(req.getParameter(ASSET_IDS_AND_QUANTITY_PARAMETER));
 
     if(assetIdsString == null) {
-      return JSONResponses.missing(ASSET_IDS_PARAMETER);
+      return JSONResponses.missing(ASSET_IDS_AND_QUANTITY_PARAMETER);
     }
 
     String[] assetIdsArray = assetIdsString.split(";", Constants.MAX_MULTI_ASSET_IDS);
@@ -55,7 +55,7 @@ public final class TransferAssetMulti extends CreateTransaction {
     ArrayList<Long> quantitiesQNT = new ArrayList<>();
 
     if(assetIdsArray.length == 0 || assetIdsArray.length > Constants.MAX_MULTI_ASSET_IDS) {
-      return JSONResponses.incorrect(ASSET_IDS_PARAMETER);
+      return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITY_PARAMETER);
     }
 
     for(String assetIdString : assetIdsArray) {
@@ -63,7 +63,7 @@ public final class TransferAssetMulti extends CreateTransaction {
       long assetId = Convert.parseUnsignedLong(assetIdAndQuantity[0]);
       Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
       if(asset == null || assetIds.contains(assetId)) {
-        return JSONResponses.incorrect(ASSET_IDS_PARAMETER);
+        return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITY_PARAMETER);
       }
       long quantityQNT = Long.parseLong(assetIdAndQuantity[1]);
       if(quantityQNT <= 0L) {
