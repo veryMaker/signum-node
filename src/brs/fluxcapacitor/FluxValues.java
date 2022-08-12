@@ -13,6 +13,7 @@ public class FluxValues {
     public static final FluxEnable AT_FIX_BLOCK_2 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_2);
     public static final FluxEnable AT_FIX_BLOCK_3 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_3);
     public static final FluxEnable AT_FIX_BLOCK_4 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_4);
+    public static final FluxEnable AT_FIX_BLOCK_5 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_5);
     public static final FluxEnable PRE_POC2 = new FluxEnable(HistoricalMoments.PRE_POC2);
     public static final FluxEnable POC2 = new FluxEnable(HistoricalMoments.POC2);
     public static final FluxEnable SODIUM = new FluxEnable(HistoricalMoments.SODIUM);
@@ -55,6 +56,6 @@ public class FluxValues {
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
         Version.parse("3.3.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, Version.parse("3.4.3-beta2"))
+        new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, Version.parse("3.4.0"))
         );
 }
