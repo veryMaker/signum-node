@@ -71,6 +71,11 @@ public final class TransferAssetMulti extends CreateTransaction {
       }
       assetIds.add(assetId);
       quantitiesQNT.add(quantityQNT);
+
+      long assetBalance = accountService.getUnconfirmedAssetBalanceQNT(account, assetId);
+      if (assetBalance < 0 || quantityQNT > assetBalance) {
+        return NOT_ENOUGH_ASSETS;
+      }
     }
 
     long amountNQT = 0L;
