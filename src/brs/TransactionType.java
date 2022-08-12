@@ -1204,7 +1204,8 @@ public abstract class TransactionType {
           return false;
         }
 
-        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, true);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, unconfirmed);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
           return false;
@@ -1247,7 +1248,8 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Invalid asset mint: " + JSON.toJsonString(attachment.getJsonObject()));
         }
 
-        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, true);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, unconfirmed);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
           throw new BurstException.NotCurrentlyValidException("Maximum circulating supply QNT is " + Constants.MAX_ASSET_QUANTITY_QNT);
@@ -1400,6 +1402,9 @@ public abstract class TransactionType {
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
+          if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == senderAccount.getId()){
+            continue;
+          }
           circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
         }
         if(circulatingQuantityQNT <= 0L) {
@@ -1456,7 +1461,9 @@ public abstract class TransactionType {
           throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
                   " does not exist yet");
         }
-        long circulatingQuantity = assetExchange.getAssetCirculatingSupply(asset, true, true);
+
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        long circulatingQuantity = assetExchange.getAssetCirculatingSupply(asset, true, unconfirmed);
         if (circulatingQuantity <= 0L) {
           throw new BurstException.NotValidException("Asset has no circulating supply: " + JSON.toJsonString(attachment.getJsonObject()));
         }
@@ -1492,6 +1499,9 @@ public abstract class TransactionType {
             true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
+          if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
+            continue;
+          }
           circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
         }
         BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
@@ -1507,6 +1517,9 @@ public abstract class TransactionType {
         AccountAsset largestHolder = null;
         IndirectIncoming largestIndirect = null;
         for(AccountAsset holder : assetHolders) {
+          if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
+            continue;
+          }
           // add to the holders
           long quantity = 0L;
           if(attachment.getQuantityQNT() > 0L) {

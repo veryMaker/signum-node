@@ -546,7 +546,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return;
       }
 
-      long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false, unconfirmed);
       long newSupply = circulatingSupply + quantity;
       if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
         // do not mint extra to keep the limit
@@ -641,7 +642,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return 0L;
       }
 
-      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true, unconfirmed);
     }
 
     @Override
