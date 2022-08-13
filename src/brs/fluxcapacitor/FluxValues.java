@@ -56,7 +56,7 @@ public class FluxValues {
         new FluxValue.ValueChange<>(HistoricalMoments.SPEEDWAY, 96L));
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
-        Version.parse("3.3.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, Version.parse("3.4.0"))
+        Version.parse("3.4.0"),
+        new FluxValue.ValueChange<>(HistoricalMoments.DISTRIBUTION_FIX, Version.parse("3.4.9"))
         );
 }
