@@ -97,7 +97,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
       return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
     }
 
-    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
     Collection<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, unconfirmed, -1, -1);
     long circulatingSupply = 0;
     for(AccountAsset holder : holders) {

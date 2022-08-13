@@ -546,7 +546,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return;
       }
 
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
       long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false, unconfirmed);
       long newSupply = circulatingSupply + quantity;
       if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
@@ -581,7 +581,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
       int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
       if(holdersCount == 0 || state.getIndirectsCount() + holdersCount > maxIndirects){
         // no holders to distribute or over the maximum, so do not distribute
@@ -626,7 +626,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return 0L;
       }
 
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
       return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
     }
 
@@ -644,7 +644,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return 0L;
       }
 
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
       return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true, unconfirmed);
     }
 

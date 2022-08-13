@@ -1204,7 +1204,7 @@ public abstract class TransactionType {
           return false;
         }
 
-        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
         long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, unconfirmed);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
@@ -1248,7 +1248,7 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Invalid asset mint: " + JSON.toJsonString(attachment.getJsonObject()));
         }
 
-        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
         long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, unconfirmed);
         long newSupply = circulatingSupply + attachment.getQuantityQNT();
         if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
@@ -1373,7 +1373,7 @@ public abstract class TransactionType {
 
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, height);
         long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true, unconfirmed);
         long minFeeHolders = (numberOfHolders*minFee)/10L;
         minFee = Math.max(minFee, minFeeHolders);
@@ -1400,11 +1400,11 @@ public abstract class TransactionType {
         accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetToDistribute, -attachment.getQuantityQNT());
 
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
-          if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == senderAccount.getId()){
+          if(Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) && holder.getAccountId() == senderAccount.getId()){
             continue;
           }
           circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
@@ -1464,7 +1464,7 @@ public abstract class TransactionType {
                   " does not exist yet");
         }
 
-        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
         long circulatingQuantity = assetExchange.getAssetCirculatingSupply(asset, true, unconfirmed);
         if (circulatingQuantity <= 0L) {
           throw new BurstException.NotValidException("Asset has no circulating supply: " + JSON.toJsonString(attachment.getJsonObject()));
@@ -1496,16 +1496,16 @@ public abstract class TransactionType {
         // TODO: rework this so we do not run this more than once
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
-        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight());
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight());
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
             assetExchange.getAsset(attachment.getAssetId()),
             true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
-          if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
+          if(Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
             continue;
           }
-          long holderQuantity = Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) ?
+          long holderQuantity = Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) ?
             holder.getQuantityQNT() : holder.getUnconfirmedQuantityQNT();
           circulatingQuantityQNT += holderQuantity;
         }
@@ -1523,7 +1523,7 @@ public abstract class TransactionType {
         long largestHolderQuantity = 0L;
         IndirectIncoming largestIndirect = null;
         for(AccountAsset holder : assetHolders) {
-          if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
+          if(Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
             continue;
           }
           long holderQuantity = unconfirmed ? holder.getUnconfirmedQuantityQNT() : holder.getQuantityQNT();

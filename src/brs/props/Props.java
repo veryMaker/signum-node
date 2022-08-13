@@ -57,8 +57,9 @@ public class Props {
   public static final Prop<Integer> SMART_TOKEN_HEIGHT = new Prop<>("brs.smartToken.startBlock", -1);
   public static final Prop<Integer> SMART_FEES_HEIGHT = new Prop<>("brs.smartFees.startBlock", -1);
   public static final Prop<Integer> SMART_ATS_HEIGHT = new Prop<>("brs.smartAts.startBlock", -1);
-
+  public static final Prop<Integer> DISTRIBUTION_FIX_BLOCK_HEIGHT = new Prop<>("brs.distributionFix.startBlock", -1);
   public static final Prop<Integer> AT_FIX_BLOCK_5_BLOCK_HEIGHT = new Prop<>("brs.atFixBlock5.startBlock", -1);
+  
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);

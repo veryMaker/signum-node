@@ -43,7 +43,7 @@ public final class MintAsset extends CreateTransaction {
       return JSONResponses.incorrect("only the asset issuer can mint new coins");
     }
 
-    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
     long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, unconfirmed);
     long newSupply = circulatingSupply + quantityQNT;
     if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
