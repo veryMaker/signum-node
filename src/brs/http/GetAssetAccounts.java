@@ -39,7 +39,7 @@ final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
 
     JsonArray accountAssets = new JsonArray();
     for (Account.AccountAsset accountAsset : assetExchange.getAssetAccounts(asset,
-        filterTreasury, minimumQuantity, firstIndex, lastIndex)) {
+        filterTreasury, minimumQuantity, false, firstIndex, lastIndex)) {
       accountAssets.add(JSONData.accountAsset(accountAsset));
     }
 

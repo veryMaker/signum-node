@@ -27,7 +27,7 @@ public interface AccountStore {
 
   VersionedEntityTable<Account.AccountAsset> getAccountAssetTable();
 
-  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury, boolean unconfirmed);
 
   long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury, boolean unconfirmed);
 
@@ -41,7 +41,7 @@ public interface AccountStore {
 
   Account.AccountAsset getAccountAsset(Long accountId, Long assetId);
 
-  Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to);
+  Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to);
 
   // returns true iff:
   // this.publicKey is set to null (in which case this.publicKey also gets set to key)

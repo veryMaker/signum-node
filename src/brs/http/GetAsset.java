@@ -32,7 +32,7 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
 
     int tradeCount = assetExchange.getTradeCount(asset.getId());
     int transferCount = assetExchange.getTransferCount(asset.getId());
-    int accountsCount = assetExchange.getAssetAccountsCount(asset, minimumQuantity, true);
+    int accountsCount = assetExchange.getAssetAccountsCount(asset, minimumQuantity, true, false);
     long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, false);
 
     return JSONData.asset(asset, tradeCount, transferCount, accountsCount, circulatingSupply);

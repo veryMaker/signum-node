@@ -63,24 +63,24 @@ public final class DistributeToAssetHolders extends CreateTransaction {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
     }
-    
+
     if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       return JSONResponses.incorrect("asset distribution is not enabled yet");
     }
-    
+
     // another token can also be sent
     long quantityQNT = Convert.parseUnsignedLong(req.getParameter(QUANTITY_QNT_PARAMETER));
     if(quantityQNT < 0) {
       return JSONResponses.incorrect(QUANTITY_QNT_PARAMETER);
     }
     long minimumQuantity = Convert.parseUnsignedLong(req.getParameter(QUANTITY_MININUM_QNT_PARAMETER));
-    
+
     long assetToDistributeId = 0L;
     String assetToDistributeValue = Convert.emptyToNull(req.getParameter(ASSET_TO_DISTRIBUTE_PARAMETER));
     if (assetToDistributeValue != null) {
       try {
         assetToDistributeId = Convert.parseUnsignedLong(assetToDistributeValue);
-        
+
         long assetBalance = accountService.getUnconfirmedAssetBalanceQNT(account, assetToDistributeId);
         if (assetBalance < 0 || quantityQNT > assetBalance) {
           return NOT_ENOUGH_ASSETS;
@@ -92,12 +92,13 @@ public final class DistributeToAssetHolders extends CreateTransaction {
     else if (quantityQNT != 0L) {
       return JSONResponses.incorrect(QUANTITY_QNT_PARAMETER);
     }
-    
+
     if(amountNQT == 0L && quantityQNT == 0L) {
       return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
     }
-    
-    Collection<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, -1, -1);
+
+    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+    Collection<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, unconfirmed, -1, -1);
     long circulatingSupply = 0;
     for(AccountAsset holder : holders) {
       circulatingSupply += holder.getQuantityQNT();
@@ -105,7 +106,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
     if(circulatingSupply == 0L) {
       return JSONResponses.incorrect(QUANTITY_MININUM_QNT_PARAMETER);
     }
-    
+
     Attachment attachment = new Attachment.ColoredCoinsAssetDistributeToHolders(asset.getId(), minimumQuantity,
         assetToDistributeId, quantityQNT, blockchain.getHeight());
     return createTransaction(req, account, null, amountNQT, attachment);

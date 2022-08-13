@@ -64,7 +64,8 @@ class AtMachineProcessor {
                 int holdersCount = 0;
 
                 if(asset != null) {
-                  holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+                  boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height);
+                  holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
                   if(indirectsCount + holdersCount <= maxIndirects){
                     // distribution actually takes place only if we are not over the limit
                     steps += holdersCount;

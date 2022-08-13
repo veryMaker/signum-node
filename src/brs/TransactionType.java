@@ -1373,7 +1373,8 @@ public abstract class TransactionType {
 
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, height);
+        long numberOfHolders = assetExchange.getAssetAccountsCount(asset, attachment.getMinimumAssetQuantityQNT(), true, unconfirmed);
         long minFeeHolders = (numberOfHolders*minFee)/10L;
         minFee = Math.max(minFee, minFeeHolders);
 
@@ -1399,7 +1400,8 @@ public abstract class TransactionType {
         accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetToDistribute, -attachment.getQuantityQNT());
 
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK);
+        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
           if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == senderAccount.getId()){
@@ -1494,15 +1496,18 @@ public abstract class TransactionType {
         // TODO: rework this so we do not run this more than once
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
+        boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight());
         Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
             assetExchange.getAsset(attachment.getAssetId()),
-            true, attachment.getMinimumAssetQuantityQNT(), -1, -1);
+            true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
           if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
             continue;
           }
-          circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
+          long holderQuantity = Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) ?
+            holder.getQuantityQNT() : holder.getUnconfirmedQuantityQNT();
+          circulatingQuantityQNT += holderQuantity;
         }
         BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
 
@@ -1515,15 +1520,18 @@ public abstract class TransactionType {
         long quantityDistributed = 0L;
 
         AccountAsset largestHolder = null;
+        long largestHolderQuantity = 0L;
         IndirectIncoming largestIndirect = null;
         for(AccountAsset holder : assetHolders) {
           if(Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
             continue;
           }
+          long holderQuantity = unconfirmed ? holder.getUnconfirmedQuantityQNT() : holder.getQuantityQNT();
+
           // add to the holders
           long quantity = 0L;
           if(attachment.getQuantityQNT() > 0L) {
-            quantity = quantityToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
+            quantity = quantityToDistribute.multiply(BigInteger.valueOf(holderQuantity))
                 .divide(circulatingQuantity).longValue();
 
             quantityDistributed += quantity;
@@ -1531,7 +1539,7 @@ public abstract class TransactionType {
 
           long amount = 0L;
           if(transaction.getAmountNQT() > 0L) {
-            amount = amountToDistribute.multiply(BigInteger.valueOf(holder.getUnconfirmedQuantityQNT()))
+            amount = amountToDistribute.multiply(BigInteger.valueOf(holderQuantity))
                 .divide(circulatingQuantity).longValue();
             amountDistributed += amount;
           }
@@ -1540,8 +1548,9 @@ public abstract class TransactionType {
               amount, quantity, transaction.getHeight());
           indirects.add(indirect);
 
-          if(largestHolder == null || holder.getUnconfirmedQuantityQNT() > largestHolder.getUnconfirmedQuantityQNT()) {
+          if(largestHolder == null || holderQuantity > largestHolderQuantity) {
             largestHolder = holder;
+            largestHolderQuantity = holderQuantity;
             largestIndirect = indirect;
           }
         }

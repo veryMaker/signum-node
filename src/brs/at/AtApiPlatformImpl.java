@@ -581,7 +581,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
-      int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
       if(holdersCount == 0 || state.getIndirectsCount() + holdersCount > maxIndirects){
         // no holders to distribute or over the maximum, so do not distribute
         return;
@@ -625,7 +626,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return 0L;
       }
 
-      return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK, state.getHeight());
+      return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
     }
 
     @Override
