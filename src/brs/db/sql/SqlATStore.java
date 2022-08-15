@@ -242,12 +242,16 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public List<Long> getATsIssuedBy(Long accountId, Long codeHashId) {
+  public List<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to) {
     return Db.useDSLContext(ctx -> {
-      SelectConditionStep<AtRecord> request = ctx.selectFrom(AT).where(AT.LATEST.isTrue()).and(AT.CREATOR_ID.eq(accountId));
-      if(codeHashId != null)
+      SelectConditionStep<Record1<Long>> request = ctx.select(AT.ID).from(AT).where(AT.LATEST.isTrue()).and(AT.CREATOR_ID.eq(accountId));
+      if(codeHashId != null){
         request = request.and(AT.AP_CODE_HASH_ID.eq(codeHashId));
-      return request.orderBy(AT.CREATION_HEIGHT.desc(), AT.ID.asc()).fetch().getValues(AT.ID);
+      }
+      SelectQuery<Record1<Long>> query = request.orderBy(AT.CREATION_HEIGHT.desc(), AT.ID.asc()).getQuery();
+      DbUtils.applyLimits(query, from, to);
+
+      return query.fetch().getValues(AT.ID);
     });
   }
 

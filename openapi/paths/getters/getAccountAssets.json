@@ -8,7 +8,7 @@
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/token/asset.json"
+        "$ref": "../../parameters/account/account.json"
       },
       {
         "$ref": "../../parameters/firstIndex.json"
