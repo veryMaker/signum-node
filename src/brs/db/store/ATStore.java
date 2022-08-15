@@ -17,7 +17,7 @@ public interface ATStore {
 
   AT getAT(Long id, int height);
 
-  List<Long> getATsIssuedBy(Long accountId, Long codeHashId);
+  List<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to);
 
   Collection<Long> getAllATIds(Long codeHashId);
 
@@ -28,7 +28,7 @@ public interface ATStore {
   BurstKey.LongKeyFactory<AT.ATState> getAtStateDbKeyFactory();
 
   VersionedEntityTable<AT.ATState> getAtStateTable();
-  
+
   VersionedEntityTable<brs.at.AT.AtMapEntry> getAtMapTable();
 
   Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount);

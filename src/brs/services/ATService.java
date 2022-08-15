@@ -9,9 +9,9 @@ public interface ATService {
 
   Collection<Long> getAllATIds(Long codeHashId);
 
-  List<Long> getATsIssuedBy(Long accountId, Long codeHashId);
+  List<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to);
 
   AT getAT(Long atId);
-  
+
   AT getAT(Long atId, int height);
 }
