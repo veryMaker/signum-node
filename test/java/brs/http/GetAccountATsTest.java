@@ -66,7 +66,7 @@ public class GetAccountATsTest {
 
     when(mockAccountService.getAccount(anyLong())).thenReturn(mockAccount);
 
-    when(mockATService.getATsIssuedBy(eq(mockAccountId), eq(null), eq(-1), eq(-1))).thenReturn(Arrays.asList(mockATId));
+    when(mockATService.getATsIssuedBy(eq(mockAccountId), eq(null), eq(0), eq(499))).thenReturn(Arrays.asList(mockATId));
     when(mockATService.getAT(eq(mockATId))).thenReturn(mockAT);
     when(mockATService.getAT(eq(mockATId), ArgumentMatchers.anyInt())).thenReturn(mockAT);
 
