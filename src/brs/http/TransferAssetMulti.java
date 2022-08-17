@@ -3,7 +3,6 @@ package brs.http;
 import static brs.http.JSONResponses.NOT_ENOUGH_ASSETS;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
 import static brs.http.common.Parameters.ASSET_IDS_AND_QUANTITIES_PARAMETER;
-import static brs.http.common.Parameters.QUANTITIES_QNT_PARAMETER;
 import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
 
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ public final class TransferAssetMulti extends CreateTransaction {
       }
       long quantityQNT = Long.parseLong(assetIdAndQuantity[1]);
       if(quantityQNT <= 0L) {
-        return JSONResponses.incorrect(QUANTITIES_QNT_PARAMETER);
+        return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITIES_PARAMETER);
       }
       assetIds.add(assetId);
       quantitiesQNT.add(quantityQNT);
