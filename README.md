@@ -74,7 +74,7 @@ DB.Username=root
 DB.Password=YOUR_PASSWORD
 ```
 
-## Installation
+## Set Up
 
 Grab the latest [release](https://github.com/signum-network/signum-node/releases) (or, if you prefer, compile yourself using the instructions below)
 
@@ -188,6 +188,14 @@ node.network = signum.net.MockNetwork
 This will allow you to forge new blocks as soon as you submit a new nonce.
 Note that P2P is disabled when running in this mode.
 
+# API Documentation
+
+Since Version 3.4.3 the new interactive API documentation based on [OpenAPI Spec V3](https://www.openapis.org/) is shipped and active by default.
+
+You can access it via `<host>:8125/api-doc` (or `<host>:6876/api-doc` for Testnet respectively).
+
+[Read more about the documentation](/openapi/README.md) 
+ 
 # Building from sources
 
 ## Building the latest stable release
@@ -255,7 +263,7 @@ Frequent Contributors:
 
 For more information, see [Credits](doc/Credits.md)
 
-# Further Documentation
+# Appendix
 
 * [Version History](doc/History.md)
 

@@ -521,6 +521,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             // We remove blocks from chain back to where we start our fork
             // and save it in a list if we need to restore
             List<Block> myPoppedOffBlocks = popOffTo(forkBlock, forkBlocks);
+            logger.debug("Popped {} blocks", myPoppedOffBlocks.size());
 
             // now we check that our chain is popped off.
             // If all seems ok is we try to push fork.
@@ -1130,6 +1131,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             poppedOffBlocks.add(block);
             block = popLastBlock();
           }
+          logger.debug("Rolling back derived tables...");
           derivedTableManager.getDerivedTables().forEach(table -> table.rollback(commonBlock.getHeight()));
           dbCacheManager.flushCache();
           stores.commitTransaction();

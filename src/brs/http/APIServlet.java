@@ -77,9 +77,9 @@ public final class APIServlet extends HttpServlet {
     map.put("buyAlias", new BuyAlias(parameterService, blockchain, aliasService, apiTransactionManager));
     map.put("getAlias", new GetAlias(parameterService, aliasService));
     map.put("getAliases", new GetAliases(parameterService, aliasService));
+    map.put("getAliasesOnSale", new GetAliasesOnSale(aliasService));
     map.put("getAllAssets", new GetAllAssets(assetExchange));
     map.put("getAsset", new GetAsset(parameterService, assetExchange));
-    map.put("getAssets", new GetAssets(assetExchange));
     map.put("getAssetIds", new GetAssetIds(assetExchange));
     map.put("getAssetsByIssuer", new GetAssetsByIssuer(parameterService, assetExchange));
     map.put("getAssetAccounts", new GetAssetAccounts(parameterService, assetExchange));
@@ -105,7 +105,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getAllTrades", new GetAllTrades(assetExchange));
     map.put("getAssetTransfers", new GetAssetTransfers(parameterService, accountService, assetExchange));
     map.put("getTransaction", new GetTransaction(transactionProcessor, blockchain));
-    map.put("getIndirectIncoming", new GetIndirectIncoming(blockchain));
+    map.put("getIndirectIncoming", new GetIndirectIncoming(blockchain, parameterService));
     map.put("getTransactionBytes", new GetTransactionBytes(blockchain, transactionProcessor));
     map.put("getTransactionIds", new GetTransactionIds(parameterService, blockchain));
     map.put("getUnconfirmedTransactionIds", new GetUnconfirmedTransactionIds(transactionProcessor, indirectIncomingService, parameterService));
@@ -255,7 +255,7 @@ public final class APIServlet extends HttpServlet {
   }
 
   private static void writeJsonToResponse(HttpServletResponse resp, JsonElement msg) throws IOException {
-    resp.setContentType("text/plain; charset=UTF-8");
+    resp.setContentType("application/json; charset=UTF-8");
     try (Writer writer = resp.getWriter()) {
       JSON.writeTo(msg, writer);
     }

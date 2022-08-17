@@ -24,7 +24,7 @@ public class APITestServlet extends HttpServlet {
       + "    <meta charset=\"UTF-8\"/>\n"
       + "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">"
       + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">";
-  
+
   private static final String HEADER_1_b =
       "    <link href=\"/css/bootstrap.min.css\" rel=\"stylesheet\" type=\"text/css\" />"
       + "    <style type=\"text/css\">\n"
@@ -64,7 +64,7 @@ public class APITestServlet extends HttpServlet {
       + "                data: data, \n"
       + "            })\n"
       + "            .done(function(result) {\n"
-      + "                var resultStr = JSON.stringify(JSON.parse(result), null, 4);\n"
+      + "                var resultStr = JSON.stringify(result, null, 4);\n"
       + "                form.getElementsByClassName(\"result\")[0].textContent = resultStr;\n"
       + "            })\n"
       + "            .fail(function() {\n"

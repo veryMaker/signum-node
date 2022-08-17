@@ -140,6 +140,12 @@ public class AtTransaction {
 
         ColoredCoinsAssetTransfer assetTransferAttachment = (ColoredCoinsAssetTransfer) attachment;
         Burst.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
+
+        // we also have coins to send besides the asset
+        if(getAmount() > 0L) {
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, getAmount());
+        }
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
         Asset asset = Burst.getAssetExchange().getAsset(assetId);

@@ -21,8 +21,8 @@ public class ATServiceImpl implements ATService {
   }
 
   @Override
-  public List<Long> getATsIssuedBy(Long accountId, Long codeHashId) {
-    return atStore.getATsIssuedBy(accountId, codeHashId);
+  public List<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to) {
+    return atStore.getATsIssuedBy(accountId, codeHashId, from, to);
   }
 
   @Override

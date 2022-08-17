@@ -16,5 +16,7 @@ public interface AliasStore {
 
   Collection<Alias> getAliasesByOwner(long accountId, int from, int to);
 
+  Collection<Alias.Offer> getAliasOffers(int from, int to);
+
   Alias getAlias(String aliasName);
 }
