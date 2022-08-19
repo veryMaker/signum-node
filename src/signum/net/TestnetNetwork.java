@@ -20,8 +20,10 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.AT_FIX_BLOCK_2_BLOCK_HEIGHT, "0");
     setProperty(Props.AT_FIX_BLOCK_3_BLOCK_HEIGHT, "0");
     setProperty(Props.AT_FIX_BLOCK_4_BLOCK_HEIGHT, "0");
+    setProperty(Props.AT_FIX_BLOCK_5_BLOCK_HEIGHT, "446900");
     setProperty(Props.PRE_POC2_BLOCK_HEIGHT, "0");
     setProperty(Props.POC2_BLOCK_HEIGHT, "0");
+    setProperty(Props.DISTRIBUTION_FIX_BLOCK_HEIGHT, "449320");
 
     setProperty(Props.SODIUM_BLOCK_HEIGHT, "160620");
     setProperty(Props.SIGNUM_HEIGHT, "269100");

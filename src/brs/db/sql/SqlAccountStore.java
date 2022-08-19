@@ -201,14 +201,14 @@ public class SqlAccountStore implements AccountStore {
   }
 
   @Override
-  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury) {
+  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury, boolean unconfirmed) {
     return Db.useDSLContext(ctx -> {
 
       SelectConditionStep<Record1<Integer>> select = ctx.selectCount().from(ACCOUNT_ASSET)
           .where(ACCOUNT_ASSET.ASSET_ID.eq(asset.getId())).and(ACCOUNT_ASSET.LATEST.isTrue())
           .and(ACCOUNT_ASSET.ACCOUNT_ID.ne(0L));
       if(minimumQuantity > 0L) {
-        select = select.and(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY.ge(minimumQuantity));
+        select = select.and((unconfirmed ? ACCOUNT_ASSET.UNCONFIRMED_QUANTITY : ACCOUNT_ASSET.QUANTITY).ge(minimumQuantity));
       }
       if(ignoreTreasury) {
         Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
@@ -279,14 +279,14 @@ public class SqlAccountStore implements AccountStore {
   }
 
   @Override
-  public Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to) {
+  public Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to) {
     List<SortField<?>> sort = new ArrayList<>();
     sort.add(ACCOUNT_ASSET.field("quantity", Long.class).desc());
     sort.add(ACCOUNT_ASSET.field("account_id", Long.class).asc());
 
     Condition condition = ACCOUNT_ASSET.ASSET_ID.eq(asset.getId());
     if(minimumQuantity > 0L) {
-      condition = condition.and(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY.ge(minimumQuantity));
+      condition = condition.and((unconfirmed ? ACCOUNT_ASSET.UNCONFIRMED_QUANTITY : ACCOUNT_ASSET.QUANTITY).ge(minimumQuantity));
     }
     if(ignoreTreasury) {
       Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());

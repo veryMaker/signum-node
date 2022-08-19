@@ -67,12 +67,12 @@ public class AssetServiceImplTest extends AbstractUnitTest {
     final int from = 1;
     final int to = 5;
     final Asset mockAsset = mock(Asset.class);
-    
+
     final ArrayList<AccountAsset> mockAccountAssetIterator = new ArrayList<>();
 
-    when(assetAccountServiceMock.getAssetAccounts(eq(mockAsset), eq(false), eq(0L), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
+    when(assetAccountServiceMock.getAssetAccounts(eq(mockAsset), eq(false), eq(0L), eq(true), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
 
-    assertEquals(mockAccountAssetIterator, t.getAccounts(mockAsset, false, 0L, from, to));
+    assertEquals(mockAccountAssetIterator, t.getAccounts(mockAsset, false, 0L, true, from, to));
   }
 
   @Test

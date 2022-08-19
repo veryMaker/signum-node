@@ -13,6 +13,7 @@ public class FluxValues {
     public static final FluxEnable AT_FIX_BLOCK_2 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_2);
     public static final FluxEnable AT_FIX_BLOCK_3 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_3);
     public static final FluxEnable AT_FIX_BLOCK_4 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_4);
+    public static final FluxEnable AT_FIX_BLOCK_5 = new FluxEnable(HistoricalMoments.AT_FIX_BLOCK_5);
     public static final FluxEnable PRE_POC2 = new FluxEnable(HistoricalMoments.PRE_POC2);
     public static final FluxEnable POC2 = new FluxEnable(HistoricalMoments.POC2);
     public static final FluxEnable SODIUM = new FluxEnable(HistoricalMoments.SODIUM);
@@ -22,6 +23,7 @@ public class FluxValues {
     public static final FluxEnable SMART_TOKEN = new FluxEnable(HistoricalMoments.SMART_TOKEN);
     public static final FluxEnable SMART_FEES = new FluxEnable(HistoricalMoments.SMART_FEES);
     public static final FluxEnable SMART_ATS = new FluxEnable(HistoricalMoments.SMART_ATS);
+    public static final FluxEnable DISTRIBUTION_FIX = new FluxEnable(HistoricalMoments.DISTRIBUTION_FIX);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
     public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
@@ -54,7 +56,7 @@ public class FluxValues {
         new FluxValue.ValueChange<>(HistoricalMoments.SPEEDWAY, 96L));
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
-        Version.parse("3.3.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.SMART_ATS, Version.parse("3.4.3-beta2"))
+        Version.parse("3.4.0"),
+        new FluxValue.ValueChange<>(HistoricalMoments.DISTRIBUTION_FIX, Version.parse("3.4.9"))
         );
 }
