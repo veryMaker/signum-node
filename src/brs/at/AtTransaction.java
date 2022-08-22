@@ -26,6 +26,7 @@ import brs.IndirectIncoming;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.crypto.Crypto;
+import brs.fluxcapacitor.FluxValues;
 import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.services.AccountService;
@@ -142,7 +143,7 @@ public class AtTransaction {
         Burst.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
 
         // we also have coins to send besides the asset
-        if(getAmount() > 0L) {
+        if(getAmount() > 0L && Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_5, transaction.getHeight())) {
           accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
           accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, getAmount());
         }

@@ -20,6 +20,8 @@ public class HistoricalMoments {
     public static HistoricalMoments SMART_TOKEN = new HistoricalMoments(1_029_000, Props.SMART_TOKEN_HEIGHT);
     public static HistoricalMoments SMART_FEES = new HistoricalMoments(1_029_000, Props.SMART_FEES_HEIGHT);
     public static HistoricalMoments SMART_ATS = new HistoricalMoments(1_029_000, Props.SMART_ATS_HEIGHT);
+    public static HistoricalMoments AT_FIX_BLOCK_5 = new HistoricalMoments(1_051_900, Props.AT_FIX_BLOCK_5_BLOCK_HEIGHT);
+    public static HistoricalMoments DISTRIBUTION_FIX = new HistoricalMoments(1_051_900, Props.DISTRIBUTION_FIX_BLOCK_HEIGHT);
     public static HistoricalMoments NEXT_FORK = new HistoricalMoments(Integer.MAX_VALUE, Props.DEV_NEXT_FORK_BLOCK_HEIGHT);
 
     private final int mainnetHeight;

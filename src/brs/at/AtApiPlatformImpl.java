@@ -546,7 +546,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return;
       }
 
-      long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false, unconfirmed);
       long newSupply = circulatingSupply + quantity;
       if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
         // do not mint extra to keep the limit
@@ -580,7 +581,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
       }
 
       int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
-      int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
       if(holdersCount == 0 || state.getIndirectsCount() + holdersCount > maxIndirects){
         // no holders to distribute or over the maximum, so do not distribute
         return;
@@ -624,7 +626,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return 0L;
       }
 
-      return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
     }
 
     @Override
@@ -641,7 +644,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
         return 0L;
       }
 
-      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true, true);
+      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true, unconfirmed);
     }
 
     @Override

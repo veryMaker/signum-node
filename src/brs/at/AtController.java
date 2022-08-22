@@ -345,7 +345,7 @@ public abstract class AtController {
 
                 md5 = digest.digest(at.getBytes());
                 if (!Arrays.equals(md5, receivedMd5)) {
-                    logger.debug("MD5 mismatch for AT {}", Convert.toUnsignedLong(atIdLong));
+                    logger.error("MD5 mismatch for AT {}", Convert.toUnsignedLong(atIdLong));
                     throw new AtException("Calculated md5 and received md5 are not matching");
                 }
             } catch (Exception e) {
