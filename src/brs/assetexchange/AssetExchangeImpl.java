@@ -56,8 +56,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury) {
-    return assetAccountService.getAssetAccountsCount(asset, minimumQuantity, ignoreTreasury);
+  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury, boolean unconfirmed) {
+    return assetAccountService.getAssetAccountsCount(asset, minimumQuantity, ignoreTreasury, unconfirmed);
   }
 
   @Override
@@ -136,8 +136,8 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to) {
-    return assetAccountService.getAssetAccounts(asset, ignoreTreasury, minimumQuantity, from, to);
+  public Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to) {
+    return assetAccountService.getAssetAccounts(asset, ignoreTreasury, minimumQuantity, unconfirmed, from, to);
   }
 
   @Override

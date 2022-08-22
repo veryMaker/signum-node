@@ -2,8 +2,7 @@ package brs.http;
 
 import static brs.http.JSONResponses.NOT_ENOUGH_ASSETS;
 import static brs.http.common.Parameters.AMOUNT_NQT_PARAMETER;
-import static brs.http.common.Parameters.ASSET_IDS_PARAMETER;
-import static brs.http.common.Parameters.QUANTITIES_QNT_PARAMETER;
+import static brs.http.common.Parameters.ASSET_IDS_AND_QUANTITIES_PARAMETER;
 import static brs.http.common.Parameters.RECIPIENT_PARAMETER;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public final class TransferAssetMulti extends CreateTransaction {
   private final AccountService accountService;
 
   public TransferAssetMulti(ParameterService parameterService, Blockchain blockchain, APITransactionManager apiTransactionManager, AccountService accountService) {
-    super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER, ASSET_IDS_PARAMETER, QUANTITIES_QNT_PARAMETER, AMOUNT_NQT_PARAMETER);
+    super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER, ASSET_IDS_AND_QUANTITIES_PARAMETER, AMOUNT_NQT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
     this.accountService = accountService;
@@ -43,54 +42,41 @@ public final class TransferAssetMulti extends CreateTransaction {
 
     long recipient = ParameterParser.getRecipientId(req);
     Account account = parameterService.getSenderAccount(req);
-    
-    String assetIdsString = Convert.emptyToNull(req.getParameter(ASSET_IDS_PARAMETER));
-    String quantitiesString = Convert.emptyToNull(req.getParameter(QUANTITIES_QNT_PARAMETER));
+
+    String assetIdsString = Convert.emptyToNull(req.getParameter(ASSET_IDS_AND_QUANTITIES_PARAMETER));
 
     if(assetIdsString == null) {
-      return JSONResponses.missing(ASSET_IDS_PARAMETER);
-    }
-    if(quantitiesString == null) {
-      return JSONResponses.missing(QUANTITIES_QNT_PARAMETER);
+      return JSONResponses.missing(ASSET_IDS_AND_QUANTITIES_PARAMETER);
     }
 
     String[] assetIdsArray = assetIdsString.split(";", Constants.MAX_MULTI_ASSET_IDS);
     ArrayList<Long> assetIds = new ArrayList<>();
-    String[] quantitiesArray = quantitiesString.split(";", Constants.MAX_MULTI_ASSET_IDS);
     ArrayList<Long> quantitiesQNT = new ArrayList<>();
-    
+
     if(assetIdsArray.length == 0 || assetIdsArray.length > Constants.MAX_MULTI_ASSET_IDS) {
-      return JSONResponses.incorrect(ASSET_IDS_PARAMETER);
-    }
-    if(assetIdsArray.length != quantitiesArray.length) {
-      return JSONResponses.incorrect(QUANTITIES_QNT_PARAMETER);
+      return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITIES_PARAMETER);
     }
 
     for(String assetIdString : assetIdsArray) {
-      long assetId = Convert.parseUnsignedLong(assetIdString);
+      String[] assetIdAndQuantity = assetIdString.split(":", 2);
+      long assetId = Convert.parseUnsignedLong(assetIdAndQuantity[0]);
       Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
       if(asset == null || assetIds.contains(assetId)) {
-        return JSONResponses.incorrect(ASSET_IDS_PARAMETER);
+        return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITIES_PARAMETER);
+      }
+      long quantityQNT = Long.parseLong(assetIdAndQuantity[1]);
+      if(quantityQNT <= 0L) {
+        return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITIES_PARAMETER);
       }
       assetIds.add(assetId);
-    }
+      quantitiesQNT.add(quantityQNT);
 
-    for(String quantityString : quantitiesArray) {
-      long quantityQNT = Long.parseLong(quantityString);
-      if(quantityQNT <= 0L) {
-        return JSONResponses.incorrect(QUANTITIES_QNT_PARAMETER);
-      }
-      
-      long assetId = assetIds.get(quantitiesQNT.size());
-      
       long assetBalance = accountService.getUnconfirmedAssetBalanceQNT(account, assetId);
       if (assetBalance < 0 || quantityQNT > assetBalance) {
         return NOT_ENOUGH_ASSETS;
       }
-      quantitiesQNT.add(quantityQNT);
     }
 
-    
     long amountNQT = 0L;
     String amountValueNQT = Convert.emptyToNull(req.getParameter(AMOUNT_NQT_PARAMETER));
     if (amountValueNQT != null) {

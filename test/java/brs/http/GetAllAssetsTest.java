@@ -61,7 +61,7 @@ public class GetAllAssetsTest extends AbstractUnitTest {
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
     when(assetExchange.getAllAssets(eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator);
-    when(assetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true))).thenReturn(1);
+    when(assetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true), eq(true))).thenReturn(1);
     when(assetExchange.getTransferCount(eq(mockAssetId))).thenReturn(2);
     when(assetExchange.getTradeCount(eq(mockAssetId))).thenReturn(3);
 

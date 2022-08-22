@@ -9,6 +9,7 @@
   <link href="main.css" rel="stylesheet">
   <script type="module" src="./rapidoc-min.js"></script>
   <script type="application/javascript" src="./converter.js"></script>
+  <script type="application/javascript" src="./version.js"></script>
   <script type="application/javascript">
 
     function getCurrentTheme() {
@@ -109,6 +110,15 @@
       valueEl.value = detail.value.toFixed(detail.decimals)
       decimalsEl.value = detail.decimals
     })
+
+    let docElement = document.querySelector('#signumdoc')
+    docElement.addEventListener('spec-loaded', () => {
+      fetchVersion().then((version) => {
+        const shadowDoc = docElement.shadowRoot
+        shadowDoc.querySelector("#api-title span").innerText = version
+      })
+    })
+
   })()
 </script>
 </body>

@@ -23,7 +23,7 @@ public interface AssetExchange {
 
   int getTransferCount(long id);
 
-  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury, boolean unconfirmed);
 
   long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury, boolean unconfirmed);
 
@@ -53,7 +53,7 @@ public interface AssetExchange {
 
   Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
 
-  Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, int from, int to);
+  Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to);
 
   Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to);
 
