@@ -12,7 +12,7 @@
       {
         "name": "ignoreTreasury",
         "in": "query",
-        "description": "If set `true`, [Treasury Accounts](#post-/api-requestType-addAssetTreasuryAccount) won't be returned. Default is false",
+        "description": "If set `true`, [Treasury Accounts](#post-/api-requestType-addAssetTreasuryAccount) won't be returned. Default is true",
         "schema": {
           "type": "boolean",
           "example": [
