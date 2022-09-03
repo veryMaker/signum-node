@@ -3,6 +3,7 @@ package brs.http;
 import brs.Asset;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
+import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
 
@@ -17,11 +18,13 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
 
   private final ParameterService parameterService;
   private final AssetExchange assetExchange;
+  private final AccountService accountService;
 
-  GetAsset(ParameterService parameterService, AssetExchange assetExchange) {
+  GetAsset(ParameterService parameterService, AssetExchange assetExchange, AccountService accountService) {
     super(new APITag[]{APITag.AE}, ASSET_PARAMETER, QUANTITY_MININUM_QNT_PARAMETER);
     this.parameterService = parameterService;
     this.assetExchange = assetExchange;
+    this.accountService = accountService;
   }
 
   @Override
@@ -34,8 +37,10 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
     int transferCount = assetExchange.getTransferCount(asset.getId());
     int accountsCount = assetExchange.getAssetAccountsCount(asset, minimumQuantity, true, false);
     long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, false);
+    
+    long quantityBurnt = accountService.getUnconfirmedAssetBalanceQNT(accountService.getNullAccount(), asset.getId());
 
-    return JSONData.asset(asset, tradeCount, transferCount, accountsCount, circulatingSupply);
+    return JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply);
   }
 
 }

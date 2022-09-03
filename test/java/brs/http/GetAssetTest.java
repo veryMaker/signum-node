@@ -6,6 +6,7 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
@@ -26,6 +27,7 @@ public class GetAssetTest extends AbstractUnitTest {
 
   private ParameterService parameterServiceMock;
   private AssetExchange mockAssetExchange;
+  private AccountService mockAccountService;
 
   private GetAsset t;
 
@@ -33,8 +35,9 @@ public class GetAssetTest extends AbstractUnitTest {
   public void setUp() {
     parameterServiceMock = mock(ParameterService.class);
     mockAssetExchange = mock(AssetExchange.class);
+    mockAccountService = mock(AccountService.class);
 
-    t = new GetAsset(parameterServiceMock, mockAssetExchange);
+    t = new GetAsset(parameterServiceMock, mockAssetExchange, mockAccountService);
   }
 
   @Test
