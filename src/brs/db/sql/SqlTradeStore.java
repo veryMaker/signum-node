@@ -8,6 +8,7 @@ import brs.schema.tables.records.TradeRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SelectQuery;
+import org.jooq.impl.DSL;
 
 import java.util.Collection;
 
@@ -49,6 +50,58 @@ public class SqlTradeStore implements TradeStore {
   @Override
   public Collection<Trade> getAssetTrades(long assetId, int from, int to) {
     return tradeTable.getManyBy(TRADE.ASSET_ID.eq(assetId), from, to);
+  }
+  
+  @Override
+  public long getTradeVolume(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.sum(TRADE.QUANTITY)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.lt(heightEnd))
+      .fetchOneInto(long.class);
+    });
+  }
+  
+  @Override
+  public long getHighPrice(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.max(TRADE.PRICE)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.lt(heightEnd))
+      .fetchOneInto(long.class);
+    });
+  }
+
+  @Override
+  public long getLowPrice(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.min(TRADE.PRICE)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.lt(heightEnd))
+      .fetchOneInto(long.class);
+    });
+  }
+  
+  @Override
+  public long getOpenPrice(long assetId, int heightStart) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(TRADE.PRICE).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.lt(heightStart))
+          .orderBy(TRADE.HEIGHT.desc())
+          .limit(1)
+      .fetchOneInto(long.class);
+    });
+  }
+  
+  @Override
+  public long getClosePrice(long assetId, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(TRADE.PRICE).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.lt(heightEnd))
+          .orderBy(TRADE.HEIGHT.desc())
+          .limit(1)
+      .fetchOneInto(long.class);
+    });
   }
 
   @Override

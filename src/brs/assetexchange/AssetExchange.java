@@ -19,6 +19,16 @@ public interface AssetExchange {
 
   Asset getAsset(long assetId);
 
+  long getTradeVolume(long assetId, int heightStart, int heightEnd);
+
+  long getHighPrice(long assetId, int heightStart, int heightEnd);
+
+  long getLowPrice(long assetId, int heightStart, int heightEnd);
+
+  long getOpenPrice(long assetId, int heightStart);
+
+  long getClosePrice(long assetId, int heightEnd);
+
   int getTradeCount(long assetId);
 
   int getTransferCount(long id);

@@ -43,6 +43,8 @@ public final class Parameters {
   public static final String LAST_INDEX_PARAMETER = "lastIndex";
   public static final String NUMBER_OF_CONFIRMATIONS_PARAMETER = "numberOfConfirmations";
   public static final String HEIGHT_PARAMETER = "height";
+  public static final String HEIGHT_START_PARAMETER = "heightStart";
+  public static final String HEIGHT_END_PARAMETER = "heightEnd";
   public static final String DECRYPTED_MESSAGE_IS_TEXT_PARAMETER = "decryptedMessageIsText";
   public static final String REFUND_NQT_PARAMETER = "refundNQT";
   public static final String DATA_PARAMETER = "data";

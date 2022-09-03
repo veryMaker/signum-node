@@ -56,7 +56,8 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject asset(Asset asset, long quantityBurnt, int tradeCount, int transferCount, int assetAccountsCount, long circulatingSupply) {
+  static JsonObject asset(Asset asset, long quantityBurnt, int tradeCount, int transferCount, int assetAccountsCount, long circulatingSupply,
+      long tradeVolume, long highPrice, long lowPrice, long openPrice, long closePrice) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, asset.getAccountId());
     json.addProperty(NAME_RESPONSE, asset.getName());
@@ -73,6 +74,13 @@ public final class JSONData {
       json.addProperty(NUMBER_OF_TRADES_RESPONSE, tradeCount);
       json.addProperty(NUMBER_OF_TRANSFERS_RESPONSE, transferCount);
       json.addProperty(NUMBER_OF_ACCOUNTS_RESPONSE, assetAccountsCount);
+    }
+    if(tradeVolume >=0) {
+      json.addProperty(VOLUME_QNT_RESPONSE, String.valueOf(tradeVolume));
+      json.addProperty(PRICE_HIGHT_NQT_RESPONSE, String.valueOf(highPrice));
+      json.addProperty(PRICE_LOW_NQT_RESPONSE, String.valueOf(lowPrice));
+      json.addProperty(PRICE_OPEN_NQT_RESPONSE, String.valueOf(openPrice));
+      json.addProperty(PRICE_CLOSE_NQT_RESPONSE, String.valueOf(closePrice));
     }
     return json;
   }

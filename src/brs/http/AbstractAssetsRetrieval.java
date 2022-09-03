@@ -27,7 +27,8 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
       long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, false);
       long quantityBurnt = -1;
 
-      assetsJsonArray.add(JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply));
+      assetsJsonArray.add(JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply,
+          -1, -1, -1, -1, -1));
     }
 
     return assetsJsonArray;

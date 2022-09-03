@@ -5,7 +5,6 @@ import brs.Asset;
 import brs.AssetTransfer;
 import brs.Attachment.ColoredCoinsAskOrderPlacement;
 import brs.Attachment.ColoredCoinsAssetIssuance;
-import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
@@ -213,5 +212,30 @@ public class AssetExchangeImpl implements AssetExchange {
   @Override
   public Collection<Bid> getSortedBidOrders(long assetId, int from, int to) {
     return orderService.getSortedBidOrders(assetId, from, to);
+  }
+
+  @Override
+  public long getTradeVolume(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getTradeVolume(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getHighPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getHighPrice(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getLowPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getLowPrice(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getOpenPrice(long assetId, int heightStart) {
+    return tradeService.getOpenPrice(assetId, heightStart);
+  }
+
+  @Override
+  public long getClosePrice(long assetId, int heightEnd) {
+    return tradeService.getClosePrice(assetId, heightEnd);
   }
 }

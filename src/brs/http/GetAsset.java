@@ -1,6 +1,7 @@
 package brs.http;
 
 import brs.Asset;
+import brs.Burst;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
@@ -11,8 +12,7 @@ import com.google.gson.JsonElement;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.http.common.Parameters.ASSET_PARAMETER;
-import static brs.http.common.Parameters.QUANTITY_MININUM_QNT_PARAMETER;
+import static brs.http.common.Parameters.*;
 
 public final class GetAsset extends APIServlet.JsonRequestHandler {
 
@@ -21,7 +21,7 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
   private final AccountService accountService;
 
   GetAsset(ParameterService parameterService, AssetExchange assetExchange, AccountService accountService) {
-    super(new APITag[]{APITag.AE}, ASSET_PARAMETER, QUANTITY_MININUM_QNT_PARAMETER);
+    super(new APITag[]{APITag.AE}, ASSET_PARAMETER, QUANTITY_MININUM_QNT_PARAMETER, HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER);
     this.parameterService = parameterService;
     this.assetExchange = assetExchange;
     this.accountService = accountService;
@@ -39,8 +39,29 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
     long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, false);
     
     long quantityBurnt = accountService.getUnconfirmedAssetBalanceQNT(accountService.getNullAccount(), asset.getId());
+    
+    int heightEnd = Burst.getBlockchain().getHeight();
+    // default is one day window
+    int heightStart = heightEnd - 360;
+    
+    String heightStartString = Convert.emptyToNull(req.getParameter(HEIGHT_START_PARAMETER));
+    if(heightStartString != null) {
+      heightStart = Integer.getInteger(heightStartString);
+    }
 
-    return JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply);
+    String heightEndString = Convert.emptyToNull(req.getParameter(HEIGHT_END_PARAMETER));
+    if(heightEndString != null) {
+      heightEnd = Integer.getInteger(heightEndString);
+    }
+    
+    long tradeVolume = assetExchange.getTradeVolume(asset.getId(), heightStart, heightEnd);
+    long highPrice = assetExchange.getHighPrice(asset.getId(), heightStart, heightEnd);
+    long lowPrice = assetExchange.getLowPrice(asset.getId(), heightStart, heightEnd);
+    long openPrice = assetExchange.getOpenPrice(asset.getId(), heightStart);
+    long closePrice = assetExchange.getOpenPrice(asset.getId(), heightEnd);
+
+    return JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply,
+        tradeVolume, highPrice, lowPrice, openPrice, closePrice);
   }
 
 }
