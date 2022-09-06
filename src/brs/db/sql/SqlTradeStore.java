@@ -57,7 +57,7 @@ public class SqlTradeStore implements TradeStore {
     return Db.useDSLContext(ctx -> {
       return ctx.select(DSL.sum(TRADE.QUANTITY)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
           .and(TRADE.HEIGHT.ge(heightStart))
-          .and(TRADE.HEIGHT.lt(heightEnd))
+          .and(TRADE.HEIGHT.le(heightEnd))
       .fetchOneInto(long.class);
     });
   }
@@ -67,7 +67,7 @@ public class SqlTradeStore implements TradeStore {
     return Db.useDSLContext(ctx -> {
       return ctx.select(DSL.max(TRADE.PRICE)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
           .and(TRADE.HEIGHT.ge(heightStart))
-          .and(TRADE.HEIGHT.lt(heightEnd))
+          .and(TRADE.HEIGHT.le(heightEnd))
       .fetchOneInto(long.class);
     });
   }
@@ -77,22 +77,37 @@ public class SqlTradeStore implements TradeStore {
     return Db.useDSLContext(ctx -> {
       return ctx.select(DSL.min(TRADE.PRICE)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
           .and(TRADE.HEIGHT.ge(heightStart))
-          .and(TRADE.HEIGHT.lt(heightEnd))
+          .and(TRADE.HEIGHT.le(heightEnd))
       .fetchOneInto(long.class);
     });
   }
 
   @Override
-  public long getPriceAtHeight(long assetId, int heightStart) {
+  public long getOpenPrice(long assetId, int heightStart, int heightEnd) {
      return Db.useDSLContext(ctx -> {
        Record record = ctx.select(TRADE.PRICE).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
-          .and(TRADE.HEIGHT.lt(heightStart))
-          .orderBy(TRADE.HEIGHT.desc())
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.le(heightEnd))
+          .orderBy(TRADE.TIMESTAMP.asc())
           .limit(1)
         .fetchOne();
        return record != null ? record.into(long.class) : 0L;
     });
   }
+
+  @Override
+  public long getClosePrice(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      Record record = ctx.select(TRADE.PRICE).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+        .and(TRADE.HEIGHT.ge(heightStart))
+        .and(TRADE.HEIGHT.le(heightEnd))
+        .orderBy(TRADE.TIMESTAMP.desc())
+        .limit(1)
+        .fetchOne();
+      return record != null ? record.into(long.class) : 0L;
+    });
+  }
+
 
   @Override
   public Collection<Trade> getAccountTrades(long accountId, int from, int to) {

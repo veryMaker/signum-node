@@ -24,7 +24,9 @@ public interface AssetExchange {
 
   long getLowPrice(long assetId, int heightStart, int heightEnd);
 
-  long getPriceAtHeight(long assetId, int heightStart);
+  long getOpenPrice(long assetId, int heightStart, int heightEnd);
+
+  long getClosePrice(long assetId, int heightStart, int heightEnd);
 
   int getTradeCount(long assetId);
 

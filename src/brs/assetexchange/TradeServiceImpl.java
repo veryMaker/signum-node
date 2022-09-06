@@ -60,10 +60,14 @@ class TradeServiceImpl {
     return tradeStore.getLowPrice(assetId, heightStart, heightEnd);
   }
 
-  public long getPriceAtHeight(long assetId, int heightStart) {
-    return tradeStore.getPriceAtHeight(assetId, heightStart);
-
+  public long getOpenPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeStore.getOpenPrice(assetId, heightStart, heightEnd);
   }
+
+  public long getClosePrice(long assetId, int heightStart, int heightEnd) {
+    return tradeStore.getClosePrice(assetId, heightStart, heightEnd);
+  }
+
 
   public Collection<Trade> getAllTrades(int from, int to) {
     return tradeTable.getAll(from, to);

@@ -230,7 +230,13 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public long getPriceAtHeight(long assetId, int heightStart) {
-    return tradeService.getPriceAtHeight(assetId, heightStart);
+  public long getOpenPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getOpenPrice(assetId, heightStart, heightEnd);
   }
+
+  @Override
+  public long getClosePrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getClosePrice(assetId, heightStart, heightEnd);
+  }
+
 }
