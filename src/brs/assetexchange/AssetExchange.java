@@ -4,7 +4,6 @@ import brs.Account.AccountAsset;
 import brs.*;
 import brs.Attachment.ColoredCoinsAskOrderPlacement;
 import brs.Attachment.ColoredCoinsAssetIssuance;
-import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
@@ -25,9 +24,7 @@ public interface AssetExchange {
 
   long getLowPrice(long assetId, int heightStart, int heightEnd);
 
-  long getOpenPrice(long assetId, int heightStart);
-
-  long getClosePrice(long assetId, int heightEnd);
+  long getPriceAtHeight(long assetId, int heightStart);
 
   int getTradeCount(long assetId);
 

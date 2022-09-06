@@ -17,6 +17,22 @@
           "type": "integer",
           "format": "int64"
         }
+      },
+      {
+        "name": "heightStart",
+        "in": "query",
+        "description": "Define the start height for trading information over a given period - if not given the last 24h are taken as trading period",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "heightEnd",
+        "in": "query",
+        "description": "Define the end height for trading information over a given period - if not given the 24h are taken as trading period",
+        "schema": {
+          "type": "integer"
+        }
       }
     ],
     "responses": {
@@ -25,7 +41,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "../../schemas/asset.json"
+              "$ref": "../../schemas/assetDetail.json"
             }
           }
         }

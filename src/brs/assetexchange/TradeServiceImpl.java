@@ -47,7 +47,7 @@ class TradeServiceImpl {
   public int getTradeCount(long assetId) {
     return tradeStore.getTradeCount(assetId);
   }
-  
+
   public long getTradeVolume(long assetId, int heightStart, int heightEnd) {
     return tradeStore.getTradeVolume(assetId, heightStart, heightEnd);
   }
@@ -60,12 +60,9 @@ class TradeServiceImpl {
     return tradeStore.getLowPrice(assetId, heightStart, heightEnd);
   }
 
-  public long getOpenPrice(long assetId, int heightStart) {
-    return tradeStore.getOpenPrice(assetId, heightStart);
-  }
+  public long getPriceAtHeight(long assetId, int heightStart) {
+    return tradeStore.getPriceAtHeight(assetId, heightStart);
 
-  public long getClosePrice(long assetId, int heightEnd) {
-    return tradeStore.getClosePrice(assetId, heightEnd);
   }
 
   public Collection<Trade> getAllTrades(int from, int to) {

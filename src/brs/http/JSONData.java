@@ -77,7 +77,7 @@ public final class JSONData {
     }
     if(tradeVolume >=0) {
       json.addProperty(VOLUME_QNT_RESPONSE, String.valueOf(tradeVolume));
-      json.addProperty(PRICE_HIGHT_NQT_RESPONSE, String.valueOf(highPrice));
+      json.addProperty(PRICE_HIGH_NQT_RESPONSE, String.valueOf(highPrice));
       json.addProperty(PRICE_LOW_NQT_RESPONSE, String.valueOf(lowPrice));
       json.addProperty(PRICE_OPEN_NQT_RESPONSE, String.valueOf(openPrice));
       json.addProperty(PRICE_CLOSE_NQT_RESPONSE, String.valueOf(closePrice));

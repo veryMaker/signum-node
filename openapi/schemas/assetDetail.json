@@ -13,7 +13,12 @@
     "asset",
     "numberOfTrades",
     "numberOfTransfers",
-    "numberOfAccounts"
+    "numberOfAccounts",
+    "volumeQNT",
+    "priceHighNQT",
+    "priceLowNQT",
+    "priceOpenNQT",
+    "priceCloseNQT"
   ],
   "properties": {
     "asset": {
@@ -65,7 +70,7 @@
     "quantityBurntQNT": {
       "type": "integer",
       "format": "int64",
-      "description": "The __burnt__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000.",
+      "description": "The __burnt__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
       "example": [
         "25000000"
       ]
@@ -81,6 +86,46 @@
     "numberOfAccounts": {
       "type": "integer",
       "description": "Total number of accounts owning this token"
+    },
+    "volumeQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The traded volume quantity for the given period expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceHighNQT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The highest price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceLowNQT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The lowest price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceOpenNQT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The opening (first) price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceCloseNQT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The closing (last) price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
     }
   },
   "example": {
