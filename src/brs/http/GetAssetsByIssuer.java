@@ -21,7 +21,8 @@ public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
   private final AssetExchange assetExchange;
 
   GetAssetsByIssuer(ParameterService parameterService, AssetExchange assetExchange) {
-    super(new APITag[] {APITag.AE, APITag.ACCOUNTS}, assetExchange, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER);
+    super(new APITag[] {APITag.AE, APITag.ACCOUNTS}, assetExchange, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER,
+        HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER, SKIP_ZERO_VOLUME_PARAMETER);
     this.parameterService = parameterService;
     this.assetExchange = assetExchange;
   }
@@ -46,10 +47,12 @@ public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
     if(heightEndString != null) {
       heightEnd = Integer.parseInt(heightEndString);
     }
+    
+    boolean skipZeroVolume = "true".equalsIgnoreCase(req.getParameter(SKIP_ZERO_VOLUME_PARAMETER));
 
     JsonObject response = new JsonObject();
     response.add(ASSETS_RESPONSE, assetsToJson(assetExchange.getAssetsIssuedBy(account.getId(), firstIndex, lastIndex).iterator(),
-        heightStart, heightEnd));
+        heightStart, heightEnd, skipZeroVolume));
 
     return response;
   }

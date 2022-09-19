@@ -45,6 +45,7 @@ public final class Parameters {
   public static final String HEIGHT_PARAMETER = "height";
   public static final String HEIGHT_START_PARAMETER = "heightStart";
   public static final String HEIGHT_END_PARAMETER = "heightEnd";
+  public static final String SKIP_ZERO_VOLUME_PARAMETER = "skipZeroVolume";
   public static final String DECRYPTED_MESSAGE_IS_TEXT_PARAMETER = "decryptedMessageIsText";
   public static final String REFUND_NQT_PARAMETER = "refundNQT";
   public static final String DATA_PARAMETER = "data";

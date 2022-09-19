@@ -15,7 +15,7 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
     this.assetExchange = assetExchange;
   }
 
-  JsonArray assetsToJson(Iterator<Asset> assets, int heightStart, int heightEnd) {
+  JsonArray assetsToJson(Iterator<Asset> assets, int heightStart, int heightEnd, boolean skipZeroVolume) {
     final JsonArray assetsJsonArray = new JsonArray();
 
     while (assets.hasNext()) {
@@ -28,6 +28,9 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
       long quantityBurnt = -1;
       
       long tradeVolume = assetExchange.getTradeVolume(asset.getId(), heightStart, heightEnd);
+      if(tradeVolume == 0 && skipZeroVolume) {
+        continue;
+      }
       long highPrice = assetExchange.getHighPrice(asset.getId(), heightStart, heightEnd);
       long lowPrice = assetExchange.getLowPrice(asset.getId(), heightStart, heightEnd);
       long openPrice = assetExchange.getOpenPrice(asset.getId(), heightStart, heightEnd);
