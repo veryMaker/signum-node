@@ -2,6 +2,8 @@ package brs.http;
 
 import brs.Account;
 import brs.Asset;
+import brs.Blockchain;
+import brs.Burst;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
@@ -13,9 +15,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Collection;
 
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
@@ -26,9 +30,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.*;
 
-;
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class GetAssetsByIssuerTest extends AbstractUnitTest {
 
   private GetAssetsByIssuer t;
@@ -40,6 +45,11 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
   public void setUp() {
     mockParameterService = mock(ParameterService.class);
     mockAssetExchange = mock(AssetExchange.class);
+
+    mockStatic(Burst.class);
+    Blockchain mockBlockchain = mock(Blockchain.class);
+    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
 
     t = new GetAssetsByIssuer(mockParameterService, mockAssetExchange);
   }

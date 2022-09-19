@@ -1,6 +1,8 @@
 package brs.http;
 
 import brs.Asset;
+import brs.Blockchain;
+import brs.Burst;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -10,6 +12,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -22,9 +27,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.*;
 
-;
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class GetAllAssetsTest extends AbstractUnitTest {
 
   private GetAllAssets t;
@@ -34,6 +40,11 @@ public class GetAllAssetsTest extends AbstractUnitTest {
   @Before
   public void setUp() {
     assetExchange = mock(AssetExchange.class);
+
+    mockStatic(Burst.class);
+    Blockchain mockBlockchain = mock(Blockchain.class);
+    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
 
     t = new GetAllAssets(assetExchange);
   }
