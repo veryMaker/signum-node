@@ -1,5 +1,6 @@
 package brs.http;
 
+import brs.Asset;
 import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
@@ -27,7 +28,8 @@ public final class GetAskOrder extends APIServlet.JsonRequestHandler {
     if (askOrder == null) {
       return UNKNOWN_ORDER;
     }
-    return JSONData.askOrder(askOrder);
+    Asset asset = assetExchange.getAsset(askOrder.getAssetId());
+    return JSONData.askOrder(askOrder, asset);
   }
 
 }

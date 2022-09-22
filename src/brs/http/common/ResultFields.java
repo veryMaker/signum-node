@@ -80,10 +80,11 @@ public class ResultFields {
   public static final String QUANTITY_CIRCULATING_QNT_RESPONSE = "quantityCirculatingQNT";
   public static final String UNCONFIRMED_QUANTITY_QNT_RESPONSE = "unconfirmedQuantityQNT";
   public static final String PRICE_NQT_RESPONSE = "priceNQT";
-  public static final String PRICE_HIGH_NQT_RESPONSE = "priceHighNQT";
-  public static final String PRICE_LOW_NQT_RESPONSE = "priceLowNQT";
-  public static final String PRICE_OPEN_NQT_RESPONSE = "priceOpenNQT";
-  public static final String PRICE_CLOSE_NQT_RESPONSE = "priceCloseNQT";
+  public static final String PRICE_RESPONSE = "price";
+  public static final String PRICE_HIGH_RESPONSE = "priceHigh";
+  public static final String PRICE_LOW_RESPONSE = "priceLow";
+  public static final String PRICE_OPEN_RESPONSE = "priceOpen";
+  public static final String PRICE_CLOSE_RESPONSE = "priceClose";
   public static final String DECIMALS_RESPONSE = "decimals";
   public static final String MINTABLE_RESPONSE = "mintable";
   public static final String NUMBER_OF_TRADES_RESPONSE = "numberOfTrades";

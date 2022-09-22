@@ -1,5 +1,6 @@
 package brs.http;
 
+import brs.Asset;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import com.google.gson.JsonArray;
@@ -31,8 +32,12 @@ public final class GetAllOpenAskOrders extends APIServlet.JsonRequestHandler {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
+    Asset asset = null;
     for (Order.Ask askOrder : assetExchange.getAllAskOrders(firstIndex, lastIndex)) {
-      ordersData.add(JSONData.askOrder(askOrder));
+      if(asset == null || asset.getId() != askOrder.getAssetId()) {
+        asset = assetExchange.getAsset(askOrder.getAssetId());
+      }
+      ordersData.add(JSONData.askOrder(askOrder, asset));
     }
 
     response.add(OPEN_ORDERS_RESPONSE, ordersData);

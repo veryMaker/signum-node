@@ -1,5 +1,6 @@
 package brs.http;
 
+import brs.Asset;
 import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
@@ -47,8 +48,12 @@ public final class GetAccountCurrentBidOrders extends APIServlet.JsonRequestHand
       bidOrders = assetExchange.getBidOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex);
     }
     JsonArray orders = new JsonArray();
+    Asset asset = null;
     for (Order.Bid bidOrder : bidOrders) {
-      orders.add(JSONData.bidOrder(bidOrder));
+      if(asset == null || asset.getId() != bidOrder.getAssetId()) {
+        asset = assetExchange.getAsset(bidOrder.getAssetId());
+      }
+      orders.add(JSONData.bidOrder(bidOrder, asset));
     }
     JsonObject response = new JsonObject();
     response.add(BID_ORDERS_RESPONSE, orders);

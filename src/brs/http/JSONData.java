@@ -21,6 +21,8 @@ import static brs.http.common.ResultFields.*;
 import java.util.List;
 
 public final class JSONData {
+  
+  static final long[] PRICE_MULTIPLIER = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
   static JsonObject alias(Alias alias, Offer offer) {
     JsonObject json = new JsonObject();
@@ -76,11 +78,12 @@ public final class JSONData {
       json.addProperty(NUMBER_OF_ACCOUNTS_RESPONSE, assetAccountsCount);
     }
     if(tradeVolume >=0) {
+      long multiplier = PRICE_MULTIPLIER[asset.getDecimals()];
       json.addProperty(VOLUME_QNT_RESPONSE, String.valueOf(tradeVolume));
-      json.addProperty(PRICE_HIGH_NQT_RESPONSE, String.valueOf(highPrice));
-      json.addProperty(PRICE_LOW_NQT_RESPONSE, String.valueOf(lowPrice));
-      json.addProperty(PRICE_OPEN_NQT_RESPONSE, String.valueOf(openPrice));
-      json.addProperty(PRICE_CLOSE_NQT_RESPONSE, String.valueOf(closePrice));
+      json.addProperty(PRICE_HIGH_RESPONSE, String.valueOf(highPrice*multiplier));
+      json.addProperty(PRICE_LOW_RESPONSE, String.valueOf(lowPrice*multiplier));
+      json.addProperty(PRICE_OPEN_RESPONSE, String.valueOf(openPrice*multiplier));
+      json.addProperty(PRICE_CLOSE_RESPONSE, String.valueOf(closePrice*multiplier));
     }
     return json;
   }
@@ -94,19 +97,19 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject askOrder(Order.Ask order) {
-    JsonObject json = order(order);
+  static JsonObject askOrder(Order.Ask order, Asset asset) {
+    JsonObject json = order(order, asset);
     json.addProperty(TYPE_RESPONSE, "ask");
     return json;
   }
 
-  static JsonObject bidOrder(Order.Bid order) {
-    JsonObject json = order(order);
+  static JsonObject bidOrder(Order.Bid order, Asset asset) {
+    JsonObject json = order(order, asset);
     json.addProperty(TYPE_RESPONSE, "bid");
     return json;
   }
 
-  private static JsonObject order(Order order) {
+  private static JsonObject order(Order order, Asset asset) {
     JsonObject json = new JsonObject();
     json.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(order.getId()));
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(order.getAssetId()));
@@ -114,6 +117,11 @@ public final class JSONData {
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(order.getQuantityQNT()));
     json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(order.getPriceNQT()));
     json.addProperty(HEIGHT_RESPONSE, order.getHeight());
+    if(asset != null) {
+      json.addProperty(NAME_RESPONSE, asset.getName());
+      json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
+      json.addProperty(PRICE_RESPONSE, String.valueOf(order.getPriceNQT() * PRICE_MULTIPLIER[asset.getDecimals()]));
+    }
     return json;
   }
 
@@ -314,6 +322,7 @@ public final class JSONData {
     if (asset != null) {
       json.addProperty(NAME_RESPONSE, asset.getName());
       json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
+      json.addProperty(PRICE_RESPONSE, String.valueOf(trade.getPriceNQT() * PRICE_MULTIPLIER[asset.getDecimals()]));
     }
     return json;
   }

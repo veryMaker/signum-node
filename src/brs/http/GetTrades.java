@@ -43,19 +43,25 @@ public final class GetTrades extends APIServlet.JsonRequestHandler {
     JsonObject response = new JsonObject();
     JsonArray tradesData = new JsonArray();
     Collection<Trade> trades;
+    Asset asset = null;
     if (accountId == null) {
-      Asset asset = parameterService.getAsset(req);
+      asset = parameterService.getAsset(req);
       trades = assetExchange.getTrades(asset.getId(), firstIndex, lastIndex);
     } else if (assetId == null) {
       Account account = parameterService.getAccount(req);
       trades = assetExchange.getAccountTrades(account.getId(), firstIndex, lastIndex);
     } else {
-      Asset asset = parameterService.getAsset(req);
+      asset = parameterService.getAsset(req);
       Account account = parameterService.getAccount(req);
       trades = assetExchange.getAccountAssetTrades(account.getId(), asset.getId(), firstIndex, lastIndex);
     }
+    if(!includeAssetInfo) {
+      asset = null;
+    }
     for (Trade trade : trades) {
-      final Asset asset = includeAssetInfo ? assetExchange.getAsset(trade.getAssetId()) : null;
+      if(includeAssetInfo && (asset == null || asset.getId() != trade.getAssetId())) {
+        asset = assetExchange.getAsset(trade.getAssetId());
+      }
       tradesData.add(JSONData.trade(trade, asset));
     }
     response.add(TRADES_RESPONSE, tradesData);

@@ -1,5 +1,6 @@
 package brs.http;
 
+import brs.Asset;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import com.google.gson.JsonArray;
@@ -30,8 +31,12 @@ public final class GetAllOpenBidOrders extends APIServlet.JsonRequestHandler {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
+    Asset asset = null;
     for (Order.Bid bidOrder : assetExchange.getAllBidOrders(firstIndex, lastIndex)) {
-      ordersData.add(JSONData.bidOrder(bidOrder));
+      if(asset == null || asset.getId() != bidOrder.getAssetId()) {
+        asset = assetExchange.getAsset(bidOrder.getAssetId());
+      }
+      ordersData.add(JSONData.bidOrder(bidOrder, asset));
     }
 
     response.add("openOrders", ordersData);
