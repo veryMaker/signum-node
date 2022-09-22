@@ -58,10 +58,13 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject asset(Asset asset, long quantityBurnt, int tradeCount, int transferCount, int assetAccountsCount, long circulatingSupply,
+  static JsonObject asset(Asset asset, Account issuerAccount, long quantityBurnt, int tradeCount, int transferCount, int assetAccountsCount, long circulatingSupply,
       long tradeVolume, long highPrice, long lowPrice, long openPrice, long closePrice) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, asset.getAccountId());
+    if(issuerAccount != null) {
+      json.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(issuerAccount.getPublicKey()));
+    }
     json.addProperty(NAME_RESPONSE, asset.getName());
     json.addProperty(DESCRIPTION_RESPONSE, asset.getDescription());
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());

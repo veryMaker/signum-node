@@ -9,6 +9,7 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
@@ -40,18 +41,20 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
 
   private ParameterService mockParameterService;
   private AssetExchange mockAssetExchange;
+  private AccountService mockAccountService;
 
   @Before
   public void setUp() {
     mockParameterService = mock(ParameterService.class);
     mockAssetExchange = mock(AssetExchange.class);
+    mockAccountService = mock(AccountService.class);
 
     mockStatic(Burst.class);
     Blockchain mockBlockchain = mock(Blockchain.class);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);
     when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
 
-    t = new GetAssetsByIssuer(mockParameterService, mockAssetExchange);
+    t = new GetAssetsByIssuer(mockParameterService, mockAssetExchange, mockAccountService);
   }
 
   @Test

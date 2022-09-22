@@ -2,6 +2,8 @@ package brs.http;
 
 import brs.Asset;
 import brs.assetexchange.AssetExchange;
+import brs.services.AccountService;
+
 import com.google.gson.JsonArray;
 
 import java.util.Iterator;
@@ -9,10 +11,12 @@ import java.util.Iterator;
 abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
 
   private final AssetExchange assetExchange;
+  private final AccountService accountService;
 
-  AbstractAssetsRetrieval(APITag[] apiTags, AssetExchange assetExchange, String... parameters) {
+  AbstractAssetsRetrieval(APITag[] apiTags, AssetExchange assetExchange, AccountService accountService, String... parameters) {
     super(apiTags, parameters);
     this.assetExchange = assetExchange;
+    this.accountService = accountService;
   }
 
   JsonArray assetsToJson(Iterator<Asset> assets, int heightStart, int heightEnd, boolean skipZeroVolume) {
@@ -36,7 +40,7 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
       long openPrice = assetExchange.getOpenPrice(asset.getId(), heightStart, heightEnd);
       long closePrice = assetExchange.getClosePrice(asset.getId(), heightStart, heightEnd);
 
-      assetsJsonArray.add(JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply,
+      assetsJsonArray.add(JSONData.asset(asset, accountService.getAccount(asset.getAccountId()), quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply,
           tradeVolume, highPrice, lowPrice, openPrice, closePrice));
     }
 

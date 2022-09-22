@@ -4,6 +4,7 @@ import brs.Account;
 import brs.Burst;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
+import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
 
@@ -20,8 +21,8 @@ public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
   private final ParameterService parameterService;
   private final AssetExchange assetExchange;
 
-  GetAssetsByIssuer(ParameterService parameterService, AssetExchange assetExchange) {
-    super(new APITag[] {APITag.AE, APITag.ACCOUNTS}, assetExchange, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER,
+  GetAssetsByIssuer(ParameterService parameterService, AssetExchange assetExchange, AccountService accountService) {
+    super(new APITag[] {APITag.AE, APITag.ACCOUNTS}, assetExchange, accountService, ACCOUNT_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER,
         HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER, SKIP_ZERO_VOLUME_PARAMETER);
     this.parameterService = parameterService;
     this.assetExchange = assetExchange;

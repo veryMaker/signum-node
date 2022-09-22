@@ -7,6 +7,7 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AccountService;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -36,17 +37,19 @@ public class GetAllAssetsTest extends AbstractUnitTest {
   private GetAllAssets t;
 
   private AssetExchange assetExchange;
+  private AccountService accountService;
 
   @Before
   public void setUp() {
     assetExchange = mock(AssetExchange.class);
+    accountService = mock(AccountService.class);
 
     mockStatic(Burst.class);
     Blockchain mockBlockchain = mock(Blockchain.class);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);
     when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
 
-    t = new GetAllAssets(assetExchange);
+    t = new GetAllAssets(assetExchange, accountService);
   }
 
   @Test

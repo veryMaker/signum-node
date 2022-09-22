@@ -60,7 +60,8 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
     long openPrice = assetExchange.getOpenPrice(asset.getId(), heightStart, heightEnd);
     long closePrice = assetExchange.getClosePrice(asset.getId(), heightStart, heightEnd);
 
-    return JSONData.asset(asset, quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply,
+    return JSONData.asset(asset, accountService.getAccount(asset.getAccountId()),
+        quantityBurnt, tradeCount, transferCount, accountsCount, circulatingSupply,
         tradeVolume, highPrice, lowPrice, openPrice, closePrice);
   }
 

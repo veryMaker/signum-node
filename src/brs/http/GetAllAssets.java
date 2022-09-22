@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.Burst;
 import brs.assetexchange.AssetExchange;
+import brs.services.AccountService;
 import brs.util.Convert;
 
 import com.google.gson.JsonElement;
@@ -16,8 +17,8 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
 
   private final AssetExchange assetExchange;
 
-  public GetAllAssets(AssetExchange assetExchange) {
-    super(new APITag[] {APITag.AE}, assetExchange, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER, SKIP_ZERO_VOLUME_PARAMETER);
+  public GetAllAssets(AssetExchange assetExchange, AccountService accountService) {
+    super(new APITag[] {APITag.AE}, assetExchange, accountService, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER, SKIP_ZERO_VOLUME_PARAMETER);
     this.assetExchange = assetExchange;
   }
 
