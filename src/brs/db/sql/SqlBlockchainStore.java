@@ -147,11 +147,6 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   @Override
   public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
-    return getTransactions(account, numberOfConfirmations, subtype, subtype, blockTimestamp, from, to, includeIndirectIncoming);
-  }
-
-  @Override
-  public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
     int height = numberOfConfirmations > 0 ? Burst.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
     if (height < 0) {
       throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Burst.getBlockchain().getHeight());
@@ -163,8 +158,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       }
       if (type >= 0) {
         conditions.add(TRANSACTION.TYPE.eq(type));
-        if (subtypeStart >= 0) {
-          conditions.add(TRANSACTION.SUBTYPE.ge(subtypeStart).and(TRANSACTION.SUBTYPE.le(subtypeEnd)));
+        if (subtype >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.eq(subtype));
         }
       }
       if (height < Integer.MAX_VALUE) {
@@ -188,6 +183,33 @@ public class SqlBlockchainStore implements BlockchainStore {
                 .where(conditions)
                 .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), -1, -1))));
       }
+
+      SelectQuery<TransactionRecord> selectQuery = select
+              .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())
+              .getQuery();
+
+      DbUtils.applyLimits(selectQuery, from, to);
+
+      return getTransactions(ctx, selectQuery.fetch());
+    });
+  }
+  
+  @Override
+  public Collection<Transaction> getTransactions(long senderId, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
+    return Db.useDSLContext(ctx -> {
+      ArrayList<Condition> conditions = new ArrayList<>();
+      if (type >= 0) {
+        conditions.add(TRANSACTION.TYPE.eq(type));
+        if (subtypeStart >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.ge(subtypeStart));
+        }
+        if (subtypeEnd >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.le(subtypeEnd));
+        }
+      }
+
+      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions).and(
+          TRANSACTION.SENDER_ID.eq(senderId));
 
       SelectQuery<TransactionRecord> selectQuery = select
               .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())

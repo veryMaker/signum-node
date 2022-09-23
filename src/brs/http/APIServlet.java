@@ -102,6 +102,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, atService, generator, propertyService));
     map.put("getTime", new GetTime(timeService));
     map.put("getTrades", new GetTrades(parameterService, assetExchange));
+    map.put("getTradeJournal", new GetTradeJournal(parameterService, assetExchange));
     map.put("getAllTrades", new GetAllTrades(assetExchange));
     map.put("getAssetTransfers", new GetAssetTransfers(parameterService, accountService, assetExchange));
     map.put("getTransaction", new GetTransaction(transactionProcessor, blockchain));

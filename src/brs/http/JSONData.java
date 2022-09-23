@@ -112,7 +112,7 @@ public final class JSONData {
     return json;
   }
 
-  private static JsonObject order(Order order, Asset asset) {
+  public static JsonObject order(Order order, Asset asset) {
     JsonObject json = new JsonObject();
     json.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(order.getId()));
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(order.getAssetId()));

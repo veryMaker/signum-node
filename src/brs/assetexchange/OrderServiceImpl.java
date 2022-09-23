@@ -86,22 +86,26 @@ class OrderServiceImpl {
   }
 
   public Collection<OrderJournal> getTradeJournal(final long accountId, final long assetId, int from, int to) {
-    Collection<Transaction> transactions = Burst.getBlockchain().getTransactions(accountService.getAccount(accountId),
+    Collection<Transaction> transactions = Burst.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT,
-        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, 0, from, to, false);
+        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, from, to);
     
     ArrayList<OrderJournal> orders = new ArrayList<OrderJournal>();
     for(Transaction transaction : transactions) {
+      ColoredCoinsOrderPlacement attachment = (ColoredCoinsOrderPlacement) transaction.getAttachment();
+      if(attachment.getAssetId() != assetId) {
+        continue;
+      }
       Collection<Trade> trades = tradeService.getOrderTrades(transaction.getId());
-      OrderJournal orderJournal = new OrderJournal(transaction, (ColoredCoinsOrderPlacement) transaction.getAttachment(), trades);
+      OrderJournal orderJournal = new OrderJournal(transaction, attachment, trades);
       
       orders.add(orderJournal);
     }
     
     // check the cancellations
-    transactions = Burst.getBlockchain().getTransactions(accountService.getAccount(accountId),
+    transactions = Burst.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION,
-        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, 0, 0, 0, false);
+        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, 0, 0);
     for(Transaction transaction : transactions) {
       Attachment.ColoredCoinsOrderCancellation cancellation = (ColoredCoinsOrderCancellation) transaction.getAttachment();
 
