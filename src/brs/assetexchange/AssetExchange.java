@@ -7,6 +7,7 @@ import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
+import brs.Order.OrderJournal;
 import brs.Trade.Event;
 import brs.util.Listener;
 
@@ -61,6 +62,8 @@ public interface AssetExchange {
   Collection<Trade> getAccountTrades(long accountId, int from, int to);
 
   Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
+  
+  Collection<OrderJournal> getOrderJournal(long assetId, long accountId, int from, int to);
 
   Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to);
 

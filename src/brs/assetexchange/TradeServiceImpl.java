@@ -39,6 +39,10 @@ class TradeServiceImpl {
   public Collection<Trade> getAccountTrades(long id, int from, int to) {
     return tradeStore.getAccountTrades(id, from, to);
   }
+  
+  public Collection<Trade> getOrderTrades(long orderId) {
+    return tradeStore.getOrderTrades(orderId);
+  }
 
   public int getCount() {
     return tradeTable.getCount();

@@ -1,8 +1,11 @@
 package brs.assetexchange;
 
 import brs.*;
+import brs.Attachment.ColoredCoinsOrderCancellation;
+import brs.Attachment.ColoredCoinsOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
+import brs.Order.OrderJournal;
 import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
@@ -10,6 +13,7 @@ import brs.db.store.OrderStore;
 import brs.services.AccountService;
 import brs.util.Convert;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 class OrderServiceImpl {
@@ -79,6 +83,37 @@ class OrderServiceImpl {
 
   public Collection<Bid> getBidOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
     return orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to);
+  }
+
+  public Collection<OrderJournal> getTradeJournal(final long accountId, final long assetId, int from, int to) {
+    Collection<Transaction> transactions = Burst.getBlockchain().getTransactions(accountService.getAccount(accountId),
+        TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT,
+        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, 0, from, to, false);
+    
+    ArrayList<OrderJournal> orders = new ArrayList<OrderJournal>();
+    for(Transaction transaction : transactions) {
+      Collection<Trade> trades = tradeService.getOrderTrades(transaction.getId());
+      OrderJournal orderJournal = new OrderJournal(transaction, (ColoredCoinsOrderPlacement) transaction.getAttachment(), trades);
+      
+      orders.add(orderJournal);
+    }
+    
+    // check the cancellations
+    transactions = Burst.getBlockchain().getTransactions(accountService.getAccount(accountId),
+        TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION,
+        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, 0, 0, 0, false);
+    for(Transaction transaction : transactions) {
+      Attachment.ColoredCoinsOrderCancellation cancellation = (ColoredCoinsOrderCancellation) transaction.getAttachment();
+
+      for(OrderJournal itOrder : orders) {
+        if(itOrder.getId() == cancellation.getOrderId()) {
+          itOrder.setStatus(Order.ORDER_STATUS_CANCELLED);
+          break;
+        }
+      }
+    }
+    
+    return orders;
   }
 
   public void removeBidOrder(long orderId) {

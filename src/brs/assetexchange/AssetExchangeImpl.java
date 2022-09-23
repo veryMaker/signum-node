@@ -8,6 +8,7 @@ import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
+import brs.Order.OrderJournal;
 import brs.Trade;
 import brs.Trade.Event;
 import brs.Transaction;
@@ -127,6 +128,11 @@ public class AssetExchangeImpl implements AssetExchange {
   @Override
   public Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to) {
     return tradeService.getAccountAssetTrades(accountId, assetId, from, to);
+  }
+
+  @Override
+  public Collection<OrderJournal> getOrderJournal(long accountId, long assetId, int from, int to) {
+    return orderService.getTradeJournal(accountId, assetId, from, to);
   }
 
   @Override

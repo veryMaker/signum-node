@@ -1,5 +1,7 @@
 package brs;
 
+import java.util.Collection;
+
 import brs.db.BurstKey;
 import brs.util.Convert;
 
@@ -95,5 +97,62 @@ public abstract class Order {
       this.dbKey = dbKey;
     }
 
+  }
+  
+  public static final byte ORDER_STATUS_OPEN = 0;
+  public static final byte ORDER_STATUS_FILLED = 1;
+  public static final byte ORDER_STATUS_CANCELLED = 2;
+  
+  public static class OrderJournal extends Order {
+    
+    private Collection<Trade> trades;
+    private byte subtype;
+    private byte status;
+    private long executedAmountQNT;
+    private long executedVolumeNQT;
+
+    public OrderJournal(Transaction transaction, Attachment.ColoredCoinsOrderPlacement attachment, Collection<Trade> trades) {
+      super(transaction, attachment);
+      
+      this.subtype = transaction.getType().getSubtype();
+      this.status = ORDER_STATUS_OPEN;
+      this.trades = trades;
+      
+      executedAmountQNT = 0L;
+      executedVolumeNQT = 0L;
+      for(Trade trade : trades) {
+        executedAmountQNT += trade.getQuantityQNT();
+        executedVolumeNQT += trade.getPriceNQT() * trade.getQuantityQNT();
+      }
+      if(executedAmountQNT == getQuantityQNT()) {
+        status = ORDER_STATUS_FILLED;
+      }
+      
+    }
+    
+    public void setStatus(byte status) {
+      this.status = status;
+    }
+    
+    public byte getStatus() {
+      return status;
+    }
+    
+    public byte getSubtype() {
+      return subtype;
+    }
+    
+    public Collection<Trade> getTrades() {
+      return trades;
+    }
+    
+    public long getExecutedAmountQNT() {
+      return executedAmountQNT;
+    }
+    
+    public long getExecutedVolumeNQT() {
+      return executedVolumeNQT;
+    }
+    
   }
 }

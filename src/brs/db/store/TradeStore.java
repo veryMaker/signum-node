@@ -14,6 +14,8 @@ public interface TradeStore {
   Collection<Trade> getAccountTrades(long accountId, int from, int to);
 
   Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
+  
+  Collection<Trade> getOrderTrades(long orderId);
 
   long getTradeVolume(long assetId, int heightStart, int heightEnd);
 

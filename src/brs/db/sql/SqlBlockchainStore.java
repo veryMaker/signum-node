@@ -147,6 +147,11 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   @Override
   public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
+    return getTransactions(account, numberOfConfirmations, subtype, subtype, blockTimestamp, from, to, includeIndirectIncoming);
+  }
+
+  @Override
+  public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
     int height = numberOfConfirmations > 0 ? Burst.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
     if (height < 0) {
       throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Burst.getBlockchain().getHeight());
@@ -158,8 +163,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       }
       if (type >= 0) {
         conditions.add(TRANSACTION.TYPE.eq(type));
-        if (subtype >= 0) {
-          conditions.add(TRANSACTION.SUBTYPE.eq(subtype));
+        if (subtypeStart >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.ge(subtypeStart).and(TRANSACTION.SUBTYPE.le(subtypeEnd)));
         }
       }
       if (height < Integer.MAX_VALUE) {

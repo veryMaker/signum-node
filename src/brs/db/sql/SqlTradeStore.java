@@ -151,6 +151,20 @@ public class SqlTradeStore implements TradeStore {
       return tradeTable.getManyBy(ctx, selectQuery, false);
     });
   }
+  
+  @Override
+  public Collection<Trade> getOrderTrades(long orderId) {
+    return Db.useDSLContext(ctx -> {
+      SelectQuery<TradeRecord> selectQuery = ctx
+              .selectFrom(TRADE).where(
+                      TRADE.ASK_ORDER_ID.eq(orderId).or(TRADE.BID_ORDER_ID.eq(orderId))
+              )
+              .orderBy(TRADE.HEIGHT.desc())
+              .getQuery();
+
+      return tradeTable.getManyBy(ctx, selectQuery, false);
+    });
+  }
 
   @Override
   public int getTradeCount(long assetId) {
