@@ -18,6 +18,7 @@ import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
 import brs.services.*;
 import brs.transactionduplicates.TransactionDuplicationKey;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import brs.util.JSON;
 import brs.util.TextUtils;
@@ -1401,7 +1402,7 @@ public abstract class TransactionType {
 
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
         boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
-        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
+        CollectionWithIndex<AccountAsset> assetHolders = assetExchange.getAssetAccounts(asset, true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
         long circulatingQuantityQNT = 0L;
         for(AccountAsset holder : assetHolders) {
           if(Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) && holder.getAccountId() == senderAccount.getId()){
@@ -1497,7 +1498,7 @@ public abstract class TransactionType {
         Attachment.ColoredCoinsAssetDistributeToHolders attachment = (Attachment.ColoredCoinsAssetDistributeToHolders) transaction.getAttachment();
 
         boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight());
-        Collection<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
+        CollectionWithIndex<AccountAsset> assetHolders = assetExchange.getAssetAccounts(
             assetExchange.getAsset(attachment.getAssetId()),
             true, attachment.getMinimumAssetQuantityQNT(), unconfirmed, -1, -1);
         long circulatingQuantityQNT = 0L;

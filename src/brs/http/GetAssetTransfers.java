@@ -8,15 +8,16 @@ import brs.assetexchange.AssetExchange;
 import brs.http.common.Parameters;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
 
 import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 import static brs.http.common.ResultFields.TRANSFERS_RESPONSE;
 
 public final class GetAssetTransfers extends APIServlet.JsonRequestHandler {
@@ -44,7 +45,7 @@ public final class GetAssetTransfers extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     JsonArray transfersData = new JsonArray();
-    Collection<AssetTransfer> transfers;
+    CollectionWithIndex<AssetTransfer> transfers;
     if (accountId == null) {
       Asset asset = parameterService.getAsset(req);
       transfers = assetExchange.getAssetTransfers(asset.getId(), firstIndex, lastIndex);
@@ -62,6 +63,9 @@ public final class GetAssetTransfers extends APIServlet.JsonRequestHandler {
     }
 
     response.add(TRANSFERS_RESPONSE, transfersData);
+    if(transfers.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, transfers.nextIndex());
+    }
 
     return response;
   }

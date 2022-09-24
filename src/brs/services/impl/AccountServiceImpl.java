@@ -16,6 +16,7 @@ import brs.db.VersionedEntityTable;
 import brs.db.store.AccountStore;
 import brs.db.store.AssetTransferStore;
 import brs.services.AccountService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import brs.util.Listener;
 import brs.util.Listeners;
@@ -106,13 +107,13 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Collection<AssetTransfer> getAssetTransfers(long accountId, int from, int to) {
-    return assetTransferStore.getAccountAssetTransfers(accountId, from, to);
+  public CollectionWithIndex<AssetTransfer> getAssetTransfers(long accountId, int from, int to) {
+    return new CollectionWithIndex<AssetTransfer>(assetTransferStore.getAccountAssetTransfers(accountId, from, to), from, to);
   }
 
   @Override
-  public Collection<AccountAsset> getAssets(long accountId, int from, int to) {
-    return accountStore.getAssets(from, to, accountId);
+  public CollectionWithIndex<AccountAsset> getAssets(long accountId, int from, int to) {
+    return new CollectionWithIndex<AccountAsset>(accountStore.getAssets(from, to, accountId), from, to);
   }
 
   @Override
@@ -126,8 +127,8 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Collection<Account> getAllAccounts(int from, int to) {
-    return accountTable.getAll(from, to);
+  public CollectionWithIndex<Account> getAllAccounts(int from, int to) {
+    return new CollectionWithIndex<Account>(accountTable.getAll(from, to), from, to);
   }
 
   @Override

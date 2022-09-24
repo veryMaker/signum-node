@@ -11,6 +11,7 @@ import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -84,7 +85,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
 
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
-    when(mockAssetExchange.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator);
+    when(mockAssetExchange.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Asset>(mockAssetIterator, -1));
     when(mockAssetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true), eq(true))).thenReturn(1);
     when(mockAssetExchange.getTransferCount(eq(mockAssetId))).thenReturn(2);
     when(mockAssetExchange.getTradeCount(eq(mockAssetId))).thenReturn(3);

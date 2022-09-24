@@ -11,6 +11,7 @@ import brs.db.BurstKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.OrderStore;
 import brs.services.AccountService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import java.util.ArrayList;
@@ -45,28 +46,28 @@ class OrderServiceImpl {
     return bidOrderTable.get(bidOrderDbKeyFactory.newKey(orderId));
   }
 
-  public Collection<Ask> getAllAskOrders(int from, int to) {
-    return askOrderTable.getAll(from, to);
+  public CollectionWithIndex<Ask> getAllAskOrders(int from, int to) {
+    return new CollectionWithIndex<Ask>(askOrderTable.getAll(from, to), from, to);
   }
 
-  public Collection<Bid> getAllBidOrders(int from, int to) {
-    return bidOrderTable.getAll(from, to);
+  public CollectionWithIndex<Bid> getAllBidOrders(int from, int to) {
+    return new CollectionWithIndex<Order.Bid>(bidOrderTable.getAll(from, to), from, to);
   }
 
-  public Collection<Bid> getSortedBidOrders(long assetId, int from, int to) {
-    return orderStore.getSortedBids(assetId, from, to);
+  public CollectionWithIndex<Bid> getSortedBidOrders(long assetId, int from, int to) {
+    return new CollectionWithIndex<Bid>(orderStore.getSortedBids(assetId, from, to), from, to);
   }
 
-  public Collection<Ask> getAskOrdersByAccount(long accountId, int from, int to) {
-    return orderStore.getAskOrdersByAccount(accountId, from, to);
+  public CollectionWithIndex<Ask> getAskOrdersByAccount(long accountId, int from, int to) {
+    return new CollectionWithIndex<Order.Ask>(orderStore.getAskOrdersByAccount(accountId, from, to), from, to);
   }
 
-  public Collection<Ask> getAskOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
-    return orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to);
+  public CollectionWithIndex<Ask> getAskOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
+    return new CollectionWithIndex<Ask>(orderStore.getAskOrdersByAccountAsset(accountId, assetId, from, to), from, to);
   }
 
-  public Collection<Ask> getSortedAskOrders(long assetId, int from, int to) {
-    return orderStore.getSortedAsks(assetId, from, to);
+  public CollectionWithIndex<Ask> getSortedAskOrders(long assetId, int from, int to) {
+    return new CollectionWithIndex<Ask>(orderStore.getSortedAsks(assetId, from, to), from, to);
   }
 
   public int getBidCount() {
@@ -77,23 +78,24 @@ class OrderServiceImpl {
     return askOrderTable.getCount();
   }
 
-  public Collection<Bid> getBidOrdersByAccount(long accountId, int from, int to) {
-    return orderStore.getBidOrdersByAccount(accountId, from, to);
+  public CollectionWithIndex<Bid> getBidOrdersByAccount(long accountId, int from, int to) {
+    return new CollectionWithIndex<Bid>(orderStore.getBidOrdersByAccount(accountId, from, to), from, to);
   }
 
-  public Collection<Bid> getBidOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
-    return orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to);
+  public CollectionWithIndex<Bid> getBidOrdersByAccountAsset(final long accountId, final long assetId, int from, int to) {
+    return new CollectionWithIndex<Bid>(orderStore.getBidOrdersByAccountAsset(accountId, assetId, from, to), from, to);
   }
 
-  public Collection<OrderJournal> getTradeJournal(final long accountId, final long assetId, int from, int to) {
+  public CollectionWithIndex<OrderJournal> getTradeJournal(final long accountId, final long assetId, int from, int to) {
     Collection<Transaction> transactions = Burst.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT,
         TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, from, to);
     
     ArrayList<OrderJournal> orders = new ArrayList<OrderJournal>();
+    CollectionWithIndex<OrderJournal> ordersWithIndex = new CollectionWithIndex<Order.OrderJournal>(orders, transactions.size() == to-from+1 ? to+1 : -1);
     for(Transaction transaction : transactions) {
       ColoredCoinsOrderPlacement attachment = (ColoredCoinsOrderPlacement) transaction.getAttachment();
-      if(attachment.getAssetId() != assetId) {
+      if(assetId != 0L && attachment.getAssetId() != assetId) {
         continue;
       }
       Collection<Trade> trades = tradeService.getOrderTrades(transaction.getId());
@@ -117,7 +119,7 @@ class OrderServiceImpl {
       }
     }
     
-    return orders;
+    return ordersWithIndex;
   }
 
   public void removeBidOrder(long orderId) {

@@ -2,12 +2,14 @@ package brs.http;
 
 import brs.Asset;
 import brs.BurstException;
+import brs.Order;
 import brs.Order.Ask;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -71,7 +73,7 @@ public class GetAskOrdersTest extends AbstractUnitTest {
 
     final Collection<Ask> askIterator = this.mockCollection(askOrder1, askOrder2);
 
-    when(assetExchangeMock.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).thenReturn(askIterator);
+    when(assetExchangeMock.getSortedAskOrders(eq(assetIndex), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Order.Ask>(askIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);

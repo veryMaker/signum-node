@@ -5,16 +5,17 @@ import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Iterator;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ASK_ORDERS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAccountCurrentAskOrders extends APIServlet.JsonRequestHandler {
 
@@ -41,16 +42,15 @@ public final class GetAccountCurrentAskOrders extends APIServlet.JsonRequestHand
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
-    Iterator<Order.Ask> askOrders;
+    CollectionWithIndex<Order.Ask> askOrders;
     if (assetId == 0) {
-      askOrders = assetExchange.getAskOrdersByAccount(accountId, firstIndex, lastIndex).iterator();
+      askOrders = assetExchange.getAskOrdersByAccount(accountId, firstIndex, lastIndex);
     } else {
-      askOrders = assetExchange.getAskOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex).iterator();
+      askOrders = assetExchange.getAskOrdersByAccountAsset(accountId, assetId, firstIndex, lastIndex);
     }
     JsonArray orders = new JsonArray();
     Asset asset = null;
-    while (askOrders.hasNext()) {
-      Order.Ask order = askOrders.next();
+    for (Order.Ask order : askOrders) {
       if(asset == null || asset.getId() != order.getAssetId()) {
         asset = assetExchange.getAsset(order.getAssetId());
       }
@@ -58,6 +58,11 @@ public final class GetAccountCurrentAskOrders extends APIServlet.JsonRequestHand
     }
     JsonObject response = new JsonObject();
     response.add(ASK_ORDERS_RESPONSE, orders);
+    
+    if(askOrders.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, askOrders.nextIndex());
+    }
+
     return response;
   }
 

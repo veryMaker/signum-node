@@ -2,6 +2,8 @@ package brs;
 
 import java.util.Collection;
 
+import brs.util.CollectionWithIndex;
+
 public interface Blockchain {
 
   Block getLastBlock();
@@ -22,7 +24,7 @@ public interface Blockchain {
 
   Collection<Block> getBlocks(Account account, int timestamp);
 
-  Collection<Block> getBlocks(Account account, int timestamp, int from, int to);
+  CollectionWithIndex<Block> getBlocks(Account account, int timestamp, int from, int to);
 
   int getBlocksCount(long accountId, int from, int to);
 

@@ -5,6 +5,7 @@ import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
 import brs.props.PropertyService;
 import brs.props.Props;
+import brs.util.CollectionWithIndex;
 import brs.util.StampedLockUtils;
 
 import java.math.BigInteger;
@@ -98,12 +99,12 @@ public class BlockchainImpl implements Blockchain {
 
   @Override
   public Collection<Block> getBlocks(Account account, int timestamp) {
-    return getBlocks(account, timestamp, 0, -1);
+    return getBlocks(account, timestamp, 0, -1).getCollection();
   }
 
   @Override
-  public Collection<Block> getBlocks(Account account, int timestamp, int from, int to) {
-    return blockchainStore.getBlocks(account, timestamp, from, to);
+  public CollectionWithIndex<Block> getBlocks(Account account, int timestamp, int from, int to) {
+    return new CollectionWithIndex<Block>(blockchainStore.getBlocks(account, timestamp, from, to), from, to);
   }
   
   @Override

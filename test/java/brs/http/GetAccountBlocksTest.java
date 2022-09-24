@@ -13,6 +13,8 @@ import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.BlockService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
@@ -81,7 +83,7 @@ public class GetAccountBlocksTest extends AbstractUnitTest {
     when(parameterServiceMock.getAccount(req)).thenReturn(mockAccount);
 
     final Collection<Block> mockBlockIterator = mockCollection(mockBlock);
-    when(blockchainMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).thenReturn(mockBlockIterator);
+    when(blockchainMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).thenReturn(new CollectionWithIndex<Block>(mockBlockIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
 

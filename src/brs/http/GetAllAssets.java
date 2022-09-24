@@ -1,8 +1,10 @@
 package brs.http;
 
+import brs.Asset;
 import brs.Burst;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import com.google.gson.JsonElement;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ASSETS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAllAssets extends AbstractAssetsRetrieval {
 
@@ -46,7 +49,12 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
 
     JsonObject response = new JsonObject();
 
-    response.add(ASSETS_RESPONSE, assetsToJson(assetExchange.getAllAssets(firstIndex, lastIndex).iterator(), heightStart, heightEnd, skipZeroVolume));
+    CollectionWithIndex<Asset> assets = assetExchange.getAllAssets(firstIndex, lastIndex);
+    response.add(ASSETS_RESPONSE, assetsToJson(assets.iterator(), heightStart, heightEnd, skipZeroVolume));
+    
+    if(assets.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, assets.nextIndex());
+    }
 
     return response;
   }

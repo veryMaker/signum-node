@@ -134,6 +134,7 @@ public class ResultFields {
   public static final String AT_IDS_RESPONSE = "atIds";
   public static final String VALUE_RESPONSE = "value";
   public static final String TRADES_RESPONSE = "trades";
+  public static final String NEXT_INDEX_RESPONSE = "nextIndex";
   public static final String ASK_ORDER_RESPONSE = "askOrder";
   public static final String BID_ORDER_RESPONSE = "bidOrder";
   public static final String ASK_ORDER_HEIGHT_RESPONSE = "askOrderHeight";

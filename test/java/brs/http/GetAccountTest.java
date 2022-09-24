@@ -9,6 +9,7 @@ import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -71,7 +72,7 @@ public class GetAccountTest extends AbstractUnitTest {
     when(mockAccountAsset.getUnconfirmedQuantityQNT()).thenReturn(mockUnconfirmedQuantityNQT);
     when(mockAccountAsset.getQuantityQNT()).thenReturn(balanceNQT);
     Collection<AccountAsset> mockAssetOverview = mockCollection(mockAccountAsset);
-    when(accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1))).thenReturn(mockAssetOverview);
+    when(accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1))).thenReturn(new CollectionWithIndex<Account.AccountAsset>(mockAssetOverview, -1));
 
     final JsonObject response = (JsonObject) t.processRequest(req);
     assertEquals("01", JSON.getAsString(response.get(PUBLIC_KEY_RESPONSE)));
