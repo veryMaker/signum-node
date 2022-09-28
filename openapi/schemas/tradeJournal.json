@@ -1,0 +1,115 @@
+{
+  "type": "object",
+  "required": [
+    "order",
+    "asset",
+    "account",
+    "accountRS",
+    "priceNQT",
+    "price",
+    "height",
+    "decimals",
+    "name",
+    "executedQuantityQNT",
+    "executedVolumeNQT",
+    "type",
+    "status",
+    "trades"
+  ],
+  "properties": {
+    "order": {
+      "$ref": "./orderId.json"
+    },
+    "asset": {
+      "$ref": "./assetId.json"
+    },
+    "account": {
+      "$ref": "./numericId.json"
+    },
+    "accountRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "priceNQT": {
+      "$ref": "./orderPricePerQuantity.json"
+    },
+    "price": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
+    },
+    "executedQuantityQNT": {
+      "$ref": "./quantity.json"
+    },
+    "executedVolumeNQT": {
+      "$ref": "./amount.json"
+    },
+    "height": {
+      "type": "integer",
+      "format": "int32",
+      "description": "The block height"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["bid", "ask"],
+      "description": "The type of the related order"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "filled", "cancelled"],
+      "description": "The current status of the order"
+    },
+    "name": {
+      "$ref": "./assetName.json"
+    },
+    "decimals": {
+      "type": "integer",
+      "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "trades": {
+      "type": "array",
+      "description": "The current trades for the given order",
+      "items": {
+        "$ref": "./trade.json"
+      }
+    }
+  },
+  "example":  {
+    "order": "9055151440434729976",
+    "asset": "914948012239561046",
+    "account": "16357368130745732388",
+    "accountRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+    "quantityQNT": "1000000000",
+    "priceNQT": "1",
+    "height": 306935,
+    "name": "TTH",
+    "decimals": 8,
+    "price": "100000000",
+    "executedQuantityQNT": "1000000000",
+    "executedVolumeQNT": "1000000000",
+    "type": "bid",
+    "status": "filled",
+    "trades": [
+      {
+        "timestamp": 216266229,
+        "quantityQNT": "1000000000",
+        "priceNQT": "1",
+        "asset": "914948012239561046",
+        "askOrder": "16680928117574430321",
+        "bidOrder": "9055151440434729976",
+        "askOrderHeight": 306935,
+        "seller": "16357368130745732388",
+        "sellerRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+        "buyer": "16357368130745732388",
+        "buyerRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+        "block": "11289336779260526797",
+        "height": 306935,
+        "tradeType": "buy",
+        "name": "TTH",
+        "decimals": 8,
+        "price": "100000000"
+      }
+    ]
+  }
+}

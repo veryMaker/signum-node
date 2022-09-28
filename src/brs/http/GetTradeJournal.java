@@ -34,9 +34,9 @@ public final class GetTradeJournal extends APIServlet.JsonRequestHandler {
   @Override
   protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
-    
+
     final Account account = parameterService.getAccount(req);
-    
+
     String assetValue = Convert.emptyToNull(req.getParameter(ASSET_PARAMETER));
     long assetId = assetValue == null ? 0L : Convert.parseUnsignedLong(assetValue);
 
@@ -45,7 +45,7 @@ public final class GetTradeJournal extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     JsonArray journalData = new JsonArray();
-    
+
     JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId());
     if(assetId != 0L) {
       response.addProperty(ASSET_RESPONSE, assetId);
@@ -58,23 +58,26 @@ public final class GetTradeJournal extends APIServlet.JsonRequestHandler {
         asset = assetExchange.getAsset(order.getAssetId());
       }
       JsonObject orderData = JSONData.order(order, asset);
-      
+
       orderData.addProperty(EXECUTED_QUANTITY_QNT_RESPONSE, String.valueOf(order.getExecutedAmountQNT()));
-      orderData.addProperty(EXECUTED_VOLUME_QNT_RESPONSE, String.valueOf(order.getExecutedVolumeNQT()));
+      orderData.addProperty(EXECUTED_VOLUME_NQT_RESPONSE, String.valueOf(order.getExecutedVolumeNQT()));
       orderData.addProperty(TYPE_RESPONSE, order.getSubtype() == TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT ? "ask" : "bid");
       orderData.addProperty(STATUS_RESPONSE, order.getStatus() == Order.ORDER_STATUS_OPEN ? "open" :
         order.getStatus() == Order.ORDER_STATUS_FILLED ? "filled" : "cancelled");
-      
+
       JsonArray tradesData = new JsonArray();
       for(Trade trade : order.getTrades()) {
-        tradesData.add(JSONData.trade(trade, asset));
+        JsonObject tradeJson = JSONData.trade(trade, asset);
+        tradeJson.remove(NAME_RESPONSE);
+        tradeJson.remove(DECIMALS_RESPONSE);
+        tradesData.add(tradeJson);
       }
       orderData.add(TRADES_RESPONSE, tradesData);
-      
+
       journalData.add(orderData);
     }
     response.add(TRADE_JOURNAL_RESPONSE, journalData);
-    
+
     if(orders.hasNextIndex()) {
       response.addProperty(NEXT_INDEX_RESPONSE, orders.nextIndex());
     }

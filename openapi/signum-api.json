@@ -261,6 +261,9 @@
     "/api?requestType=getTrades": {
       "$ref": "./paths/getters/getTrades.json"
     },
+    "/api?requestType=getTradeJournal": {
+      "$ref": "./paths/getters/getAccountsTradeJournal.json"
+    },
     "/api?requestType=getAliasesOnSale": {
       "$ref": "./paths/getters/getAliasesOnSale.json"
     }

@@ -1257,28 +1257,16 @@
         ],
         "parameters": [
           {
-            "name": "assetIds",
+            "name": "assetIdsAndQuantities",
             "in": "query",
             "allowEmptyValue": false,
             "required": true,
-            "description": "A list of up to 4 token identifiers, separated by `;`",
+            "description": "A list of up to 4 assetId and quantities tuples separated by `;`. The tuples themselves are separated by `:`,i.e. \"assetId1:quantity1;assetId2:quantity2\"",
             "schema": {
               "type": "string",
               "pattern": "^(\\d+;?){1,4}$"
             },
-            "example": "2402520554221019656;9224329060507884640"
-          },
-          {
-            "name": "quantitiesQNT",
-            "in": "query",
-            "allowEmptyValue": false,
-            "required": true,
-            "description": "A list of up to 4 quantities according the order of the `assetIds`, , separated by `;`",
-            "schema": {
-              "type": "string",
-              "pattern": "^(\\d+;?){1,4}$"
-            },
-            "example": "100;12000"
+            "example": "12402415494995249540:10000;11955007191311588286:100"
           },
           {
             "$ref": "#/components/parameters/recipient"
@@ -1641,15 +1629,6 @@
             "schema": {
               "type": "string",
               "maxLength": 100
-            }
-          },
-          {
-            "name": "recipient",
-            "in": "query",
-            "allowEmptyValue": false,
-            "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
-            "schema": {
-              "$ref": "#/components/schemas/address"
             }
           },
           {
@@ -3453,6 +3432,51 @@
         }
       }
     },
+    "/api?requestType=getBlockId": {
+      "get": {
+        "summary": "Get Block Id",
+        "description": "Get a specific block Id for given height",
+        "tags": [
+          "network"
+        ],
+        "parameters": [
+          {
+            "name": "height",
+            "in": "query",
+            "description": "The block height number (more commonly used)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": 440000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Block Id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "block"
+                  ],
+                  "properties": {
+                    "block": {
+                      "$ref": "#/components/schemas/blockId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getBlocks": {
       "get": {
         "summary": "Get Block Range",
@@ -4994,6 +5018,211 @@
         }
       }
     },
+    "/api?requestType=getTradeJournal": {
+      "get": {
+        "summary": "Get Accounts Trade Journal",
+        "description": "Get a journal of trades for a given account.",
+        "tags": [
+          "token",
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "query",
+            "required": false,
+            "description": "The related token identifier. You can use this alone or together with `account`",
+            "schema": {
+              "$ref": "#/components/schemas/assetId"
+            }
+          },
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "description": "The account identifier. You can use this alone or together with `asset`",
+            "schema": {
+              "$ref": "#/components/schemas/address"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/firstIndex"
+          },
+          {
+            "$ref": "#/components/parameters/lastIndex"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Trade Journal List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "account",
+                    "accountRS",
+                    "tradeJournal"
+                  ],
+                  "properties": {
+                    "account": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "The account identifier as numeric Id",
+                      "example": "16357368130745732388"
+                    },
+                    "accountRS": {
+                      "type": "string",
+                      "description": "The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+                      "example": "TS-C5B6-NTGQ-KTLB-GDA28"
+                    },
+                    "asset": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "The account identifier as numeric Id",
+                      "example": "914948012239561046"
+                    },
+                    "nextIndex": {
+                      "type": "int32",
+                      "description": "Next index for pagination. When having more items, this field indicates which is the next `firstIndex` to be used. If not available, no more items are available also",
+                      "example": 10
+                    },
+                    "tradeJournal": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "order",
+                          "asset",
+                          "account",
+                          "accountRS",
+                          "priceNQT",
+                          "price",
+                          "height",
+                          "decimals",
+                          "name",
+                          "executedQuantityQNT",
+                          "executedVolumeNQT",
+                          "type",
+                          "status",
+                          "trades"
+                        ],
+                        "properties": {
+                          "order": {
+                            "$ref": "#/components/schemas/orderId"
+                          },
+                          "asset": {
+                            "$ref": "#/components/schemas/assetId"
+                          },
+                          "account": {
+                            "$ref": "#/components/schemas/numericId"
+                          },
+                          "accountRS": {
+                            "$ref": "#/components/schemas/rsAddress"
+                          },
+                          "priceNQT": {
+                            "$ref": "#/components/schemas/trade/properties/priceNQT"
+                          },
+                          "price": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
+                          },
+                          "executedQuantityQNT": {
+                            "$ref": "#/components/schemas/quantity"
+                          },
+                          "executedVolumeNQT": {
+                            "$ref": "#/components/schemas/amount"
+                          },
+                          "height": {
+                            "type": "integer",
+                            "format": "int32",
+                            "description": "The block height"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "bid",
+                              "ask"
+                            ],
+                            "description": "The type of the related order"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "open",
+                              "filled",
+                              "cancelled"
+                            ],
+                            "description": "The current status of the order"
+                          },
+                          "name": {
+                            "$ref": "#/components/schemas/assetName"
+                          },
+                          "decimals": {
+                            "type": "integer",
+                            "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+                            "minimum": 0,
+                            "maximum": 8
+                          },
+                          "trades": {
+                            "type": "array",
+                            "description": "The current trades for the given order",
+                            "items": {
+                              "$ref": "#/components/schemas/trade"
+                            }
+                          }
+                        },
+                        "example": {
+                          "order": "9055151440434729976",
+                          "asset": "914948012239561046",
+                          "account": "16357368130745732388",
+                          "accountRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+                          "quantityQNT": "1000000000",
+                          "priceNQT": "1",
+                          "height": 306935,
+                          "name": "TTH",
+                          "decimals": 8,
+                          "price": "100000000",
+                          "executedQuantityQNT": "1000000000",
+                          "executedVolumeQNT": "1000000000",
+                          "type": "bid",
+                          "status": "filled",
+                          "trades": [
+                            {
+                              "timestamp": 216266229,
+                              "quantityQNT": "1000000000",
+                              "priceNQT": "1",
+                              "asset": "914948012239561046",
+                              "askOrder": "16680928117574430321",
+                              "bidOrder": "9055151440434729976",
+                              "askOrderHeight": 306935,
+                              "seller": "16357368130745732388",
+                              "sellerRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+                              "buyer": "16357368130745732388",
+                              "buyerRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+                              "block": "11289336779260526797",
+                              "height": 306935,
+                              "tradeType": "buy",
+                              "name": "TTH",
+                              "decimals": 8,
+                              "price": "100000000"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getAliasesOnSale": {
       "get": {
         "summary": "Get Aliases On Sale",
@@ -5988,7 +6217,14 @@
             "$ref": "#/components/schemas/quantity"
           },
           "priceNQT": {
-            "$ref": "#/components/schemas/amount"
+            "type": "integer",
+            "format": "int64",
+            "description": "The price in __planck per one token quantity__. To get the right Planck expression use either `price` field or this formula: `(priceNQT * 10^8) * 10^(decimals-8)`"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
           },
           "height": {
             "type": "integer",
@@ -6195,6 +6431,11 @@
             "$ref": "#/components/schemas/quantity"
           },
           "priceNQT": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The price in __planck per one token quantity__. To get the right Planck expression use either `price` field or this formula: `(priceNQT * 10^8) * 10^(decimals-8)`"
+          },
+          "price": {
             "type": "integer",
             "format": "int64",
             "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
@@ -6516,9 +6757,10 @@
         "in": "query",
         "allowEmptyValue": false,
         "required": true,
-        "description": "The price in Planck",
+        "description": "The price in __planck per one token quantity__. To get the right Planck expression use this formula: `(priceNQT * 10^8) * 10^(decimals-8)`",
         "schema": {
-          "$ref": "#/components/schemas/amount"
+          "type": "integer",
+          "format": "int64"
         }
       },
       "order": {

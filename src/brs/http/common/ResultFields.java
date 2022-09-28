@@ -78,7 +78,7 @@ public class ResultFields {
   public static final String EXECUTED_QUANTITY_QNT_RESPONSE = "executedQuantityQNT";
   public static final String QUANTITY_BURNT_QNT_RESPONSE = "quantityBurntQNT";
   public static final String VOLUME_QNT_RESPONSE = "volumeQNT";
-  public static final String EXECUTED_VOLUME_QNT_RESPONSE = "executedVolumeQNT";
+  public static final String EXECUTED_VOLUME_NQT_RESPONSE = "executedVolumeNQT";
   public static final String TRADE_JOURNAL_RESPONSE = "tradeJournal";
   public static final String STATUS_RESPONSE = "status";
   public static final String QUANTITY_CIRCULATING_QNT_RESPONSE = "quantityCirculatingQNT";
