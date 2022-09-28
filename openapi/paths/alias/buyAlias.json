@@ -20,15 +20,6 @@
         }
       },
       {
-        "name": "recipient",
-        "in": "query",
-        "allowEmptyValue": false,
-        "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
-        "schema": {
-          "$ref": "../../schemas/address.json"
-        }
-      },
-      {
         "name": "amountNQT",
         "in": "query",
         "allowEmptyValue": false,
