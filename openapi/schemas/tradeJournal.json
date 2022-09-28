@@ -87,7 +87,7 @@
     "decimals": 8,
     "price": "100000000",
     "executedQuantityQNT": "1000000000",
-    "executedVolumeQNT": "1000000000",
+    "executedVolumeNQT": "1000000000",
     "type": "bid",
     "status": "filled",
     "trades": [
