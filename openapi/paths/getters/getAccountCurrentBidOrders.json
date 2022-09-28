@@ -28,13 +28,13 @@
             "schema": {
               "type": "object",
               "required": [
-                "askOrders"
+                "bidOrders"
               ],
               "properties": {
                 "nextIndex": {
                   "$ref": "../../schemas/nextIndex.json"
                 },
-                "askOrders": {
+                "bidOrders": {
                   "type": "array",
                   "items": {
                     "$ref": "../../schemas/order.json"
