@@ -2072,6 +2072,9 @@
                     "ats"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "ats": {
                       "type": "array",
                       "items": {
@@ -2294,6 +2297,9 @@
                     "unconfirmedAssetBalances"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "assetBalances": {
                       "description": "The total token balances (in _quantity_) which this account owns, including reserved ones",
                       "type": "array",
@@ -3516,6 +3522,11 @@
                     "blocks"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "type": "int32",
+                      "description": "Next index for pagination. When having more items, this field indicates which is the next `firstIndex` to be used. If not available, no more items are available also",
+                      "example": 10
+                    },
                     "blocks": {
                       "type": "array",
                       "items": {
@@ -3626,9 +3637,12 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "blockId"
+                    "blockIds"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "blockIds": {
                       "type": "integer",
                       "format": "int64"
@@ -3677,6 +3691,9 @@
                     "askOrders"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "askOrders": {
                       "type": "array",
                       "items": {
@@ -3724,9 +3741,12 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "bidOrders"
+                    "askOrders"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "askOrders": {
                       "type": "array",
                       "items": {
@@ -3770,6 +3790,9 @@
                     "askOrders"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "askOrders": {
                       "type": "array",
                       "items": {
@@ -3813,6 +3836,9 @@
                     "bidOrders"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "bidOrders": {
                       "type": "array",
                       "items": {
@@ -3888,6 +3914,9 @@
                     "askOrders"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "askOrders": {
                       "type": "array",
                       "items": {
@@ -3963,6 +3992,9 @@
                     "bidOrders"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "bidOrders": {
                       "type": "array",
                       "items": {
@@ -4003,7 +4035,7 @@
           {
             "name": "heightStart",
             "in": "query",
-            "description": "Define the start height for trading information over a given period - if not given the last 24h are taken as trading period",
+            "description": "Define the start height for trading information over a given period - if not given the last 360 blocks (around 24hrs) are taken as trading period",
             "schema": {
               "type": "integer"
             }
@@ -4011,7 +4043,7 @@
           {
             "name": "heightEnd",
             "in": "query",
-            "description": "Define the end height for trading information over a given period - if not given the 24h are taken as trading period",
+            "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
             "schema": {
               "type": "integer"
             }
@@ -4047,6 +4079,34 @@
           },
           {
             "$ref": "#/components/parameters/lastIndex"
+          },
+          {
+            "name": "heightStart",
+            "in": "query",
+            "description": "Define the start height for trading information over a given period - if not given the last 360 blocks (around 24hrs) are taken as trading period",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "heightEnd",
+            "in": "query",
+            "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "skipZeroVolume",
+            "in": "query",
+            "description": "If set `true` all zero volumes are excluded",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
           }
         ],
         "responses": {
@@ -4065,6 +4125,9 @@
                       "items": {
                         "$ref": "#/components/schemas/asset"
                       }
+                    },
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     }
                   }
                 }
@@ -4103,6 +4166,9 @@
                     "assetIds"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "assetIds": {
                       "type": "array",
                       "items": {
@@ -4170,6 +4236,9 @@
                     "accountAssets"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "accountAssets": {
                       "type": "array",
                       "items": {
@@ -4248,6 +4317,9 @@
                     "assets"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "assets": {
                       "type": "array",
                       "items": {
@@ -4306,6 +4378,9 @@
                     "trades"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "trades": {
                       "type": "array",
                       "items": {
@@ -4367,6 +4442,9 @@
                     "transfers"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "transfers": {
                       "type": "array",
                       "items": {
@@ -4710,6 +4788,9 @@
                     "transactions"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "transactions": {
                       "type": "array",
                       "items": {
@@ -4802,6 +4883,9 @@
                     "transactionIds"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "transactionIds": {
                       "type": "array",
                       "items": {
@@ -5083,9 +5167,7 @@
                       "example": "914948012239561046"
                     },
                     "nextIndex": {
-                      "type": "int32",
-                      "description": "Next index for pagination. When having more items, this field indicates which is the next `firstIndex` to be used. If not available, no more items are available also",
-                      "example": 10
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "tradeJournal": {
                       "type": "array",
@@ -5558,6 +5640,7 @@
         "required": [
           "account",
           "accountRS",
+          "publicKey",
           "name",
           "description",
           "decimals",
@@ -5568,7 +5651,12 @@
           "asset",
           "numberOfTrades",
           "numberOfTransfers",
-          "numberOfAccounts"
+          "numberOfAccounts",
+          "volumeQNT",
+          "priceHigh",
+          "priceLow",
+          "priceOpen",
+          "priceClose"
         ],
         "properties": {
           "asset": {
@@ -5580,15 +5668,17 @@
           "accountRS": {
             "$ref": "#/components/schemas/rsAddress"
           },
+          "publicKey": {
+            "type": "string",
+            "description": "The issuers public key. If the key is zeroed, then it is a token controlled by a smart contract",
+            "example": "c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a"
+          },
           "name": {
             "$ref": "#/components/schemas/assetName"
           },
           "description": {
             "type": "integer",
             "description": "The description"
-          },
-          "generatorPublicKey": {
-            "$ref": "#/components/schemas/hash"
           },
           "decimals": {
             "type": "integer",
@@ -5636,9 +5726,49 @@
             "type": "integer",
             "description": "Total number of transfers"
           },
+          "volumeQNT": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The traded volume quantity for the given period expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+            "example": [
+              "25000000"
+            ]
+          },
           "numberOfAccounts": {
             "type": "integer",
             "description": "Total number of accounts owning this token"
+          },
+          "priceHigh": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The highest price in Planck volume given period.",
+            "example": [
+              "25000000"
+            ]
+          },
+          "priceLow": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The lowest price in Planck volume given period.",
+            "example": [
+              "25000000"
+            ]
+          },
+          "priceOpen": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The opening (first) price in Planck volume given period.",
+            "example": [
+              "25000000"
+            ]
+          },
+          "priceClose": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The closing (last) price in Planck volume given period.",
+            "example": [
+              "25000000"
+            ]
           }
         },
         "example": {
@@ -5654,6 +5784,11 @@
           "numberOfTrades": 0,
           "numberOfTransfers": 1,
           "numberOfAccounts": 1,
+          "volumeQNT": "0",
+          "priceHigh": "0",
+          "priceLow": "0",
+          "priceOpen": "0",
+          "priceClose": "0",
           "requestProcessingTime": 67
         }
       },
@@ -5674,10 +5809,10 @@
           "numberOfTransfers",
           "numberOfAccounts",
           "volumeQNT",
-          "priceHighNQT",
-          "priceLowNQT",
-          "priceOpenNQT",
-          "priceCloseNQT"
+          "priceHigh",
+          "priceLow",
+          "priceOpen",
+          "priceClose"
         ],
         "properties": {
           "asset": {
@@ -5757,7 +5892,7 @@
               "25000000"
             ]
           },
-          "priceHighNQT": {
+          "priceHigh": {
             "type": "integer",
             "format": "int64",
             "description": "The highest price in Planck volume given period.",
@@ -5765,7 +5900,7 @@
               "25000000"
             ]
           },
-          "priceLowNQT": {
+          "priceLow": {
             "type": "integer",
             "format": "int64",
             "description": "The lowest price in Planck volume given period.",
@@ -5773,7 +5908,7 @@
               "25000000"
             ]
           },
-          "priceOpenNQT": {
+          "priceOpen": {
             "type": "integer",
             "format": "int64",
             "description": "The opening (first) price in Planck volume given period.",
@@ -5781,7 +5916,7 @@
               "25000000"
             ]
           },
-          "priceCloseNQT": {
+          "priceClose": {
             "type": "integer",
             "format": "int64",
             "description": "The closing (last) price in Planck volume given period.",
@@ -5803,6 +5938,11 @@
           "numberOfTrades": 0,
           "numberOfTransfers": 1,
           "numberOfAccounts": 1,
+          "volumeQNT": "0",
+          "priceHigh": "0",
+          "priceLow": "0",
+          "priceOpen": "0",
+          "priceClose": "0",
           "requestProcessingTime": 67
         }
       },

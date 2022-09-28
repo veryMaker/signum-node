@@ -28,9 +28,12 @@
             "schema": {
               "type": "object",
               "required": [
-                "blockId"
+                "blockIds"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "blockIds": {
                   "type": "integer",
                   "format": "int64"

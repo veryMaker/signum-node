@@ -11,6 +11,34 @@
       },
       {
         "$ref": "../../parameters/lastIndex.json"
+      },
+      {
+        "name": "heightStart",
+        "in": "query",
+        "description": "Define the start height for trading information over a given period - if not given the last 360 blocks (around 24hrs) are taken as trading period",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "heightEnd",
+        "in": "query",
+        "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "skipZeroVolume",
+        "in": "query",
+        "description": "If set `true` all zero volumes are excluded",
+        "schema": {
+          "type": "boolean",
+          "example": [
+            true,
+            false
+          ]
+        }
       }
     ],
     "responses": {
@@ -29,6 +57,9 @@
                   "items": {
                     "$ref": "../../schemas/asset.json"
                   }
+                },
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
                 }
               }
             }

@@ -72,6 +72,9 @@
                 "transactionIds"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "transactionIds": {
                   "type": "array",
                   "items": {

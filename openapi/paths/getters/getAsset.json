@@ -21,7 +21,7 @@
       {
         "name": "heightStart",
         "in": "query",
-        "description": "Define the start height for trading information over a given period - if not given the last 24h are taken as trading period",
+        "description": "Define the start height for trading information over a given period - if not given the last 360 blocks (around 24hrs) are taken as trading period",
         "schema": {
           "type": "integer"
         }
@@ -29,7 +29,7 @@
       {
         "name": "heightEnd",
         "in": "query",
-        "description": "Define the end height for trading information over a given period - if not given the 24h are taken as trading period",
+        "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
         "schema": {
           "type": "integer"
         }

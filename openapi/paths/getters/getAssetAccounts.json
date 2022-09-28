@@ -48,6 +48,10 @@
                 "accountAssets"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+
                 "accountAssets": {
                   "type": "array",
                   "items": {

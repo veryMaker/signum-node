@@ -15,10 +15,10 @@
     "numberOfTransfers",
     "numberOfAccounts",
     "volumeQNT",
-    "priceHighNQT",
-    "priceLowNQT",
-    "priceOpenNQT",
-    "priceCloseNQT"
+    "priceHigh",
+    "priceLow",
+    "priceOpen",
+    "priceClose"
   ],
   "properties": {
     "asset": {
@@ -95,7 +95,7 @@
         "25000000"
       ]
     },
-    "priceHighNQT": {
+    "priceHigh": {
       "type": "integer",
       "format": "int64",
       "description": "The highest price in Planck volume given period.",
@@ -103,7 +103,7 @@
         "25000000"
       ]
     },
-    "priceLowNQT": {
+    "priceLow": {
       "type": "integer",
       "format": "int64",
       "description": "The lowest price in Planck volume given period.",
@@ -111,7 +111,7 @@
         "25000000"
       ]
     },
-    "priceOpenNQT": {
+    "priceOpen": {
       "type": "integer",
       "format": "int64",
       "description": "The opening (first) price in Planck volume given period.",
@@ -119,7 +119,7 @@
         "25000000"
       ]
     },
-    "priceCloseNQT": {
+    "priceClose": {
       "type": "integer",
       "format": "int64",
       "description": "The closing (last) price in Planck volume given period.",
@@ -141,6 +141,11 @@
     "numberOfTrades": 0,
     "numberOfTransfers": 1,
     "numberOfAccounts": 1,
+    "volumeQNT": "0",
+    "priceHigh": "0",
+    "priceLow": "0",
+    "priceOpen": "0",
+    "priceClose": "0",
     "requestProcessingTime": 67
   }
 }

@@ -31,6 +31,9 @@
                 "ats"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "ats": {
                   "type": "array",
                   "items": {
