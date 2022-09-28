@@ -5085,6 +5085,9 @@
                     "trades"
                   ],
                   "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
                     "trades": {
                       "type": "array",
                       "items": {
