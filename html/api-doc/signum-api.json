@@ -4654,7 +4654,7 @@
             }
           },
           {
-            "name": "numberOfConfirmation",
+            "name": "numberOfConfirmations",
             "description": "The minimum number of confirmations for wanted transactions.",
             "in": "query",
             "schema": {
@@ -4746,7 +4746,7 @@
             }
           },
           {
-            "name": "numberOfConfirmation",
+            "name": "numberOfConfirmations",
             "description": "The minimum number of confirmations for wanted transactions.",
             "in": "query",
             "schema": {
