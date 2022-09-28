@@ -137,6 +137,7 @@
     "mintable": true,
     "quantityQNT": "0",
     "quantityCirculatingQNT": "29500000",
+    "quantityBurntQNT": "500000",
     "asset": "9224329060507884640",
     "numberOfTrades": 0,
     "numberOfTransfers": 1,
