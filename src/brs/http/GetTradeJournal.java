@@ -48,7 +48,7 @@ public final class GetTradeJournal extends APIServlet.JsonRequestHandler {
 
     JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId());
     if(assetId != 0L) {
-      response.addProperty(ASSET_RESPONSE, assetId);
+      response.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
     }
 
     CollectionWithIndex<OrderJournal> orders = assetExchange.getOrderJournal(account.getId(), assetId, firstIndex, lastIndex);
