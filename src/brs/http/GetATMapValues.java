@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.ResultFields.VALUE_RESPONSE;
-import static brs.http.common.ResultFields.VALUES_RESPONSE;
+import static brs.http.common.ResultFields.KEY_VALUES_RESPONSE;
 
 import java.util.Collection;
 
@@ -45,7 +45,7 @@ final class GetATMapValues extends APIServlet.JsonRequestHandler {
     }
 
     JsonObject response = new JsonObject();
-    response.add(VALUES_RESPONSE, mapValues);
+    response.add(KEY_VALUES_RESPONSE, mapValues);
     return response;
   }
 
