@@ -165,6 +165,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getATIds", new GetATIds(atService));
     map.put("getATLong", GetATLong.instance);
     map.put("getATMapValue", new GetATMapValue());
+    map.put("getATMapValues", new GetATMapValues());
     map.put("getAccountATs", new GetAccountATs(parameterService, atService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
     map.put("generateDeeplink", GenerateDeeplink.instance);
