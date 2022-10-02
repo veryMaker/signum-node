@@ -25,11 +25,11 @@ abstract class AbstractAssetsRetrieval extends APIServlet.JsonRequestHandler {
     while (assets.hasNext()) {
       final Asset asset = assets.next();
 
-      int accountsCount = -1;
-      int tradeCount = -1;
-      int transferCount = -1;
+      int accountsCount = assetExchange.getAssetAccountsCount(asset, 0L, true, false);
+      int tradeCount = assetExchange.getTradeCount(asset.getId());
+      int transferCount = assetExchange.getTransferCount(asset.getId());
       long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, false);
-      long quantityBurnt = -1;
+      long quantityBurnt = accountService.getUnconfirmedAssetBalanceQNT(accountService.getNullAccount(), asset.getId());
       
       long tradeVolume = assetExchange.getTradeVolume(asset.getId(), heightStart, heightEnd);
       if(tradeVolume == 0 && skipZeroVolume) {
