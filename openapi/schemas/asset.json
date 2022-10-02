@@ -86,10 +86,6 @@
       "type": "integer",
       "description": "Total number of transfers"
     },
-    "volumeQNT": {
-      "type": "integer",
-      "description": "Volume of the token in Quantity"
-    },
     "numberOfAccounts": {
       "type": "integer",
       "description": "Total number of accounts owning this token"
