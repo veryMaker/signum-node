@@ -107,7 +107,7 @@ class OrderServiceImpl {
     // check the cancellations
     transactions = Burst.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION,
-        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, 0, 0);
+        TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, -1, -1);
     for(Transaction transaction : transactions) {
       Attachment.ColoredCoinsOrderCancellation cancellation = (ColoredCoinsOrderCancellation) transaction.getAttachment();
 
