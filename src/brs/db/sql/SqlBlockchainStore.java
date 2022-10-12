@@ -8,7 +8,6 @@ import brs.Attachment.CommitmentRemove;
 import brs.db.BlockDb;
 import brs.db.TransactionDb;
 import brs.db.store.BlockchainStore;
-import brs.db.store.IndirectIncomingStore;
 import brs.fluxcapacitor.FluxValues;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
@@ -34,10 +33,8 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   private final TransactionDb transactionDb = Burst.getDbs().getTransactionDb();
   private final BlockDb blockDb = Burst.getDbs().getBlockDb();
-  private final IndirectIncomingStore indirectIncomingStore;
 
-  public SqlBlockchainStore(IndirectIncomingStore indirectIncomingStore) {
-    this.indirectIncomingStore = indirectIncomingStore;
+  public SqlBlockchainStore() {
   }
 
   @Override
@@ -352,7 +349,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       if (includeIndirectIncoming && recipient != null) {
         selectOrder = selectOrder.unionAll(ctx.selectFrom(TRANSACTION)
                 .where(conditions)
-                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(recipient, -1, -1))));
+                .and(TRANSACTION.ID.in(ctx.select(INDIRECT_INCOMING.TRANSACTION_ID).from(INDIRECT_INCOMING)
+                        .where(INDIRECT_INCOMING.ACCOUNT_ID.eq(recipient)))));
       }
 
       SelectQuery<TransactionRecord> selectQuery = selectOrder
