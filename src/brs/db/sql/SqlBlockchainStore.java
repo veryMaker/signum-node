@@ -15,15 +15,22 @@ import brs.schema.tables.records.TransactionRecord;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static brs.schema.Tables.BLOCK;
 import static brs.schema.Tables.TRANSACTION;
+import static brs.schema.Tables.INDIRECT_INCOMING;
 
 public class SqlBlockchainStore implements BlockchainStore {
+
+  private final Logger logger = LoggerFactory.getLogger(SqlBlockchainStore.class);
 
   private final TransactionDb transactionDb = Burst.getDbs().getTransactionDb();
   private final BlockDb blockDb = Burst.getDbs().getBlockDb();
@@ -181,7 +188,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       if (includeIndirectIncoming) {
         select = select.unionAll(ctx.selectFrom(TRANSACTION)
                 .where(conditions)
-                .and(TRANSACTION.ID.in(indirectIncomingStore.getIndirectIncomings(account.getId(), -1, -1))));
+                .and(TRANSACTION.ID.in(ctx.select(INDIRECT_INCOMING.TRANSACTION_ID).from(INDIRECT_INCOMING)
+                        .where(INDIRECT_INCOMING.ACCOUNT_ID.eq(account.getId())))));
       }
 
       SelectQuery<TransactionRecord> selectQuery = select
@@ -193,7 +201,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       return getTransactions(ctx, selectQuery.fetch());
     });
   }
-  
+
   @Override
   public Collection<Transaction> getTransactions(long senderId, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
     return Db.useDSLContext(ctx -> {
@@ -258,33 +266,47 @@ public class SqlBlockchainStore implements BlockchainStore {
     int commitmentWait = Burst.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
     int commitmentHeight = Math.min(height - commitmentWait, endHeight);
 
-    Collection<Transaction> commitmmentAddTransactions = Db.useDSLContext(ctx -> {
-      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
+    Collection<byte[]> commitmmentAddBytes = Db.useDSLContext(ctx -> {
+      SelectConditionStep<Record1<byte[]>> select = ctx.select(TRANSACTION.ATTACHMENT_BYTES).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
           .and(TRANSACTION.HEIGHT.le(commitmentHeight));
       if(accountId != 0L)
         select = select.and(TRANSACTION.SENDER_ID.equal(accountId));
-      return getTransactions(ctx, select.fetch());
+      return select.fetch().getValues(TRANSACTION.ATTACHMENT_BYTES);
     });
-    Collection<Transaction> commitmmentRemoveTransactions = Db.useDSLContext(ctx -> {
-      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
+    Collection<byte[]> commitmmentRemoveBytes = Db.useDSLContext(ctx -> {
+      SelectConditionStep<Record1<byte[]>> select = ctx.select(TRANSACTION.ATTACHMENT_BYTES).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
           .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
           .and(TRANSACTION.HEIGHT.le(endHeight));
       if(accountId != 0L)
         select = select.and(TRANSACTION.SENDER_ID.equal(accountId));
-      return getTransactions(ctx, select.fetch());
+      if(skipTransaction != null)
+        select = select.and(TRANSACTION.ID.ne(skipTransaction.getId()));
+      return select.fetch().getValues(TRANSACTION.ATTACHMENT_BYTES);
     });
 
     BigInteger amountCommitted = BigInteger.ZERO;
-    for(Transaction tx : commitmmentAddTransactions) {
-      CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
-      amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
+    for(byte[] bytes : commitmmentAddBytes) {
+      try {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        CommitmentAdd txAttachment = (CommitmentAdd)TransactionType.BurstMining.COMMITMENT_ADD.parseAttachment(buffer, (byte)1);
+        amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
+      }
+      catch (Exception e) {
+        logger.error(e.getMessage());
+      }
     }
-    for(Transaction tx : commitmmentRemoveTransactions) {
-      if(skipTransaction !=null && skipTransaction.getId() == tx.getId())
-        continue;
-      CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
-      amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
+    for(byte[] bytes : commitmmentRemoveBytes) {
+      try {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        CommitmentRemove txAttachment = (CommitmentRemove)TransactionType.BurstMining.COMMITMENT_REMOVE.parseAttachment(buffer, (byte)1);
+        amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
+      }
+      catch (Exception e) {
+        logger.error(e.getMessage());
+      }
     }
     if(amountCommitted.compareTo(BigInteger.ZERO) < 0) {
       // should never happen
