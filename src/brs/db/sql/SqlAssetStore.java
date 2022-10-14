@@ -10,6 +10,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SelectQuery;
+import org.jooq.impl.DSL;
 
 import java.util.Collection;
 
@@ -77,8 +78,8 @@ public class SqlAssetStore implements AssetStore {
   @Override
   public Collection<Asset> getAssetsByName(String name, int from, int to){
     return Db.useDSLContext(ctx -> {
-      SelectQuery<AssetRecord> query = ctx.selectFrom(ASSET).where(ASSET.NAME.like("%"+name+"%")).getQuery();
-      query.addOrderBy(ASSET.HEIGHT, ASSET.ID);
+      SelectQuery<AssetRecord> query = ctx.selectFrom(ASSET).where(DSL.upper(ASSET.NAME).like("%"+name.toUpperCase()+"%")).getQuery();
+      query.addOrderBy(ASSET.HEIGHT.asc(), ASSET.ID);
       DbUtils.applyLimits(query, from, to);
           
       return getAssets(ctx, query.fetch());
