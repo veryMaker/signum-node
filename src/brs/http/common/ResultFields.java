@@ -83,6 +83,7 @@ public class ResultFields {
   public static final String STATUS_RESPONSE = "status";
   public static final String QUANTITY_CIRCULATING_QNT_RESPONSE = "quantityCirculatingQNT";
   public static final String UNCONFIRMED_QUANTITY_QNT_RESPONSE = "unconfirmedQuantityQNT";
+  public static final String IS_TREASURY_RESPONSE = "isTreasury";
   public static final String PRICE_NQT_RESPONSE = "priceNQT";
   public static final String PRICE_RESPONSE = "price";
   public static final String PRICE_HIGH_RESPONSE = "priceHigh";

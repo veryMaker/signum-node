@@ -97,6 +97,7 @@ public final class JSONData {
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
     json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
     json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
+    json.addProperty(IS_TREASURY_RESPONSE, accountAsset.isTreasury());
     return json;
   }
 
