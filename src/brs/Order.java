@@ -110,10 +110,12 @@ public abstract class Order {
     private byte status;
     private long executedAmountQNT;
     private long executedVolumeNQT;
+    private int timestamp;
 
     public OrderJournal(Transaction transaction, Attachment.ColoredCoinsOrderPlacement attachment, Collection<Trade> trades) {
       super(transaction, attachment);
       
+      this.timestamp = transaction.getTimestamp();
       this.subtype = transaction.getType().getSubtype();
       this.status = ORDER_STATUS_OPEN;
       this.trades = trades;
@@ -128,6 +130,10 @@ public abstract class Order {
         status = ORDER_STATUS_FILLED;
       }
       
+    }
+    
+    public int getTimestamp() {
+        return timestamp;
     }
     
     public void setStatus(byte status) {

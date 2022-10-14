@@ -59,6 +59,7 @@ public final class GetTradeJournal extends APIServlet.JsonRequestHandler {
       }
       JsonObject orderData = JSONData.order(order, asset);
 
+      orderData.addProperty(TIMESTAMP_RESPONSE, order.getTimestamp());
       orderData.addProperty(EXECUTED_QUANTITY_QNT_RESPONSE, String.valueOf(order.getExecutedAmountQNT()));
       orderData.addProperty(EXECUTED_VOLUME_NQT_RESPONSE, String.valueOf(order.getExecutedVolumeNQT()));
       orderData.addProperty(TYPE_RESPONSE, order.getSubtype() == TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT ? "ask" : "bid");
