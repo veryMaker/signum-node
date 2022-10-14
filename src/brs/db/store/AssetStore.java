@@ -14,4 +14,6 @@ public interface AssetStore {
   Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to);
 
   Asset getAsset(long assetId);
+
+  Collection<Asset> getAssetsByName(String name, int from, int to);
 }

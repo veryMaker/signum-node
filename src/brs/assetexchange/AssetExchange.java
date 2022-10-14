@@ -16,6 +16,8 @@ public interface AssetExchange {
 
   CollectionWithIndex<Asset> getAllAssets(int from, int to);
 
+  CollectionWithIndex<Asset> getAssetsByName(String name, int from, int to);
+
   Asset getAsset(long assetId);
 
   long getTradeVolume(long assetId, int heightStart, int heightEnd);

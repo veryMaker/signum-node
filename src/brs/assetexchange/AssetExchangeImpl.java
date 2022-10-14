@@ -38,6 +38,11 @@ public class AssetExchangeImpl implements AssetExchange {
   public CollectionWithIndex<Asset> getAllAssets(int from, int to) {
     return new CollectionWithIndex<Asset>(assetService.getAllAssets(from, to), from, to);
   }
+  
+  @Override
+  public CollectionWithIndex<Asset> getAssetsByName(String name, int from, int to) {
+    return new CollectionWithIndex<Asset>(assetService.getAssetsByName(name, from, to), from, to);
+  }
 
   @Override
   public Asset getAsset(long assetId) {
