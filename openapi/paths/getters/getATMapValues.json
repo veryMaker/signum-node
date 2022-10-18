@@ -1,0 +1,54 @@
+{
+  "get": {
+    "summary": "Get Contract Map Values ",
+    "description": "Gets a list of values from a smart contract from its [data store](https://github.com/signum-network/SIPs/blob/master/SIP/sip-38.md) by its _first_ key.<br/>Non existing keys result always in `0`(Zero)",
+    "tags": [
+      "contract"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/contract/at.json"
+      },
+      {
+        "name": "key1",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "in": "query",
+        "description": "The 1st key of the map"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Contract Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "values"
+              ],
+              "example": {
+                "value": "5"
+              },
+              "properties": {
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "The value"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

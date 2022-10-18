@@ -126,6 +126,9 @@
     "/api?requestType=getATMapValue": {
       "$ref": "./paths/getters/getATMapValue.json"
     },
+    "/api?requestType=getATMapValues": {
+      "$ref": "./paths/getters/getATMapValues.json"
+    },
     "/api?requestType=getAccountAssets": {
       "$ref": "./paths/getters/getAccountAssets.json"
     },
