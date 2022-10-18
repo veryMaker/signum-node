@@ -3388,6 +3388,64 @@
         }
       }
     },
+    "/api?requestType=getECBlock": {
+      "get": {
+        "summary": "Get EC Block (Economic Clustering)",
+        "description": "Get the reference for the block of an _economic cluster_ (EC) 🤷",
+        "tags": [
+          "network"
+        ],
+        "parameters": [
+          {
+            "name": "timestamp",
+            "in": "query",
+            "description": "The timestamp from which should be searched. It cannot be much in the past (about 15 seconds according the code)",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The EC Block Reference",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "ecBlockId",
+                    "ecBlockHeight",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "ecBlockId": {
+                      "$ref": "#/components/schemas/blockId"
+                    },
+                    "ecBlockHeight": {
+                      "type": "integer",
+                      "description": "The block height"
+                    },
+                    "timestamp": {
+                      "$ref": "#/components/schemas/timestamp"
+                    }
+                  },
+                  "example": {
+                    "ecBlockId": "11005421887713390160",
+                    "ecBlockHeight": 466561,
+                    "timestamp": 258400021,
+                    "requestProcessingTime": 1
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
     "/api?requestType=getBlock": {
       "get": {
         "summary": "Get Block",

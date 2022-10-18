@@ -171,6 +171,9 @@
     "/api?requestType=getAlias": {
       "$ref": "./paths/getters/getAlias.json"
     },
+    "/api?requestType=getECBlock": {
+      "$ref": "./paths/getters/getECBlock.json"
+    },
     "/api?requestType=getBlock": {
       "$ref": "./paths/getters/getBlock.json"
     },
