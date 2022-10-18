@@ -3,6 +3,7 @@
   "required": [
     "account",
     "accountRS",
+    "publicKey",
     "name",
     "description",
     "decimals",
@@ -30,15 +31,21 @@
     "accountRS": {
       "$ref": "./rsAddress.json"
     },
+    "publicKey": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "The public key of the issuer. That way we can determine if the token was issued by a human or smart contract, i.e. key consists of zeroes only.",
+      "example": [
+        "6e1a0abea0cbacdc8c77a7de2868360d3e667b276a2f32bb847579d126d63e78",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
     "name": {
       "$ref": "./assetName.json"
     },
     "description": {
       "type": "integer",
       "description": "The description"
-    },
-    "generatorPublicKey": {
-      "$ref": "./hash.json"
     },
     "decimals": {
       "type": "integer",
@@ -49,7 +56,10 @@
     "mintable": {
       "type": "boolean",
       "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
-      "example" : [true, false]
+      "example": [
+        true,
+        false
+      ]
     },
     "quantityQNT": {
       "type": "integer",
@@ -129,24 +139,25 @@
     }
   },
   "example": {
-    "account": "8703144722673801264",
-    "accountRS": "TS-M83J-2GDW-9YVZ-9AYKK",
-    "name": "TRESTC",
-    "description": "Token issued and controlled by smart contract ID: 8703144722673801264",
-    "decimals": 2,
-    "mintable": true,
-    "quantityQNT": "0",
-    "quantityCirculatingQNT": "29500000",
-    "quantityBurntQNT": "500000",
-    "asset": "9224329060507884640",
-    "numberOfTrades": 0,
+    "account": "16357368130745732388",
+    "accountRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+    "publicKey": "42a9845e8d684ba0eb3591de28335667a5580ca394543ee097286c8adff6fd58",
+    "name": "TTH",
+    "description": "This is test token is test net",
+    "decimals": 8,
+    "mintable": false,
+    "quantityQNT": "10000000000000",
+    "quantityBurntQNT": "0",
+    "asset": "914948012239561046",
+    "quantityCirculatingQNT": "10000000000000",
+    "numberOfTrades": 10,
     "numberOfTransfers": 1,
-    "numberOfAccounts": 1,
+    "numberOfAccounts": 3,
     "volumeQNT": "0",
     "priceHigh": "0",
     "priceLow": "0",
     "priceOpen": "0",
     "priceClose": "0",
-    "requestProcessingTime": 67
+    "requestProcessingTime": 109
   }
 }
