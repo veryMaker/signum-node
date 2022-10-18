@@ -231,6 +231,9 @@
     "/api?requestType=getAssetsByIssuer": {
       "$ref": "./paths/getters/getAssetsByIssuer.json"
     },
+    "/api?requestType=getAssetsByName": {
+      "$ref": "./paths/getters/getAssetsByName.json"
+    },
     "/api?requestType=getAllTrades": {
       "$ref": "./paths/getters/getAllTrades.json"
     },
@@ -455,6 +458,15 @@
       },
       "at": {
         "$ref": "./parameters/contract/at.json"
+      },
+      "heightStart": {
+        "$ref": "./parameters/token/heightStart.json"
+      },
+      "heightEnd": {
+        "$ref": "./parameters/token/heightEnd.json"
+      },
+      "skipZeroVolume": {
+        "$ref": "./parameters/token/skipZeroVolume.json"
       }
     },
     "responses": {

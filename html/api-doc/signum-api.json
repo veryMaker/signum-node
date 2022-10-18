@@ -4206,32 +4206,13 @@
             "$ref": "#/components/parameters/lastIndex"
           },
           {
-            "name": "heightStart",
-            "in": "query",
-            "description": "Define the start height for trading information over a given period - if not given the last 360 blocks (around 24hrs) are taken as trading period",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/components/parameters/heightStart"
           },
           {
-            "name": "heightEnd",
-            "in": "query",
-            "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
-            "schema": {
-              "type": "integer"
-            }
+            "$ref": "#/components/parameters/heightEnd"
           },
           {
-            "name": "skipZeroVolume",
-            "in": "query",
-            "description": "If set `true` all zero volumes are excluded",
-            "schema": {
-              "type": "boolean",
-              "example": [
-                true,
-                false
-              ]
-            }
+            "$ref": "#/components/parameters/skipZeroVolume"
           }
         ],
         "responses": {
@@ -4373,7 +4354,8 @@
                           "accountRS",
                           "asset",
                           "quantityQNT",
-                          "unconfirmedQuantityQNT"
+                          "unconfirmedQuantityQNT",
+                          "isTreasury"
                         ],
                         "properties": {
                           "account": {
@@ -4390,6 +4372,10 @@
                           },
                           "unconfirmedQuantityQNT": {
                             "$ref": "#/components/schemas/quantity"
+                          },
+                          "isTreasury": {
+                            "type": "boolean",
+                            "description": "Indicates whether this account is marked as [treasury account](#post-/api-requestType-addAssetTreasuryAccount) or not."
                           }
                         },
                         "example": {
@@ -4429,6 +4415,84 @@
           },
           {
             "$ref": "#/components/parameters/lastIndex"
+          },
+          {
+            "$ref": "#/components/parameters/heightStart"
+          },
+          {
+            "$ref": "#/components/parameters/heightEnd"
+          },
+          {
+            "$ref": "#/components/parameters/skipZeroVolume"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Token List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "assets"
+                  ],
+                  "properties": {
+                    "nextIndex": {
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                    },
+                    "assets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/asset"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getAssetsByName": {
+      "get": {
+        "summary": "Get Tokens By Name",
+        "description": "Get all tokens by its name",
+        "tags": [
+          "token"
+        ],
+        "required": [
+          "name"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "allowEmptyValue": false,
+            "description": "A part of or the entire name",
+            "schema": {
+              "type": "string",
+              "maxLength": "10",
+              "pattern": "^[a-zA-Z0-9_]{1,10}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/firstIndex"
+          },
+          {
+            "$ref": "#/components/parameters/lastIndex"
+          },
+          {
+            "$ref": "#/components/parameters/heightStart"
+          },
+          {
+            "$ref": "#/components/parameters/heightEnd"
+          },
+          {
+            "$ref": "#/components/parameters/skipZeroVolume"
           }
         ],
         "responses": {
@@ -7317,6 +7381,40 @@
         "description": "The contracts address.",
         "schema": {
           "$ref": "#/components/schemas/contractId"
+        }
+      },
+      "heightStart": {
+        "name": "heightStart",
+        "in": "query",
+        "allowEmptyValue": true,
+        "required": false,
+        "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "heightEnd": {
+        "name": "heightEnd",
+        "in": "query",
+        "allowEmptyValue": true,
+        "required": false,
+        "description": "Define the start height for trading information over a given period - if not given the last 360 blocks (around 24hrs) are taken as trading period",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "skipZeroVolume": {
+        "name": "skipZeroVolume",
+        "in": "query",
+        "allowEmptyValue": true,
+        "required": false,
+        "description": "If set `true` all zero volumes are excluded",
+        "schema": {
+          "type": "boolean",
+          "example": [
+            true,
+            false
+          ]
         }
       }
     },

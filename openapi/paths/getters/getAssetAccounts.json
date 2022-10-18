@@ -61,7 +61,8 @@
                       "accountRS",
                       "asset",
                       "quantityQNT",
-                      "unconfirmedQuantityQNT"
+                      "unconfirmedQuantityQNT",
+                      "isTreasury"
                     ],
                     "properties": {
                       "account": {
@@ -78,6 +79,10 @@
                       },
                       "unconfirmedQuantityQNT": {
                         "$ref": "../../schemas/quantity.json"
+                      },
+                      "isTreasury": {
+                        "type": "boolean",
+                        "description": "Indicates whether this account is marked as [treasury account](#post-/api-requestType-addAssetTreasuryAccount) or not."
                       }
                     },
                     "example": {

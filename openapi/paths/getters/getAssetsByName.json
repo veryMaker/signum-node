@@ -1,11 +1,25 @@
 {
   "get": {
-    "summary": "Get All Tokens",
-    "description": "Get all tokens, but at maximum 500 per call.",
+    "summary": "Get Tokens By Name",
+    "description": "Get all tokens by its name",
     "tags": [
       "token"
     ],
+    "required": [
+      "name"
+    ],
     "parameters": [
+      {
+        "name": "name",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "A part of or the entire name",
+        "schema": {
+          "type": "string",
+          "maxLength": "10",
+          "pattern": "^[a-zA-Z0-9_]{1,10}$"
+        }
+      },
       {
         "$ref": "../../parameters/firstIndex.json"
       },
@@ -33,14 +47,14 @@
                 "assets"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "assets": {
                   "type": "array",
                   "items": {
                     "$ref": "../../schemas/asset.json"
                   }
-                },
-                "nextIndex": {
-                  "$ref": "../../schemas/nextIndex.json"
                 }
               }
             }

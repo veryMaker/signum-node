@@ -1,0 +1,14 @@
+{
+  "name": "skipZeroVolume",
+  "in": "query",
+  "allowEmptyValue": true,
+  "required": false,
+  "description": "If set `true` all zero volumes are excluded",
+  "schema": {
+    "type": "boolean",
+    "example": [
+      true,
+      false
+    ]
+  }
+}
