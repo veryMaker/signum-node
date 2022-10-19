@@ -28,17 +28,34 @@
             "schema": {
               "type": "object",
               "required": [
-                "values"
+                "keyValues"
               ],
               "example": {
-                "value": "5"
+                "keyValues": [ {
+                  "key2": "123243564364565",
+                  "value": "42"
+                }]
               },
               "properties": {
-                "values": {
+                "keyValues": {
                   "type": "array",
                   "items": {
-                    "type": "string",
-                    "description": "The value"
+                    "type": "object",
+                    "required": [
+                      "key2", "value"
+                    ],
+                    "properties": {
+                      "key2": {
+                        "type": "integer",
+                        "description": "The second key of the map tuple",
+                        "format": "int64"
+                      },
+                      "value": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "The value"
+                      }
+                    }
                   }
                 }
               }
