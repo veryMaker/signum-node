@@ -27,6 +27,9 @@
                 "askOrders"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "askOrders": {
                   "type": "array",
                   "items": {

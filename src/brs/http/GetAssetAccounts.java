@@ -1,10 +1,12 @@
 package brs.http;
 
 import brs.Account;
+import brs.Account.AccountAsset;
 import brs.Asset;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import com.google.gson.JsonArray;
@@ -14,6 +16,7 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
 
@@ -37,14 +40,20 @@ final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
     // default is to filter out ignored accounts
     boolean filterTreasury = "false".equals(req.getParameter(ASSET_IGNORE_TREASURY_PARAMETER)) ? false : true;
 
-    JsonArray accountAssets = new JsonArray();
-    for (Account.AccountAsset accountAsset : assetExchange.getAssetAccounts(asset,
-        filterTreasury, minimumQuantity, false, firstIndex, lastIndex)) {
-      accountAssets.add(JSONData.accountAsset(accountAsset));
+    JsonArray accountAssetsArray = new JsonArray();
+    CollectionWithIndex<AccountAsset> accountAssets = assetExchange.getAssetAccounts(asset,
+        filterTreasury, minimumQuantity, false, firstIndex, lastIndex);
+    for (Account.AccountAsset accountAsset : accountAssets) {
+      accountAssetsArray.add(JSONData.accountAsset(accountAsset));
     }
 
     JsonObject response = new JsonObject();
-    response.add("accountAssets", accountAssets);
+    response.add("accountAssets", accountAssetsArray);
+    
+    if(accountAssets.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, accountAssets.nextIndex());
+    }
+    
     return response;
   }
 }

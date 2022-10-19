@@ -1,0 +1,83 @@
+{
+  "get": {
+    "summary": "Get Accounts Trade Journal",
+    "description": "Get a journal of trades for a given account.",
+    "tags": [
+      "token", "account"
+    ],
+    "parameters": [
+      {
+        "name": "asset",
+        "in": "query",
+        "required": false,
+        "description": "The related token identifier. You can use this alone or together with `account`",
+        "schema": {
+          "$ref": "../../schemas/assetId.json"
+        }
+      },
+      {
+        "name": "account",
+        "in": "query",
+        "required": true,
+        "description": "The account identifier. You can use this alone or together with `asset`",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "The Trade Journal List",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "account",
+                "accountRS",
+                "tradeJournal"
+              ],
+              "properties": {
+                "account": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The account identifier as numeric Id",
+                  "example": "16357368130745732388"
+                },
+                "accountRS": {
+                  "type": "string",
+                  "description": "The account identifier as Reed-Solomon encoded address, i.e. S-XXXX-XXXX-XXXX-XXXXX",
+                  "example": "TS-C5B6-NTGQ-KTLB-GDA28"
+                },
+                "asset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The account identifier as numeric Id",
+                  "example": "914948012239561046"
+                },
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+                "tradeJournal": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../schemas/tradeJournal.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

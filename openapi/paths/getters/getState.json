@@ -1,28 +1,9 @@
 {
   "get": {
-    "summary": "Get Blockchain Status",
+    "summary": "Get Blockchain Info (Extended)",
     "description": "Get a bunch of information about the current chains status. This method returns more information than [Get Blockchain Info](#get-/api-requestType-getBlockchainStatus)",
-    "tags": [
-      "network",
-      "admin"
-    ],
-    "parameters": [
-      {
-        "name": "includeCounts",
-        "in": "query",
-        "description": "Includes additional counts. This operation requires the `apiKey` and can take a significant amount of time.",
-        "schema": {
-          "type": "boolean",
-          "example": [
-            true,
-            false
-          ]
-        }
-      },
-      {
-        "$ref": "../../parameters/apiKey.json"
-      }
-    ],
+    "tags": ["network"],
+    "parameters": [],
     "responses": {
       "200": {
         "description": "Time response",

@@ -1,9 +1,11 @@
 package brs.http;
 
 import brs.Account;
+import brs.Account.AccountAsset;
 import brs.BurstException;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -39,7 +41,8 @@ public final class GetAccountAssets extends APIServlet.JsonRequestHandler {
         JsonArray assetBalances = new JsonArray();
         JsonArray unconfirmedAssetBalances = new JsonArray();
 
-        for (Account.AccountAsset accountAsset : accountService.getAssets(account.getId(), firstIndex, lastIndex)) {
+        CollectionWithIndex<AccountAsset> assets = accountService.getAssets(account.getId(), firstIndex, lastIndex);
+        for (Account.AccountAsset accountAsset : assets) {
             JsonObject assetBalance = new JsonObject();
             assetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
             assetBalance.addProperty(BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
@@ -52,6 +55,10 @@ public final class GetAccountAssets extends APIServlet.JsonRequestHandler {
 
         response.add(ASSET_BALANCES_RESPONSE, assetBalances);
         response.add(UNCONFIRMED_ASSET_BALANCES_RESPONSE, unconfirmedAssetBalances);
+        
+        if(assets.hasNextIndex()) {
+          response.addProperty(NEXT_INDEX_RESPONSE, assets.nextIndex());
+        }
 
         return response;
     }

@@ -2,8 +2,10 @@ package brs.http;
 
 import brs.BurstException;
 import brs.Order;
+import brs.Order.Bid;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -12,6 +14,7 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 final class GetBidOrderIds extends APIServlet.JsonRequestHandler {
 
@@ -32,11 +35,17 @@ final class GetBidOrderIds extends APIServlet.JsonRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray orderIds = new JsonArray();
-    for (Order.Bid bidOrder : assetExchange.getSortedBidOrders(assetId, firstIndex, lastIndex)) {
+    CollectionWithIndex<Bid> orders = assetExchange.getSortedBidOrders(assetId, firstIndex, lastIndex);
+    for (Order.Bid bidOrder : orders) {
       orderIds.add(Convert.toUnsignedLong(bidOrder.getId()));
     }
     JsonObject response = new JsonObject();
     response.add("bidOrderIds", orderIds);
+    
+    if(orders.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, orders.nextIndex());
+    }
+    
     return response;
   }
 

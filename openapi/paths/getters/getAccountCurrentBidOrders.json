@@ -31,7 +31,10 @@
                 "bidOrders"
               ],
               "properties": {
-                "askOrders": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+                "bidOrders": {
                   "type": "array",
                   "items": {
                     "$ref": "../../schemas/order.json"

@@ -9,6 +9,8 @@ import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
@@ -61,7 +63,7 @@ public class GetTradesTest extends AbstractUnitTest {
     final Collection<Trade> mockTradesIterator = mockCollection(mockTrade);
 
     when(mockParameterService.getAsset(eq(req))).thenReturn(mockAsset);
-    when(mockAssetExchange.getTrades(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockTradesIterator);
+    when(mockAssetExchange.getTrades(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Trade>(mockTradesIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
@@ -95,7 +97,7 @@ public class GetTradesTest extends AbstractUnitTest {
     final Collection<Trade> mockTradesIterator = mockCollection(mockTrade);
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
-    when(mockAssetExchange.getAccountTrades(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockTradesIterator);
+    when(mockAssetExchange.getAccountTrades(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Trade>(mockTradesIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
@@ -135,7 +137,7 @@ public class GetTradesTest extends AbstractUnitTest {
 
     when(mockParameterService.getAsset(eq(req))).thenReturn(mockAsset);
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
-    when(mockAssetExchange.getAccountAssetTrades(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockTradesIterator);
+    when(mockAssetExchange.getAccountAssetTrades(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Trade>(mockTradesIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);

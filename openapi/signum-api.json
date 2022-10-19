@@ -126,6 +126,9 @@
     "/api?requestType=getATMapValue": {
       "$ref": "./paths/getters/getATMapValue.json"
     },
+    "/api?requestType=getATMapValues": {
+      "$ref": "./paths/getters/getATMapValues.json"
+    },
     "/api?requestType=getAccountAssets": {
       "$ref": "./paths/getters/getAccountAssets.json"
     },
@@ -171,8 +174,14 @@
     "/api?requestType=getAlias": {
       "$ref": "./paths/getters/getAlias.json"
     },
+    "/api?requestType=getECBlock": {
+      "$ref": "./paths/getters/getECBlock.json"
+    },
     "/api?requestType=getBlock": {
       "$ref": "./paths/getters/getBlock.json"
+    },
+    "/api?requestType=getBlockId": {
+      "$ref": "./paths/getters/getBlockId.json"
     },
     "/api?requestType=getBlocks": {
       "$ref": "./paths/getters/getBlocks.json"
@@ -222,6 +231,9 @@
     "/api?requestType=getAssetsByIssuer": {
       "$ref": "./paths/getters/getAssetsByIssuer.json"
     },
+    "/api?requestType=getAssetsByName": {
+      "$ref": "./paths/getters/getAssetsByName.json"
+    },
     "/api?requestType=getAllTrades": {
       "$ref": "./paths/getters/getAllTrades.json"
     },
@@ -258,6 +270,9 @@
     "/api?requestType=getTrades": {
       "$ref": "./paths/getters/getTrades.json"
     },
+    "/api?requestType=getTradeJournal": {
+      "$ref": "./paths/getters/getAccountsTradeJournal.json"
+    },
     "/api?requestType=getAliasesOnSale": {
       "$ref": "./paths/getters/getAliasesOnSale.json"
     }
@@ -281,6 +296,9 @@
       },
       "asset": {
         "$ref": "./schemas/asset.json"
+      },
+      "assetDetail": {
+        "$ref": "./schemas/assetDetail.json"
       },
       "assetId": {
         "$ref": "./schemas/assetId.json"
@@ -440,6 +458,15 @@
       },
       "at": {
         "$ref": "./parameters/contract/at.json"
+      },
+      "heightStart": {
+        "$ref": "./parameters/token/heightStart.json"
+      },
+      "heightEnd": {
+        "$ref": "./parameters/token/heightEnd.json"
+      },
+      "skipZeroVolume": {
+        "$ref": "./parameters/token/skipZeroVolume.json"
       }
     },
     "responses": {

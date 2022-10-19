@@ -20,15 +20,6 @@
         }
       },
       {
-        "name": "recipient",
-        "in": "query",
-        "allowEmptyValue": false,
-        "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
-        "schema": {
-          "$ref": "../../schemas/address.json"
-        }
-      },
-      {
         "name": "amountNQT",
         "in": "query",
         "allowEmptyValue": false,
@@ -55,6 +46,36 @@
       },
       {
         "$ref": "../../parameters/transaction/referencedTransactionFullHash.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/message.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncrypt.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageNonce.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelf.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageNonce.json"
       }
     ],
     "responses": {

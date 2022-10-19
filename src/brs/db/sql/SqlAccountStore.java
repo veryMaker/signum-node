@@ -1,6 +1,7 @@
 package brs.db.sql;
 
 import brs.Account;
+import brs.Account.AccountAsset;
 import brs.Asset;
 import brs.Burst;
 import brs.Transaction;
@@ -288,23 +289,32 @@ public class SqlAccountStore implements AccountStore {
     if(minimumQuantity > 0L) {
       condition = condition.and((unconfirmed ? ACCOUNT_ASSET.UNCONFIRMED_QUANTITY : ACCOUNT_ASSET.QUANTITY).ge(minimumQuantity));
     }
+    ArrayList<Long> treasuryAccounts = new ArrayList<>();
+    // the 0 account should also be removed from the circulating
+    treasuryAccounts.add(0L);
+    Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
+    if(transaction != null){
+      treasuryAccounts.addAll(Db.useDSLContext(ctx -> {
+      return ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
+            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+            .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
+            .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
+            .fetch().getValues(TRANSACTION.RECIPIENT_ID);
+      }));
+    }
     if(ignoreTreasury) {
-      Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
-      ArrayList<Long> treasuryAccounts = new ArrayList<>();
-      // the 0 account should also be removed from the circulating
-      treasuryAccounts.add(0L);
-      if(transaction != null){
-        treasuryAccounts.addAll(Db.useDSLContext(ctx -> {
-        return ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
-              .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
-              .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
-              .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
-              .fetch().getValues(TRANSACTION.RECIPIENT_ID);
-        }));
-      }
       condition = condition.and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(treasuryAccounts));
     }
-    return getAccountAssetTable().getManyBy(condition, from, to, sort);
+    Collection<AccountAsset> accounts = getAccountAssetTable().getManyBy(condition, from, to, sort);
+    
+    // flag treasury accounts
+    for(AccountAsset account : accounts) {
+        if(treasuryAccounts.contains(account.getAccountId())) {
+            account.setTreasury(true);
+        }
+    }
+    
+    return accounts;
   }
 
   @Override

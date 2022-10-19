@@ -78,10 +78,11 @@ public final class APIServlet extends HttpServlet {
     map.put("getAlias", new GetAlias(parameterService, aliasService));
     map.put("getAliases", new GetAliases(parameterService, aliasService));
     map.put("getAliasesOnSale", new GetAliasesOnSale(aliasService));
-    map.put("getAllAssets", new GetAllAssets(assetExchange));
-    map.put("getAsset", new GetAsset(parameterService, assetExchange));
+    map.put("getAllAssets", new GetAllAssets(assetExchange, accountService));
+    map.put("getAsset", new GetAsset(parameterService, assetExchange, accountService));
     map.put("getAssetIds", new GetAssetIds(assetExchange));
-    map.put("getAssetsByIssuer", new GetAssetsByIssuer(parameterService, assetExchange));
+    map.put("getAssetsByIssuer", new GetAssetsByIssuer(parameterService, assetExchange, accountService));
+    map.put("getAssetsByName", new GetAssetsByName(assetExchange, accountService));
     map.put("getAssetAccounts", new GetAssetAccounts(parameterService, assetExchange));
     map.put("getBalance", new GetBalance(parameterService));
     map.put("getBlock", new GetBlock(blockchain, blockService));
@@ -102,6 +103,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getState", new GetState(blockchain, assetExchange, accountService, escrowService, aliasService, timeService, atService, generator, propertyService));
     map.put("getTime", new GetTime(timeService));
     map.put("getTrades", new GetTrades(parameterService, assetExchange));
+    map.put("getTradeJournal", new GetTradeJournal(parameterService, assetExchange));
     map.put("getAllTrades", new GetAllTrades(assetExchange));
     map.put("getAssetTransfers", new GetAssetTransfers(parameterService, accountService, assetExchange));
     map.put("getTransaction", new GetTransaction(transactionProcessor, blockchain));
@@ -164,6 +166,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getATIds", new GetATIds(atService));
     map.put("getATLong", GetATLong.instance);
     map.put("getATMapValue", new GetATMapValue());
+    map.put("getATMapValues", new GetATMapValues());
     map.put("getAccountATs", new GetAccountATs(parameterService, atService));
     map.put("generateSendTransactionQRCode", new GenerateDeeplinkQRCode(deeplinkQRCodeGenerator));
     map.put("generateDeeplink", GenerateDeeplink.instance);

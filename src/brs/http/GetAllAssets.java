@@ -1,22 +1,27 @@
 package brs.http;
 
+import brs.Asset;
+import brs.Burst;
 import brs.assetexchange.AssetExchange;
+import brs.services.AccountService;
+import brs.util.CollectionWithIndex;
+import brs.util.Convert;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
-import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
+import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ASSETS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAllAssets extends AbstractAssetsRetrieval {
 
   private final AssetExchange assetExchange;
 
-  public GetAllAssets(AssetExchange assetExchange) {
-    super(new APITag[] {APITag.AE}, assetExchange, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
+  public GetAllAssets(AssetExchange assetExchange, AccountService accountService) {
+    super(new APITag[] {APITag.AE}, assetExchange, accountService, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER, HEIGHT_START_PARAMETER, HEIGHT_END_PARAMETER, SKIP_ZERO_VOLUME_PARAMETER);
     this.assetExchange = assetExchange;
   }
 
@@ -25,10 +30,31 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
   JsonElement processRequest(HttpServletRequest req) {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
+    
+    int heightEnd = Burst.getBlockchain().getHeight();
+    // default is one day window
+    int heightStart = heightEnd - 360;
+
+    String heightStartString = Convert.emptyToNull(req.getParameter(HEIGHT_START_PARAMETER));
+    if(heightStartString != null) {
+      heightStart = Integer.parseInt(heightStartString);
+    }
+
+    String heightEndString = Convert.emptyToNull(req.getParameter(HEIGHT_END_PARAMETER));
+    if(heightEndString != null) {
+      heightEnd = Integer.parseInt(heightEndString);
+    }
+    
+    boolean skipZeroVolume = "true".equalsIgnoreCase(req.getParameter(SKIP_ZERO_VOLUME_PARAMETER));
 
     JsonObject response = new JsonObject();
 
-    response.add(ASSETS_RESPONSE, assetsToJson(assetExchange.getAllAssets(firstIndex, lastIndex).iterator()));
+    CollectionWithIndex<Asset> assets = assetExchange.getAllAssets(firstIndex, lastIndex);
+    response.add(ASSETS_RESPONSE, assetsToJson(assets.iterator(), heightStart, heightEnd, skipZeroVolume));
+    
+    if(assets.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, assets.nextIndex());
+    }
 
     return response;
   }

@@ -1,0 +1,45 @@
+{
+  "get": {
+    "summary": "Get Block Id",
+    "description": "Get a specific block Id for given height",
+    "tags": [
+      "network"
+    ],
+    "parameters": [
+      {
+        "name": "height",
+        "in": "query",
+        "description": "The block height number (more commonly used)",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "example": 440000
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "The Block Id",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "block"
+              ],
+              "properties": {
+                "block": {
+                  "$ref": "../../schemas/blockId.json"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

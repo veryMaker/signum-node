@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.Asset;
 import brs.assetexchange.AssetExchange;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
 import static brs.http.common.ResultFields.ASSET_IDS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAssetIds extends APIServlet.JsonRequestHandler {
 
@@ -30,11 +32,17 @@ public final class GetAssetIds extends APIServlet.JsonRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray assetIds = new JsonArray();
-    for (Asset asset : assetExchange.getAllAssets(firstIndex, lastIndex)) {
+    CollectionWithIndex<Asset> assets = assetExchange.getAllAssets(firstIndex, lastIndex);
+    for (Asset asset : assets) {
       assetIds.add(Convert.toUnsignedLong(asset.getId()));
     }
     JsonObject response = new JsonObject();
     response.add(ASSET_IDS_RESPONSE, assetIds);
+    
+    if(assets.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, assets.nextIndex());
+    }
+    
     return response;
   }
 

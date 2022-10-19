@@ -11,6 +11,15 @@
       },
       {
         "$ref": "../../parameters/lastIndex.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightStart.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightEnd.json"
+      },
+      {
+        "$ref": "../../parameters/token/skipZeroVolume.json"
       }
     ],
     "responses": {
@@ -29,6 +38,9 @@
                   "items": {
                     "$ref": "../../schemas/asset.json"
                   }
+                },
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
                 }
               }
             }

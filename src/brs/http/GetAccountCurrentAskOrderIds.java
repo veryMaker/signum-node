@@ -4,16 +4,17 @@ import brs.BurstException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAccountCurrentAskOrderIds extends APIServlet.JsonRequestHandler {
 
@@ -39,7 +40,7 @@ public final class GetAccountCurrentAskOrderIds extends APIServlet.JsonRequestHa
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
-    Collection<Order.Ask> askOrders;
+    CollectionWithIndex<Order.Ask> askOrders;
     if (assetId == 0) {
       askOrders = assetExchange.getAskOrdersByAccount(accountId, firstIndex, lastIndex);
     } else {
@@ -51,6 +52,11 @@ public final class GetAccountCurrentAskOrderIds extends APIServlet.JsonRequestHa
     }
     JsonObject response = new JsonObject();
     response.add(ASK_ORDER_IDS_RESPONSE, orderIds);
+    
+    if(askOrders.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, askOrders.nextIndex());
+    }
+    
     return response;
   }
 

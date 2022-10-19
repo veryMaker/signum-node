@@ -54,6 +54,9 @@
                 "trades"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "trades": {
                   "type": "array",
                   "items": {

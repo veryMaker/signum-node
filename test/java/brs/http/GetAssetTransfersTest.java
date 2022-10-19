@@ -10,6 +10,7 @@ import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -68,7 +69,7 @@ public class GetAssetTransfersTest extends AbstractUnitTest {
 
     when(mockParameterService.getAsset(eq(req))).thenReturn(mockAsset);
 
-    when(mockAssetExchange.getAssetTransfers(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator);
+    when(mockAssetExchange.getAssetTransfers(eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<AssetTransfer>(mockAssetTransferIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
@@ -96,7 +97,7 @@ public class GetAssetTransfersTest extends AbstractUnitTest {
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
 
-    when(mockAccountService.getAssetTransfers(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator);
+    when(mockAccountService.getAssetTransfers(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<AssetTransfer>(mockAssetTransferIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
@@ -134,7 +135,7 @@ public class GetAssetTransfersTest extends AbstractUnitTest {
 
     when(mockAssetExchange.getAsset(eq(mockAssetTransfer.getAssetId()))).thenReturn(mockAsset);
 
-    when(mockAssetExchange.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetTransferIterator);
+    when(mockAssetExchange.getAccountAssetTransfers(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<AssetTransfer>(mockAssetTransferIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);

@@ -2,12 +2,15 @@ package brs.http;
 
 import brs.Account;
 import brs.BurstException;
+import brs.Order;
 import brs.Order.Ask;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
@@ -63,7 +66,7 @@ public class GetAccountCurrentAskOrdersTest extends AbstractUnitTest {
 
     final Collection<Ask> mockAskIterator = mockCollection(mockAsk);
 
-    when(mockAssetExchange.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAskIterator);
+    when(mockAssetExchange.getAskOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Order.Ask>(mockAskIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
 
@@ -95,7 +98,7 @@ public class GetAccountCurrentAskOrdersTest extends AbstractUnitTest {
 
     final Collection<Ask> mockAskIterator = mockCollection(mockAsk);
 
-    when(mockAssetExchange.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockAskIterator);
+    when(mockAssetExchange.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Order.Ask>(mockAskIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
 

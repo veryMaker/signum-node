@@ -2,8 +2,10 @@ package brs.http;
 
 import brs.BurstException;
 import brs.Order;
+import brs.Order.Ask;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ASK_ORDER_IDS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAskOrderIds extends APIServlet.JsonRequestHandler {
 
@@ -34,12 +37,18 @@ public final class GetAskOrderIds extends APIServlet.JsonRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray orderIds = new JsonArray();
-    for (Order.Ask askOrder : assetExchange.getSortedAskOrders(assetId, firstIndex, lastIndex)) {
+    CollectionWithIndex<Ask> orders = assetExchange.getSortedAskOrders(assetId, firstIndex, lastIndex);
+    for (Order.Ask askOrder : orders) {
       orderIds.add(Convert.toUnsignedLong(askOrder.getId()));
     }
 
     JsonObject response = new JsonObject();
     response.add(ASK_ORDER_IDS_RESPONSE, orderIds);
+    
+    if(orders.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, orders.nextIndex());
+    }
+
     return response;
   }
 }

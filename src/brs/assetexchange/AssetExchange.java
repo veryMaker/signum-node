@@ -4,20 +4,31 @@ import brs.Account.AccountAsset;
 import brs.*;
 import brs.Attachment.ColoredCoinsAskOrderPlacement;
 import brs.Attachment.ColoredCoinsAssetIssuance;
-import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
+import brs.Order.OrderJournal;
 import brs.Trade.Event;
+import brs.util.CollectionWithIndex;
 import brs.util.Listener;
-
-import java.util.Collection;
 
 public interface AssetExchange {
 
-  Collection<Asset> getAllAssets(int from, int to);
+  CollectionWithIndex<Asset> getAllAssets(int from, int to);
+
+  CollectionWithIndex<Asset> getAssetsByName(String name, int from, int to);
 
   Asset getAsset(long assetId);
+
+  long getTradeVolume(long assetId, int heightStart, int heightEnd);
+
+  long getHighPrice(long assetId, int heightStart, int heightEnd);
+
+  long getLowPrice(long assetId, int heightStart, int heightEnd);
+
+  long getOpenPrice(long assetId, int heightStart, int heightEnd);
+
+  long getClosePrice(long assetId, int heightStart, int heightEnd);
 
   int getTradeCount(long assetId);
 
@@ -45,21 +56,23 @@ public interface AssetExchange {
 
   void removeBidOrder(long orderId);
 
-  Collection<Trade> getAllTrades(int i, int i1);
+  CollectionWithIndex<Trade> getAllTrades(int from, int to);
 
-  Collection<Trade> getTrades(long assetId, int from, int to);
+  CollectionWithIndex<Trade> getTrades(long assetId, int from, int to);
 
-  Collection<Trade> getAccountTrades(long accountId, int from, int to);
+  CollectionWithIndex<Trade> getAccountTrades(long accountId, int from, int to);
 
-  Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
+  CollectionWithIndex<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to);
+  
+  CollectionWithIndex<OrderJournal> getOrderJournal(long assetId, long accountId, int from, int to);
 
-  Collection<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to);
+  CollectionWithIndex<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to);
 
-  Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to);
+  CollectionWithIndex<Asset> getAssetsIssuedBy(long accountId, int from, int to);
 
-  Collection<AssetTransfer> getAssetTransfers(long assetId, int from, int to);
+  CollectionWithIndex<AssetTransfer> getAssetTransfers(long assetId, int from, int to);
 
-  Collection<AssetTransfer> getAccountAssetTransfers(long id, long id1, int from, int to);
+  CollectionWithIndex<AssetTransfer> getAccountAssetTransfers(long id, long id1, int from, int to);
 
   int getAssetsCount();
 
@@ -71,20 +84,20 @@ public interface AssetExchange {
 
   int getAssetTransferCount();
 
-  Collection<Ask> getAskOrdersByAccount(long accountId, int from, int to);
+  CollectionWithIndex<Ask> getAskOrdersByAccount(long accountId, int from, int to);
 
-  Collection<Ask> getAskOrdersByAccountAsset(long accountId, long assetId, int from, int to);
+  CollectionWithIndex<Ask> getAskOrdersByAccountAsset(long accountId, long assetId, int from, int to);
 
-  Collection<Bid> getBidOrdersByAccount(long accountId, int from, int to);
+  CollectionWithIndex<Bid> getBidOrdersByAccount(long accountId, int from, int to);
 
-  Collection<Bid> getBidOrdersByAccountAsset(long accountId, long assetId, int from, int to);
+  CollectionWithIndex<Bid> getBidOrdersByAccountAsset(long accountId, long assetId, int from, int to);
 
-  Collection<Ask> getAllAskOrders(int from, int to);
+  CollectionWithIndex<Ask> getAllAskOrders(int from, int to);
 
-  Collection<Bid> getAllBidOrders(int from, int to);
+  CollectionWithIndex<Bid> getAllBidOrders(int from, int to);
 
-  Collection<Ask> getSortedAskOrders(long assetId, int from, int to);
+  CollectionWithIndex<Ask> getSortedAskOrders(long assetId, int from, int to);
 
-  Collection<Bid> getSortedBidOrders(long assetId, int from, int to);
+  CollectionWithIndex<Bid> getSortedBidOrders(long assetId, int from, int to);
 
 }

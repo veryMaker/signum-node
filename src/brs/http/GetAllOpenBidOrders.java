@@ -1,7 +1,11 @@
 package brs.http;
 
+import brs.Asset;
 import brs.Order;
+import brs.Order.Bid;
 import brs.assetexchange.AssetExchange;
+import brs.util.CollectionWithIndex;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAllOpenBidOrders extends APIServlet.JsonRequestHandler {
 
@@ -30,11 +35,21 @@ public final class GetAllOpenBidOrders extends APIServlet.JsonRequestHandler {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
-    for (Order.Bid bidOrder : assetExchange.getAllBidOrders(firstIndex, lastIndex)) {
-      ordersData.add(JSONData.bidOrder(bidOrder));
+    Asset asset = null;
+    CollectionWithIndex<Bid> orders = assetExchange.getAllBidOrders(firstIndex, lastIndex);
+    for (Order.Bid bidOrder : orders) {
+      if(asset == null || asset.getId() != bidOrder.getAssetId()) {
+        asset = assetExchange.getAsset(bidOrder.getAssetId());
+      }
+      ordersData.add(JSONData.bidOrder(bidOrder, asset));
     }
 
     response.add("openOrders", ordersData);
+    
+    if(orders.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, orders.nextIndex());
+    }
+    
     return response;
   }
 

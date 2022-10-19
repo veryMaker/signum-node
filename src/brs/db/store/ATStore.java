@@ -36,4 +36,6 @@ public interface ATStore {
   int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount);
 
   long getMapValue(long atId, long key1, long key2);
+  
+  Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1);
 }

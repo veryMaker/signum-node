@@ -1,15 +1,22 @@
 package brs.http;
 
 import brs.Asset;
+import brs.Blockchain;
+import brs.Burst;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AccountService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -22,20 +29,28 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.*;
 
-;
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class GetAllAssetsTest extends AbstractUnitTest {
 
   private GetAllAssets t;
 
   private AssetExchange assetExchange;
+  private AccountService accountService;
 
   @Before
   public void setUp() {
     assetExchange = mock(AssetExchange.class);
+    accountService = mock(AccountService.class);
 
-    t = new GetAllAssets(assetExchange);
+    mockStatic(Burst.class);
+    Blockchain mockBlockchain = mock(Blockchain.class);
+    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
+
+    t = new GetAllAssets(assetExchange, accountService);
   }
 
   @Test
@@ -60,7 +75,7 @@ public class GetAllAssetsTest extends AbstractUnitTest {
 
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
-    when(assetExchange.getAllAssets(eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator);
+    when(assetExchange.getAllAssets(eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Asset>(mockAssetIterator, -1));
     when(assetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true), eq(true))).thenReturn(1);
     when(assetExchange.getTransferCount(eq(mockAssetId))).thenReturn(2);
     when(assetExchange.getTradeCount(eq(mockAssetId))).thenReturn(3);

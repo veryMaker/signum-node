@@ -7,15 +7,17 @@ import brs.Trade;
 import brs.assetexchange.AssetExchange;
 import brs.http.common.Parameters;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
 
 import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 import static brs.http.common.ResultFields.TRADES_RESPONSE;
 
 public final class GetTrades extends APIServlet.JsonRequestHandler {
@@ -42,23 +44,32 @@ public final class GetTrades extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     JsonArray tradesData = new JsonArray();
-    Collection<Trade> trades;
+    CollectionWithIndex<Trade> trades;
+    Asset asset = null;
     if (accountId == null) {
-      Asset asset = parameterService.getAsset(req);
+      asset = parameterService.getAsset(req);
       trades = assetExchange.getTrades(asset.getId(), firstIndex, lastIndex);
     } else if (assetId == null) {
       Account account = parameterService.getAccount(req);
       trades = assetExchange.getAccountTrades(account.getId(), firstIndex, lastIndex);
     } else {
-      Asset asset = parameterService.getAsset(req);
+      asset = parameterService.getAsset(req);
       Account account = parameterService.getAccount(req);
       trades = assetExchange.getAccountAssetTrades(account.getId(), asset.getId(), firstIndex, lastIndex);
     }
+    if(!includeAssetInfo) {
+      asset = null;
+    }
     for (Trade trade : trades) {
-      final Asset asset = includeAssetInfo ? assetExchange.getAsset(trade.getAssetId()) : null;
+      if(includeAssetInfo && (asset == null || asset.getId() != trade.getAssetId())) {
+        asset = assetExchange.getAsset(trade.getAssetId());
+      }
       tradesData.add(JSONData.trade(trade, asset));
     }
     response.add(TRADES_RESPONSE, tradesData);
+    if(trades.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, trades.nextIndex());
+    }
 
     return response;
   }

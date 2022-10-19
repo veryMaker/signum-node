@@ -45,7 +45,8 @@
               },
               "properties": {
                 "value": {
-                  "type": "string",
+                  "type": "int",
+                  "format": "int64",
                   "description": "The value"
                 }
               }

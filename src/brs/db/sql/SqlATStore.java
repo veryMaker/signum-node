@@ -219,6 +219,24 @@ public class SqlATStore implements ATStore {
     return entry.getValue();
   }
 
+  @Override
+  public Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1) {
+    Result<Record> result = Db.useDSLContext(ctx -> {
+      SelectConditionStep<Record> request = ctx.select(AT_MAP.fields()).from(AT_MAP).where(AT_MAP.LATEST.isTrue()).and(AT_MAP.AT_ID.eq(atId))
+          .and(AT_MAP.KEY1.eq(key1));
+      SelectQuery<Record> query = request.orderBy(AT_MAP.HEIGHT.desc()).getQuery();
+
+      return query.fetch();
+    });
+
+    ArrayList<brs.at.AT.AtMapEntry> list = new ArrayList<AT.AtMapEntry>();
+    for(Record r : result) {
+      list.add(new brs.at.AT.AtMapEntry(atId, key1, r.get(AT_MAP.KEY2), r.get(AT_MAP.VALUE)));
+    }
+
+    return list;
+  }
+
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {
     byte[] code = brs.at.AT.decompressState(at.getApCode());
     long codeHashId = at.getApCodeHashId();

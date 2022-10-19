@@ -8,6 +8,7 @@
     "accountRS",
     "quantityQNT",
     "priceNQT",
+    "price",
     "height",
     "type"
   ],
@@ -28,7 +29,14 @@
       "$ref": "./quantity.json"
     },
     "priceNQT": {
-      "$ref": "./amount.json"
+      "type": "integer",
+      "format": "int64",
+      "description": "The price in __planck per one token quantity__. To get the right Planck expression use either `price` field or this formula: `(priceNQT * 10^8) * 10^(decimals-8)`"
+    },
+    "price": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
     },
     "height": {
       "type": "integer",
