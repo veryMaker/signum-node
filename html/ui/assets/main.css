@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: Montserrat;
-  src: url('../../fonts/Montserrat-Regular.ttf');
+  src: url('../assets/Montserrat-Regular.ttf');
 }
 
 
@@ -20,7 +20,7 @@ canvas {
 }
 
 .bg {
-  background-image: url("../../img/selector/blockchain.jpg");
+  background-image: url("../assets/blockchain.jpg");
   background-size: cover;
   height: 100%;
   width: 100%;
