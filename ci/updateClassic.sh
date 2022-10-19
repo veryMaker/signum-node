@@ -17,7 +17,6 @@ echo "======================================="
 echo "⬇️ Cloning Classic wallet main branch..."
 echo "---------------------------------------"
 git clone https://github.com/signum-network/signum-classic-wallet.git
-# gh repo clone signum-network/signum-classic-wallet
 cd signum-classic-wallet/src > /dev/null
 
 # cleanup old version
