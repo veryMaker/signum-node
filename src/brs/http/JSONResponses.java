@@ -104,6 +104,8 @@ public final class JSONResponses {
   public static final JsonElement INCORRECT_AUTOMATED_TRANSACTION_NAME = incorrect(NAME_PARAMETER, "(must contain only digits and latin letters)");
   public static final JsonElement INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION = incorrect(DESCRIPTION_PARAMETER, "(length must not exceed " + Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH + " characters)");
   public static final JsonElement MISSING_AT = missing(AT_PARAMETER);
+  public static final JsonElement MISSING_AT_KEY1 = missing(KEY1_PARAMETER);
+  public static final JsonElement MISSING_AT_KEY2 = missing(KEY2_PARAMETER);
   public static final JsonElement UNKNOWN_AT = unknown(AT_PARAMETER);
   public static final JsonElement INCORRECT_AT = incorrect(AT_PARAMETER);
   public static final JsonElement INCORRECT_CREATION_BYTES = incorrect("incorrect creation bytes");

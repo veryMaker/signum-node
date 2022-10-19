@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static brs.http.JSONResponses.*;
 import static brs.http.common.ResultFields.VALUE_RESPONSE;
 import static brs.http.common.ResultFields.KEY_VALUES_RESPONSE;
 
@@ -31,10 +32,20 @@ final class GetATMapValues extends APIServlet.JsonRequestHandler {
   protected
   JsonElement processRequest(HttpServletRequest req) {
 
-    long atId = Convert.parseUnsignedLong(req.getParameter(AT_PARAMETER));
-    long key1 = Convert.parseUnsignedLong(req.getParameter(KEY1_PARAMETER));
+    String at = req.getParameter(AT_PARAMETER);
+    if (at == null) {
+      return MISSING_AT;
+    }
 
-    Collection<AtMapEntry> list = Burst.getStores().getAtStore().getMapValues(atId, key1);
+    String key1 = req.getParameter(KEY1_PARAMETER);
+    if (key1 == null) {
+      return MISSING_AT_KEY1;
+    }
+
+    long atId = Convert.parseUnsignedLong(at);
+    long k1 = Convert.parseUnsignedLong(key1);
+
+    Collection<AtMapEntry> list = Burst.getStores().getAtStore().getMapValues(atId, k1);
 
     JsonArray mapValues = new JsonArray();
     for (AtMapEntry entry : list) {
