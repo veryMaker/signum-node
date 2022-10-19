@@ -20,7 +20,8 @@
         "name": "referencedTransactionFullHash",
         "in": "query",
         "allowEmptyValue": false,
-        "description": "Use this field to reference to the tokens issue transaction hash. This is the way to link to the asset!<br/>Mind, that Smart Contracts cannot be marked as treasury accounts and only the creator can mark accounts as treasury accounts.",
+        "required": true,
+        "description": "Use this field to reference to the tokens issue transaction hash. This is the way to link to the asset!<br/>Mind, that tokens issued by Smart Contracts cannot have treasury accounts due to the absence of signing keys for Smart Contracts.",
         "schema": {
           "$ref": "../../schemas/hash.json"
         }

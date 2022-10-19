@@ -1053,7 +1053,8 @@
             "name": "referencedTransactionFullHash",
             "in": "query",
             "allowEmptyValue": false,
-            "description": "Use this field to reference to the tokens issue transaction hash. This is the way to link to the asset!<br/>Mind, that Smart Contracts cannot be marked as treasury accounts and only the creator can mark accounts as treasury accounts.",
+            "required": true,
+            "description": "Use this field to reference to the tokens issue transaction hash. This is the way to link to the asset!<br/>Mind, that tokens issued by Smart Contracts cannot have treasury accounts due to the absence of signing keys for Smart Contracts.",
             "schema": {
               "$ref": "#/components/schemas/hash"
             }
@@ -1628,6 +1629,36 @@
           },
           {
             "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
           }
         ],
         "responses": {
@@ -1688,6 +1719,36 @@
           },
           {
             "$ref": "#/components/parameters/referencedTransactionFullHash"
+          },
+          {
+            "$ref": "#/components/parameters/message"
+          },
+          {
+            "$ref": "#/components/parameters/messageIsText"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncrypt"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptedMessageNonce"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelf"
+          },
+          {
+            "$ref": "#/components/parameters/messageToEncryptToSelfIsText"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageData"
+          },
+          {
+            "$ref": "#/components/parameters/encryptToSelfMessageNonce"
           }
         ],
         "responses": {
