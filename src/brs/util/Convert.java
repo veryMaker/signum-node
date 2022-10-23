@@ -109,6 +109,14 @@ public final class Convert {
   public static String toString(byte[] bytes) {
     return new String(bytes, StandardCharsets.UTF_8);
   }
+  
+  public static boolean checkAllZero(final byte[] bytes) {
+    int sum = 0;
+    for (byte b : bytes) {
+        sum |= b;
+    }
+    return (sum == 0);
+  }
 
   public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws BurstException.NotValidException {
     if (numBytes > 3 * maxLength) {

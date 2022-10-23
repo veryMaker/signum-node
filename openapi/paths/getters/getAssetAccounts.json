@@ -12,7 +12,7 @@
       {
         "name": "ignoreTreasury",
         "in": "query",
-        "description": "If set `true`, [Treasury Accounts](#post-/api-requestType-addAssetTreasuryAccount) won't be returned. Default is false",
+        "description": "If set `true`, [Treasury Accounts](#post-/api-requestType-addAssetTreasuryAccount) won't be returned. Default is true",
         "schema": {
           "type": "boolean",
           "example": [
@@ -48,6 +48,10 @@
                 "accountAssets"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+
                 "accountAssets": {
                   "type": "array",
                   "items": {
@@ -57,7 +61,8 @@
                       "accountRS",
                       "asset",
                       "quantityQNT",
-                      "unconfirmedQuantityQNT"
+                      "unconfirmedQuantityQNT",
+                      "isTreasury"
                     ],
                     "properties": {
                       "account": {
@@ -74,6 +79,10 @@
                       },
                       "unconfirmedQuantityQNT": {
                         "$ref": "../../schemas/quantity.json"
+                      },
+                      "isTreasury": {
+                        "type": "boolean",
+                        "description": "Indicates whether this account is marked as [treasury account](#post-/api-requestType-addAssetTreasuryAccount) or not."
                       }
                     },
                     "example": {

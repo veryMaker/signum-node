@@ -2,12 +2,14 @@ package brs.http;
 
 import brs.Account;
 import brs.BurstException;
+import brs.Order;
 import brs.Order.Bid;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -65,7 +67,7 @@ public class GetAccountCurrentBidOrdersTest extends AbstractUnitTest {
     final Collection<Bid> mockBidIterator = mockCollection(bid);
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
-    when(mockAssetExchange.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(mockBidIterator);
+    when(mockAssetExchange.getBidOrdersByAccount(eq(accountId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Order.Bid>(mockBidIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
@@ -103,7 +105,7 @@ public class GetAccountCurrentBidOrdersTest extends AbstractUnitTest {
     final Collection<Bid> mockBidIterator = mockCollection(bid);
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
-    when(mockAssetExchange.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(mockBidIterator);
+    when(mockAssetExchange.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Order.Bid>(mockBidIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);

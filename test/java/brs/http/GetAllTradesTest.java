@@ -7,6 +7,7 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -64,7 +65,7 @@ public class GetAllTradesTest extends AbstractUnitTest {
 
     final Collection<Trade> mockTradeIterator = mockCollection(mockTrade);
 
-    when(mockAssetExchange.getAllTrades(eq(0), eq(-1))).thenReturn(mockTradeIterator);
+    when(mockAssetExchange.getAllTrades(eq(0), eq(-1))).thenReturn(new CollectionWithIndex<Trade>(mockTradeIterator, -1));
     when(mockAssetExchange.getAsset(eq(mockAssetId))).thenReturn(mockAsset);
 
     final JsonObject result = (JsonObject) t.processRequest(req);
@@ -104,7 +105,7 @@ public class GetAllTradesTest extends AbstractUnitTest {
 
     final Collection<Trade> mockTradeIterator = mockCollection(mockTrade);
 
-    when(mockAssetExchange.getAllTrades(eq(0), eq(-1))).thenReturn(mockTradeIterator);
+    when(mockAssetExchange.getAllTrades(eq(0), eq(-1))).thenReturn(new CollectionWithIndex<Trade>(mockTradeIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);

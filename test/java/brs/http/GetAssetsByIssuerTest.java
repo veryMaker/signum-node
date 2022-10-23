@@ -2,20 +2,26 @@ package brs.http;
 
 import brs.Account;
 import brs.Asset;
+import brs.Blockchain;
+import brs.Burst;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Collection;
 
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
@@ -26,22 +32,30 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.*;
 
-;
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class GetAssetsByIssuerTest extends AbstractUnitTest {
 
   private GetAssetsByIssuer t;
 
   private ParameterService mockParameterService;
   private AssetExchange mockAssetExchange;
+  private AccountService mockAccountService;
 
   @Before
   public void setUp() {
     mockParameterService = mock(ParameterService.class);
     mockAssetExchange = mock(AssetExchange.class);
+    mockAccountService = mock(AccountService.class);
 
-    t = new GetAssetsByIssuer(mockParameterService, mockAssetExchange);
+    mockStatic(Burst.class);
+    Blockchain mockBlockchain = mock(Blockchain.class);
+    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
+
+    t = new GetAssetsByIssuer(mockParameterService, mockAssetExchange, mockAccountService);
   }
 
   @Test
@@ -71,7 +85,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
 
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
-    when(mockAssetExchange.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).thenReturn(mockAssetIterator);
+    when(mockAssetExchange.getAssetsIssuedBy(eq(mockAccount.getId()), eq(firstIndex), eq(lastIndex))).thenReturn(new CollectionWithIndex<Asset>(mockAssetIterator, -1));
     when(mockAssetExchange.getAssetAccountsCount(eq(mockAsset), eq(0L), eq(true), eq(true))).thenReturn(1);
     when(mockAssetExchange.getTransferCount(eq(mockAssetId))).thenReturn(2);
     when(mockAssetExchange.getTradeCount(eq(mockAssetId))).thenReturn(3);

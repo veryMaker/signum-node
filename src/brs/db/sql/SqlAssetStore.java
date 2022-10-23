@@ -5,12 +5,16 @@ import brs.Burst;
 import brs.db.BurstKey;
 import brs.db.store.AssetStore;
 import brs.db.store.DerivedTableManager;
+import brs.schema.tables.records.AssetRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.SelectQuery;
+import org.jooq.impl.DSL;
 
 import java.util.Collection;
 
-import static brs.schema.tables.Asset.ASSET;
+import static brs.schema.Tables.ASSET;
 
 public class SqlAssetStore implements AssetStore {
 
@@ -69,6 +73,23 @@ public class SqlAssetStore implements AssetStore {
   @Override
   public Asset getAsset(long assetId) {
     return assetTable.getBy(ASSET.ID.eq(assetId));
+  }
+  
+  @Override
+  public Collection<Asset> getAssetsByName(String name, int from, int to){
+    return Db.useDSLContext(ctx -> {
+      SelectQuery<AssetRecord> query = ctx.selectFrom(ASSET).where(DSL.upper(ASSET.NAME).like("%"+name.toUpperCase()+"%")).getQuery();
+      query.addOrderBy(ASSET.HEIGHT.asc(), ASSET.ID);
+      DbUtils.applyLimits(query, from, to);
+          
+      return getAssets(ctx, query.fetch());
+    });
+  }
+  
+  public Collection<Asset> getAssets(DSLContext ctx, Result<AssetRecord> rs) {
+      return rs.map(r -> {
+        return new SqlAsset(r);
+      });
   }
 
   private class SqlAsset extends Asset {

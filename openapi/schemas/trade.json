@@ -24,9 +24,12 @@
       "$ref": "./quantity.json"
     },
     "priceNQT": {
+      "$ref": "./orderPricePerQuantity.json"
+    },
+    "price": {
       "type": "integer",
       "format": "int64",
-      "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8",
+      "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
     },
     "asset": {
       "$ref": "./assetId.json"

@@ -2,6 +2,8 @@ package brs;
 
 import java.util.Collection;
 
+import brs.util.CollectionWithIndex;
+
 public interface Blockchain {
 
   Block getLastBlock();
@@ -22,7 +24,7 @@ public interface Blockchain {
 
   Collection<Block> getBlocks(Account account, int timestamp);
 
-  Collection<Block> getBlocks(Account account, int timestamp, int from, int to);
+  CollectionWithIndex<Block> getBlocks(Account account, int timestamp, int from, int to);
 
   int getBlocksCount(long accountId, int from, int to);
 
@@ -53,6 +55,8 @@ public interface Blockchain {
   Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockImplTimestamp, boolean includeIndirectIncoming);
 
   Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockImplTimestamp, int from, int to, boolean includeIndirectIncoming);
+  
+  Collection<Transaction> getTransactions(long senderId, byte type, byte subtypeStart, byte subtypeEnd, int from, int to);
   
   Collection<Long> getTransactionIds(Long sender, Long recipient, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming);
   

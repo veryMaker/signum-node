@@ -1,0 +1,69 @@
+{
+  "get": {
+    "summary": "Get Tokens By Name",
+    "description": "Get all tokens by its name",
+    "tags": [
+      "token"
+    ],
+    "required": [
+      "name"
+    ],
+    "parameters": [
+      {
+        "name": "name",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "A part of or the entire name",
+        "schema": {
+          "type": "string",
+          "maxLength": "10",
+          "pattern": "^[a-zA-Z0-9_]{1,10}$"
+        }
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightStart.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightEnd.json"
+      },
+      {
+        "$ref": "../../parameters/token/skipZeroVolume.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "The Token List",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+                "assets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../schemas/asset.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

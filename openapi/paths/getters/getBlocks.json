@@ -37,6 +37,9 @@
                 "blocks"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "blocks": {
                   "type": "array",
                   "items": {

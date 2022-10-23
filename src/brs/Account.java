@@ -97,6 +97,7 @@ public class Account {
     public final BurstKey burstKey;
     private long quantityQNT;
     private long unconfirmedQuantityQNT;
+    private boolean isTreasury;
 
     protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, BurstKey burstKey) {
       this.accountId = accountId;
@@ -104,6 +105,7 @@ public class Account {
       this.quantityQNT = quantityQNT;
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
       this.burstKey = burstKey;
+      this.isTreasury = false;
     }
 
     public AccountAsset(BurstKey burstKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
@@ -112,6 +114,7 @@ public class Account {
       this.burstKey = burstKey;
       this.quantityQNT = quantityQNT;
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
+      this.isTreasury = false;
     }
 
     public long getAccountId() {
@@ -153,6 +156,15 @@ public class Account {
     public void setUnconfirmedQuantityQNT(long unconfirmedQuantityQNT) {
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
     }
+    
+    public void setTreasury(boolean isTreasury) {
+        this.isTreasury = isTreasury;
+    }
+
+    public boolean isTreasury() {
+        return isTreasury;
+    }
+    
   }
 
   public static class RewardRecipientAssignment {

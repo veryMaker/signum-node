@@ -4,6 +4,7 @@ import brs.Account;
 import brs.BurstException;
 import brs.services.ATService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import com.google.gson.JsonArray;
@@ -11,11 +12,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 import static brs.http.JSONResponses.ERROR_INCORRECT_REQUEST;
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ATS_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAccountATs extends APIServlet.JsonRequestHandler {
 
@@ -50,7 +51,7 @@ public final class GetAccountATs extends APIServlet.JsonRequestHandler {
       }
     }
 
-    List<Long> atIds = atService.getATsIssuedBy(account.getId(), codeHashId, firstIndex, lastIndex);
+    CollectionWithIndex<Long> atIds = atService.getATsIssuedBy(account.getId(), codeHashId, firstIndex, lastIndex);
     JsonArray ats = new JsonArray();
     for(long atId : atIds) {
       ats.add(JSONData.at(atService.getAT(atId)));
@@ -58,6 +59,11 @@ public final class GetAccountATs extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     response.add(ATS_RESPONSE, ats);
+    
+    if(atIds.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, atIds.nextIndex());
+    }
+    
     return response;
   }
 }

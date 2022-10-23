@@ -5,6 +5,7 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -49,7 +50,7 @@ public class GetAssetIdsTest extends AbstractUnitTest {
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
     when(mockAssetExchange.getAllAssets(eq(firstIndex), eq(lastIndex)))
-        .thenReturn(mockAssetIterator);
+        .thenReturn(new CollectionWithIndex<Asset>(mockAssetIterator, -1));
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(FIRST_INDEX_PARAMETER, firstIndex),

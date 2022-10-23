@@ -42,6 +42,10 @@
                 "transfers"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+
                 "transfers": {
                   "type": "array",
                   "items": {

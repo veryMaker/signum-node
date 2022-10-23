@@ -40,7 +40,7 @@
         }
       },
       {
-        "name": "numberOfConfirmation",
+        "name": "numberOfConfirmations",
         "description": "The minimum number of confirmations for wanted transactions.",
         "in": "query",
         "schema": {
@@ -72,6 +72,9 @@
                 "transactions"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "transactions" : {
                   "type":"array",
                   "items": {

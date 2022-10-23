@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
 
+import java.util.Collection;
+
 final class GetAccountTransactionIds extends APIServlet.JsonRequestHandler {
 
   private final ParameterService parameterService;
@@ -50,7 +52,8 @@ final class GetAccountTransactionIds extends APIServlet.JsonRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray transactionIds = new JsonArray();
-    for (Transaction transaction : blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(req))) {
+    Collection<Transaction> transactions = blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(req));
+    for (Transaction transaction : transactions) {
       transactionIds.add(transaction.getStringId());
     }
 

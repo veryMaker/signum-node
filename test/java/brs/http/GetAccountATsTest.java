@@ -9,6 +9,8 @@ import brs.common.QuickMocker;
 import brs.services.ATService;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
@@ -66,7 +68,7 @@ public class GetAccountATsTest {
 
     when(mockAccountService.getAccount(anyLong())).thenReturn(mockAccount);
 
-    when(mockATService.getATsIssuedBy(eq(mockAccountId), eq(null), eq(0), eq(499))).thenReturn(Arrays.asList(mockATId));
+    when(mockATService.getATsIssuedBy(eq(mockAccountId), eq(null), eq(0), eq(499))).thenReturn(new CollectionWithIndex<Long>(Arrays.asList(mockATId), -1));
     when(mockATService.getAT(eq(mockATId))).thenReturn(mockAT);
     when(mockATService.getAT(eq(mockATId), ArgumentMatchers.anyInt())).thenReturn(mockAT);
 

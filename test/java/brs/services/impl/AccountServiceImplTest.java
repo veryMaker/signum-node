@@ -175,7 +175,7 @@ public class AccountServiceImplTest {
 
     when(accountTableMock.getAll(eq(from), eq(to))).thenReturn(mockAccountsIterator);
 
-    assertEquals(mockAccountsIterator, t.getAllAccounts(from, to));
+    assertEquals(mockAccountsIterator, t.getAllAccounts(from, to).getCollection());
   }
 
   @Test

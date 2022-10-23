@@ -38,7 +38,7 @@ public class Stores {
     this.subscriptionStore           = new SqlSubscriptionStore(derivedTableManager);
     this.unconfirmedTransactionStore = new UnconfirmedTransactionStoreImpl(timeService, propertyService, accountStore, transactionDb, params);
     this.indirectIncomingStore       = new SqlIndirectIncomingStore(derivedTableManager);
-    this.blockchainStore             = new SqlBlockchainStore(indirectIncomingStore);
+    this.blockchainStore             = new SqlBlockchainStore();
   }
 
   public AccountStore getAccountStore() {

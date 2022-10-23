@@ -28,6 +28,9 @@
                 "assetBalances", "unconfirmedAssetBalances"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "assetBalances": {
                   "description": "The total token balances (in _quantity_) which this account owns, including reserved ones",
                   "type": "array",

@@ -24,6 +24,9 @@
                 "assetIds"
               ],
               "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
                 "assetIds": {
                   "type": "array",
                   "items": {

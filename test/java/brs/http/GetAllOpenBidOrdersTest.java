@@ -1,10 +1,12 @@
 package brs.http;
 
+import brs.Order;
 import brs.Order.Bid;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -51,7 +53,7 @@ public class GetAllOpenBidOrdersTest extends AbstractUnitTest {
 
     final Collection<Bid> mockIterator = mockCollection(mockBidOrder);
     when(mockAssetExchange.getAllBidOrders(eq(firstIndex), eq(lastIndex)))
-        .thenReturn(mockIterator);
+        .thenReturn(new CollectionWithIndex<Order.Bid>(mockIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(QuickMocker.httpServletRequest(
         new MockParam(FIRST_INDEX_PARAMETER, "" + firstIndex),

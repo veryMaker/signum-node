@@ -36,11 +36,14 @@ public final class GetAllTrades extends APIServlet.JsonRequestHandler {
     final JsonArray trades = new JsonArray();
 
     FilteringIterator<Trade> tradeIterator = new FilteringIterator<>(
-            assetExchange.getAllTrades(0, -1),
+            assetExchange.getAllTrades(0, -1).getCollection(),
             trade -> trade.getTimestamp() >= timestamp, firstIndex, lastIndex);
+    Asset asset = null;
     while (tradeIterator.hasNext()) {
       final Trade trade = tradeIterator.next();
-      final Asset asset = includeAssetInfo ? assetExchange.getAsset(trade.getAssetId()) : null;
+      if(includeAssetInfo && (asset == null || asset.getId() != trade.getAssetId())){
+        asset = assetExchange.getAsset(trade.getAssetId());
+      }
 
       trades.add(JSONData.trade(trade, asset));
     }

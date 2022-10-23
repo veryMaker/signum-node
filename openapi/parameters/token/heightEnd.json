@@ -1,0 +1,10 @@
+{
+  "name": "heightEnd",
+  "in": "query",
+  "allowEmptyValue": true,
+  "required": false,
+  "description": "Define the end height for trading information over a given period - if not given the current block is taken as end height",
+  "schema": {
+    "type": "integer"
+  }
+}

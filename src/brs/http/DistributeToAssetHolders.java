@@ -7,8 +7,6 @@ import static brs.http.common.Parameters.ASSET_TO_DISTRIBUTE_PARAMETER;
 import static brs.http.common.Parameters.QUANTITY_MININUM_QNT_PARAMETER;
 import static brs.http.common.Parameters.QUANTITY_QNT_PARAMETER;
 
-import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonElement;
@@ -25,6 +23,7 @@ import brs.assetexchange.AssetExchange;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 public final class DistributeToAssetHolders extends CreateTransaction {
@@ -98,7 +97,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
     }
 
     boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
-    Collection<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, unconfirmed, -1, -1);
+    CollectionWithIndex<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, unconfirmed, -1, -1);
     long circulatingSupply = 0;
     for(AccountAsset holder : holders) {
       circulatingSupply += holder.getQuantityQNT();
