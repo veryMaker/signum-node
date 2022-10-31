@@ -8,8 +8,9 @@ and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 201
 
 The two supported database backends are:
 
-- H2 (embedded, recommended)
-- MariaDB (advanced users)
+- MariaDB: for Main Net and Production Environments
+- H2 embedded file database, which should only be used for local and/or test net nodes.
+
 
 ## Network Features
 
