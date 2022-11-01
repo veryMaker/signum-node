@@ -62,7 +62,7 @@ OpenJDK 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sha
 
 The important part is that the Java version starts with `11.` (Java 11)
 
-### MariaDB (Optional)
+### MariaDB (Recommended)
 
 [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
 
