@@ -68,7 +68,8 @@ The important part is that the Java version starts with `11.` (Java 11)
 
 The MariaDb installation will ask to setup a password for the root user.
 This password can be anything you like. 
-Modify these settings in the `node-default.properties` created after installing the Signum node:
+
+Modify these settings in the `node-default.properties` file in the node directory after installing the Signum node:
 
 **TIP: _remove # from first character of each line so it looks like the below_**
 ```properties
@@ -77,6 +78,7 @@ Modify these settings in the `node-default.properties` created after installing 
  DB.Password=S!gnumP@$S
 ```
 **Windows Setup**
+
 after you install MariaDB and use a root passowrd of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
 
 **TIP: _use the copy icon in github when you mouse over the text, then use the LEFT mouse button and click in the command prompt window_**
