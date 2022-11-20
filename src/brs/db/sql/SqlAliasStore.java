@@ -7,8 +7,12 @@ import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
 import brs.util.Convert;
+
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Result;
 import org.jooq.SortField;
 
 import java.util.ArrayList;
@@ -137,8 +141,18 @@ public class SqlAliasStore implements AliasStore {
   }
   
   @Override
-  public Collection<Alias.Offer> getAliasOffers(int from, int to) {
-    return offerTable.getManyBy(brs.schema.Tables.ALIAS_OFFER.LATEST.eq(true), from, to);
+  public Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
+    Condition conditions = ALIAS_OFFER.LATEST.eq(true);
+    if(account != 0L) {
+      Result<Record1<Long>> myAliases = Db.useDSLContext(ctx -> {
+      return ctx.select(ALIAS.ID).from(ALIAS).where(ALIAS.ACCOUNT_ID.eq(account)).fetch();
+      });
+      conditions = conditions.and(ALIAS_OFFER.ID.in(myAliases));
+    }
+    if(buyer != 0L) {
+      conditions = conditions.and(ALIAS_OFFER.BUYER_ID.eq(buyer));
+    }
+    return offerTable.getManyBy(conditions, from, to);
   }
 
   @Override
