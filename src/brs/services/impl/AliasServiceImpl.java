@@ -51,8 +51,8 @@ public class AliasServiceImpl implements AliasService {
   }
   
   @Override
-  public Collection<Alias.Offer> getAliasOffers(int from, int to) {
-    return aliasStore.getAliasOffers(from, to);
+  public Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
+    return aliasStore.getAliasOffers(account, buyer, from, to);
   }
 
   @Override

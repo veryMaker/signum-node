@@ -19,7 +19,7 @@ public interface AliasService {
 
   Collection<Alias> getAliasesByOwner(long accountId, int from, int to);
 
-  Collection<Alias.Offer> getAliasOffers(int from, int to);
+  Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to);
 
   void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment);
 
