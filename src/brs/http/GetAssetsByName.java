@@ -45,8 +45,8 @@ public final class GetAssetsByName extends AbstractAssetsRetrieval {
         }
         
         int heightEnd = Burst.getBlockchain().getHeight();
-        // default is for any height
-        int heightStart = 0;
+        // default is one day window
+        int heightStart = heightEnd - 360;
         
         String heightStartString = Convert.emptyToNull(req.getParameter(HEIGHT_START_PARAMETER));
         if(heightStartString != null) {
