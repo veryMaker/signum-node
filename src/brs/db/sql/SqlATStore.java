@@ -210,10 +210,15 @@ public class SqlATStore implements ATStore {
       return createAT(at, atState, height);
     });
   }
+  
+  @Override
+  public AtMapEntry getMapValueEntry(long atId, long key1, long key2) {
+    return this.atMapTable.get(this.atMapKeyFactory.newKey(atId, key1, key2));
+  }
 
   @Override
   public long getMapValue(long atId, long key1, long key2) {
-    AtMapEntry entry = this.atMapTable.get(this.atMapKeyFactory.newKey(atId, key1, key2));
+    AtMapEntry entry = getMapValueEntry(atId, key1, key2);
     if(entry == null)
       return 0;
     return entry.getValue();
