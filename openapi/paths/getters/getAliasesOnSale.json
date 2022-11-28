@@ -7,6 +7,26 @@
     ],
     "parameters": [
       {
+        "name": "account",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": false,
+        "description": "The account identifier of the owner. This way one can list which of the owned aliases are on sale",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "buyer",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": false,
+        "description": "The account identifier of the buyer. This parameter is useful when to see if there are direct sales/offers for a specific account",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
         "$ref": "../../parameters/firstIndex.json"
       },
       {
