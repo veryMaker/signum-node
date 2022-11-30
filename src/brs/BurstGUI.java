@@ -251,7 +251,7 @@ public class BurstGUI extends JFrame {
         // JButton popOffMaxButton = new JButton("Pop off max", IconFontSwing.buildIcon(FontAwesome.FAST_BACKWARD, 18, iconColor));
 
         openPhoenixButton.addActionListener(e -> openWebUi("/phoenix"));
-        openClassicButton.addActionListener(e -> openWebUi("/classic.html"));
+        openClassicButton.addActionListener(e -> openWebUi("/classic"));
         openApiButton.addActionListener(e -> openWebUi("/api-doc"));
     	editConfButton.addActionListener(e -> editConf());
         popOff10Button.addActionListener(e -> popOff(10));
@@ -259,7 +259,7 @@ public class BurstGUI extends JFrame {
         //popOffMaxButton.addActionListener(e -> popOff(0));
 
         File phoenixIndex = new File("html/ui/phoenix/index.html");
-        File classicIndex = new File("html/ui/classic.html");
+        File classicIndex = new File("html/ui/classic/index.html");
         if(phoenixIndex.isFile() && phoenixIndex.exists()) {
           toolBar.add(openPhoenixButton);
         }
