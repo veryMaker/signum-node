@@ -225,10 +225,13 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1) {
+  public Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1, Long value) {
     Result<Record> result = Db.useDSLContext(ctx -> {
       SelectConditionStep<Record> request = ctx.select(AT_MAP.fields()).from(AT_MAP).where(AT_MAP.LATEST.isTrue()).and(AT_MAP.AT_ID.eq(atId))
           .and(AT_MAP.KEY1.eq(key1));
+      if(value != null) {
+        request = request.and(AT_MAP.VALUE.eq(value));
+      }
       SelectQuery<Record> query = request.orderBy(AT_MAP.HEIGHT.desc()).getQuery();
 
       return query.fetch();
