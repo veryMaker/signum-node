@@ -40,5 +40,5 @@ public interface ATStore {
   
   long getMapValue(long atId, long key1, long key2);
   
-  Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1);
+  Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1, Long value);
 }

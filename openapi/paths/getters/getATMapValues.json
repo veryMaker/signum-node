@@ -18,6 +18,16 @@
         },
         "in": "query",
         "description": "The 1st key of the map"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "in": "query",
+        "description": "The value to be searched for"
       }
     ],
     "responses": {
