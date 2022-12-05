@@ -1,7 +1,7 @@
 {
   "get": {
     "summary": "Get Node/Peer Info",
-    "description": "Get information about a specific Peer. See also [Get Node/Peer Id List]()",
+    "description": "Get information about a specific Peer. See also [Get Known Peers/Nodes](#get-/api-requestType-getPeers)",
     "tags": [
       "network"
     ],
@@ -9,7 +9,7 @@
       {
         "name": "peer",
         "in": "query",
-        "description": "The nodes IP. You can get it from [Get Connected Nodes/Peers]()",
+        "description": "The nodes IP. You can get it from [Get Known Peers/Nodes](#get-/api-requestType-getPeers)",
         "required": true,
         "schema": {
           "type": "string"
