@@ -229,6 +229,11 @@ public class AT extends AtMachineState {
       if(updates != null) {
         VersionedEntityTable<AtMapEntry> table = Burst.getStores().getAtStore().getAtMapTable();
         for(AtMapEntry e : updates) {
+          AtMapEntry cacheEntry = Burst.getStores().getAtStore().getMapValueEntry(e.getAtId(), e.getKey1(), e.getKey2());
+          if(cacheEntry != null) {
+            cacheEntry.setValue(e.getValue());
+            e = cacheEntry;
+          }
           table.insert(e);
         }
         updates.clear();

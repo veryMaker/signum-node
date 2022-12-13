@@ -19,13 +19,14 @@ import java.util.Collection;
 import static brs.http.common.Parameters.AT_PARAMETER;
 import static brs.http.common.Parameters.KEY1_PARAMETER;
 import static brs.http.common.Parameters.KEY2_PARAMETER;
+import static brs.http.common.Parameters.VALUE_PARAMETER;
 
 
 final class GetATMapValues extends APIServlet.JsonRequestHandler {
 
 
   GetATMapValues() {
-    super(new APITag[] {APITag.AT}, AT_PARAMETER, KEY1_PARAMETER);
+    super(new APITag[] {APITag.AT}, AT_PARAMETER, KEY1_PARAMETER, VALUE_PARAMETER);
   }
 
   @Override
@@ -41,11 +42,16 @@ final class GetATMapValues extends APIServlet.JsonRequestHandler {
     if (key1 == null) {
       return MISSING_AT_KEY1;
     }
+    String valueString = Convert.emptyToNull(req.getParameter(VALUE_PARAMETER));
+    Long value = null;
+    if(valueString != null) {
+        value = Convert.parseUnsignedLong(valueString);
+    }
 
     long atId = Convert.parseUnsignedLong(at);
     long k1 = Convert.parseUnsignedLong(key1);
 
-    Collection<AtMapEntry> list = Burst.getStores().getAtStore().getMapValues(atId, k1);
+    Collection<AtMapEntry> list = Burst.getStores().getAtStore().getMapValues(atId, k1, value);
 
     JsonArray mapValues = new JsonArray();
     for (AtMapEntry entry : list) {

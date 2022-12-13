@@ -16,10 +16,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Update Phoenix Wallet
+      - name: Update Wallets
         run: |
           cd ./ci
           ./updatePhoenix.sh
+          ./updateClassic.sh
       - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
