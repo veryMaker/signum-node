@@ -8,8 +8,9 @@ and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 201
 
 The two supported database backends are:
 
-- H2 (embedded, recommended)
-- MariaDB (advanced users)
+- MariaDB: for Main Net and Production Environments
+- H2 embedded file database, which should only be used for local and/or test net nodes.
+
 
 ## Network Features
 
@@ -61,18 +62,35 @@ OpenJDK 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sha
 
 The important part is that the Java version starts with `11.` (Java 11)
 
-### MariaDB (Optional)
+### MariaDB (Recommended)
 
 [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
 
-The MariaDb installation will ask to setup a password for the root user. 
-Add this password to the `node.properties` file you will create when installing BRS:
+The MariaDb installation will ask to setup a password for the root user.
+This password can be anything you like. 
 
+Modify these settings in the `node-default.properties` file in the node directory after installing the Signum node:
+
+**TIP: _remove # from first character of each line so it looks like the below_**
 ```properties
-DB.Url=jdbc:mariadb://localhost:3306/signum
-DB.Username=root
-DB.Password=YOUR_PASSWORD
+ DB.Url=jdbc:mariadb://localhost:3306/signum
+ DB.Username=signum_user
+ DB.Password=S!gnumP@$S
 ```
+**Windows Setup**
+
+after you install MariaDB and use a root passowrd of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
+
+**TIP: _use the copy icon in github when you mouse over the text, then use the RIGHT mouse button and click in the command prompt window to paste_**
+```
+create database if not exists signum;
+create user if not exists 'signum_user'@'localhost' identified by 'S!gnumP@$S';
+grant all privileges on signum.* to 'signum_user'@'localhost';
+flush privileges;
+
+```
+You should see 4 "Query OK" responses after pasting, maria is now setup!   If you have already updated your node-default.properties file as shown above you should be able to start your node and begin to syncronize it to the network.
+
 
 ## Set Up
 

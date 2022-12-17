@@ -1,7 +1,7 @@
 {
   "get": {
     "summary": "Get Block Range",
-    "description": "Gets a range of blocks. Return the most recent 500 blocks if no argument is given",
+    "description": "Gets a range of blocks. Return the most recent 100 blocks if no argument is given",
     "tags": [
       "network"
     ],
