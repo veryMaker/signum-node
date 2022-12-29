@@ -275,7 +275,7 @@ public class BurstGUI extends JFrame {
     	}
 
     	openPheonixWalletItem.addActionListener(e -> openWebUi("/phoenix"));
-        openClassicWalletItem.addActionListener(e -> openWebUi("/classic.html"));
+        openClassicWalletItem.addActionListener(e -> openWebUi("/classic"));
     	showItem.addActionListener(e -> showWindow());
     	shutdownItem.addActionListener(e -> shutdown());
 
