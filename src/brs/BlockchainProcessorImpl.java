@@ -1132,7 +1132,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             block = popLastBlock();
           }
           logger.debug("Rolling back derived tables...");
-          derivedTableManager.getDerivedTables().forEach(table -> table.rollback(commonBlock.getHeight()));
+          for(DerivedTable table : derivedTableManager.getDerivedTables()) {
+            logger.debug("Rolling back {}", table.getTable());
+            table.rollback(commonBlock.getHeight());            
+          }
           dbCacheManager.flushCache();
           stores.commitTransaction();
           downloadCache.resetCache();

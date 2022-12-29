@@ -23,6 +23,11 @@ public abstract class DerivedSqlTable implements DerivedTable {
     this.heightField = tableClass.field("height", Integer.class);
     this.latestField = tableClass.field("latest", Boolean.class);
   }
+  
+  @Override
+  public String getTable() {
+    return table;
+  }
 
   @Override
   public void rollback(int height) {
