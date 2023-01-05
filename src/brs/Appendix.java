@@ -2,6 +2,7 @@ package brs;
 
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.util.Convert;
 import brs.util.JSON;
 import com.google.gson.JsonObject;
@@ -398,6 +399,10 @@ public interface Appendix {
       Account recipientAccount = Account.getAccount(recipientId);
       if (recipientAccount != null && recipientAccount.getPublicKey() != null && ! Arrays.equals(publicKey, recipientAccount.getPublicKey())) {
         throw new BurstException.NotCurrentlyValidException("A different public key for this account has already been announced");
+      }
+      if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
+        && Burst.getBlockchain().getHeight() - recipientAccount.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
+          throw new BurstException.NotCurrentlyValidException("Setting a new key for and old inactivated account");
       }
     }
 

@@ -40,6 +40,10 @@ public class TestnetNetwork extends NetworkParametersBase {
 
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "381300");
     setProperty(Props.BRS_CHECKPOINT_HASH, "f0846a5d9f43801498316011601dd7c90fa7a20bd95295f2a5fba032bcdeb495");
+    setProperty(Props.BRS_PK_CHECKS, "900bb3db35adb8a8;c7e083683bbbc831;");
+
+    setProperty(Props.PK_BLOCK_HEIGHT, "500080");
+    setProperty(Props.PK_BLOCKS_PAST, "120");
 
     setProperty(Props.ADDRESS_PREFIX, "TS");
     setProperty(Props.VALUE_SUFIX, "TSIGNA");

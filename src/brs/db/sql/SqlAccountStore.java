@@ -11,7 +11,10 @@ import brs.db.VersionedEntityTable;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.AccountStore;
 import brs.db.store.DerivedTableManager;
+import brs.fluxcapacitor.FluxValues;
+import brs.props.Props;
 import brs.util.Convert;
+import burst.kit.crypto.BurstCrypto;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -51,6 +54,9 @@ public class SqlAccountStore implements AccountStore {
           return (DbKey) accountAsset.burstKey;
         }
     };
+
+  private static final Set<String> PK_CHECKS = Collections
+          .unmodifiableSet(new HashSet<>(Burst.getPropertyService().getStringList(Props.BRS_PK_CHECKS)));
 
   public SqlAccountStore(DerivedTableManager derivedTableManager, DBCacheManagerImpl dbCacheManager) {
     rewardRecipientAssignmentTable = new VersionedEntitySqlTable<Account.RewardRecipientAssignment>("reward_recip_assign", brs.schema.Tables.REWARD_RECIP_ASSIGN, rewardRecipientAssignmentDbKeyFactory, derivedTableManager) {
@@ -306,26 +312,36 @@ public class SqlAccountStore implements AccountStore {
       condition = condition.and(ACCOUNT_ASSET.ACCOUNT_ID.notIn(treasuryAccounts));
     }
     Collection<AccountAsset> accounts = getAccountAssetTable().getManyBy(condition, from, to, sort);
-    
+
     // flag treasury accounts
     for(AccountAsset account : accounts) {
         if(treasuryAccounts.contains(account.getAccountId())) {
             account.setTreasury(true);
         }
     }
-    
+
     return accounts;
   }
 
   @Override
   public boolean setOrVerify(Account acc, byte[] key, int height) {
     if (acc.getPublicKey() == null) {
+      if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
+        && Burst.getBlockchain().getHeight() - acc.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
+          logger.info("Setting a new key for and old account {} is not allowed, created at height {}", Convert.toUnsignedLong(acc.id), acc.getCreationHeight());
+          return false;
+      }
+
       if (Db.isInTransaction()) {
         acc.setPublicKey(key);
         acc.setKeyHeight(-1);
         getAccountTable().insert(acc);
       }
       return true;
+    } else if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
+      && PK_CHECKS.contains(Convert.toHexString(BurstCrypto.getInstance().longToBytesLE(acc.getId())))){
+        logger.info("Using the key for account {}", Convert.toUnsignedLong(acc.id));
+        return false;
     } else if (Arrays.equals(acc.getPublicKey(), key)) {
       return true;
     } else if (acc.getKeyHeight() == -1) {

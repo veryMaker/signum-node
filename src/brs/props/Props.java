@@ -59,7 +59,10 @@ public class Props {
   public static final Prop<Integer> SMART_ATS_HEIGHT = new Prop<>("brs.smartAts.startBlock", -1);
   public static final Prop<Integer> DISTRIBUTION_FIX_BLOCK_HEIGHT = new Prop<>("brs.distributionFix.startBlock", -1);
   public static final Prop<Integer> AT_FIX_BLOCK_5_BLOCK_HEIGHT = new Prop<>("brs.atFixBlock5.startBlock", -1);
-  
+
+  public static final Prop<Integer> PK_BLOCK_HEIGHT = new Prop<>("brs.pkBlock.startBlock", -1);
+  public static final Prop<Integer> PK_BLOCKS_PAST = new Prop<>("brs.pkBlocksPast", 131400);
+
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
   public static final Prop<Boolean> BRS_DEBUG_TRACE_ENABLED = new Prop<>("brs.debugTraceEnable", false);
@@ -80,6 +83,7 @@ public class Props {
   // Checkpoint block for faster sync from empty database
   public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("node.checkPointHeight", 970_000);
   public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("node.checkPointPrevHash", "c0bb65a25e6fb5f6c4672b5ced900bdf9eb8247187467fd504f42e050fe2ad36");
+  public static final Prop<String> BRS_PK_CHECKS = new Prop<>("node.pkChecks", "dba639ec3450e0b1;169b3b99ce28a350;a83c47e772a35586;6db77a51a7def19d;c4823aa7028f6735;fb0e32a5bc032257;15a35aa0515e3584;27fcf52c3bc40fba;c4823aa7028f6735;981454e22b5ac976;0cb15471ad76fcd1;");
 
   // GPU options
   public static final Prop<Boolean> GPU_ACCELERATION     = new Prop<>("GPU.Acceleration", false);
