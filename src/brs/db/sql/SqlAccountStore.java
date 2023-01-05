@@ -327,7 +327,7 @@ public class SqlAccountStore implements AccountStore {
   public boolean setOrVerify(Account acc, byte[] key, int height) {
     if (acc.getPublicKey() == null) {
       if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
-        && Burst.getBlockchain().getHeight() - acc.getCreationHeight() > Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE_BLOCKS_PAST)) {
+        && Burst.getBlockchain().getHeight() - acc.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
           logger.info("Setting a new key for and old account {} is not allowed, created at height {}", Convert.toUnsignedLong(acc.id), Burst.getBlockchain().getHeight(), acc.getCreationHeight());
           return false;
       }
