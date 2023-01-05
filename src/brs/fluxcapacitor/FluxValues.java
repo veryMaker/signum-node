@@ -1,7 +1,9 @@
 package brs.fluxcapacitor;
 
+import brs.Burst;
 import brs.Constants;
 import brs.Version;
+import brs.props.Props;
 
 public class FluxValues {
     private FluxValues() {
@@ -24,6 +26,10 @@ public class FluxValues {
     public static final FluxEnable SMART_FEES = new FluxEnable(HistoricalMoments.SMART_FEES);
     public static final FluxEnable SMART_ATS = new FluxEnable(HistoricalMoments.SMART_ATS);
     public static final FluxEnable DISTRIBUTION_FIX = new FluxEnable(HistoricalMoments.DISTRIBUTION_FIX);
+    public static final FluxEnable PK_FREEZE = new FluxEnable(HistoricalMoments.PK_FREEZE);
+    public static final FluxValue<Integer> PK_FREEZE_BLOCKS_PAST = new FluxValue<Integer>(
+            Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)
+            );
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
     public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
@@ -56,7 +62,7 @@ public class FluxValues {
         new FluxValue.ValueChange<>(HistoricalMoments.SPEEDWAY, 96L));
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
-        Version.parse("3.4.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.DISTRIBUTION_FIX, Version.parse("3.4.9"))
+        Version.parse("3.5.0"),
+        new FluxValue.ValueChange<>(HistoricalMoments.PK_FREEZE, Version.parse("3.5.9"))
         );
 }

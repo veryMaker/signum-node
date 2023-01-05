@@ -823,6 +823,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     long totalMined = blockchain.getTotalMined();
 
     long totalEffectiveBalance = accountService.getAllAccountsBalance();
+    for (Escrow escrow : escrowService.getAllEscrowTransactions()) {
+      totalEffectiveBalance += escrow.getAmountNQT();
+    }
 
     if(totalMined != totalEffectiveBalance) {
       logger.warn("Block height {}, total mined {}, total effective+burnt {}", blockchain.getHeight(), totalMined, totalEffectiveBalance);
@@ -1134,7 +1137,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           logger.debug("Rolling back derived tables...");
           for(DerivedTable table : derivedTableManager.getDerivedTables()) {
             logger.debug("Rolling back {}", table.getTable());
-            table.rollback(commonBlock.getHeight());            
+            table.rollback(commonBlock.getHeight());
           }
           dbCacheManager.flushCache();
           stores.commitTransaction();
