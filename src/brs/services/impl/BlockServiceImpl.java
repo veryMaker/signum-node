@@ -60,7 +60,13 @@ public class BlockServiceImpl implements BlockService {
       System.arraycopy(data, 0, data2, 0, data2.length);
 
       byte[] publicKey = block.getGeneratorPublicKey();
-      if(accountService.getAccount(publicKey) != null) {
+      Account account = accountService.getAccount(publicKey);
+      if(account != null) {
+        if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2) && account.getPublicKey() == null
+          && Burst.getBlockchain().getHeight() - account.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
+          logger.error("Setting a new key for and old inactivated account");
+          return false;
+        }
         // only if the account exists
         Account rewardAccount = getRewardAccount(block);
         publicKey = rewardAccount.getPublicKey();

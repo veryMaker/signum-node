@@ -39,7 +39,7 @@ public class GeneratorImpl implements Generator {
   private final DownloadCacheImpl downloadCache;
   private final TimeService timeService;
   private final FluxCapacitor fluxCapacitor;
-  
+
   public GeneratorImpl(Blockchain blockchain, DownloadCacheImpl downloadCache, AccountService accountService, TimeService timeService, FluxCapacitor fluxCapacitor) {
     this.blockchain = blockchain;
     this.downloadCache = downloadCache;
@@ -65,6 +65,7 @@ public class GeneratorImpl implements Generator {
         }
       } catch (BlockchainProcessor.BlockNotAcceptedException e) {
         logger.debug("Error in block generation thread", e);
+        generators.clear();
       }
     };
   }
@@ -140,7 +141,7 @@ public class GeneratorImpl implements Generator {
   public BigInteger calculateHit(byte[] genSig, byte[] scoopData) {
     return burstCrypto.calculateHit(genSig, scoopData);
   }
-  
+
   @Override
   public double getCommitmentFactor(long commitment, long averageCommitment, int blockHeight) {
     if(fluxCapacitor.getValue(FluxValues.POC_PLUS, blockHeight)) {
@@ -157,7 +158,7 @@ public class GeneratorImpl implements Generator {
   @Override
   public BigInteger calculateDeadline(BigInteger hit, long capacityBaseTarget, long commitment, long averageCommitment, int blockHeight) {
     BigInteger deadline = hit.divide(BigInteger.valueOf(capacityBaseTarget));
-    
+
     double blockTime = fluxCapacitor.getValue(FluxValues.BLOCK_TIME);
     double lnScale = (blockTime) / Math.log(blockTime);
 
@@ -165,7 +166,7 @@ public class GeneratorImpl implements Generator {
       // private static final double lnScale = 49d; // value that would keep the legacy network size estimation close to real capacity
 
       double commitmentFactor = getCommitmentFactor(commitment, averageCommitment, blockHeight);
-      
+
       double nextDeadline = deadline.doubleValue()/commitmentFactor;
       if(nextDeadline > 0) {
         // Avoid zero logarithm
@@ -217,7 +218,7 @@ public class GeneratorImpl implements Generator {
       if(fluxCapacitor.getValue(FluxValues.POC_PLUS, lastBlock.getHeight() + 1)) {
         commitmment = estimateCommitment(accountId, lastBlock);
       }
-      
+
       deadline = calculateDeadline(hit, baseTarget, commitmment, lastBlock.getAverageCommitment(), lastBlock.getHeight() + 1);
     }
 
@@ -235,7 +236,7 @@ public class GeneratorImpl implements Generator {
     public BigInteger getDeadline() {
       return deadline;
     }
-    
+
     @Override
     public BigInteger getDeadlineLegacy() {
       return hit.divide(BigInteger.valueOf(baseTarget));
@@ -292,9 +293,9 @@ public class GeneratorImpl implements Generator {
     long capacityBaseTarget = previousBlock.getCapacityBaseTarget();
     int height = previousBlock.getHeight();
     int endHeight = height;
-    
+
     int commitmentWait = fluxCapacitor.getValue(FluxValues.COMMITMENT_WAIT, height);
-    
+
     // Check if there are mined blocks on the download cache or commitment removals
     Block blockIt = null;
     if(downloadCache != null) {
@@ -332,7 +333,7 @@ public class GeneratorImpl implements Generator {
       endHeight--;
       blockIt = downloadCache.getBlock(blockIt.getPreviousBlockId());
     }
-    
+
     committedAmount = committedAmountOnCache;
     committedAmount += blockchain.getCommittedAmount(generatorId, height, endHeight, null);
     if(committedAmount <= 0L) {
@@ -367,7 +368,7 @@ public class GeneratorImpl implements Generator {
       }
     }
     nBlocksMined += nBlocksMinedOnCache;
-    
+
     long genesisTarget = Constants.INITIAL_BASE_TARGET;
     genesisTarget = (long)(genesisTarget / 1.83d); // account for Sodium deadlines
     long estimatedCapacityGb = genesisTarget*nBlocksMined*1000L/(capacityBaseTarget * capacityEstimationBlocks);
@@ -377,7 +378,7 @@ public class GeneratorImpl implements Generator {
     }
     // Commitment being the committed balance per TiB
     long commitment = (committedAmount/estimatedCapacityGb) * 1000L;
-    
+
     if(logger.isDebugEnabled()) {
       logger.debug("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, committedAmountNQT {}, commitmentNQT {}",
           height,
@@ -387,7 +388,7 @@ public class GeneratorImpl implements Generator {
           committedAmount,
           commitment);
     }
-    
+
     return commitment;
   }
 }

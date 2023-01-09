@@ -27,6 +27,7 @@ public class FluxValues {
     public static final FluxEnable SMART_ATS = new FluxEnable(HistoricalMoments.SMART_ATS);
     public static final FluxEnable DISTRIBUTION_FIX = new FluxEnable(HistoricalMoments.DISTRIBUTION_FIX);
     public static final FluxEnable PK_FREEZE = new FluxEnable(HistoricalMoments.PK_FREEZE);
+    public static final FluxEnable PK_FREEZE2 = new FluxEnable(HistoricalMoments.PK_FREEZE2);
     public static final FluxEnable NEXT_FORK = new FluxEnable(HistoricalMoments.NEXT_FORK);
 
     public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
@@ -60,6 +61,6 @@ public class FluxValues {
 
     public static final FluxValue<Version> MIN_PEER_VERSION = new FluxValue<>(
         Version.parse("3.5.0"),
-        new FluxValue.ValueChange<>(HistoricalMoments.PK_FREEZE, Version.parse("3.5.9"))
+        new FluxValue.ValueChange<>(HistoricalMoments.PK_FREEZE, Version.parse("3.5.2"))
         );
 }

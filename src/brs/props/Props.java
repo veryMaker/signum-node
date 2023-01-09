@@ -61,7 +61,9 @@ public class Props {
   public static final Prop<Integer> AT_FIX_BLOCK_5_BLOCK_HEIGHT = new Prop<>("brs.atFixBlock5.startBlock", -1);
 
   public static final Prop<Integer> PK_BLOCK_HEIGHT = new Prop<>("brs.pkBlock.startBlock", -1);
+  public static final Prop<Integer> PK2_BLOCK_HEIGHT = new Prop<>("brs.pk2Block.startBlock", -1);
   public static final Prop<Integer> PK_BLOCKS_PAST = new Prop<>("brs.pkBlocksPast", 131400);
+  public static final Prop<Boolean> PK_API_BLOCK = new Prop<>("brs.pkAPIBlock", true);
 
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
