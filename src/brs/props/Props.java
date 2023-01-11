@@ -210,6 +210,7 @@ public class Props {
   public static final Prop<Boolean> ENABLE_AT_DEBUG_LOG = new Prop<>("node.ATDebugLog.enable", false);
 
   public static final Prop<String> SOLO_MINING_PASSPHRASES = new Prop<>("SoloMiningPassphrases", "");
+  public static final Prop<String> REWARD_RECIPIENT_PASSPHRASES = new Prop<>("RewardRecipientPassphrases", "");
   public static final Prop<Boolean> ALLOW_OTHER_SOLO_MINERS = new Prop<>("AllowOtherSoloMiners", true);
 
   private Props() { //no need to construct

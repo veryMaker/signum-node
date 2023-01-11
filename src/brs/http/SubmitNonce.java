@@ -14,6 +14,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -40,6 +42,12 @@ public final class SubmitNonce extends APIServlet.JsonRequestHandler {
             .collect(Collectors.toMap(passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
     this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
     this.checkPointHeight = propertyService.getInt(Props.BRS_CHECKPOINT_HEIGHT);
+
+    List<String> soloRecipientPassphrases = propertyService.getStringList(Props.REWARD_RECIPIENT_PASSPHRASES);
+    for(String soloRecipient : soloRecipientPassphrases){
+      String[] idAndPassphrase = soloRecipient.split(":", 2);
+      this.passphrases.put(BurstAddress.fromEither(idAndPassphrase[0]).getSignedLongId(), idAndPassphrase[1]);
+    }
 
     this.accountService = accountService;
     this.blockchain = blockchain;
@@ -132,7 +140,7 @@ public final class SubmitNonce extends APIServlet.JsonRequestHandler {
 
     return response;
   }
-  
+
   public static void verifySecretAccount(AccountService accountService, Blockchain blockchain, Account secretAccount, long accountId) throws Exception {
     Account genAccount;
     if (accountId != 0) {
