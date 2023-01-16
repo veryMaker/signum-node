@@ -89,8 +89,9 @@ public class APITransactionManagerImpl implements APITransactionManager {
       message = new Message(new byte[0], blockchainHeight);
     }
     PublicKeyAnnouncement publicKeyAnnouncement = null;
+    byte []recipientPublicKey = Convert.parseHexString(recipientPublicKeyValue);
     if (recipientPublicKeyValue != null && Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-      publicKeyAnnouncement = new PublicKeyAnnouncement(Convert.parseHexString(recipientPublicKeyValue), blockchainHeight);
+      publicKeyAnnouncement = new PublicKeyAnnouncement(recipientPublicKey, blockchainHeight);
     }
 
     if (secretPhrase == null && publicKeyValue == null) {
@@ -135,11 +136,15 @@ public class APITransactionManagerImpl implements APITransactionManager {
     try {
       Builder builder = transactionProcessor.newTransactionBuilder(publicKey, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash);
       if (attachment.getTransactionType().hasRecipient()) {
+        Account recipientAccount = accountService.getAccount(recipientId);
         if(Burst.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
-          Account recipientAccount = accountService.getAccount(recipientId);
           if((recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {
             return incorrect(RECIPIENT_PARAMETER);
           }
+        }
+        if(recipientAccount != null && recipientAccount.getPublicKey() != null && recipientAccount.getPublicKey().equals(recipientPublicKey)){
+          // no need to announce the same public key already on chain
+          publicKeyAnnouncement = null;
         }
         builder.recipientId(recipientId);
       }
