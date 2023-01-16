@@ -403,13 +403,13 @@ public interface Appendix {
       if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2)){
         if(recipientAccount != null && recipientAccount.getPublicKey() == null
         && Burst.getBlockchain().getHeight() - recipientAccount.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
-          throw new BurstException.NotCurrentlyValidException("Setting a new key for and old inactivated account");
+          throw new BurstException.NotCurrentlyValidException("Setting a new key for an old inactivated account");
         }
       }
       else // TODO: the conditional below can be removed after PK_FREEZE2 is activated
       if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
         && Burst.getBlockchain().getHeight() - recipientAccount.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
-          throw new BurstException.NotCurrentlyValidException("Setting a new key for and old inactivated account");
+          throw new BurstException.NotCurrentlyValidException("Setting a new key for an old inactivated account");
       }
     }
 

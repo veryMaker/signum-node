@@ -64,7 +64,7 @@ public class BlockServiceImpl implements BlockService {
       if(account != null) {
         if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2) && account.getPublicKey() == null
           && Burst.getBlockchain().getHeight() - account.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
-          logger.error("Setting a new key for and old inactivated account");
+          logger.error("Setting a new key for an old inactivated account");
           return false;
         }
         // only if the account exists
