@@ -65,7 +65,7 @@ public final class ParameterParser {
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_QUANTITY);
     }
-    if (quantityQNT <= 0 || quantityQNT > Constants.MAX_ASSET_QUANTITY_QNT) {
+    if (quantityQNT < 0 || quantityQNT > Constants.MAX_ASSET_QUANTITY_QNT) {
       throw new ParameterException(INCORRECT_ASSET_QUANTITY);
     }
     return quantityQNT;
