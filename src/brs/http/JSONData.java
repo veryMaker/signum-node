@@ -62,6 +62,7 @@ public final class JSONData {
       long tradeVolume, long highPrice, long lowPrice, long openPrice, long closePrice) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, asset.getAccountId());
+    putAccount(json, ISSUER_RESPONSE, asset.getIssuerId());
     if(issuerAccount != null) {
       json.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(issuerAccount.getPublicKey()));
     }

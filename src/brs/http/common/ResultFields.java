@@ -40,6 +40,7 @@ public class ResultFields {
   public static final String ASSET_BALANCES_RESPONSE = "assetBalances";
   public static final String UNCONFIRMED_ASSET_BALANCES_RESPONSE = "unconfirmedAssetBalances";
   public static final String ACCOUNT_RESPONSE = "account";
+  public static final String ISSUER_RESPONSE = "issuer";
   public static final String REWARD_RECIPIENT_RESPONSE = "rewardRecipient";
   public static final String BLOCK_RESPONSE = "block";
   public static final String HEIGHT_RESPONSE = "height";

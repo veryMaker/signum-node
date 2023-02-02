@@ -11,6 +11,7 @@ import brs.db.store.BlockchainStore;
 import brs.fluxcapacitor.FluxValues;
 import brs.schema.tables.records.BlockRecord;
 import brs.schema.tables.records.TransactionRecord;
+import brs.util.Convert;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -215,6 +216,37 @@ public class SqlBlockchainStore implements BlockchainStore {
 
       SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions).and(
           TRANSACTION.SENDER_ID.eq(senderId));
+
+      SelectQuery<TransactionRecord> selectQuery = select
+              .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())
+              .getQuery();
+
+      DbUtils.applyLimits(selectQuery, from, to);
+
+      return getTransactions(ctx, selectQuery.fetch());
+    });
+  }
+
+  @Override
+  public Collection<Transaction> getTransactionsWithFullHashReference(String fullHash, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
+    return Db.useDSLContext(ctx -> {
+      ArrayList<Condition> conditions = new ArrayList<>();
+
+      // must be confirmed already
+      int height = Burst.getBlockchain().getHeight() - numberOfConfirmations;
+      conditions.add(TRANSACTION.HEIGHT.le(height));
+      if (type >= 0) {
+        conditions.add(TRANSACTION.TYPE.eq(type));
+        if (subtypeStart >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.ge(subtypeStart));
+        }
+        if (subtypeEnd >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.le(subtypeEnd));
+        }
+      }
+
+      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions).and(
+          TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(fullHash)));
 
       SelectQuery<TransactionRecord> selectQuery = select
               .orderBy(TRANSACTION.BLOCK_TIMESTAMP.desc(), TRANSACTION.ID.desc())

@@ -1,12 +1,15 @@
 package brs;
 
+import java.util.Collection;
+
 import brs.db.BurstKey;
 
 public class Asset {
 
   private final long assetId;
   public final BurstKey dbKey;
-  private final long accountId;
+  private final long issuerId;
+  private long accountId;
   private final String name;
   private final String description;
   private final long quantityQNT;
@@ -17,6 +20,7 @@ public class Asset {
     this.assetId = assetId;
     this.dbKey = dbKey;
     this.accountId = accountId;
+    this.issuerId = accountId;
     this.name = name;
     this.description = description;
     this.quantityQNT = quantityQNT;
@@ -28,11 +32,25 @@ public class Asset {
     this.dbKey = dbKey;
     this.assetId = assetId;
     this.accountId = accountId;
+    this.issuerId = accountId;
     this.name = attachment.getName();
     this.description = attachment.getDescription();
     this.quantityQNT = attachment.getQuantityQNT();
     this.decimals = attachment.getDecimals();
     this.mintable = attachment.getMintable();
+  }
+
+  public void updateCurrentOwnerAccount() {
+    Blockchain blockchain = Burst.getBlockchain();
+
+    Transaction issuanceTransaction = blockchain.getTransaction(assetId);
+    Collection<Transaction> txs = blockchain.getTransactionsWithFullHashReference(issuanceTransaction.getFullHash(), 1,
+      TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP,
+      TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP, 0, 1);
+
+    if(txs.size() > 0) {
+      this.accountId = txs.iterator().next().getRecipientId();
+    }
   }
 
   public long getId() {
@@ -41,6 +59,10 @@ public class Asset {
 
   public long getAccountId() {
     return accountId;
+  }
+
+  public long getIssuerId() {
+    return issuerId;
   }
 
   public String getName() {
@@ -58,7 +80,7 @@ public class Asset {
   public byte getDecimals() {
     return decimals;
   }
-  
+
   public boolean getMintable() {
     return mintable;
   }

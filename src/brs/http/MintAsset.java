@@ -40,7 +40,7 @@ public final class MintAsset extends CreateTransaction {
       return JSONResponses.incorrect("minting assets is not enabled yet");
     }
     if(asset.getAccountId() != account.getId()) {
-      return JSONResponses.incorrect("only the asset issuer can mint new coins");
+      return JSONResponses.incorrect("only the current asset owner can mint new coins");
     }
 
     boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);

@@ -69,6 +69,7 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT = 7;
   public static final byte SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS = 8;
   public static final byte SUBTYPE_COLORED_COINS_ASSET_MULTI_TRANSFER = 9;
+  public static final byte SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP = 10;
 
   public static final byte SUBTYPE_DIGITAL_GOODS_LISTING = 0;
   public static final byte SUBTYPE_DIGITAL_GOODS_DELISTING = 1;
@@ -165,6 +166,7 @@ public abstract class TransactionType {
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT, ColoredCoins.ASSET_ADD_TREASURY_ACCOUNT);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_DISTRIBUTE_TO_HOLDERS, ColoredCoins.ASSET_DISTRIBUTE_TO_HOLDERS);
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_MULTI_TRANSFER, ColoredCoins.ASSET_MULTI_TRANSFER);
+    coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP, ColoredCoins.ASSET_TRANSFER_OWNERSHIP);
 
     Map<Byte, TransactionType> digitalGoodsTypes = new HashMap<>();
     digitalGoodsTypes.put(SUBTYPE_DIGITAL_GOODS_LISTING, DigitalGoods.LISTING);
@@ -1059,6 +1061,91 @@ public abstract class TransactionType {
         if (asset == null) {
           throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(attachment.getAssetId()) +
                   " does not exist yet");
+        }
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return true;
+      }
+
+    };
+
+    public static final TransactionType ASSET_TRANSFER_OWNERSHIP = new ColoredCoins() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP;
+      }
+
+      @Override
+      public String getDescription() {
+        return "Asset Transfer Ownership";
+      }
+
+      @Override
+      public Attachment.EmptyAttachment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+        return Attachment.COLORED_COINS_ASSET_TRANSFER_OWNERSHIP;
+      }
+
+      @Override
+      protected Attachment.EmptyAttachment parseAttachment(JsonObject attachmentData) throws NotValidException {
+        return Attachment.COLORED_COINS_ASSET_TRANSFER_OWNERSHIP;
+      }
+
+      @Override
+      protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        logger.trace("TransactionType ASSET_TRANSFER_OWNERSHIP");
+
+        if(!Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2)){
+          // not available yet
+          return false;
+        }
+
+        if(transaction.getAmountNQT() != 0L){
+          // no money sent along with this transaction
+          return false;
+        }
+
+        String fullHashRef = transaction.getReferencedTransactionFullHash();
+        Transaction assetIssuance = blockchain.getTransactionByFullHash(fullHashRef);
+        if(assetIssuance == null){
+          return false;
+        }
+
+        Asset asset = assetExchange.getAsset(assetIssuance.getId());
+        if(asset == null || transaction.getSenderId() != asset.getAccountId()){
+          // only the current owner can transfer it
+          return false;
+        }
+        return true;
+      }
+
+      @Override
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        // if the transaction is confirmed, there is nothing else to do
+      }
+
+      @Override
+      protected void undoAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
+        // if the transaction is removed, there is nothing else to do
+      }
+
+      @Override
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        Asset asset = null;
+        String fullHashRef = transaction.getReferencedTransactionFullHash();
+        Transaction assetIssuance = blockchain.getTransactionByFullHash(fullHashRef);
+        if(assetIssuance != null){
+          asset = assetExchange.getAsset(assetIssuance.getId());
+        }
+
+        if(!Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2)
+          || transaction.getAmountNQT() != 0L
+          || asset == null
+          || transaction.getSenderId() != asset.getAccountId()){
+          // only the current owner can transfer it
+          throw new BurstException.NotValidException("Invalid asset ownership transfer");
         }
       }
 

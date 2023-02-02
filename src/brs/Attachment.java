@@ -889,6 +889,19 @@ public interface Attachment extends Appendix {
     }
   }
 
+  EmptyAttachment COLORED_COINS_ASSET_TRANSFER_OWNERSHIP = new EmptyAttachment() {
+
+    @Override
+    protected String getAppendixName() {
+      return "AssetTransferOwnership";
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.ColoredCoins.ASSET_TRANSFER_OWNERSHIP;
+    }
+  };
+
   final class ColoredCoinsAssetMint extends AbstractAttachment {
 
     private final long assetId;

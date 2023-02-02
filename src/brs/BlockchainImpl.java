@@ -20,9 +20,9 @@ public class BlockchainImpl implements Blockchain {
   private final BlockDb blockDb;
   private final BlockchainStore blockchainStore;
   private final PropertyService propertyService;
-  
+
   private final StampedLock bcsl;
-  
+
   BlockchainImpl(TransactionDb transactionDb, BlockDb blockDb, BlockchainStore blockchainStore, PropertyService propertyService) {
     this.transactionDb = transactionDb;
     this.blockDb = blockDb;
@@ -64,11 +64,11 @@ public class BlockchainImpl implements Blockchain {
   }
 
   @Override
-  public int getHeight() {  
+  public int getHeight() {
     Block last = getLastBlock();
     return last == null ? 0 : last.getHeight();
   }
-    
+
   @Override
   public Block getLastBlock(int timestamp) {
     Block block = getLastBlock();
@@ -106,7 +106,7 @@ public class BlockchainImpl implements Blockchain {
   public CollectionWithIndex<Block> getBlocks(Account account, int timestamp, int from, int to) {
     return new CollectionWithIndex<Block>(blockchainStore.getBlocks(account, timestamp, from, to), from, to);
   }
-  
+
   @Override
   public int getBlocksCount(long accountId, int from, int to) {
     return blockchainStore.getBlocksCount(accountId, from, to);
@@ -175,20 +175,20 @@ public class BlockchainImpl implements Blockchain {
   public Collection<Transaction> getAllTransactions() {
     return blockchainStore.getAllTransactions();
   }
-  
+
   @Override
   public long getAtBurnTotal(){
     return blockchainStore.getAtBurnTotal();
   }
-  
+
   @Override
   public long getBlockReward(int height) {
     if (height == 0) {
       return 0;
     }
-    
+
     long ONE_COIN = propertyService.getInt(Props.ONE_COIN_NQT);
-    
+
     if (height >= propertyService.getInt(Props.BLOCK_REWARD_LIMIT_HEIGHT)) {
       // Minimum incentive, lower than 0.6 % per year
       return propertyService.getInt(Props.BLOCK_REWARD_LIMIT_AMOUNT) * ONE_COIN;
@@ -199,7 +199,7 @@ public class BlockchainImpl implements Blockchain {
     return BigInteger.valueOf(start).multiply(BigInteger.valueOf(percentage).pow(month))
       .divide(BigInteger.valueOf(100).pow(month)).longValue() * ONE_COIN;
   }
-  
+
   @Override
   public long getTotalMined() {
     long totalMined = 0;
@@ -224,7 +224,7 @@ public class BlockchainImpl implements Blockchain {
       }
       totalMined += blockReward;
     }
-    
+
     return totalMined;
   }
 
@@ -232,24 +232,29 @@ public class BlockchainImpl implements Blockchain {
   public Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockTimestamp, boolean includeIndirectIncoming) {
     return getTransactions(account, 0, type, subtype, blockTimestamp, 0, -1, includeIndirectIncoming);
   }
-  
+
   @Override
   public Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype,
                                                  int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
     return blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming);
   }
-  
+
   @Override
   public Collection<Transaction> getTransactions(long senderId, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
     return blockchainStore.getTransactions(senderId, type, subtypeStart, subtypeEnd, from, to);
   }
-  
+
+  @Override
+  public Collection<Transaction> getTransactionsWithFullHashReference(String fullHash, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
+    return blockchainStore.getTransactionsWithFullHashReference(fullHash, numberOfConfirmations, type, subtypeStart, subtypeEnd, from, to);
+  }
+
   @Override
   public Collection<Long> getTransactionIds(Long sender, Long recipient, int numberOfConfirmations, byte type,
       byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
     return blockchainStore.getTransactionIds(sender, recipient, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming);
   }
-  
+
   @Override
   public long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction) {
     return blockchainStore.getCommittedAmount(accountId, height, endHeight, skipTransaction);

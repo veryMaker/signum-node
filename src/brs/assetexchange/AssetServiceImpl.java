@@ -29,7 +29,11 @@ class AssetServiceImpl {
   }
 
   public Asset getAsset(long id) {
-    return assetTable.get(assetDbKeyFactory.newKey(id));
+    Asset asset = assetTable.get(assetDbKeyFactory.newKey(id));
+    if(asset != null){
+      asset.updateCurrentOwnerAccount();
+    }
+    return asset;
   }
 
   public Collection<AccountAsset> getAccounts(Asset asset, boolean filterIgnored, long minimumQuantity, boolean unconfirmed, int from, int to) {
@@ -47,11 +51,11 @@ class AssetServiceImpl {
   public Collection<Asset> getAllAssets(int from, int to) {
     return assetTable.getAll(from, to);
   }
-  
+
   public Collection<Asset> getAssetsByName(String name, int from, int to) {
     return assetStore.getAssetsByName(name, from, to);
   }
-  
+
   public Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to) {
     return assetStore.getAssetsIssuedBy(accountId, from, to);
   }
