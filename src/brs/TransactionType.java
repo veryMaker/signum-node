@@ -1082,6 +1082,11 @@ public abstract class TransactionType {
       public String getDescription() {
         return "Asset Transfer Ownership";
       }
+      
+      @Override
+      public Fee getBaselineFee(int height) {
+        return new Fee(fluxCapacitor.getValue(FluxValues.FEE_QUANT, height) * BASELINE_ASSET_ISSUANCE_FACTOR, 0);
+      }
 
       @Override
       public Attachment.EmptyAttachment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
