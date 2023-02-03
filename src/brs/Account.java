@@ -236,6 +236,10 @@ public class Account {
     return id == 0 ? null : accountBalanceTable().get(accountBalanceBurstKeyFactory().newKey(id));
   }
 
+  public static Account.AccountAsset getAccountAssetBalance(long id, long assetId) {
+    return Burst.getStores().getAccountStore().getAccountAsset(id, assetId);
+  }
+
   public static long getId(byte[] publicKey) {
     byte[] publicKeyHash = Crypto.sha256().digest(publicKey);
     return Convert.fullHashToId(publicKeyHash);

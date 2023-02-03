@@ -9,6 +9,7 @@ import brs.Burst;
 import brs.Constants;
 import brs.Transaction;
 import brs.TransactionType;
+import brs.Account.AccountAsset;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
@@ -475,6 +476,24 @@ public class AtApiPlatformImpl extends AtApiImpl {
         }
 
         return state.getgBalance();
+    }
+
+    @Override
+    public long getAccountBalance(AtMachineState state) {
+        if (!Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2, state.getHeight())) {
+            return 0;
+        }
+
+        long accountId = AtApiHelper.getLong(state.getB1());
+        long assetId = AtApiHelper.getLong(state.getB2());
+
+        if(assetId == 0L){
+          Account.Balance balance = Account.getAccountBalance(accountId);
+          return balance == null ? 0L : balance.getBalanceNQT();
+        }
+        AccountAsset assetBalance = Account.getAccountAssetBalance(accountId, assetId);
+
+        return assetBalance == null ? 0 : assetBalance.getQuantityQNT();
     }
 
     @Override
