@@ -44,6 +44,10 @@ public class Asset {
     Blockchain blockchain = Burst.getBlockchain();
 
     Transaction issuanceTransaction = blockchain.getTransaction(assetId);
+    if(issuanceTransaction == null){
+      // no issuance tx for smart contract issued assets
+      return;
+    }
     Collection<Transaction> txs = blockchain.getTransactionsWithFullHashReference(issuanceTransaction.getFullHash(), 1,
       TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP,
       TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP, 0, 1);
