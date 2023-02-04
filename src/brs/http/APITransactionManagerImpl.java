@@ -25,6 +25,8 @@ import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.*;
 import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
 
+import java.util.Arrays;
+
 public class APITransactionManagerImpl implements APITransactionManager {
 
   private final ParameterService parameterService;
@@ -142,7 +144,7 @@ public class APITransactionManagerImpl implements APITransactionManager {
             return incorrect(RECIPIENT_PARAMETER);
           }
         }
-        if(recipientAccount != null && recipientAccount.getPublicKey() != null && recipientAccount.getPublicKey().equals(recipientPublicKey)){
+        if(recipientAccount != null && recipientAccount.getPublicKey() != null && Arrays.equals(recipientAccount.getPublicKey(),recipientPublicKey)){
           // no need to announce the same public key already on chain
           publicKeyAnnouncement = null;
         }
