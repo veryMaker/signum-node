@@ -8,8 +8,7 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.services.AliasService;
-
-import java.util.Collection;
+import brs.util.CollectionWithIndex;
 
 public class AliasServiceImpl implements AliasService {
 
@@ -46,13 +45,13 @@ public class AliasServiceImpl implements AliasService {
   }
 
   @Override
-  public Collection<Alias> getAliasesByOwner(long accountId, int from, int to) {
-    return aliasStore.getAliasesByOwner(accountId, from, to);
+  public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, int from, int to) {
+    return new CollectionWithIndex<Alias>(aliasStore.getAliasesByOwner(accountId, from, to), from, to);
   }
   
   @Override
-  public Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
-    return aliasStore.getAliasOffers(account, buyer, from, to);
+  public CollectionWithIndex<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
+    return new CollectionWithIndex<Alias.Offer>(aliasStore.getAliasOffers(account, buyer, from, to), from, to);
   }
 
   @Override

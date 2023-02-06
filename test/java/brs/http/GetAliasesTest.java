@@ -8,6 +8,7 @@ import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.services.AliasService;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
 import brs.util.JSON;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -15,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
 
 import static brs.http.common.ResultFields.*;
 import static org.junit.Assert.assertEquals;
@@ -23,8 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-;
 
 public class GetAliasesTest extends AbstractUnitTest {
 
@@ -55,7 +53,7 @@ public class GetAliasesTest extends AbstractUnitTest {
     final Offer mockOffer = mock(Offer.class);
     when(mockOffer.getPriceNQT()).thenReturn(234L);
 
-    final Collection<Alias> mockAliasIterator = mockCollection(mockAlias);
+    final CollectionWithIndex<Alias> mockAliasIterator = new CollectionWithIndex<Alias>(mockCollection(mockAlias), 0, 1);
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
 

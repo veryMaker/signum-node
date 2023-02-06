@@ -4,8 +4,7 @@ import brs.Alias;
 import brs.Alias.Offer;
 import brs.Attachment;
 import brs.Transaction;
-
-import java.util.Collection;
+import brs.util.CollectionWithIndex;
 
 public interface AliasService {
 
@@ -17,9 +16,9 @@ public interface AliasService {
 
   long getAliasCount();
 
-  Collection<Alias> getAliasesByOwner(long accountId, int from, int to);
+  CollectionWithIndex<Alias> getAliasesByOwner(long accountId, int from, int to);
 
-  Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to);
+  CollectionWithIndex<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to);
 
   void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment);
 

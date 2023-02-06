@@ -5,7 +5,7 @@ import brs.Alias.Offer;
 import brs.BurstException;
 import brs.services.AliasService;
 import brs.services.ParameterService;
-import brs.util.FilteringIterator;
+import brs.util.CollectionWithIndex;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ALIASES_RESPONSE;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAliases extends APIServlet.JsonRequestHandler {
 
@@ -35,15 +36,22 @@ public final class GetAliases extends APIServlet.JsonRequestHandler {
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray aliases = new JsonArray();
-    FilteringIterator<Alias> aliasIterator = new FilteringIterator<>(aliasService.getAliasesByOwner(accountId, 0, -1), alias -> alias.getTimestamp() >= timestamp, firstIndex, lastIndex);
-    while (aliasIterator.hasNext()) {
-      final Alias alias = aliasIterator.next();
+    CollectionWithIndex<Alias> aliasesByOwner = aliasService.getAliasesByOwner(accountId, firstIndex, lastIndex);
+    for (Alias alias : aliasesByOwner) {
+      if(alias.getTimestamp() < timestamp) {
+        continue;
+      }
       final Offer offer = aliasService.getOffer(alias);
       aliases.add(JSONData.alias(alias, offer));
     }
 
     JsonObject response = new JsonObject();
     response.add(ALIASES_RESPONSE, aliases);
+    
+    if(aliasesByOwner.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, aliasesByOwner.nextIndex());
+    }
+
     return response;
   }
 

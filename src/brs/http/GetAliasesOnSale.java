@@ -3,6 +3,7 @@ package brs.http;
 import brs.Alias;
 import brs.BurstException;
 import brs.services.AliasService;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import com.google.gson.JsonArray;
@@ -13,8 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ALIASES_RESPONSE;
-
-import java.util.Collection;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
 public final class GetAliasesOnSale extends APIServlet.JsonRequestHandler {
 
@@ -43,7 +43,7 @@ public final class GetAliasesOnSale extends APIServlet.JsonRequestHandler {
     }
 
     JsonArray aliasesJson = new JsonArray();
-    Collection<Alias.Offer> aliasOffers = aliasService.getAliasOffers(account, buyer, firstIndex, lastIndex);
+    CollectionWithIndex<Alias.Offer> aliasOffers = aliasService.getAliasOffers(account, buyer, firstIndex, lastIndex);
     for(Alias.Offer offer : aliasOffers) {
       Alias alias = aliasService.getAlias(offer.getId());
       aliasesJson.add(JSONData.alias(alias, offer));
@@ -51,6 +51,11 @@ public final class GetAliasesOnSale extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     response.add(ALIASES_RESPONSE, aliasesJson);
+    
+    if(aliasOffers.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, aliasOffers.nextIndex());
+    }
+
     return response;
   }
 
