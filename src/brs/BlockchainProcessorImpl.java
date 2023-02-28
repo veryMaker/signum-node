@@ -74,7 +74,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final Generator generator;
   private final DBCacheManagerImpl dbCacheManager;
   private final IndirectIncomingService indirectIncomingService;
-  private final AliasService aliasService;
   private final long genesisBlockId;
 
   private static final int MAX_TIMESTAMP_DIFFERENCE = 15;
@@ -133,7 +132,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     this.accountService = accountService;
     this.indirectIncomingService = indirectIncomingService;
     this.propertyService = propertyService;
-    this.aliasService = aliasService;
 
     autoPopOffEnabled = propertyService.getBoolean(Props.AUTO_POP_OFF_ENABLED);
 
@@ -500,7 +498,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       }
 
       private void processFork(Peer peer, final List<Block> forkBlocks, long forkBlockId) {
-        logger.warn("A fork is detected. Waiting for cache to be processed.");
+        logger.debug("A fork is detected. Waiting for cache to be processed.");
         downloadCache.lockCache(); //dont let anything add to cache!
         while (!Thread.currentThread().isInterrupted() && ThreadPool.running.get()) {
           if (downloadCache.size() == 0) {
@@ -514,7 +512,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         }
         synchronized (BlockchainProcessorImpl.this.downloadCache) {
           synchronized (transactionProcessor.getUnconfirmedTransactionsSyncObj()) {
-            logger.warn("Cache is now processed. Starting to process fork.");
+            logger.debug("Cache is now processed. Starting to process fork.");
             Block forkBlock = blockchain.getBlock(forkBlockId);
 
             // we read the current cumulative difficulty
@@ -534,9 +532,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   try {
                     blockService.preVerify(block, blockchain.getLastBlock());
 
-                    logger.info("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
+                    logger.debug("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
-                    logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
+                    logger.debug("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                         block.getCumulativeDifficulty(), block.getCommitment());
 
                     pushBlock(block);
@@ -580,9 +578,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
               }
             } else {
               myPoppedOffBlocks.forEach(block -> transactionProcessor.processLater(block.getTransactions()));
-              logger.warn("Successfully switched to better chain.");
+              logger.debug("Successfully switched to better chain.");
             }
-            logger.warn("Forkprocessing complete.");
+            logger.info("Forkprocessing complete.");
             downloadCache.resetForkBlocks();
             downloadCache.resetCache(); // Reset and set cached vars to chaindata.
           }
@@ -1129,9 +1127,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         		}
         	  }
         	}
-            logger.info("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
+            logger.debug("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
                 Hex.toHexString(block.getBlockSignature()));
-            logger.info("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
+            logger.debug("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                 block.getCumulativeDifficulty(), block.getCommitment());
             poppedOffBlocks.add(block);
             block = popLastBlock();
