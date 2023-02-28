@@ -18,7 +18,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row9;
+import org.jooq.Row10;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -95,6 +95,11 @@ public class Alias extends TableImpl<AliasRecord> {
      */
     public final TableField<AliasRecord, Boolean> LATEST = createField(DSL.name("latest"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field("1", SQLDataType.BOOLEAN)), this, "");
 
+    /**
+     * The column <code>DB.alias.tld</code>.
+     */
+    public final TableField<AliasRecord, Long> TLD = createField(DSL.name("tld"), SQLDataType.BIGINT.defaultValue(DSL.field("NULL", SQLDataType.BIGINT)), this, "");
+
     private Alias(Name alias, Table<AliasRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -135,7 +140,7 @@ public class Alias extends TableImpl<AliasRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.ALIAS_ALIAS_ACCOUNT_ID_IDX, Indexes.ALIAS_ALIAS_NAME_LOWER_IDX);
+        return Arrays.asList(Indexes.ALIAS_ALIAS_ACCOUNT_ID_IDX, Indexes.ALIAS_ALIAS_HEIGHT_IDX, Indexes.ALIAS_ALIAS_NAME_LOWER_IDX);
     }
 
     @Override
@@ -180,11 +185,11 @@ public class Alias extends TableImpl<AliasRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row9 type methods
+    // Row10 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Long, Long, Long, String, String, String, Integer, Integer, Boolean> fieldsRow() {
-        return (Row9) super.fieldsRow();
+    public Row10<Long, Long, Long, String, String, String, Integer, Integer, Boolean, Long> fieldsRow() {
+        return (Row10) super.fieldsRow();
     }
 }

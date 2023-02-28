@@ -61,9 +61,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   @Override
-  public void addSubscription(Account sender, Account recipient, Long id, Long amountNQT, int startTimestamp, int frequency) {
+  public void addSubscription(Account sender, long recipientId, Long id, Long amountNQT, int startTimestamp, int frequency) {
     final BurstKey dbKey = subscriptionDbKeyFactory.newKey(id);
-    final Subscription subscription = new Subscription(sender.getId(), recipient.getId(), id, amountNQT, frequency, startTimestamp + frequency, dbKey);
+    final Subscription subscription = new Subscription(sender.getId(), recipientId, id, amountNQT, frequency, startTimestamp + frequency, dbKey);
 
     subscriptionTable.insert(subscription);
   }
@@ -74,7 +74,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
       return true;
     }
 
-    final Alias subscriptionEnabled = aliasService.getAlias("featuresubscription");
+    final Alias subscriptionEnabled = aliasService.getAlias("featuresubscription", 0L);
     return subscriptionEnabled != null && subscriptionEnabled.getAliasURI().equals("enabled");
   }
 
@@ -107,6 +107,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   public void removeSubscription(Long id) {
     Subscription subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id));
     if (subscription != null) {
+      Alias alias = aliasService.getAlias(subscription.getRecipientId());
+      if(alias != null) {
+        Burst.getStores().getAliasStore().getAliasTable().delete(alias);
+      }
       subscriptionTable.delete(subscription);
     }
   }
@@ -159,9 +163,22 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
     return totalFees;
   }
+  
+  private Account getSender(Subscription subscription) {
+    return accountService.getAccount(subscription.getSenderId());
+  }
+
+  private Account getRecipient(Subscription subscription) {
+    Alias alias = aliasService.getAlias(subscription.getRecipientId());
+    if(alias != null) {
+      Alias tld = aliasService.getTLD(alias.getTLD());
+      return accountService.getOrAddAccount(tld.getAccountId());
+    }
+    return accountService.getOrAddAccount(subscription.getRecipientId());
+  }
 
   private boolean applyUnconfirmed(Subscription subscription, int height) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
+    Account sender = getSender(subscription);
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
     Account.Balance senderBalance = sender == null ? null : Account.getAccountBalance(sender.getId());
@@ -175,7 +192,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private void undoUnconfirmed(Subscription subscription, int height) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
+    Account sender = getSender(subscription);
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
     if (sender != null) {
@@ -184,8 +201,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private void apply(Block block, int blockchainHeight, Subscription subscription) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
-    Account recipient = accountService.getOrAddAccount(subscription.getRecipientId());
+    Account sender = getSender(subscription);
+    Account recipient = getRecipient(subscription);
 
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(block.getHeight()));
 
@@ -199,8 +216,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.getTimeNext(), (short) 1440, attachment);
 
     try {
-      builder.senderId(subscription.getSenderId())
-          .recipientId(subscription.getRecipientId())
+      builder.senderId(sender.getId())
+          .recipientId(recipient.getId())
           .blockId(block.getId())
           .height(block.getHeight())
           .blockTimestamp(block.getTimestamp())

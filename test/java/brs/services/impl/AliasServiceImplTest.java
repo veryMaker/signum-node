@@ -7,11 +7,13 @@ import brs.Attachment.MessagingAliasSell;
 import brs.Transaction;
 import brs.common.AbstractUnitTest;
 import brs.db.BurstKey;
+import brs.db.TransactionDb;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collection;
@@ -20,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.mock;
 
 public class AliasServiceImplTest extends AbstractUnitTest {
 
@@ -52,9 +55,9 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final String aliasName = "aliasName";
     final Alias mockAlias = mock(Alias.class);
 
-    when(aliasStoreMock.getAlias(eq(aliasName))).thenReturn(mockAlias);
+    when(aliasStoreMock.getAlias(eq(aliasName), eq(0L))).thenReturn(mockAlias);
 
-    assertEquals(mockAlias, t.getAlias(aliasName));
+    assertEquals(mockAlias, t.getAlias(aliasName, 0L));
   }
 
   @Test
@@ -130,7 +133,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final String aliasName = "aliasName";
     final Alias mockAlias = mock(Alias.class);
 
-    when(aliasStoreMock.getAlias(eq(aliasName))).thenReturn(mockAlias);
+    when(aliasStoreMock.getAlias(eq(aliasName), eq(0L))).thenReturn(mockAlias);
 
     final Transaction transaction = mock(Transaction.class);
     when(transaction.getSenderId()).thenReturn(123L);
@@ -156,7 +159,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Alias mockAlias = mock(Alias.class);
     when(mockAlias.getId()).thenReturn(aliasId);
 
-    when(aliasStoreMock.getAlias(eq(aliasName))).thenReturn(mockAlias);
+    when(aliasStoreMock.getAlias(eq(aliasName), eq(0L))).thenReturn(mockAlias);
 
     final BurstKey mockOfferKey = mock(BurstKey.class);
     when(offerDbKeyFactoryMock.newKey(eq(aliasId))).thenReturn(mockOfferKey);
@@ -191,7 +194,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Alias mockAlias = mock(Alias.class);
     when(mockAlias.getId()).thenReturn(aliasId);
 
-    when(aliasStoreMock.getAlias(eq(aliasName))).thenReturn(mockAlias);
+    when(aliasStoreMock.getAlias(eq(aliasName), eq(0L))).thenReturn(mockAlias);
 
     final BurstKey mockOfferKey = mock(BurstKey.class);
     final Offer mockOffer = mock(Offer.class);
@@ -225,7 +228,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Alias mockAlias = mock(Alias.class);
     when(mockAlias.getId()).thenReturn(aliasId);
 
-    when(aliasStoreMock.getAlias(eq(aliasName))).thenReturn(mockAlias);
+    when(aliasStoreMock.getAlias(eq(aliasName), eq(0L))).thenReturn(mockAlias);
 
     final BurstKey mockOfferKey = mock(BurstKey.class);
     final Offer mockOffer = mock(Offer.class);
@@ -260,7 +263,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Alias mockAlias = mock(Alias.class);
     when(mockAlias.getId()).thenReturn(aliasId);
 
-    when(aliasStoreMock.getAlias(eq(aliasName))).thenReturn(mockAlias);
+    when(aliasStoreMock.getAlias(eq(aliasName), eq(0L))).thenReturn(mockAlias);
 
     final BurstKey mockOfferKey = mock(BurstKey.class);
     final Offer mockOffer = mock(Offer.class);
@@ -270,7 +273,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final long newOwnerId = 234L;
     final int timestamp = 567;
 
-    t.changeOwner(newOwnerId, aliasName, timestamp);
+    t.changeOwner(newOwnerId, mockAlias, timestamp, true);
 
     verify(mockAlias).setAccountId(newOwnerId);
     verify(mockAlias).setTimestamp(eq(timestamp));

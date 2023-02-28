@@ -457,6 +457,7 @@ public class Transaction implements Comparable<Transaction> {
       appendages.forEach(appendage -> appendage.putBytes(buffer));
       return buffer.array();
     } catch (RuntimeException e) {
+      e.printStackTrace();
       if (logger.isDebugEnabled()) {
         logger.debug("Failed to get transaction bytes for transaction: {}", JSON.toJsonString(getJsonObject()));
       }

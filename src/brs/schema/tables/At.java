@@ -165,7 +165,7 @@ public class At extends TableImpl<AtRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.AT_AT_AP_CODE_HASH_ID_INDEX, Indexes.AT_AT_CREATOR_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.AT_AT_AP_CODE_HASH_ID_INDEX, Indexes.AT_AT_CREATOR_ID_HEIGHT_IDX, Indexes.AT_AT_HEIGHT_IDX);
     }
 
     @Override

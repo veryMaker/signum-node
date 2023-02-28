@@ -1,9 +1,7 @@
 package brs.fluxcapacitor;
 
-import brs.Burst;
 import brs.Constants;
 import brs.Version;
-import brs.props.Props;
 
 public class FluxValues {
     private FluxValues() {

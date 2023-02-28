@@ -25,7 +25,10 @@ public class MockNetwork extends TestnetNetwork {
     setProperty(Props.DISTRIBUTION_FIX_BLOCK_HEIGHT, "0");
     setProperty(Props.PK_BLOCK_HEIGHT, "0");
     setProperty(Props.PK2_BLOCK_HEIGHT, "0");
-
+    setProperty(Props.PK_BLOCK_HEIGHT, "0");
+    setProperty(Props.PK2_BLOCK_HEIGHT, "0");
+    setProperty(Props.DEV_NEXT_FORK_BLOCK_HEIGHT, "0");
+    
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "-1");
     setProperty(Props.BRS_CHECKPOINT_HASH, "");
 

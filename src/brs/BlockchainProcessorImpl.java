@@ -74,6 +74,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private final Generator generator;
   private final DBCacheManagerImpl dbCacheManager;
   private final IndirectIncomingService indirectIncomingService;
+  private final AliasService aliasService;
   private final long genesisBlockId;
 
   private static final int MAX_TIMESTAMP_DIFFERENCE = 15;
@@ -111,7 +112,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                  SubscriptionService subscriptionService, TimeService timeService, DerivedTableManager derivedTableManager,
                                  BlockDb blockDb, TransactionDb transactionDb, EconomicClustering economicClustering, BlockchainStore blockchainStore, Stores stores, EscrowService escrowService,
                                  TransactionService transactionService, DownloadCacheImpl downloadCache, Generator generator, StatisticsManagerImpl statisticsManager, DBCacheManagerImpl dbCacheManager,
-                                 AccountService accountService, IndirectIncomingService indirectIncomingService) {
+                                 AccountService accountService, IndirectIncomingService indirectIncomingService, AliasService aliasService) {
     this.blockService = blockService;
     this.transactionProcessor = transactionProcessor;
     this.timeService = timeService;
@@ -132,6 +133,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     this.accountService = accountService;
     this.indirectIncomingService = indirectIncomingService;
     this.propertyService = propertyService;
+    this.aliasService = aliasService;
 
     autoPopOffEnabled = propertyService.getBoolean(Props.AUTO_POP_OFF_ENABLED);
 

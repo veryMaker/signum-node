@@ -125,7 +125,7 @@ public class AccountBalance extends TableImpl<AccountBalanceRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.ACCOUNT_BALANCE_ACCOUNT_BALANCE_ID_BALANCE_HEIGHT_IDX);
+        return Arrays.asList(Indexes.ACCOUNT_BALANCE_ACCOUNT_BALANCE_HEIGHT_IDX, Indexes.ACCOUNT_BALANCE_ACCOUNT_BALANCE_ID_LATEST_IDX);
     }
 
     @Override
@@ -136,6 +136,11 @@ public class AccountBalance extends TableImpl<AccountBalanceRecord> {
     @Override
     public UniqueKey<AccountBalanceRecord> getPrimaryKey() {
         return Keys.KEY_ACCOUNT_BALANCE_PRIMARY;
+    }
+
+    @Override
+    public List<UniqueKey<AccountBalanceRecord>> getUniqueKeys() {
+        return Arrays.asList(Keys.KEY_ACCOUNT_BALANCE_ACCOUNT_BALANCE_ID_HEIGHT_IDX);
     }
 
     @Override

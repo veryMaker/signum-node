@@ -5,6 +5,7 @@ package brs.schema.tables;
 
 
 import brs.schema.Db;
+import brs.schema.Indexes;
 import brs.schema.Keys;
 import brs.schema.tables.records.AliasOfferRecord;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Row6;
@@ -114,6 +116,11 @@ public class AliasOffer extends TableImpl<AliasOfferRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : Db.DB;
+    }
+
+    @Override
+    public List<Index> getIndexes() {
+        return Arrays.asList(Indexes.ALIAS_OFFER_ALIAS_OFFER_HEIGHT_IDX);
     }
 
     @Override

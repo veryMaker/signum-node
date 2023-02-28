@@ -145,7 +145,7 @@ public class AtState extends TableImpl<AtStateRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.AT_STATE_AT_STATE_ID_NEXT_HEIGHT_HEIGHT_IDX);
+        return Arrays.asList(Indexes.AT_STATE_AT_STATE_HEIGHT_IDX, Indexes.AT_STATE_AT_STATE_ID_NEXT_HEIGHT_HEIGHT_IDX);
     }
 
     @Override

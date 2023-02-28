@@ -155,7 +155,16 @@ public class ParameterServiceImpl implements ParameterService {
     if (aliasId != 0) {
       alias = aliasService.getAlias(aliasId);
     } else if (aliasName != null) {
-      alias = aliasService.getAlias(aliasName);
+      long tld = 0L;
+      String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
+      if(tldName != null) {
+        Alias tldAlias = aliasService.getTLD(tldName);
+        if(tldAlias == null) {
+          throw new ParameterException(UNKNOWN_ALIAS);
+        }
+        tld = tldAlias.getId();
+      }
+      alias = aliasService.getAlias(aliasName, tld);
     } else {
       throw new ParameterException(MISSING_ALIAS_OR_ALIAS_NAME);
     }

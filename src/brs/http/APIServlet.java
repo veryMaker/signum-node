@@ -141,6 +141,7 @@ public final class APIServlet extends HttpServlet {
     map.put("sendMoneyMultiSame", new SendMoneyMultiSame(parameterService, blockchain, apiTransactionManager));
     map.put("setAccountInfo", new SetAccountInfo(parameterService, blockchain, apiTransactionManager));
     map.put("setAlias", new SetAlias(parameterService, blockchain, aliasService, apiTransactionManager));
+    map.put("setTLD", new SetTLD(parameterService, blockchain, aliasService, apiTransactionManager));
     map.put("signTransaction", new SignTransaction(parameterService, transactionService));
     map.put("transferAsset", new TransferAsset(parameterService, blockchain, apiTransactionManager, accountService));
     map.put("transferAssetMulti", new TransferAssetMulti(parameterService, blockchain, apiTransactionManager, accountService));

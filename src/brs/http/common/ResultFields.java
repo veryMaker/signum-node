@@ -119,6 +119,7 @@ public class ResultFields {
   public static final String ALIAS_NAME_RESPONSE = "aliasName";
   public static final String ALIAS_URI_RESPONSE = "aliasURI";
   public static final String ALIAS_RESPONSE = "alias";
+  public static final String TLD_RESPONSE = "tld";
   public static final String ID_RESPONSE = "id";
   public static final String SENDER_RESPONSE = "sender";
   public static final String SENDER_RS_RESPONSE = "senderRS";

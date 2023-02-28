@@ -135,7 +135,7 @@ public class BidOrder extends TableImpl<BidOrderRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.BID_ORDER_BID_ORDER_ACCOUNT_ID_IDX, Indexes.BID_ORDER_BID_ORDER_ASSET_ID_PRICE_IDX, Indexes.BID_ORDER_BID_ORDER_CREATION_IDX);
+        return Arrays.asList(Indexes.BID_ORDER_BID_ORDER_ACCOUNT_ID_IDX, Indexes.BID_ORDER_BID_ORDER_ASSET_ID_PRICE_IDX, Indexes.BID_ORDER_BID_ORDER_CREATION_IDX, Indexes.BID_ORDER_BID_ORDER_HEIGHT_IDX);
     }
 
     @Override

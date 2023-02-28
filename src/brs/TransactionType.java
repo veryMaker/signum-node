@@ -58,6 +58,7 @@ public abstract class TransactionType {
   public static final byte SUBTYPE_MESSAGING_ACCOUNT_INFO = 5;
   public static final byte SUBTYPE_MESSAGING_ALIAS_SELL = 6;
   public static final byte SUBTYPE_MESSAGING_ALIAS_BUY = 7;
+  public static final byte SUBTYPE_MESSAGING_TLD_ASSIGNMENT = 8;
 
   public static final byte SUBTYPE_COLORED_COINS_ASSET_ISSUANCE = 0;
   public static final byte SUBTYPE_COLORED_COINS_ASSET_TRANSFER = 1;
@@ -101,6 +102,8 @@ public abstract class TransactionType {
 
   public static final long BASELINE_ASSET_ISSUANCE_FACTOR = 15_000L;
   private static final long BASELINE_ALIAS_ASSIGNMENT_FACTOR = 20L;
+  public static final long BASELINE_TLD_ASSIGNMENT_FACTOR = 10_000_000L;
+  public static final long BASELINE_ALIAS_RENEWAL_FACTOR = 1250L;
 
   private static Blockchain blockchain;
   private static FluxCapacitor fluxCapacitor;
@@ -154,6 +157,7 @@ public abstract class TransactionType {
     messagingTypes.put(SUBTYPE_MESSAGING_ACCOUNT_INFO, Messaging.ACCOUNT_INFO);
     messagingTypes.put(SUBTYPE_MESSAGING_ALIAS_BUY, Messaging.ALIAS_BUY);
     messagingTypes.put(SUBTYPE_MESSAGING_ALIAS_SELL, Messaging.ALIAS_SELL);
+    messagingTypes.put(SUBTYPE_MESSAGING_TLD_ASSIGNMENT, Messaging.TLD_ASSIGNMENT);
 
     Map<Byte, TransactionType> coloredCoinsTypes = new HashMap<>();
     coloredCoinsTypes.put(SUBTYPE_COLORED_COINS_ASSET_ISSUANCE, ColoredCoins.ASSET_ISSUANCE);
@@ -697,10 +701,17 @@ public abstract class TransactionType {
                 || attachment.getAliasURI().length() > Constants.MAX_ALIAS_URI_LENGTH) {
           throw new BurstException.NotValidException("Invalid alias assignment: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (!TextUtils.isInAlphabet(attachment.getAliasName())) {
-          throw new BurstException.NotValidException("Invalid alias name: " + attachment.getAliasName());
+        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+          if (!TextUtils.isInAlphabetOrUnderline(attachment.getAliasName())) {
+            throw new BurstException.NotValidException("Invalid alias name: " + attachment.getAliasName());
+          }
         }
-        Alias alias = aliasService.getAlias(attachment.getAliasName());
+        else{
+          if (!TextUtils.isInAlphabet(attachment.getAliasName())) {
+            throw new BurstException.NotValidException("Invalid alias name: " + attachment.getAliasName());
+          }
+        }
+        Alias alias = aliasService.getAlias(attachment.getAliasName(), attachment.getTLD());
         if (alias != null && alias.getAccountId() != transaction.getSenderId()) {
           throw new BurstException.NotCurrentlyValidException("Alias already owned by another account: " + attachment.getAliasName());
         }
@@ -709,6 +720,73 @@ public abstract class TransactionType {
       @Override
       public boolean hasRecipient() {
         return false;
+      }
+
+    };
+
+    public static final TransactionType TLD_ASSIGNMENT = new Messaging() {
+
+      @Override
+      public final byte getSubtype() {
+        return TransactionType.SUBTYPE_MESSAGING_TLD_ASSIGNMENT;
+      }
+
+      @Override
+      public String getDescription() {
+        return "TLD Assignment";
+      }
+      
+      @Override
+      public boolean isSigned() {
+        return super.isSigned();
+      }
+
+      @Override
+      public Attachment.MessagingTLDAssignment parseAttachment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+        return new Attachment.MessagingTLDAssignment(buffer, transactionVersion);
+      }
+
+      @Override
+      protected Attachment.MessagingTLDAssignment parseAttachment(JsonObject attachmentData) {
+        return new Attachment.MessagingTLDAssignment(attachmentData);
+      }
+
+      @Override
+      protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
+        Attachment.MessagingTLDAssignment attachment = (Attachment.MessagingTLDAssignment) transaction.getAttachment();
+        aliasService.addTLD(transaction.getId(), transaction, attachment);
+      }
+
+      @Override
+      public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
+        Attachment.MessagingTLDAssignment attachment = (Attachment.MessagingTLDAssignment) transaction.getAttachment();
+        return new TransactionDuplicationKey(Messaging.TLD_ASSIGNMENT, attachment.getTLDName().toLowerCase(Locale.ENGLISH));
+      }
+
+      @Override
+      protected void validateAttachment(Transaction transaction) throws BurstException.ValidationException {
+        Attachment.MessagingTLDAssignment attachment = (Attachment.MessagingTLDAssignment) transaction.getAttachment();
+        if (attachment.getTLDName().isEmpty()
+                || Convert.toBytes(attachment.getTLDName()).length > Constants.MAX_TLD_LENGTH) {
+          throw new BurstException.NotValidException("Invalid TLD assignment: " + JSON.toJsonString(attachment.getJsonObject()));
+        }
+        if (!TextUtils.isInAlphabet(attachment.getTLDName())) {
+          throw new BurstException.NotValidException("Invalid TLD name: " + attachment.getTLDName());
+        }
+        Alias tld = aliasService.getTLD(attachment.getTLDName());
+        if (tld != null) {
+          throw new BurstException.NotCurrentlyValidException("TLD already registered by another account: " + attachment.getTLDName());
+        }
+        
+        if(transaction.getRecipientId() != 0L
+                || transaction.getAmountNQT() < BASELINE_TLD_ASSIGNMENT_FACTOR * fluxCapacitor.getValue(FluxValues.FEE_QUANT, blockchain.getLastBlock().getHeight())) {
+          throw new BurstException.NotCurrentlyValidException("Invalid TLD assignment: " + attachment.getTLDName());
+        }
+      }
+
+      @Override
+      public boolean hasRecipient() {
+        return true;
       }
 
     };
@@ -746,7 +824,7 @@ public abstract class TransactionType {
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         Attachment.MessagingAliasSell attachment = (Attachment.MessagingAliasSell) transaction.getAttachment();
         // not a bug, uniqueness is based on Messaging.ALIAS_ASSIGNMENT
-        return new TransactionDuplicationKey(Messaging.ALIAS_ASSIGNMENT, attachment.getAliasName().toLowerCase(Locale.ENGLISH));
+        return new TransactionDuplicationKey(Messaging.ALIAS_ASSIGNMENT, attachment.getVersion() > 1 ? Convert.toUnsignedLong(attachment.getAliasId()) : attachment.getAliasName().toLowerCase(Locale.ENGLISH));
       }
 
       @Override
@@ -759,9 +837,14 @@ public abstract class TransactionType {
         }
         final Attachment.MessagingAliasSell attachment =
                 (Attachment.MessagingAliasSell) transaction.getAttachment();
-        final String aliasName = attachment.getAliasName();
-        if (aliasName == null || aliasName.isEmpty()) {
-          throw new BurstException.NotValidException("Missing alias name");
+        if(attachment.getVersion() <= 1) {
+          final String aliasName = attachment.getAliasName();
+          if (aliasName == null || aliasName.isEmpty()) {
+            throw new BurstException.NotValidException("Missing alias name");
+          }
+        }
+        else if(attachment.getAliasId() == 0L) {
+          throw new BurstException.NotValidException("Missing alias Id");
         }
         long priceNQT = attachment.getPriceNQT();
         if (priceNQT < 0 || priceNQT > Constants.MAX_BALANCE_NQT) {
@@ -774,11 +857,11 @@ public abstract class TransactionType {
             throw new BurstException.NotValidException("Missing alias transfer recipient");
           }
         }
-        final Alias alias = aliasService.getAlias(aliasName);
+        final Alias alias = attachment.getVersion() > 1 ? aliasService.getAlias(attachment.getAliasId()) : aliasService.getAlias(attachment.getAliasName(), 0L);
         if (alias == null) {
-          throw new BurstException.NotCurrentlyValidException("Alias hasn't been registered yet: " + aliasName);
+          throw new BurstException.NotCurrentlyValidException("Alias hasn't been registered yet");
         } else if (alias.getAccountId() != transaction.getSenderId()) {
-          throw new BurstException.NotCurrentlyValidException("Alias doesn't belong to sender: " + aliasName);
+          throw new BurstException.NotCurrentlyValidException("Alias doesn't belong to sender: " + alias.getAliasName());
         }
       }
 
@@ -815,15 +898,15 @@ public abstract class TransactionType {
       protected void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         final Attachment.MessagingAliasBuy attachment =
                 (Attachment.MessagingAliasBuy) transaction.getAttachment();
-        final String aliasName = attachment.getAliasName();
-        aliasService.changeOwner(transaction.getSenderId(), aliasName, transaction.getBlockTimestamp());
+        final Alias alias = attachment.getVersion() > 1 ? aliasService.getAlias(attachment.getAliasId()) : aliasService.getAlias(attachment.getAliasName(), 0L);
+        aliasService.changeOwner(transaction.getSenderId(), alias, transaction.getBlockTimestamp(), true);
       }
 
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         Attachment.MessagingAliasBuy attachment = (Attachment.MessagingAliasBuy) transaction.getAttachment();
         // not a bug, uniqueness is based on Messaging.ALIAS_ASSIGNMENT
-        return new TransactionDuplicationKey(Messaging.ALIAS_ASSIGNMENT, attachment.getAliasName().toLowerCase(Locale.ENGLISH));
+        return new TransactionDuplicationKey(Messaging.ALIAS_ASSIGNMENT, attachment.getVersion() > 1 ? Convert.toUnsignedLong(attachment.getAliasId()) : attachment.getAliasName().toLowerCase(Locale.ENGLISH));
       }
 
       @Override
@@ -834,7 +917,7 @@ public abstract class TransactionType {
         final Attachment.MessagingAliasBuy attachment =
                 (Attachment.MessagingAliasBuy) transaction.getAttachment();
         final String aliasName = attachment.getAliasName();
-        final Alias alias = aliasService.getAlias(aliasName);
+        final Alias alias = attachment.getVersion() > 1 ? aliasService.getAlias(attachment.getAliasId()) : aliasService.getAlias(attachment.getAliasName(), 0L);
         if (alias == null) {
           throw new BurstException.NotCurrentlyValidException("Alias hasn't been registered yet: " + aliasName);
         } else if (alias.getAccountId() != transaction.getRecipientId()) {
@@ -1082,7 +1165,7 @@ public abstract class TransactionType {
       public String getDescription() {
         return "Asset Transfer Ownership";
       }
-      
+
       @Override
       public Fee getBaselineFee(int height) {
         return new Fee(fluxCapacitor.getValue(FluxValues.FEE_QUANT, height) * BASELINE_ASSET_ISSUANCE_FACTOR, 0);
@@ -3068,7 +3151,7 @@ public abstract class TransactionType {
       @Override
       protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentSubscriptionSubscribe attachment = (Attachment.AdvancedPaymentSubscriptionSubscribe) transaction.getAttachment();
-        subscriptionService.addSubscription(senderAccount, recipientAccount, transaction.getId(), transaction.getAmountNQT(), transaction.getTimestamp(), attachment.getFrequency());
+        subscriptionService.addSubscription(senderAccount, recipientAccount.getId(), transaction.getId(), transaction.getAmountNQT(), transaction.getTimestamp(), attachment.getFrequency());
       }
 
       @Override
@@ -3139,6 +3222,11 @@ public abstract class TransactionType {
       @Override
       protected final void applyAttachment(Transaction transaction, Account senderAccount, Account recipientAccount) {
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
+        Subscription subscription = subscriptionService.getSubscription(attachment.getSubscriptionId());
+        Alias alias = aliasService.getAlias(subscription.getRecipientId());
+        if(alias != null) {
+          Burst.getStores().getAliasStore().getAliasTable().delete(alias);
+        }
         subscriptionService.removeSubscription(attachment.getSubscriptionId());
       }
 

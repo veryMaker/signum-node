@@ -18,5 +18,9 @@ public interface AliasStore {
 
   Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to);
 
-  Alias getAlias(String aliasName);
+  Alias getAlias(String aliasName, long tld);
+  
+  Alias getTLD(String tldName);
+  
+  Alias getTLD(long tldId);
 }
