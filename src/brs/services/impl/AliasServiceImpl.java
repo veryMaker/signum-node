@@ -114,7 +114,6 @@ public class AliasServiceImpl implements AliasService {
     Subscription subscription = subscriptionService.getSubscription(alias.getId());
     if(subscription != null && updateSubscription && subscription.getSenderId() != alias.getAccountId()) {
       subscription.setSenderId(alias.getAccountId());
-      subscription.timeNextGetAndAdd(subscription.getFrequency());
       ArrayList<Subscription> subscriptions = new ArrayList<>();
       subscriptions.add(subscription);
       Burst.getStores().getSubscriptionStore().saveSubscriptions(subscriptions);
@@ -176,6 +175,9 @@ public class AliasServiceImpl implements AliasService {
     final Offer offer = getOffer(alias);
     offerTable.delete(offer);
     
-    createSubscription(alias, timestamp, updateSubscription);
+    if(alias.getTLD() != null) {
+      // only create the subscription if this is not a TLD (that has a null TLD)
+      createSubscription(alias, timestamp, updateSubscription);
+    }
   }
 }
