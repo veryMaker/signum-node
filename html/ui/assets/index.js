@@ -29,4 +29,4 @@ function selectedWallet(name) {
     document.getElementById(`${walletName}-link`).click()
   }
 })()
-f
+
