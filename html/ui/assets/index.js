@@ -20,10 +20,13 @@ function selectedWallet(name) {
   }
 }
 
-(async () => {
-  document.getElementById('version').textContent = await getNodeVersion()
+(() => {
+  getNodeVersion().then((version) => {
+    document.getElementById('version').textContent = version
+  })
   const walletName = localStorage.getItem(preferredWalletKey)
   if (walletName) {
     document.getElementById(`${walletName}-link`).click()
   }
 })()
+f
