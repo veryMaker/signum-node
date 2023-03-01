@@ -78,6 +78,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getAlias", new GetAlias(parameterService, aliasService));
     map.put("getAliases", new GetAliases(parameterService, aliasService));
     map.put("getAliasesOnSale", new GetAliasesOnSale(aliasService));
+    map.put("getTLDs", new GetTLDs(aliasService));
     map.put("getAllAssets", new GetAllAssets(assetExchange, accountService));
     map.put("getAsset", new GetAsset(parameterService, assetExchange, accountService));
     map.put("getAssetIds", new GetAssetIds(assetExchange));

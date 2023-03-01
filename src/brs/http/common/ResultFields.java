@@ -160,6 +160,7 @@ public class ResultFields {
   public static final String BID_ORDERS_RESPONSE = "bidOrders";
   public static final String TIME_RESPONSE = "time";
   public static final String ALIASES_RESPONSE = "aliases";
+  public static final String TLDS_RESPONSE = "tlds";
   public static final String BID_ORDER_IDS_RESPONSE = "bidOrderIds";
   public static final String TRANSFERS_RESPONSE = "transfers";
   public static final String DELTA_QUANTITY_RESPONSE = "deltaQuantity";

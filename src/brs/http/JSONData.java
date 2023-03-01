@@ -28,10 +28,12 @@ public final class JSONData {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, alias.getAccountId());
     json.addProperty(ALIAS_NAME_RESPONSE, alias.getAliasName());
-    json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
     json.addProperty(TIMESTAMP_RESPONSE, alias.getTimestamp());
     json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
-    json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(alias.getTLD()));
+    if(alias.getTLD() != null) {
+      json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
+      json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(alias.getTLD()));
+    }
 
     if (offer != null) {
       json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNQT()));

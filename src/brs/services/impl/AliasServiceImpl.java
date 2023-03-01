@@ -97,6 +97,11 @@ public class AliasServiceImpl implements AliasService {
   public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, int from, int to) {
     return new CollectionWithIndex<Alias>(aliasStore.getAliasesByOwner(accountId, from, to), from, to);
   }
+  
+  @Override
+  public CollectionWithIndex<Alias> getTLDs(int from, int to) {
+    return new CollectionWithIndex<Alias>(aliasStore.getTLDs(from, to), from, to);
+  }
 
   @Override
   public CollectionWithIndex<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {

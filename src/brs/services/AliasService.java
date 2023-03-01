@@ -21,6 +21,8 @@ public interface AliasService {
   long getAliasCount();
 
   CollectionWithIndex<Alias> getAliasesByOwner(long accountId, int from, int to);
+  
+  CollectionWithIndex<Alias> getTLDs(int from, int to);
 
   CollectionWithIndex<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to);
 

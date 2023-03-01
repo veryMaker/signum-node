@@ -151,12 +151,14 @@ public class ParameterServiceImpl implements ParameterService {
       throw new ParameterException(INCORRECT_ALIAS);
     }
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
+    String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
     Alias alias;
     if (aliasId != 0) {
       alias = aliasService.getAlias(aliasId);
+    } else if (aliasName == null && tldName != null) {
+      alias = aliasService.getTLD(tldName);
     } else if (aliasName != null) {
       long tld = 0L;
-      String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
       if(tldName != null) {
         Alias tldAlias = aliasService.getTLD(tldName);
         if(tldAlias == null) {
