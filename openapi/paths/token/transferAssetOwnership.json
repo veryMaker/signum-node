@@ -1,0 +1,83 @@
+{
+  "post": {
+    "summary": "Transfer Token Ownership",
+    "description": "Transfers the tokens ownership to another account, such that the new owner can mint tokens and/or set treasury accounts, and transfer ownership also. One can only transfer the ownership, if s/he is the current owner.",
+    "tags": [
+      "token"
+    ],
+    "parameters": [
+      {
+        "name": "recipient",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The address of the new owner. Note: The recipient id cannot be zero, i.e. the burn address",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },      {
+        "name": "referencedTransactionFullHash",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "This has to be the full hash of the issuance transaction from the targeted token/asset.",
+        "schema": {
+          "$ref": "../../schemas/hash.json"
+        }
+      },
+      {
+        "$ref": "../../parameters/transaction/secretPhrase.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/publicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/deadline.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/broadcast.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/recipientPublicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/message.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncrypt.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageNonce.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelf.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageNonce.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses/transaction.json"
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}
