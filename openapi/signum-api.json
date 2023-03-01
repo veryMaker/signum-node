@@ -75,6 +75,9 @@
     "/api?requestType=transferAssetMulti": {
       "$ref": "./paths/token/transferAssetMulti.json"
     },
+    "/api?requestType=transferAssetOwnership": {
+      "$ref": "./paths/token/transferAssetOwnership.json"
+    },
     "/api?requestType=placeAskOrder": {
       "$ref": "./paths/token/placeAskOrder.json"
     },
