@@ -7,15 +7,9 @@
     ],
     "parameters": [
       {
-        "name": "recipient",
-        "in": "query",
-        "allowEmptyValue": false,
-        "required": true,
-        "description": "The address of the new owner. Note: The recipient id cannot be zero, i.e. the burn address",
-        "schema": {
-          "$ref": "../../schemas/address.json"
-        }
-      },      {
+        "$ref": "../../parameters/transaction/recipient.json"
+      },
+      {
         "name": "referencedTransactionFullHash",
         "in": "query",
         "allowEmptyValue": false,
