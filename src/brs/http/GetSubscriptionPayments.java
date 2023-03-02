@@ -17,6 +17,8 @@ import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
+import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.SUBSCRIPTION_PARAMETER;
 import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
 import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
@@ -28,7 +30,7 @@ final class GetSubscriptionPayments extends APIServlet.JsonRequestHandler {
   private final SubscriptionService subscriptionService;
 
   GetSubscriptionPayments(SubscriptionService subscriptionService) {
-    super(new APITag[] {APITag.ACCOUNTS}, SUBSCRIPTION_PARAMETER);
+    super(new APITag[] {APITag.ACCOUNTS}, SUBSCRIPTION_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
     this.subscriptionService = subscriptionService;
   }
 	

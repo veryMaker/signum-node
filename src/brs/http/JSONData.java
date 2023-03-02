@@ -305,7 +305,7 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject subscription(Subscription subscription, Alias alias, Alias tld) {
+  static JsonObject subscription(Subscription subscription, Alias alias, Alias tld, Transaction transaction) {
     JsonObject json = new JsonObject();
     json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.getId()));
     putAccount(json, SENDER_RESPONSE, subscription.getSenderId());
@@ -322,6 +322,14 @@ public final class JSONData {
     json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.getAmountNQT()));
     json.addProperty(FREQUENCY_RESPONSE, subscription.getFrequency());
     json.addProperty(TIME_NEXT_RESPONSE, subscription.getTimeNext());
+    
+    if(transaction != null) {
+      json.addProperty(TIMESTAMP_RESPONSE, transaction.getTimestamp());
+      Appendix.Message message = transaction.getMessage();
+      if(message != null) {
+        json.add(ATTACHMENT_RESPONSE, message.getJsonObject());
+      }
+    }
     return json;
   }
 

@@ -2,8 +2,10 @@ package brs.http;
 
 import brs.Account;
 import brs.Alias;
+import brs.Burst;
 import brs.BurstException;
 import brs.Subscription;
+import brs.Transaction;
 import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.services.SubscriptionService;
@@ -45,7 +47,9 @@ public final class GetAccountSubscriptions extends APIServlet.JsonRequestHandler
     for (Subscription accountSubscription : accountSubscriptions) {
       Alias alias = aliasService.getAlias(accountSubscription.getRecipientId());
       Alias tld = alias == null ? null : aliasService.getTLD(alias.getTLD());
-      subscriptions.add(JSONData.subscription(accountSubscription, alias, tld));
+      
+      Transaction transaction = Burst.getBlockchain().getTransaction(alias.getId());
+      subscriptions.add(JSONData.subscription(accountSubscription, alias, tld, transaction));
     }
 
     response.add(SUBSCRIPTIONS_RESPONSE, subscriptions);
