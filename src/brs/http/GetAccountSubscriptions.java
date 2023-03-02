@@ -48,7 +48,7 @@ public final class GetAccountSubscriptions extends APIServlet.JsonRequestHandler
       Alias alias = aliasService.getAlias(accountSubscription.getRecipientId());
       Alias tld = alias == null ? null : aliasService.getTLD(alias.getTLD());
       
-      Transaction transaction = Burst.getBlockchain().getTransaction(alias.getId());
+      Transaction transaction = Burst.getBlockchain().getTransaction(alias == null? accountSubscription.getId() : alias.getId());
       subscriptions.add(JSONData.subscription(accountSubscription, alias, tld, transaction));
     }
 
