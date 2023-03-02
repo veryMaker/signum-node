@@ -2417,6 +2417,10 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.AdvancedPayment.SUBSCRIPTION_PAYMENT;
     }
+    
+    public long getSubscriptionId() {
+      return subscriptionId;
+    }
 
   }
 
