@@ -6,6 +6,7 @@ import brs.Subscription;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.services.SubscriptionService;
 import brs.util.JSON;
@@ -30,6 +31,7 @@ public class GetAccountSubscriptionsTest extends AbstractUnitTest {
 
   private ParameterService parameterServiceMock;
   private SubscriptionService subscriptionServiceMock;
+  private AliasService aliasServiceMock;
 
   private GetAccountSubscriptions t;
 
@@ -37,8 +39,9 @@ public class GetAccountSubscriptionsTest extends AbstractUnitTest {
   public void setUp() {
     parameterServiceMock = mock(ParameterService.class);
     subscriptionServiceMock = mock(SubscriptionService.class);
+    aliasServiceMock = mock(AliasService.class);
 
-    t = new GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock);
+    t = new GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock, aliasServiceMock);
   }
 
   @Test

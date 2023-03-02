@@ -34,7 +34,7 @@ final class GetSubscriptionsToAccount extends APIServlet.JsonRequestHandler {
     JsonArray subscriptions = new JsonArray();
 
     for (Subscription subscription : subscriptionService.getSubscriptionsToId(account.getId())) {
-      subscriptions.add(JSONData.subscription(subscription));
+      subscriptions.add(JSONData.subscription(subscription, null, null));
     }
 		
     response.add("subscriptions", subscriptions);
