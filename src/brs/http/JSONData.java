@@ -305,11 +305,20 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject subscription(Subscription subscription) {
+  static JsonObject subscription(Subscription subscription, Alias alias, Alias tld) {
     JsonObject json = new JsonObject();
     json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.getId()));
     putAccount(json, SENDER_RESPONSE, subscription.getSenderId());
-    putAccount(json, RECIPIENT_RESPONSE, subscription.getRecipientId());
+    if(alias == null) {
+      putAccount(json, RECIPIENT_RESPONSE, subscription.getRecipientId());
+    }
+    else {
+      putAccount(json, RECIPIENT_RESPONSE, tld.getAccountId());
+      json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
+      json.addProperty(ALIAS_NAME_RESPONSE, alias.getAliasName());
+      json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld.getId()));
+      json.addProperty(TLD_NAME_RESPONSE, tld.getAliasName());
+    }
     json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.getAmountNQT()));
     json.addProperty(FREQUENCY_RESPONSE, subscription.getFrequency());
     json.addProperty(TIME_NEXT_RESPONSE, subscription.getTimeNext());
