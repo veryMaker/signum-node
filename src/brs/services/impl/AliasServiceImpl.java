@@ -1,7 +1,12 @@
 package brs.services.impl;
 
+import static brs.schema.Tables.ALIAS;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+
+import org.jooq.SelectJoinStep;
 
 import brs.Account;
 import brs.Alias;
@@ -13,6 +18,7 @@ import brs.Transaction;
 import brs.TransactionType;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
+import brs.db.sql.Db;
 import brs.db.store.AliasStore;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
@@ -79,8 +85,8 @@ public class AliasServiceImpl implements AliasService {
     return aliasStore.getTLD(tldName);
   }
   
-  public Alias getTLD(long tldId) {
-    return aliasStore.getTLD(tldId);
+  public Alias getTLD(Long tldId) {
+    return tldId == null ? null : aliasStore.getTLD(tldId);
   }
 
   @Override
@@ -89,18 +95,31 @@ public class AliasServiceImpl implements AliasService {
   }
 
   @Override
-  public long getAliasCount() {
+  public int getAliasCount() {
     return aliasTable.getCount();
+  }
+  
+  @Override
+  public int getAliasCount(long tld) {
+    return Db.useDSLContext(ctx -> {
+      SelectJoinStep<?> r = ctx.selectCount().from(ALIAS);
+      return (r.where(ALIAS.LATEST.isTrue()).and(ALIAS.TLD.eq(tld))).fetchOne(0, int.class);
+    });
   }
 
   @Override
-  public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, int from, int to) {
-    return new CollectionWithIndex<Alias>(aliasStore.getAliasesByOwner(accountId, from, to), from, to);
+  public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, long tld, int from, int to) {
+    return new CollectionWithIndex<Alias>(aliasStore.getAliasesByOwner(accountId, tld, from, to), from, to);
   }
   
   @Override
   public CollectionWithIndex<Alias> getTLDs(int from, int to) {
     return new CollectionWithIndex<Alias>(aliasStore.getTLDs(from, to), from, to);
+  }
+
+  @Override
+  public Collection<Alias> getTLDs(long accountId) {
+    return aliasStore.getAliasesByOwner(accountId, null, 0, -1);
   }
 
   @Override

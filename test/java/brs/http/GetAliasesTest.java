@@ -57,7 +57,7 @@ public class GetAliasesTest extends AbstractUnitTest {
 
     when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
 
-    when(mockAliasService.getAliasesByOwner(eq(accountId), eq(0), eq(499))).thenReturn(mockAliasIterator);
+    when(mockAliasService.getAliasesByOwner(eq(accountId), eq(0L), eq(0), eq(499))).thenReturn(mockAliasIterator);
     when(mockAliasService.getOffer(eq(mockAlias))).thenReturn(mockOffer);
 
     final JsonObject resultOverview = (JsonObject) t.processRequest(req);

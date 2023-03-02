@@ -1,5 +1,7 @@
 package brs.services;
 
+import java.util.Collection;
+
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.Attachment;
@@ -14,15 +16,19 @@ public interface AliasService {
 
   Alias getTLD(String tldName);
   
-  Alias getTLD(long tldId);
+  Alias getTLD(Long tldId);
   
   Offer getOffer(Alias alias);
 
-  long getAliasCount();
+  int getAliasCount();
 
-  CollectionWithIndex<Alias> getAliasesByOwner(long accountId, int from, int to);
+  int getAliasCount(long tld);
+
+  CollectionWithIndex<Alias> getAliasesByOwner(long accountId, long tld, int from, int to);
   
   CollectionWithIndex<Alias> getTLDs(int from, int to);
+
+  Collection<Alias> getTLDs(long accountId);
 
   CollectionWithIndex<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to);
 

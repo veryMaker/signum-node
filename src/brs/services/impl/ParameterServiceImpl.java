@@ -54,8 +54,16 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public Account getAccount(HttpServletRequest req) throws BurstException {
+    return getAccount(req, true);
+  }
+  
+  @Override
+  public Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException {
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
+    if (accountId == null && !checkPresent) {
+      return null;
+    }
     if (accountId == null) {
       throw new ParameterException(MISSING_ACCOUNT);
     }
@@ -152,7 +160,7 @@ public class ParameterServiceImpl implements ParameterService {
     }
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
     String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
-    Alias alias;
+    Alias alias = null;
     if (aliasId != 0) {
       alias = aliasService.getAlias(aliasId);
     } else if (aliasName == null && tldName != null) {

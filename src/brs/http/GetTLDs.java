@@ -37,7 +37,8 @@ public final class GetTLDs extends APIServlet.JsonRequestHandler {
         continue;
       }
       final Offer offer = aliasService.getOffer(tld);
-      tlds.add(JSONData.alias(tld, offer));
+      int numberOfAliases = aliasService.getAliasCount(tld.getId());
+      tlds.add(JSONData.alias(tld, null, offer, numberOfAliases));
     }
 
     JsonObject response = new JsonObject();

@@ -24,15 +24,19 @@ public final class JSONData {
   
   static final long[] PRICE_MULTIPLIER = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
-  static JsonObject alias(Alias alias, Offer offer) {
+  static JsonObject alias(Alias alias, Alias tld, Offer offer, int numbefOfAliases) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, alias.getAccountId());
     json.addProperty(ALIAS_NAME_RESPONSE, alias.getAliasName());
     json.addProperty(TIMESTAMP_RESPONSE, alias.getTimestamp());
     json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
-    if(alias.getTLD() != null) {
+    if(tld != null) {
       json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
-      json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(alias.getTLD()));
+      json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld.getId()));
+      json.addProperty(TLD_NAME_RESPONSE, tld.getAliasName());
+    }
+    else {
+      json.addProperty(NUMBER_OF_ALIASES, numbefOfAliases);
     }
 
     if (offer != null) {

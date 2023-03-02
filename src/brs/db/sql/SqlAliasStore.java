@@ -138,8 +138,12 @@ public class SqlAliasStore implements AliasStore {
   private final VersionedEntityTable<Alias> aliasTable;
 
   @Override
-  public Collection<Alias> getAliasesByOwner(long accountId, int from, int to) {
-    return aliasTable.getManyBy(brs.schema.Tables.ALIAS.ACCOUNT_ID.eq(accountId), from, to);
+  public Collection<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to) {
+    Condition condition = ALIAS.TLD.eq(tld);
+    if(accountId != 0L) {
+      condition = condition.and(ALIAS.ACCOUNT_ID.eq(accountId));
+    }
+    return aliasTable.getManyBy(condition, from, to);
   }
 
   @Override
