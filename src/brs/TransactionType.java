@@ -701,7 +701,7 @@ public abstract class TransactionType {
                 || attachment.getAliasURI().length() > Constants.MAX_ALIAS_URI_LENGTH) {
           throw new BurstException.NotValidException("Invalid alias assignment: " + JSON.toJsonString(attachment.getJsonObject()));
         }
-        if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+        if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
           if (!TextUtils.isInAlphabetOrUnderline(attachment.getAliasName())) {
             throw new BurstException.NotValidException("Invalid alias name: " + attachment.getAliasName());
           }

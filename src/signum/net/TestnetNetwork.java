@@ -38,6 +38,9 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.SMART_FEES_HEIGHT, "398300");
     setProperty(Props.SMART_ATS_HEIGHT, "416600");
 
+    setProperty(Props.SMART_ALIASES_HEIGHT, "520940");
+    setProperty(Props.ALIAS_RENEWAL_FREQUENCY, "1440");
+
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "381300");
     setProperty(Props.BRS_CHECKPOINT_HASH, "f0846a5d9f43801498316011601dd7c90fa7a20bd95295f2a5fba032bcdeb495");
     setProperty(Props.BRS_PK_CHECKS, "900bb3db35adb8a8;c7e083683bbbc831;");

@@ -128,7 +128,7 @@ public class AliasServiceImpl implements AliasService {
   }
   
   private void createSubscription(Alias alias, int timestamp, boolean updateSubscription){
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       return;
     }
     

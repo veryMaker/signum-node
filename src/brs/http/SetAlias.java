@@ -48,7 +48,7 @@ public final class SetAlias extends CreateTransaction {
       return INCORRECT_ALIAS_LENGTH;
     }
 
-    if (Burst.getFluxCapacitor().getValue(FluxValues.NEXT_FORK)) {
+    if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       if (!TextUtils.isInAlphabetOrUnderline(aliasName)) {
         return INCORRECT_ALIAS_NAME;
       }
