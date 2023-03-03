@@ -115,6 +115,7 @@ public class SqlAliasStore implements AliasStore {
             record.get(ALIAS.ID),
             record.get(ALIAS.ACCOUNT_ID),
             record.get(ALIAS.ALIAS_NAME),
+            record.get(ALIAS.TLD),
             record.get(ALIAS.ALIAS_URI),
             record.get(ALIAS.TIMESTAMP),
             aliasDbKeyFactory.newKey(record.get(ALIAS.ID))
@@ -127,6 +128,7 @@ public class SqlAliasStore implements AliasStore {
       set(ALIAS.ID, alias.getId()).
       set(ALIAS.ACCOUNT_ID, alias.getAccountId()).
       set(ALIAS.ALIAS_NAME, alias.getAliasName()).
+      set(ALIAS.TLD, alias.getTLD()).
       set(ALIAS.ALIAS_NAME_LOWER, alias.getAliasName().toLowerCase(Locale.ENGLISH)).
       set(ALIAS.ALIAS_URI, alias.getAliasURI()).
       set(ALIAS.TIMESTAMP, alias.getTimestamp()).
@@ -136,10 +138,19 @@ public class SqlAliasStore implements AliasStore {
   private final VersionedEntityTable<Alias> aliasTable;
 
   @Override
-  public Collection<Alias> getAliasesByOwner(long accountId, int from, int to) {
-    return aliasTable.getManyBy(brs.schema.Tables.ALIAS.ACCOUNT_ID.eq(accountId), from, to);
+  public Collection<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to) {
+    Condition condition = ALIAS.TLD.eq(tld);
+    if(accountId != 0L) {
+      condition = condition.and(ALIAS.ACCOUNT_ID.eq(accountId));
+    }
+    return aliasTable.getManyBy(condition, from, to);
   }
-  
+
+  @Override
+  public Collection<Alias> getTLDs(int from, int to) {
+    return aliasTable.getManyBy(brs.schema.Tables.ALIAS.TLD.isNull(), from, to);
+  }
+
   @Override
   public Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
     Condition conditions = ALIAS_OFFER.LATEST.eq(true);
@@ -154,10 +165,20 @@ public class SqlAliasStore implements AliasStore {
     }
     return offerTable.getManyBy(conditions, from, to);
   }
+  
+  @Override
+  public Alias getTLD(String tldName) {
+    return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(tldName.toLowerCase(Locale.ENGLISH)).and(ALIAS.TLD.isNull()));
+  }
 
   @Override
-  public Alias getAlias(String aliasName) {
-    return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)));
+  public Alias getTLD(long tldId) {
+    return aliasTable.getBy(brs.schema.Tables.ALIAS.ID.eq(tldId).and(ALIAS.TLD.isNull()));
+  }
+
+  @Override
+  public Alias getAlias(String aliasName, long tld) {
+    return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)).and(ALIAS.TLD.eq(tld)));
   }
 
 }

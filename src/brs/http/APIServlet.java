@@ -78,6 +78,7 @@ public final class APIServlet extends HttpServlet {
     map.put("getAlias", new GetAlias(parameterService, aliasService));
     map.put("getAliases", new GetAliases(parameterService, aliasService));
     map.put("getAliasesOnSale", new GetAliasesOnSale(aliasService));
+    map.put("getTLDs", new GetTLDs(aliasService));
     map.put("getAllAssets", new GetAllAssets(assetExchange, accountService));
     map.put("getAsset", new GetAsset(parameterService, assetExchange, accountService));
     map.put("getAssetIds", new GetAssetIds(assetExchange));
@@ -141,6 +142,7 @@ public final class APIServlet extends HttpServlet {
     map.put("sendMoneyMultiSame", new SendMoneyMultiSame(parameterService, blockchain, apiTransactionManager));
     map.put("setAccountInfo", new SetAccountInfo(parameterService, blockchain, apiTransactionManager));
     map.put("setAlias", new SetAlias(parameterService, blockchain, aliasService, apiTransactionManager));
+    map.put("setTLD", new SetTLD(parameterService, blockchain, aliasService, apiTransactionManager));
     map.put("signTransaction", new SignTransaction(parameterService, transactionService));
     map.put("transferAsset", new TransferAsset(parameterService, blockchain, apiTransactionManager, accountService));
     map.put("transferAssetMulti", new TransferAssetMulti(parameterService, blockchain, apiTransactionManager, accountService));
@@ -158,8 +160,9 @@ public final class APIServlet extends HttpServlet {
     map.put("getAccountEscrowTransactions", new GetAccountEscrowTransactions(parameterService, escrowService));
     map.put("sendMoneySubscription", new SendMoneySubscription(parameterService, blockchain, apiTransactionManager));
     map.put("subscriptionCancel", new SubscriptionCancel(parameterService, subscriptionService, blockchain, apiTransactionManager));
-    map.put("getSubscription", new GetSubscription(subscriptionService));
-    map.put("getAccountSubscriptions", new GetAccountSubscriptions(parameterService, subscriptionService));
+    map.put("getSubscription", new GetSubscription(subscriptionService, aliasService));
+    map.put("getSubscriptionPayments", new GetSubscriptionPayments(subscriptionService));
+    map.put("getAccountSubscriptions", new GetAccountSubscriptions(parameterService, subscriptionService, aliasService));
     map.put("getSubscriptionsToAccount", new GetSubscriptionsToAccount(parameterService, subscriptionService));
     map.put("createATProgram", new CreateATProgram(parameterService, blockchain, apiTransactionManager));
     map.put("getAT", new GetAT(parameterService, blockchain));

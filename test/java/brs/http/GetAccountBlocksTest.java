@@ -25,6 +25,8 @@ import org.powermock.core.classloader.annotations.SuppressStaticInitializationFo
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.math.BigInteger;
 import java.util.Collection;
 
 import static brs.http.common.Parameters.*;
@@ -55,7 +57,7 @@ public class GetAccountBlocksTest extends AbstractUnitTest {
     blockchainMock = mock(Blockchain.class);
     parameterServiceMock = mock(ParameterService.class);
     blockServiceMock = mock(BlockService.class);
-    
+
     mockStatic(Burst.class);
     PropertyService propertyService = mock(PropertyService.class);
     when(Burst.getPropertyService()).thenReturn(propertyService);
@@ -78,12 +80,14 @@ public class GetAccountBlocksTest extends AbstractUnitTest {
 
     final Account mockAccount = mock(Account.class);
     final Block mockBlock = mock(Block.class);
+    when(mockBlock.getCumulativeDifficulty()).thenReturn(BigInteger.valueOf(123456789L));
 
 
     when(parameterServiceMock.getAccount(req)).thenReturn(mockAccount);
 
     final Collection<Block> mockBlockIterator = mockCollection(mockBlock);
-    when(blockchainMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).thenReturn(new CollectionWithIndex<Block>(mockBlockIterator, -1));
+    when(blockchainMock.getBlocks(eq(mockAccount), eq(mockTimestamp), eq(mockFirstIndex), eq(mockLastIndex))).thenReturn(new CollectionWithIndex<Block>(
+        mockBlockIterator, -1));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
 

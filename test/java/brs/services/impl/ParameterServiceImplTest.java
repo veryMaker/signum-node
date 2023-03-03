@@ -256,7 +256,7 @@ public class ParameterServiceImplTest {
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(ALIAS_NAME_PARAMETER, "aliasName"));
 
-    when(aliasServiceMock.getAlias(eq("aliasName"))).thenReturn(mockAlias);
+    when(aliasServiceMock.getAlias(eq("aliasName"), eq(0L))).thenReturn(mockAlias);
 
     assertEquals(mockAlias, t.getAlias(req));
   }

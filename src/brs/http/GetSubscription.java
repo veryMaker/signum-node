@@ -1,6 +1,10 @@
 package brs.http;
 
+import brs.Alias;
+import brs.Burst;
 import brs.Subscription;
+import brs.Transaction;
+import brs.services.AliasService;
 import brs.services.SubscriptionService;
 import brs.util.Convert;
 import com.google.gson.JsonElement;
@@ -15,10 +19,12 @@ import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 final class GetSubscription extends APIServlet.JsonRequestHandler {
 	
   private final SubscriptionService subscriptionService;
+  private final AliasService aliasService;
 
-  GetSubscription(SubscriptionService subscriptionService) {
+  GetSubscription(SubscriptionService subscriptionService, AliasService aliasService) {
     super(new APITag[] {APITag.ACCOUNTS}, SUBSCRIPTION_PARAMETER);
     this.subscriptionService = subscriptionService;
+    this.aliasService = aliasService;
   }
 	
   @Override
@@ -43,7 +49,11 @@ final class GetSubscription extends APIServlet.JsonRequestHandler {
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Subscription not found");
       return response;
     }
+    Alias alias = aliasService.getAlias(subscription.getRecipientId());
+    Alias tld = alias == null ? null : aliasService.getTLD(alias.getTLD());
+    
+    Transaction transaction = Burst.getBlockchain().getTransaction(subscriptionId);
 		
-    return JSONData.subscription(subscription);
+    return JSONData.subscription(subscription, alias, tld, transaction);
   }
 }

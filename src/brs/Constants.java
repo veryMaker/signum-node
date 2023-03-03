@@ -39,6 +39,7 @@ public final class Constants {
 
   public static final int MAX_ALIAS_URI_LENGTH = 1000;
   public static final int MAX_ALIAS_LENGTH = 100;
+  public static final int MAX_TLD_LENGTH = 40;
 
   public static final int MAX_ARBITRARY_MESSAGE_LENGTH = 1000;
   public static final int MAX_ENCRYPTED_MESSAGE_LENGTH = 1000;
@@ -94,6 +95,7 @@ public final class Constants {
   }
 
   public static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+  public static final String ALPHABET_ = ALPHABET + "_";
 
   public static final int EC_RULE_TERMINATOR = 2400; /* cfb: This constant defines a straight edge when "longest chain"
                                                         rule is outweighed by "economic majority" rule; the terminator

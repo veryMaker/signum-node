@@ -361,23 +361,33 @@ public interface Attachment extends Appendix {
 
     private final String aliasName;
     private final String aliasURI;
+    private long tld;
 
     MessagingAliasAssignment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
       aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH).trim();
       aliasURI = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ALIAS_URI_LENGTH).trim();
+      if(getVersion() > 1) {
+        tld = buffer.getLong();
+      }
     }
 
     MessagingAliasAssignment(JsonObject attachmentData) {
       super(attachmentData);
       aliasName = (Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)))).trim();
       aliasURI = (Convert.nullToEmpty(JSON.getAsString(attachmentData.get(URI_PARAMETER)))).trim();
+      if(getVersion() > 1) {
+        tld = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(TLD_PARAMETER)));
+      }
     }
 
-    public MessagingAliasAssignment(String aliasName, String aliasURI, int blockchainHeight) {
-      super(blockchainHeight);
+    public MessagingAliasAssignment(String aliasName, String aliasURI, long tld, int blockchainHeight) {
+      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+
       this.aliasName = aliasName.trim();
       this.aliasURI = aliasURI.trim();
+      this.tld = tld;
     }
 
     @Override
@@ -387,7 +397,8 @@ public interface Attachment extends Appendix {
 
     @Override
     protected int getMySize() {
-      return 1 + Convert.toBytes(aliasName).length + 2 + Convert.toBytes(aliasURI).length;
+      return 1 + Convert.toBytes(aliasName).length + 2 + Convert.toBytes(aliasURI).length
+              + (getVersion() > 1 ? 8 : 0);
     }
 
     @Override
@@ -398,12 +409,18 @@ public interface Attachment extends Appendix {
       buffer.put(alias);
       buffer.putShort((short) uri.length);
       buffer.put(uri);
+      if(getVersion() > 1) {
+        buffer.putLong(tld);
+      }
     }
 
     @Override
     protected void putMyJSON(JsonObject attachment) {
       attachment.addProperty(ALIAS_RESPONSE, aliasName);
       attachment.addProperty(URI_RESPONSE, aliasURI);
+      if(getVersion() > 1) {
+        attachment.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld));
+      }
     }
 
     @Override
@@ -418,28 +435,101 @@ public interface Attachment extends Appendix {
     public String getAliasURI() {
       return aliasURI;
     }
+
+    public long getTLD() {
+        return tld;
+    }
+  }
+
+  class MessagingTLDAssignment extends AbstractAttachment {
+
+    private final String tldName;
+
+    MessagingTLDAssignment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+      super(buffer, transactionVersion);
+      tldName = Convert.readString(buffer, buffer.get(), Constants.MAX_TLD_LENGTH).trim();
+    }
+
+    MessagingTLDAssignment(JsonObject attachmentData) {
+      super(attachmentData);
+      tldName = (Convert.nullToEmpty(JSON.getAsString(attachmentData.get(TLD_PARAMETER)))).trim();
+    }
+
+    public MessagingTLDAssignment(String tldName, int blockchainHeight) {
+      super(blockchainHeight);
+      this.tldName = tldName.trim();
+    }
+
+    @Override
+    protected String getAppendixName() {
+      return "TLDAssignment";
+    }
+
+    @Override
+    protected int getMySize() {
+      return 1 + Convert.toBytes(tldName).length;
+    }
+
+    @Override
+    protected void putMyBytes(ByteBuffer buffer) {
+      byte[] alias = Convert.toBytes(this.tldName);
+      buffer.put((byte)alias.length);
+      buffer.put(alias);
+    }
+
+    @Override
+    protected void putMyJSON(JsonObject attachment) {
+      attachment.addProperty(TLD_RESPONSE, tldName);
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+      return TransactionType.Messaging.TLD_ASSIGNMENT;
+    }
+
+    public String getTLDName() {
+      return tldName;
+    }
   }
 
   class MessagingAliasSell extends AbstractAttachment {
 
-    private final String aliasName;
+    private String aliasName;
+    private long aliasId;
     private final long priceNQT;
 
     MessagingAliasSell(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
-      this.aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH);
+      if(getVersion() > 1) {
+        this.aliasId = buffer.getLong();
+      }
+      else {
+        this.aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH);
+      }
       this.priceNQT = buffer.getLong();
     }
 
     MessagingAliasSell(JsonObject attachmentData) {
       super(attachmentData);
-      this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
+      if(getVersion() > 1) {
+        this.aliasId = JSON.getAsLong(attachmentData.get(ALIAS_PARAMETER));
+      }
+      else {
+        this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
+      }
       this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
     }
-
+    
     public MessagingAliasSell(String aliasName, long priceNQT, int blockchainHeight) {
       super(blockchainHeight);
       this.aliasName = aliasName;
+      this.priceNQT = priceNQT;
+    }
+
+    public MessagingAliasSell(long aliasId, String aliasName, long priceNQT, int blockchainHeight) {
+      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      this.aliasId = aliasId;
       this.priceNQT = priceNQT;
     }
 
@@ -455,25 +545,34 @@ public interface Attachment extends Appendix {
 
     @Override
     protected int getMySize() {
-      return 1 + Convert.toBytes(aliasName).length + 8;
+      return (getVersion() > 1 ? 8 : 1 + Convert.toBytes(aliasName).length) + 8;
     }
 
     @Override
     protected void putMyBytes(ByteBuffer buffer) {
-      byte[] aliasBytes = Convert.toBytes(aliasName);
-      buffer.put((byte)aliasBytes.length);
-      buffer.put(aliasBytes);
+      if(getVersion() > 1) {
+        buffer.putLong(aliasId);
+      }
+      else {
+        byte[] aliasBytes = Convert.toBytes(aliasName);
+        buffer.put((byte)aliasBytes.length);
+        buffer.put(aliasBytes);
+      }
       buffer.putLong(priceNQT);
     }
 
     @Override
     protected void putMyJSON(JsonObject attachment) {
-      attachment.addProperty(ALIAS_RESPONSE, aliasName);
+      attachment.addProperty(ALIAS_RESPONSE, getVersion() > 1 ? Convert.toUnsignedLong(aliasId) : aliasName);
       attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
     }
 
     public String getAliasName(){
       return aliasName;
+    }
+
+    public long getAliasId(){
+      return aliasId;
     }
 
     public long getPriceNQT(){
@@ -484,20 +583,32 @@ public interface Attachment extends Appendix {
 
   final class MessagingAliasBuy extends AbstractAttachment {
 
-    private final String aliasName;
+    private String aliasName;
+    private long aliasId;
 
     MessagingAliasBuy(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
       super(buffer, transactionVersion);
-      this.aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH);
+      if(getVersion() > 1) {
+        aliasId = buffer.getLong();
+      }
+      else {
+        this.aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH);
+      }
     }
 
     MessagingAliasBuy(JsonObject attachmentData) {
       super(attachmentData);
+      if(getVersion() > 1) {
+        aliasId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
+      }
       this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
     }
 
-    public MessagingAliasBuy(String aliasName, int blockchainHeight) {
-      super(blockchainHeight);
+    public MessagingAliasBuy(long aliasId, String aliasName, int blockchainHeight) {
+      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+
+      this.aliasId = aliasId;
       this.aliasName = aliasName;
     }
 
@@ -513,25 +624,33 @@ public interface Attachment extends Appendix {
 
     @Override
     protected int getMySize() {
-      return 1 + Convert.toBytes(aliasName).length;
+      return (getVersion() > 1 ? 8 : 1 + Convert.toBytes(aliasName).length);
     }
 
     @Override
     protected void putMyBytes(ByteBuffer buffer) {
-      byte[] aliasBytes = Convert.toBytes(aliasName);
-      buffer.put((byte)aliasBytes.length);
-      buffer.put(aliasBytes);
+      if(getVersion() > 1) {
+        buffer.putLong(aliasId);
+      }
+      else {
+        byte[] aliasBytes = Convert.toBytes(aliasName);
+        buffer.put((byte)aliasBytes.length);
+        buffer.put(aliasBytes);
+      }
     }
 
     @Override
     protected void putMyJSON(JsonObject attachment) {
-      attachment.addProperty(ALIAS_RESPONSE, aliasName);
+      attachment.addProperty(ALIAS_RESPONSE, getVersion() > 1 ? Convert.toUnsignedLong(aliasId) : aliasName);
     }
 
     public String getAliasName(){
       return aliasName;
     }
 
+    public long getAliasId() {
+      return aliasId;
+    }
   }
 
   final class MessagingAccountInfo extends AbstractAttachment {
@@ -2297,6 +2416,10 @@ public interface Attachment extends Appendix {
     @Override
     public TransactionType getTransactionType() {
       return TransactionType.AdvancedPayment.SUBSCRIPTION_PAYMENT;
+    }
+    
+    public long getSubscriptionId() {
+      return subscriptionId;
     }
 
   }

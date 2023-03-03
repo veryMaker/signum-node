@@ -7,12 +7,20 @@ import java.util.Locale;
 public class TextUtils {
     public TextUtils() {
     }
-
-    public static boolean isInAlphabet(String input) {
+    
+    private static boolean isInAlphabet(String input, String alphabet) {
         if (input == null) return true;
         for (char c : input.toLowerCase(Locale.ENGLISH).toCharArray()) {
-            if (!Constants.ALPHABET.contains(String.valueOf(c))) return false;
+            if (!alphabet.contains(String.valueOf(c))) return false;
         }
         return true;
+    }
+
+    public static boolean isInAlphabet(String input) {
+        return isInAlphabet(input, Constants.ALPHABET);
+    }
+    
+    public static boolean isInAlphabetOrUnderline(String input) {
+        return isInAlphabet(input, Constants.ALPHABET_);
     }
 }

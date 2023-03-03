@@ -54,8 +54,16 @@ public class ParameterServiceImpl implements ParameterService {
 
   @Override
   public Account getAccount(HttpServletRequest req) throws BurstException {
+    return getAccount(req, true);
+  }
+  
+  @Override
+  public Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException {
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
+    if (accountId == null && !checkPresent) {
+      return null;
+    }
     if (accountId == null) {
       throw new ParameterException(MISSING_ACCOUNT);
     }
@@ -151,11 +159,22 @@ public class ParameterServiceImpl implements ParameterService {
       throw new ParameterException(INCORRECT_ALIAS);
     }
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
-    Alias alias;
+    String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
+    Alias alias = null;
     if (aliasId != 0) {
       alias = aliasService.getAlias(aliasId);
+    } else if (aliasName == null && tldName != null) {
+      alias = aliasService.getTLD(tldName);
     } else if (aliasName != null) {
-      alias = aliasService.getAlias(aliasName);
+      long tld = 0L;
+      if(tldName != null) {
+        Alias tldAlias = aliasService.getTLD(tldName);
+        if(tldAlias == null) {
+          throw new ParameterException(UNKNOWN_ALIAS);
+        }
+        tld = tldAlias.getId();
+      }
+      alias = aliasService.getAlias(aliasName, tld);
     } else {
       throw new ParameterException(MISSING_ALIAS_OR_ALIAS_NAME);
     }

@@ -14,7 +14,7 @@ public interface SubscriptionService {
 
   Collection<Subscription> getSubscriptionsToId(Long accountId);
 
-  void addSubscription(Account sender, Account recipient, Long id, Long amountNQT, int startTimestamp, int frequency);
+  void addSubscription(Account sender, long recipientId, Long id, Long amountNQT, int startTimestamp, int frequency);
 
   boolean isEnabled();
 

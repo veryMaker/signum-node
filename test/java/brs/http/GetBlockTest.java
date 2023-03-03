@@ -28,6 +28,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+import java.math.BigInteger;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Burst.class)
 public class GetBlockTest {
@@ -41,7 +43,7 @@ public class GetBlockTest {
   public void setUp() {
     blockchainMock = mock(Blockchain.class);
     blockServiceMock = mock(BlockService.class);
-    
+
     mockStatic(Burst.class);
     PropertyService propertyService = mock(PropertyService.class);
     when(Burst.getPropertyService()).thenReturn(propertyService);
@@ -59,6 +61,7 @@ public class GetBlockTest {
     );
 
     final Block mockBlock = mock(Block.class);
+    when(mockBlock.getCumulativeDifficulty()).thenReturn(BigInteger.valueOf(123456789L));
 
     when(blockchainMock.getBlock(eq(blockId))).thenReturn(mockBlock);
 
@@ -85,6 +88,7 @@ public class GetBlockTest {
     );
 
     final Block mockBlock = mock(Block.class);
+    when(mockBlock.getCumulativeDifficulty()).thenReturn(BigInteger.valueOf(123456789L));
 
     when(blockchainMock.getHeight()).thenReturn(100);
     when(blockchainMock.getBlockAtHeight(eq(blockHeight))).thenReturn(mockBlock);
@@ -136,6 +140,7 @@ public class GetBlockTest {
     );
 
     final Block mockBlock = mock(Block.class);
+    when(mockBlock.getCumulativeDifficulty()).thenReturn(BigInteger.valueOf(123456789L));
 
     when(blockchainMock.getLastBlock(eq(timestamp))).thenReturn(mockBlock);
 

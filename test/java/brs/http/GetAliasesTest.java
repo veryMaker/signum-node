@@ -55,9 +55,9 @@ public class GetAliasesTest extends AbstractUnitTest {
 
     final CollectionWithIndex<Alias> mockAliasIterator = new CollectionWithIndex<Alias>(mockCollection(mockAlias), 0, 1);
 
-    when(mockParameterService.getAccount(eq(req))).thenReturn(mockAccount);
+    when(mockParameterService.getAccount(eq(req), eq(false))).thenReturn(mockAccount);
 
-    when(mockAliasService.getAliasesByOwner(eq(accountId), eq(0), eq(499))).thenReturn(mockAliasIterator);
+    when(mockAliasService.getAliasesByOwner(eq(accountId), eq(0L), eq(0), eq(499))).thenReturn(mockAliasIterator);
     when(mockAliasService.getOffer(eq(mockAlias))).thenReturn(mockOffer);
 
     final JsonObject resultOverview = (JsonObject) t.processRequest(req);

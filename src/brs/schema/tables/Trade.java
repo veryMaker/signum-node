@@ -155,7 +155,7 @@ public class Trade extends TableImpl<TradeRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.TRADE_TRADE_ASSET_ID_IDX, Indexes.TRADE_TRADE_BUYER_ID_IDX, Indexes.TRADE_TRADE_SELLER_ID_IDX);
+        return Arrays.asList(Indexes.TRADE_TRADE_ASSET_ID_IDX, Indexes.TRADE_TRADE_BUYER_ID_IDX, Indexes.TRADE_TRADE_HEIGHT_IDX, Indexes.TRADE_TRADE_SELLER_ID_IDX);
     }
 
     @Override

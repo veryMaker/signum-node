@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
 import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
 import static brs.http.common.Parameters.API_KEY_PARAMETER;
-import static brs.http.common.ResultFields.TIME_RESPONSE;
+import static brs.http.common.ResultFields.*;
 
 import java.util.List;
 
@@ -61,7 +61,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("version", Burst.getPropertyService().getString(Props.VERSION));
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
-    response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());
+    response.addProperty(CUMULATIVE_DIFFICULTY_RESPONSE, blockchain.getLastBlock().getCumulativeDifficulty().toString());
     response.addProperty("totalMinedNQT", blockchain.getTotalMined());
 
     if ("true".equalsIgnoreCase(req.getParameter(INCLUDE_COUNTS_PARAMETER))) {

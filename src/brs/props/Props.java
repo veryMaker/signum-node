@@ -27,6 +27,8 @@ public class Props {
   public static final Prop<Integer> BLOCK_REWARD_CYCLE_PERCENTAGE = new Prop<>("node.blockRewardCycle", 95);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_HEIGHT = new Prop<>("node.blockLimitHeight", 972_000);
   public static final Prop<Integer> BLOCK_REWARD_LIMIT_AMOUNT = new Prop<>("node.blockLimitAmount", 100);
+  
+  public static final Prop<Integer> ALIAS_RENEWAL_FREQUENCY = new Prop<>("node.aliasRenewalSeconds", 7776000);  
 
   // Transaction fee cash back options
   public static final Prop<String> CASH_BACK_ID = new Prop<>("node.cashBackId", "8952122635653861124");
@@ -64,6 +66,7 @@ public class Props {
   public static final Prop<Integer> PK2_BLOCK_HEIGHT = new Prop<>("brs.pk2Block.startBlock", -1);
   public static final Prop<Integer> PK_BLOCKS_PAST = new Prop<>("brs.pkBlocksPast", 131400);
   public static final Prop<Boolean> PK_API_BLOCK = new Prop<>("brs.pkAPIBlock", true);
+  public static final Prop<Integer> SMART_ALIASES_HEIGHT = new Prop<>("brs.smartAliases.startBlock", -1);
 
   public static final Prop<Integer> DEV_NEXT_FORK_BLOCK_HEIGHT = new Prop<>("DEV.nextFork.startBlock", -1);
 
