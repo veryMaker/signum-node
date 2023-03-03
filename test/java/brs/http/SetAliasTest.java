@@ -44,10 +44,15 @@ public class SetAliasTest extends AbstractTransactionTest {
 
   @Before
   public void setUp() {
+    mockStatic(Burst.class);
+
     parameterServiceMock = mock(ParameterService.class);
     blockchainMock = mock(Blockchain.class);
     aliasServiceMock = mock(AliasService.class);
     apiTransactionManagerMock = mock(APITransactionManager.class);
+
+    FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
+    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new SetAlias(parameterServiceMock, blockchainMock, aliasServiceMock, apiTransactionManagerMock);
   }

@@ -1,20 +1,26 @@
 package brs.services.impl;
 
 import brs.Alias;
+import brs.Burst;
 import brs.Alias.Offer;
 import brs.Attachment.MessagingAliasAssignment;
 import brs.Attachment.MessagingAliasSell;
 import brs.Transaction;
 import brs.common.AbstractUnitTest;
+import brs.common.QuickMocker;
 import brs.db.BurstKey;
-import brs.db.TransactionDb;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
+import brs.fluxcapacitor.FluxCapacitor;
+import brs.fluxcapacitor.FluxValues;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Answers;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collection;
 
@@ -23,7 +29,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class AliasServiceImplTest extends AbstractUnitTest {
 
   private AliasServiceImpl t;
@@ -36,11 +45,16 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
   @Before
   public void setUp() {
+    mockStatic(Burst.class);
+
     aliasStoreMock = mock(AliasStore.class);
     aliasTableMock = mock(VersionedEntityTable.class);
     aliasDbKeyFactoryMock = mock(LongKeyFactory.class);
     offerTableMock = mock(VersionedEntityTable.class);
     offerDbKeyFactoryMock = mock(LongKeyFactory.class);
+
+    FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
+    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     when(aliasStoreMock.getAliasTable()).thenReturn(aliasTableMock);
     when(aliasStoreMock.getAliasDbKeyFactory()).thenReturn(aliasDbKeyFactoryMock);
