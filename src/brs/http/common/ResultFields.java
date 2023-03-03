@@ -63,6 +63,7 @@ public class ResultFields {
   public static final String VERSION_RESPONSE = "version";
   public static final String BASE_TARGET_RESPONSE = "baseTarget";
   public static final String AVERAGE_COMMITMENT_NQT_RESPONSE = "averageCommitmentNQT";
+  public static final String CUMULATIVE_DIFFICULTY_RESPONSE = "cumulativeDifficulty";
   public static final String PREVIOUS_BLOCK_RESPONSE = "previousBlock";
   public static final String NEXT_BLOCK_RESPONSE = "nextBlock";
   public static final String PAYLOAD_HASH_RESPONSE = "payloadHash";
