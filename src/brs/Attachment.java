@@ -530,6 +530,7 @@ public interface Attachment extends Appendix {
       super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
             Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
       this.aliasId = aliasId;
+      this.aliasName = aliasName;
       this.priceNQT = priceNQT;
     }
 
