@@ -23,7 +23,6 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.AT_FIX_BLOCK_5_BLOCK_HEIGHT, "446900");
     setProperty(Props.PRE_POC2_BLOCK_HEIGHT, "0");
     setProperty(Props.POC2_BLOCK_HEIGHT, "0");
-    setProperty(Props.DISTRIBUTION_FIX_BLOCK_HEIGHT, "449320");
 
     setProperty(Props.SODIUM_BLOCK_HEIGHT, "160620");
     setProperty(Props.SIGNUM_HEIGHT, "269100");
@@ -38,7 +37,9 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.SMART_FEES_HEIGHT, "398300");
     setProperty(Props.SMART_ATS_HEIGHT, "416600");
 
-    setProperty(Props.SMART_ALIASES_HEIGHT, "520940");
+    setProperty(Props.DISTRIBUTION_FIX_BLOCK_HEIGHT, "449320");
+
+    setProperty(Props.SMART_ALIASES_HEIGHT, "521300");
     setProperty(Props.ALIAS_RENEWAL_FREQUENCY, "1440");
 
     setProperty(Props.BRS_CHECKPOINT_HEIGHT, "381300");
@@ -57,8 +58,8 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.P2P_PORT, "7123");
     setProperty(Props.API_PORT, "6876");
 
-    setProperty(Props.P2P_REBROADCAST_TO, "lmsi.club; europe3.testnet.signum.network; 77.56.66.83;");
-    setProperty(Props.P2P_BOOTSTRAP_PEERS, "77.56.66.83;");
+    setProperty(Props.P2P_REBROADCAST_TO, " ");
+    setProperty(Props.P2P_BOOTSTRAP_PEERS, "europe3.testnet.signum.network");
     setProperty(Props.P2P_NUM_BOOTSTRAP_CONNECTIONS, "1");
 
     setProperty(Props.P2P_USE_PEERS_DB, "false");
