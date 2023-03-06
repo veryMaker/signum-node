@@ -37,7 +37,7 @@ public final class GetAliases extends APIServlet.JsonRequestHandler {
     Account account = parameterService.getAccount(req, false);
     
     String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
-    long tldId = 0L;
+    Long tldId = null;
     if (tldName != null) {
       Alias tld = aliasService.getTLD(tldName);
       if(tld == null) {

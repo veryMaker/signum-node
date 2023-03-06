@@ -139,7 +139,10 @@ public class SqlAliasStore implements AliasStore {
 
   @Override
   public Collection<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to) {
-    Condition condition = ALIAS.TLD.eq(tld);
+    Condition condition = ALIAS.TLD.isNotNull();
+    if(tld != null) {
+      condition = ALIAS.TLD.eq(tld);
+    }
     if(accountId != 0L) {
       condition = condition.and(ALIAS.ACCOUNT_ID.eq(accountId));
     }

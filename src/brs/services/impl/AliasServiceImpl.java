@@ -108,7 +108,7 @@ public class AliasServiceImpl implements AliasService {
   }
 
   @Override
-  public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, long tld, int from, int to) {
+  public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to) {
     return new CollectionWithIndex<Alias>(aliasStore.getAliasesByOwner(accountId, tld, from, to), from, to);
   }
   
