@@ -155,6 +155,11 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
+  public CollectionWithIndex<Asset> getAssetsOwnedBy(long accountId, int from, int to) {
+    return assetService.getAssetsOwnedBy(accountId, from, to);
+  }
+
+  @Override
   public CollectionWithIndex<AssetTransfer> getAssetTransfers(long assetId, int from, int to) {
     return new CollectionWithIndex<AssetTransfer>(assetTransferService.getAssetTransfers(assetId, from, to), from, to);
   }
