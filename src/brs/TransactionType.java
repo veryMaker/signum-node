@@ -690,7 +690,8 @@ public abstract class TransactionType {
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         Attachment.MessagingAliasAssignment attachment = (Attachment.MessagingAliasAssignment) transaction.getAttachment();
-        return new TransactionDuplicationKey(Messaging.ALIAS_ASSIGNMENT, attachment.getAliasName().toLowerCase(Locale.ENGLISH));
+        return new TransactionDuplicationKey(Messaging.ALIAS_ASSIGNMENT, attachment.getAliasName().toLowerCase(Locale.ENGLISH)
+                + (attachment.getVersion() > 1 ? Convert.toUnsignedLong(attachment.getTLD()) : ""));
       }
 
       @Override
