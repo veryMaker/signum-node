@@ -21,6 +21,7 @@ import static brs.http.common.ResultFields.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +58,7 @@ public class GetAliasesTest extends AbstractUnitTest {
 
     when(mockParameterService.getAccount(eq(req), eq(false))).thenReturn(mockAccount);
 
-    when(mockAliasService.getAliasesByOwner(eq(accountId), eq(0L), eq(0), eq(499))).thenReturn(mockAliasIterator);
+    when(mockAliasService.getAliasesByOwner(eq(accountId), isNull(), eq(0), eq(499))).thenReturn(mockAliasIterator);
     when(mockAliasService.getOffer(eq(mockAlias))).thenReturn(mockOffer);
 
     final JsonObject resultOverview = (JsonObject) t.processRequest(req);
