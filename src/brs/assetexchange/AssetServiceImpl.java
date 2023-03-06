@@ -57,7 +57,11 @@ class AssetServiceImpl {
   }
 
   public Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to) {
-    return assetStore.getAssetsIssuedBy(accountId, from, to);
+    Collection<Asset> assets = assetStore.getAssetsIssuedBy(accountId, from, to);
+    for(Asset asset : assets) {
+      asset.updateCurrentOwnerAccount();
+    }
+    return assets;
   }
 
   public int getAssetsCount() {
