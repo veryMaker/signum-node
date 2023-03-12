@@ -1,11 +1,9 @@
 package brs.http;
 
-import brs.Account;
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.BurstException;
 import brs.services.AliasService;
-import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 import brs.util.TextUtils;
@@ -20,14 +18,12 @@ import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.ALIASES_RESPONSE;
 import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
-public final class GetAliases extends APIServlet.JsonRequestHandler {
+public final class GetAliasesByName extends APIServlet.JsonRequestHandler {
 
-  private final ParameterService parameterService;
   private final AliasService aliasService;
 
-  GetAliases(ParameterService parameterService, AliasService aliasService) {
-    super(new APITag[]{APITag.ALIASES}, TIMESTAMP_PARAMETER, ACCOUNT_PARAMETER, ALIAS_NAME_PARAMETER, TLD_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
-    this.parameterService = parameterService;
+  GetAliasesByName(AliasService aliasService) {
+    super(new APITag[]{APITag.ALIASES}, TIMESTAMP_PARAMETER, ALIAS_NAME_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
     this.aliasService = aliasService;
   }
 
@@ -35,31 +31,21 @@ public final class GetAliases extends APIServlet.JsonRequestHandler {
   protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
     final int timestamp = ParameterParser.getTimestamp(req);
-    Account account = parameterService.getAccount(req, false);
     
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
     if(aliasName != null) {
       aliasName = aliasName.trim();
-      if (aliasName.length() < 1 || !TextUtils.isInAlphabetOrUnderline(aliasName)) {
-        return JSONResponses.incorrect(ALIAS_NAME_PARAMETER);
-      }
     }
+    if (aliasName == null || aliasName.length() < 1 || !TextUtils.isInAlphabetOrUnderline(aliasName)) {
+      return JSONResponses.incorrect(ALIAS_NAME_PARAMETER);
+    }
+    aliasName = "%" + aliasName.toLowerCase() + "%";
     
-    String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
-    Long tldId = null;
-    if (tldName != null) {
-      Alias tld = aliasService.getTLD(tldName);
-      if(tld == null) {
-        return JSONResponses.incorrect(TLD_PARAMETER);
-      }
-      tldId = tld.getId();
-    }
-
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
     JsonArray aliases = new JsonArray();
-    CollectionWithIndex<Alias> aliasesByOwner = aliasService.getAliasesByOwner(account!=null ? account.getId() : 0L, aliasName, tldId, firstIndex, lastIndex);
+    CollectionWithIndex<Alias> aliasesByOwner = aliasService.getAliasesByOwner(0L, aliasName, null, firstIndex, lastIndex);
     for (Alias alias : aliasesByOwner) {
       if(alias.getTimestamp() < timestamp) {
         continue;

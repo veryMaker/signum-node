@@ -14,7 +14,7 @@ public interface AliasStore {
 
   VersionedEntityTable<Alias.Offer> getOfferTable();
 
-  Collection<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to);
+  Collection<Alias> getAliasesByOwner(long accountId, String name, Long tld, int from, int to);
 
   Collection<Alias> getTLDs(int from, int to);
   

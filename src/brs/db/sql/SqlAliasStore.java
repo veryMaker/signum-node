@@ -6,6 +6,7 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
+import brs.schema.tables.records.AssetRecord;
 import brs.util.Convert;
 
 import org.jooq.Condition;
@@ -13,7 +14,9 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Result;
+import org.jooq.SelectQuery;
 import org.jooq.SortField;
+import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +25,7 @@ import java.util.Locale;
 
 import static brs.schema.Tables.ALIAS;
 import static brs.schema.Tables.ALIAS_OFFER;
+import static brs.schema.Tables.ASSET;
 
 public class SqlAliasStore implements AliasStore {
 
@@ -138,13 +142,16 @@ public class SqlAliasStore implements AliasStore {
   private final VersionedEntityTable<Alias> aliasTable;
 
   @Override
-  public Collection<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to) {
+  public Collection<Alias> getAliasesByOwner(long accountId, String name, Long tld, int from, int to) {
     Condition condition = ALIAS.TLD.isNotNull();
     if(tld != null) {
       condition = ALIAS.TLD.eq(tld);
     }
     if(accountId != 0L) {
       condition = condition.and(ALIAS.ACCOUNT_ID.eq(accountId));
+    }
+    if(name != null) {
+      condition = condition.and(ALIAS.ALIAS_NAME_LOWER.like(name.toLowerCase()));
     }
     return aliasTable.getManyBy(condition, from, to);
   }

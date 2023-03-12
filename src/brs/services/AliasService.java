@@ -24,7 +24,7 @@ public interface AliasService {
 
   int getAliasCount(long tld);
 
-  CollectionWithIndex<Alias> getAliasesByOwner(long accountId, Long tld, int from, int to);
+  CollectionWithIndex<Alias> getAliasesByOwner(long accountId, String name, Long tld, int from, int to);
   
   CollectionWithIndex<Alias> getTLDs(int from, int to);
 
