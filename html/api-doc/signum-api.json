@@ -3625,7 +3625,7 @@
           {
             "name": "aliasName",
             "in": "query",
-            "description": "The unique alias name",
+            "description": "The name to search for. It can be also just a part of it.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3645,7 +3645,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The list of aliases this account owns.",
+            "description": "The list of aliases matching the search term",
             "content": {
               "application/json": {
                 "schema": {
