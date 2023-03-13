@@ -1,7 +1,7 @@
 {
   "name": "tld",
   "in": "query",
-  "description": "The TLD (namespace) of an alias. If not given the default TLD `signum` is applied",
+  "description": "The TLD (namespace) of an alias. If not given the default TLD `signum` is applied.",
   "required": false,
   "schema": {
     "type": "string",

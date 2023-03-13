@@ -1610,7 +1610,7 @@
             "in": "query",
             "required": false,
             "allowEmptyValue": true,
-            "description": "You can set an alias for a specific namespace aka TLD. The default (if left empty) is `signum` but you can either acquire [your own TLD](), or use one of the [freely available](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#stld-signum-top-level-domains).",
+            "description": "You can set an alias for a specific namespace aka TLD. The default (if left empty) is `signum`, but you can either acquire [your own TLD](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#custom-stld), or use one of the [freely available](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#stld-signum-top-level-domains).",
             "schema": {
               "type": "string",
               "maxLength": 40,
@@ -1702,7 +1702,7 @@
             "name": "aliasName",
             "in": "query",
             "allowEmptyValue": true,
-            "description": "Instead of `alias` you can use the alias' name also.",
+            "description": "Instead of `alias` you can use the alias' name also. But then you need to specify `tld` also, if it is different from default TLD `signum`",
             "schema": {
               "type": "string",
               "maxLength": 100
@@ -1807,7 +1807,7 @@
             "name": "aliasName",
             "in": "query",
             "allowEmptyValue": true,
-            "description": "Instead of `alias` you can use the alias' name also.",
+            "description": "Instead of `alias` you can use the alias' name also. But then you need to specify `tld` also, if it is different from default TLD `signum`",
             "schema": {
               "type": "string",
               "maxLength": 100
@@ -7740,7 +7740,7 @@
       "tld": {
         "name": "tld",
         "in": "query",
-        "description": "The TLD (namespace) of an alias. If not given the default TLD `signum` is applied",
+        "description": "The TLD (namespace) of an alias. If not given the default TLD `signum` is applied.",
         "required": false,
         "schema": {
           "type": "string",

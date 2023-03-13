@@ -22,7 +22,7 @@
         "in": "query",
         "required": false,
         "allowEmptyValue": true,
-        "description": "You can set an alias for a specific namespace aka TLD. The default (if left empty) is `signum` but you can either acquire [your own TLD](), or use one of the [freely available](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#stld-signum-top-level-domains).",
+        "description": "You can set an alias for a specific namespace aka TLD. The default (if left empty) is `signum`, but you can either acquire [your own TLD](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#custom-stld), or use one of the [freely available](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#stld-signum-top-level-domains).",
         "schema": {
           "type": "string",
           "maxLength": 40,
