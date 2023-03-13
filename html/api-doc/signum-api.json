@@ -3616,7 +3616,7 @@
     },
     "/api?requestType=getAliasesByName": {
       "get": {
-        "summary": "Get Account Aliases By Name",
+        "summary": "Get Aliases By Name",
         "description": "Get aliases of a given name or part of it.",
         "tags": [
           "alias"
@@ -3664,31 +3664,24 @@
                   "example": {
                     "aliases": [
                       {
-                        "account": "2402520554221019656",
-                        "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                        "aliasName": "devcamp2019",
-                        "aliasURI": "acct:burst-qaja-qw5y-swvp-4rvp4@burst",
-                        "timestamp": 157831922,
-                        "alias": "4498738268646491227"
+                        "account": "10269022105793844863",
+                        "accountRS": "TS-MPMZ-8CD9-HZMD-A7R2X",
+                        "aliasName": "CounterFiatTest",
+                        "timestamp": 263500271,
+                        "alias": "16839288055921474720",
+                        "aliasURI": "acct:-mpmz-8cd9-hzmd-a7r2x@burst",
+                        "tld": "0",
+                        "tldName": "signum"
                       },
                       {
-                        "account": "2402520554221019656",
-                        "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                        "aliasName": "QAJA",
-                        "aliasURI": "magic",
-                        "timestamp": 251228597,
-                        "alias": "6442930183499063033",
-                        "priceNQT": "1500000000"
-                      },
-                      {
-                        "account": "2402520554221019656",
-                        "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                        "aliasName": "superduperalias",
-                        "aliasURI": "Contentchange....",
-                        "timestamp": 251224892,
-                        "alias": "8468600040485258181",
-                        "priceNQT": "500000000",
-                        "buyer": "6502115112683865257"
+                        "account": "14978592240935099976",
+                        "accountRS": "TS-RRLA-B3Y7-L4EU-E8PRZ",
+                        "aliasName": "meintest345",
+                        "timestamp": 225985423,
+                        "alias": "7244596052623080374",
+                        "aliasURI": "http://ssssss",
+                        "tld": "0",
+                        "tldName": "signum"
                       }
                     ],
                     "requestProcessingTime": 35
@@ -6395,7 +6388,7 @@
           "aliasName": {
             "description": "The name of the alias",
             "type": "string",
-            "pattern": "^[a-zA-Z0-9]{30}$"
+            "pattern": "^[a-zA-Z0-9_]{1,10}$"
           },
           "aliasURI": {
             "description": "The content of the alias",
@@ -6427,7 +6420,7 @@
             "format": "int64"
           },
           "numberOfAliases": {
-            "description": "If the alias is a TLD, the number of aliases related to that TLD is returned",
+            "description": "If the alias is a TLD, the number of aliases registered to that TLD is returned",
             "type": "integer"
           },
           "timestamp": {
