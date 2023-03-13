@@ -1,16 +1,21 @@
 {
   "get": {
-    "summary": "Get Account Aliases",
-    "description": "Get aliases of an account.",
+    "summary": "Get Account Aliases By Name",
+    "description": "Get aliases of a given name or part of it.",
     "tags": [
-      "account", "alias"
+      "alias"
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/account/account.json"
-      },
-      {
-        "$ref": "../../parameters/alias/tld.json"
+        "name": "aliasName",
+        "in": "query",
+        "description": "The unique alias name",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": "100",
+          "pattern": "^[a-zA-Z0-9_]{1,100}$"
+        }
       },
       {
         "$ref": "../../parameters/timestamp.json"

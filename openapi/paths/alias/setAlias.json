@@ -10,12 +10,23 @@
         "name": "aliasName",
         "in": "query",
         "required": true,
-        "allowEmptyValue": true,
         "description": "If not exists already, you create an alias with the given __unique__ name. If you are the owner of the alias, then you can update the content. - Like a database _upsert_ operation.",
         "schema": {
           "type": "string",
           "maxLength": 100,
-          "pattern": "^[a-zA-Z0-9]{1,100}$"
+          "pattern": "^[a-zA-Z0-9_]{1,100}$"
+        }
+      },
+      {
+        "name": "tld",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": true,
+        "description": "You can set an alias for a specific namespace aka TLD. The default (if left empty) is `signum` but you can either acquire [your own TLD](), or use one of the [freely available](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md#stld-signum-top-level-domains).",
+        "schema": {
+          "type": "string",
+          "maxLength": 40,
+          "pattern": "^[a-zA-Z0-9]{1,40}$"
         }
       },
       {
@@ -46,6 +57,36 @@
       },
       {
         "$ref": "../../parameters/transaction/referencedTransactionFullHash.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/message.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncrypt.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageNonce.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelf.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageNonce.json"
       }
     ],
     "responses": {

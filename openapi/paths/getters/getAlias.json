@@ -1,7 +1,7 @@
 {
   "get": {
-    "summary": "Get Alias",
-    "description": "Get an alias by its id or unique name",
+    "summary": "Get Alias or TLD",
+    "description": "Get an alias by its id or unique name, or TLD by its name",
     "tags": [
       "alias"
     ],
@@ -24,8 +24,11 @@
         "schema": {
           "type": "string",
           "maxLength": "100",
-          "pattern": "^[a-zA-Z0-9]{1,100}$"
+          "pattern": "^[a-zA-Z0-9_]{1,100}$"
         }
+      },
+      {
+        "$ref": "../../parameters/alias/tld.json"
       }
     ],
     "responses": {

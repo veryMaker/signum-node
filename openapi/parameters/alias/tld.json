@@ -1,0 +1,11 @@
+{
+  "name": "tld",
+  "in": "query",
+  "description": "The TLD (namespace) of an alias. If not given the default TLD `signum` is applied",
+  "required": false,
+  "schema": {
+    "type": "string",
+    "maxLength": "40",
+    "pattern": "^[a-zA-Z0-9]{1,40}$"
+  }
+}

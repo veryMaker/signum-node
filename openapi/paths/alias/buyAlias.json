@@ -20,6 +20,9 @@
         }
       },
       {
+        "$ref" : "../../parameters/alias/tld.json"
+      },
+      {
         "name": "amountNQT",
         "in": "query",
         "allowEmptyValue": false,

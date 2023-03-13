@@ -24,6 +24,16 @@
       "type": "string",
       "maxLength": 1000
     },
+    "tld": {
+      "description": "The id of the TLD",
+      "type": "integer",
+      "format": "int64"
+    },
+    "tldName": {
+      "description": "The name of the TLD",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9]{1,40}$"
+    },
     "priceNQT": {
       "description": "The price in Planck wanted for the alias.When an alias has this field is it available for buying, i.e. it is On Sale.",
       "type": "integer",
@@ -38,6 +48,10 @@
       "type": "integer",
       "format": "int64"
     },
+    "numberOfAliases": {
+      "description": "If the alias is a TLD, the number of aliases related to that TLD is returned",
+      "type": "integer"
+    },
     "timestamp": {
       "$ref": "./timestamp.json"
     }
@@ -50,6 +64,8 @@
     "timestamp": 251224892,
     "alias": "8468600040485258181",
     "priceNQT": "500000000",
-    "buyer": "6502115112683865257"
+    "buyer": "6502115112683865257",
+    "tld": "0",
+    "tldName": "signum"
   }
 }
