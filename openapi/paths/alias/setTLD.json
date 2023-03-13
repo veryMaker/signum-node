@@ -1,7 +1,7 @@
 {
   "post": {
     "summary": "Set Custom Alias TLD",
-    "description": "Create a [Top Level Domain (TLD)](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md) for aliases. A TLD is like a namespace for Aliases, such it is possible to have same Aliases in different TLDs. Note, that acquisition of a custom TLD charges 100K SIGNA",
+    "description": "Create a [Top Level Domain (TLD)](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md) for aliases. A TLD is like a namespace for Aliases, such it is possible to have same Aliases in different TLDs.",
     "tags": [
       "alias"
     ],
