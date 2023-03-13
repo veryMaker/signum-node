@@ -234,6 +234,9 @@
     "/api?requestType=getAssetsByIssuer": {
       "$ref": "./paths/getters/getAssetsByIssuer.json"
     },
+    "/api?requestType=getAssetsByOwner": {
+      "$ref": "./paths/getters/getAssetsByOwner.json"
+    },
     "/api?requestType=getAssetsByName": {
       "$ref": "./paths/getters/getAssetsByName.json"
     },
