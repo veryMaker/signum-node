@@ -1,44 +1,21 @@
 {
   "post": {
-    "summary": "Sell Alias",
-    "description": "Sets an alias for sale. Once on sale others can [buy the alias](#post-/api-requestType-buyAlias).",
+    "summary": "Set Custom Alias TLD",
+    "description": "Create a [Top Level Domain (TLD)](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md) for aliases. A TLD is like a namespace for Aliases, such it is possible to have same Aliases in different TLDs.",
     "tags": [
       "alias"
     ],
     "parameters": [
       {
-        "$ref" : "../../parameters/alias/alias.json"
-      },
-      {
-        "name": "aliasName",
+        "name": "tld",
         "in": "query",
-        "allowEmptyValue": true,
-        "description": "Instead of `alias` you can use the alias' name also. But then you need to specify `tld` also, if it is different from default TLD `signum`",
+        "required": true,
+        "allowEmptyValue": false,
+        "description": "Your custom TLD",
         "schema": {
           "type": "string",
-          "maxLength": 100
-        }
-      },
-      {
-        "$ref" : "../../parameters/alias/tld.json"
-      },
-      {
-        "name": "recipient",
-        "in": "query",
-        "allowEmptyValue": false,
-        "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
-        "schema": {
-          "$ref": "../../schemas/address.json"
-        }
-      },
-      {
-        "name": "priceNQT",
-        "in": "query",
-        "allowEmptyValue": false,
-        "required": true,
-        "description": "The amount you want for the alias.",
-        "schema": {
-          "$ref": "../../schemas/amount.json"
+          "maxLength": 40,
+          "pattern": "^[a-zA-Z0-9]{1,40}$"
         }
       },
       {
@@ -55,9 +32,6 @@
       },
       {
         "$ref": "../../parameters/transaction/broadcast.json"
-      },
-      {
-        "$ref": "../../parameters/transaction/recipientPublicKey.json"
       },
       {
         "$ref": "../../parameters/transaction/referencedTransactionFullHash.json"

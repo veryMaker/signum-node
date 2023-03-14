@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Signum Node API",
-    "version": "3.5.1",
+    "version": "3.7.0",
     "description": "This is the API documentation of the Signum Node"
   },
   "paths": {
@@ -174,8 +174,14 @@
     "/api?requestType=getAliases": {
       "$ref": "./paths/getters/getAliases.json"
     },
+    "/api?requestType=getAliasesByName": {
+      "$ref": "./paths/getters/getAliasesByName.json"
+    },
     "/api?requestType=getAlias": {
       "$ref": "./paths/getters/getAlias.json"
+    },
+    "/api?requestType=getTLDs": {
+      "$ref": "./paths/getters/getTLDs.json"
     },
     "/api?requestType=getECBlock": {
       "$ref": "./paths/getters/getECBlock.json"
@@ -377,6 +383,9 @@
     "parameters": {
       "alias": {
         "$ref": "./parameters/alias/alias.json"
+      },
+      "tld": {
+        "$ref": "./parameters/alias/tld.json"
       },
       "quantityQNT": {
         "$ref": "./parameters/token/quantityQNT.json"
