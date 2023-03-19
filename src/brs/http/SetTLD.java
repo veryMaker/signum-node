@@ -40,7 +40,7 @@ public final class SetTLD extends CreateTransaction {
     }
 
     tldName = tldName.trim();
-    if (tldName.isEmpty() || tldName.length() > Constants.MAX_ALIAS_LENGTH) {
+    if (tldName.isEmpty() || tldName.length() > Constants.MAX_TLD_LENGTH) {
       return incorrect(TLD_PARAMETER);
     }
 

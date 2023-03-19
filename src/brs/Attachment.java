@@ -512,7 +512,7 @@ public interface Attachment extends Appendix {
     MessagingAliasSell(JsonObject attachmentData) {
       super(attachmentData);
       if(getVersion() > 1) {
-        this.aliasId = JSON.getAsLong(attachmentData.get(ALIAS_PARAMETER));
+        this.aliasId = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
       }
       else {
         this.aliasName = Convert.nullToEmpty(JSON.getAsString(attachmentData.get(ALIAS_PARAMETER)));
