@@ -703,9 +703,6 @@ public abstract class TransactionType {
           throw new BurstException.NotValidException("Invalid alias assignment: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
-          if(attachment.getVersion() < 2) {
-            throw new BurstException.NotCurrentlyValidException("Attachment version mismatch");
-          }
           if (!TextUtils.isInAlphabetOrUnderline(attachment.getAliasName())) {
             throw new BurstException.NotValidException("Invalid alias name: " + attachment.getAliasName());
           }
@@ -844,7 +841,7 @@ public abstract class TransactionType {
         }
         final Attachment.MessagingAliasSell attachment =
                 (Attachment.MessagingAliasSell) transaction.getAttachment();
-        if(fluxCapacitor.getValue(FluxValues.SMART_ALIASES, blockchain.getLastBlock().getHeight()) && attachment.getVersion() < 2) {
+        if(attachment.getVersion() > 1 && !fluxCapacitor.getValue(FluxValues.SMART_ALIASES)) {
           throw new BurstException.NotCurrentlyValidException("Attachment version mismatch");
         }
         if(attachment.getVersion() <= 1) {
@@ -926,7 +923,7 @@ public abstract class TransactionType {
         }
         final Attachment.MessagingAliasBuy attachment =
                 (Attachment.MessagingAliasBuy) transaction.getAttachment();
-        if(fluxCapacitor.getValue(FluxValues.SMART_ALIASES, blockchain.getLastBlock().getHeight()) && attachment.getVersion() < 2) {
+        if(attachment.getVersion() > 1 && !fluxCapacitor.getValue(FluxValues.SMART_ALIASES)) {
           throw new BurstException.NotCurrentlyValidException("Attachment version mismatch");
         }
         final String aliasName = attachment.getAliasName();
