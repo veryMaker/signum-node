@@ -17,7 +17,7 @@
     "aliasName": {
       "description": "The name of the alias",
       "type": "string",
-      "pattern": "^[a-zA-Z0-9_]{1,10}$"
+      "pattern": "^[a-zA-Z0-9_]{1,100}$"
     },
     "aliasURI": {
       "description": "The content of the alias",
