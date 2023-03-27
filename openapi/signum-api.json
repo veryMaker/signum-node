@@ -183,6 +183,9 @@
     "/api?requestType=getTLDs": {
       "$ref": "./paths/getters/getTLDs.json"
     },
+    "/api?requestType=setTLDs": {
+      "$ref": "./paths/alias/setTLD.json"
+    },
     "/api?requestType=getECBlock": {
       "$ref": "./paths/getters/getECBlock.json"
     },
