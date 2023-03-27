@@ -1481,8 +1481,7 @@ public abstract class TransactionType {
         }
 
         Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
-        if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
-            || assetCreationTransaction.getSenderId() != transaction.getSenderId())
+        if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null)
           return false;
 
         Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
@@ -1511,17 +1510,19 @@ public abstract class TransactionType {
         }
 
         Transaction assetCreationTransaction = Burst.getBlockchain().getTransactionByFullHash(transaction.getReferencedTransactionFullHash());
-        if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null
-            || assetCreationTransaction.getSenderId() != transaction.getSenderId()
-            || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
-          throw new BurstException.NotValidException("Invalid add treasury account transaction");
+        if(transaction.getAmountNQT() != 0 || assetCreationTransaction == null) {
+          throw new BurstException.NotCurrentlyValidException("Invalid transaction amount or reference transaction");
         }
-
         Asset asset = assetExchange.getAsset(assetCreationTransaction.getId());
         if (asset == null) {
           throw new BurstException.NotCurrentlyValidException("Asset " + Convert.toUnsignedLong(assetCreationTransaction.getId()) +
-                  " does not exist yet");
+              " does not exist yet");
         }
+        
+        if(asset.getAccountId()!= transaction.getSenderId() || !Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+          throw new BurstException.NotValidException("Invalid add treasury account transaction");
+        }
+
       }
 
       @Override

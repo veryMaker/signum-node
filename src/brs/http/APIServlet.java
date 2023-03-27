@@ -131,7 +131,7 @@ public final class APIServlet extends HttpServlet {
     map.put("issueAsset", new IssueAsset(parameterService, blockchain, apiTransactionManager));
     map.put("mintAsset", new MintAsset(parameterService, blockchain, apiTransactionManager, assetExchange));
     map.put("distributeToAssetHolders", new DistributeToAssetHolders(parameterService, blockchain, apiTransactionManager, assetExchange, accountService));
-    map.put("addAssetTreasuryAccount", new AddAssetTreasuryAccount(parameterService, blockchain, apiTransactionManager, accountService));
+    map.put("addAssetTreasuryAccount", new AddAssetTreasuryAccount(parameterService, assetExchange, blockchain, apiTransactionManager, accountService));
     map.put("longConvert", LongConvert.instance);
     map.put("parseTransaction", new ParseTransaction(parameterService, transactionService));
     map.put("placeAskOrder", new PlaceAskOrder(parameterService, blockchain, apiTransactionManager, accountService));
