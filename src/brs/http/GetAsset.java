@@ -4,6 +4,7 @@ import brs.Asset;
 import brs.Burst;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
@@ -35,8 +36,9 @@ public final class GetAsset extends APIServlet.JsonRequestHandler {
 
     int tradeCount = assetExchange.getTradeCount(asset.getId());
     int transferCount = assetExchange.getTransferCount(asset.getId());
-    int accountsCount = assetExchange.getAssetAccountsCount(asset, minimumQuantity, true, false);
-    long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, false);
+    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
+    int accountsCount = assetExchange.getAssetAccountsCount(asset, minimumQuantity, true, unconfirmed);
+    long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, unconfirmed);
 
     long quantityBurnt = accountService.getUnconfirmedAssetBalanceQNT(accountService.getNullAccount(), asset.getId());
 

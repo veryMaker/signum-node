@@ -3,8 +3,10 @@ package brs.http;
 import brs.Account;
 import brs.Account.AccountAsset;
 import brs.Asset;
+import brs.Burst;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
+import brs.fluxcapacitor.FluxValues;
 import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
 import brs.util.Convert;
@@ -41,8 +43,9 @@ final class GetAssetAccounts extends APIServlet.JsonRequestHandler {
     boolean filterTreasury = "false".equals(req.getParameter(ASSET_IGNORE_TREASURY_PARAMETER)) ? false : true;
 
     JsonArray accountAssetsArray = new JsonArray();
+    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
     CollectionWithIndex<AccountAsset> accountAssets = assetExchange.getAssetAccounts(asset,
-        filterTreasury, minimumQuantity, false, firstIndex, lastIndex);
+        filterTreasury, minimumQuantity, unconfirmed, firstIndex, lastIndex);
     for (Account.AccountAsset accountAsset : accountAssets) {
       accountAssetsArray.add(JSONData.accountAsset(accountAsset));
     }
