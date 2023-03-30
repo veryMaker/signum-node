@@ -169,6 +169,7 @@ public final class APIServlet extends HttpServlet {
     map.put("createATProgram", new CreateATProgram(parameterService, blockchain, apiTransactionManager));
     map.put("getAT", new GetAT(parameterService, blockchain));
     map.put("getATDetails", new GetATDetails(parameterService));
+    map.put("getATs", new GetATs(atService));
     map.put("getATIds", new GetATIds(atService));
     map.put("getATLong", GetATLong.instance);
     map.put("getATMapValue", new GetATMapValue());
