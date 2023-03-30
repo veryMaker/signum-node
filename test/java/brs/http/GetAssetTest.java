@@ -8,6 +8,7 @@ import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.fluxcapacitor.FluxCapacitor;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.JSON;
@@ -42,11 +43,13 @@ public class GetAssetTest extends AbstractUnitTest {
     parameterServiceMock = mock(ParameterService.class);
     mockAssetExchange = mock(AssetExchange.class);
     mockAccountService = mock(AccountService.class);
+    FluxCapacitor mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor();
 
     mockStatic(Burst.class);
     Blockchain mockBlockchain = mock(Blockchain.class);
     when(Burst.getBlockchain()).thenReturn(mockBlockchain);
     when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
+    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new GetAsset(parameterServiceMock, mockAssetExchange, mockAccountService);
   }
