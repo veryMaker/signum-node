@@ -267,6 +267,9 @@
     "/api?requestType=getSubscription": {
       "$ref": "./paths/getters/getSubscription.json"
     },
+    "/api?requestType=getSubscriptionPayments": {
+      "$ref": "./paths/getters/getSubscriptionPayments.json"
+    },
     "/api?requestType=getUnconfirmedTransactionIds": {
       "$ref": "./paths/getters/getUnconfirmedTransactionIds.json"
     },
