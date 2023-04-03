@@ -120,6 +120,9 @@
     "/api?requestType=getAT": {
       "$ref": "./paths/getters/getAT.json"
     },
+    "/api?requestType=getATs": {
+      "$ref": "./paths/getters/getATs.json"
+    },
     "/api?requestType=getATDetails": {
       "$ref": "./paths/getters/getATDetails.json"
     },

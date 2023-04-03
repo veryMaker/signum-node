@@ -78,6 +78,11 @@
       "type": "string",
       "pattern": "^[a-fA-F0-9]+$"
     },
+    "creationMachineData": {
+      "description": "The initial data when contract was created",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]+$"
+    },
     "machineCodeHashId": {
       "description": "The hash id for the contracts code. So, we can identify different instances of the same contract code by this identifier.",
       "type": "integer",
