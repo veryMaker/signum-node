@@ -491,17 +491,19 @@ public final class JSONData {
     json.addProperty("dead", at.getMachineState().isDead());
     json.addProperty("machineCodeHashId", Convert.toUnsignedLong(at.getApCodeHashId()) );
 
+    // some immutable data, but still take little bytes
+    json.addProperty("atVersion", at.getVersion());
+    json.addProperty("atRS", Convert.rsAccount(id));
+    json.addProperty("name", at.getName());
+    json.addProperty("description", at.getDescription());
+    json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
+    json.addProperty("creationBlock", at.getCreationBlockHeight());
+    
     if(includeDetails) {
-      // These are immutable details, which we might want to avoid getting on every call
-      json.addProperty("atVersion", at.getVersion());
-      json.addProperty("atRS", Convert.rsAccount(id));
-      json.addProperty("name", at.getName());
-      json.addProperty("description", at.getDescription());
-      json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
-      json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
+      // These take more bytes and can be skipped
       json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
-      json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
-      json.addProperty("creationBlock", at.getCreationBlockHeight());
       if(atCreation != null) {
         json.addProperty("creationMachineData", Convert.toHexString(atCreation.getApDataBytes()));
       }
