@@ -1,0 +1,14 @@
+{
+  "name": "includeDetails",
+  "in": "query",
+  "allowEmptyValue": false,
+  "required": false,
+  "description": "If set `true` more details are being returned (Default: `true`). Use `false` and payload can be reduced by approx. 40%",
+  "schema": {
+    "type": "boolean",
+    "example": [
+      true,
+      false
+    ]
+  }
+}

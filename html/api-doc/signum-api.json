@@ -2274,6 +2274,9 @@
             },
             "in": "query",
             "description": "This hash identifies a specific code. Using this parameter as additional filter to search only for a specific class of contracts, i.e. NFTSRC40.<br/>See also the [green contract specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-30.md)"
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/1"
           }
         ],
         "responses": {
@@ -2288,7 +2291,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "ats": {
                       "type": "array",
@@ -2317,6 +2320,20 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/at"
+          },
+          {
+            "name": "includeDetails",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": false,
+            "description": "If set `true` more details are being returned (Default: `true`). Use `false` and payload can be reduced by approx. 40%",
+            "schema": {
+              "type": "boolean",
+              "example": [
+                true,
+                false
+              ]
+            }
           }
         ],
         "responses": {
@@ -2326,6 +2343,72 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/contract"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getATs": {
+      "get": {
+        "summary": "Get Contracts ",
+        "description": "Gets a list of smart contracts by their machin code hash",
+        "tags": [
+          "contract"
+        ],
+        "parameters": [
+          {
+            "name": "machineCodeHashId",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The machine code hash",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": [
+                "5817622329198284865",
+                "15155055045342098571"
+              ]
+            }
+          },
+          {
+            "$ref": "#/paths/~1api%3FrequestType%3DgetAT/get/parameters/1"
+          },
+          {
+            "$ref": "#/components/parameters/firstIndex"
+          },
+          {
+            "$ref": "#/components/parameters/lastIndex"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contract List Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "ats"
+                  ],
+                  "properties": {
+                    "nextIndex": {
+                      "type": "int32",
+                      "description": "Next index for pagination. When having more items, this field indicates which is the next `firstIndex` to be used. If not available, no more items are available also",
+                      "example": 10
+                    },
+                    "assets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/contract"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2598,7 +2681,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "assetBalances": {
                       "description": "The total token balances (in _quantity_) which this account owns, including reserved ones",
@@ -4275,9 +4358,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "type": "int32",
-                      "description": "Next index for pagination. When having more items, this field indicates which is the next `firstIndex` to be used. If not available, no more items are available also",
-                      "example": 10
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "blocks": {
                       "type": "array",
@@ -4393,7 +4474,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "blockIds": {
                       "type": "integer",
@@ -4444,7 +4525,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "askOrders": {
                       "type": "array",
@@ -4497,7 +4578,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "bidOrders": {
                       "type": "array",
@@ -4543,7 +4624,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "askOrders": {
                       "type": "array",
@@ -4589,7 +4670,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "bidOrders": {
                       "type": "array",
@@ -4667,7 +4748,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "askOrders": {
                       "type": "array",
@@ -4745,7 +4826,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "bidOrders": {
                       "type": "array",
@@ -4860,7 +4941,7 @@
                       }
                     },
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     }
                   }
                 }
@@ -4900,7 +4981,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "assetIds": {
                       "type": "array",
@@ -4970,7 +5051,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "accountAssets": {
                       "type": "array",
@@ -5065,7 +5146,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "assets": {
                       "type": "array",
@@ -5124,7 +5205,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "assets": {
                       "type": "array",
@@ -5193,7 +5274,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "assets": {
                       "type": "array",
@@ -5254,7 +5335,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "trades": {
                       "type": "array",
@@ -5318,7 +5399,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "transfers": {
                       "type": "array",
@@ -5456,7 +5537,7 @@
     "/api?requestType=getSubscriptionsToAccount": {
       "get": {
         "summary": "Get Recipient Subscriptions",
-        "description": "Get subscriptions sent to an account/recipient, incoming subscriptions. See [outgoing subscriptions](#get-/api-requestType-getAccountSubscriptions)",
+        "description": "Get subscriptions sent to an account/recipient, incoming subscriptions. See [subscriptions payments](#get-/api-requestType-getSubscriptionPayments)",
         "tags": [
           "account",
           "payment"
@@ -5516,6 +5597,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/subscription"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/error"
+          }
+        }
+      }
+    },
+    "/api?requestType=getSubscriptionPayments": {
+      "get": {
+        "summary": "Get Payments of a Subscriptions",
+        "description": "Gets a subscriptions payment. See [subscription](#get-/api-requestType-getSubscription)",
+        "tags": [
+          "account",
+          "payment"
+        ],
+        "parameters": [
+          {
+            "name": "subscription",
+            "in": "query",
+            "allowEmptyValue": false,
+            "required": true,
+            "description": "The identifier of a subscription, i.e. its initial transaction id",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/firstIndex"
+          },
+          {
+            "$ref": "#/components/parameters/lastIndex"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription Payment List response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "required": [
+                    "transactions"
+                  ],
+                  "items": {
+                    "$ref": "#/components/schemas/transaction"
+                  }
                 }
               }
             }
@@ -5664,7 +5795,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "transactions": {
                       "type": "array",
@@ -5759,7 +5890,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "transactionIds": {
                       "type": "array",
@@ -5961,7 +6092,7 @@
                   ],
                   "properties": {
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "trades": {
                       "type": "array",
@@ -6045,7 +6176,7 @@
                       "example": "914948012239561046"
                     },
                     "nextIndex": {
-                      "$ref": "#/paths/~1api%3FrequestType%3DgetBlocks/get/responses/200/content/application~1json/schema/properties/nextIndex"
+                      "$ref": "#/paths/~1api%3FrequestType%3DgetATs/get/responses/200/content/application~1json/schema/properties/nextIndex"
                     },
                     "tradeJournal": {
                       "type": "array",
@@ -7187,6 +7318,11 @@
             "type": "string",
             "pattern": "^[a-fA-F0-9]+$"
           },
+          "creationMachineData": {
+            "description": "The initial data when contract was created",
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]+$"
+          },
           "machineCodeHashId": {
             "description": "The hash id for the contracts code. So, we can identify different instances of the same contract code by this identifier.",
             "type": "integer",
@@ -7239,6 +7375,7 @@
           "creator": "2402520554221019656",
           "creatorRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
           "machineCode": "12ed000000303304030300...",
+          "creationMachineData": "000000000000000000000000...",
           "minActivation": "25000000",
           "creationBlock": 440889
         }
@@ -7483,6 +7620,24 @@
             "description": "The timestamp of the next payment.",
             "type": "integer",
             "format": "int32"
+          },
+          "alias": {
+            "description": "The Alias Id for alias renewal subscriptions",
+            "type": "integer",
+            "format": "int64"
+          },
+          "aliasName": {
+            "description": "The Alias Name for alias renewal subscriptions",
+            "type": "string"
+          },
+          "tld": {
+            "description": "The Alias' namespace Id aka Top Level Domain for alias renewal subscriptions",
+            "type": "integer",
+            "format": "int64"
+          },
+          "tldName": {
+            "description": "The Alias' namespace Name aka Top Level Domain for alias renewal subscriptions",
+            "type": "string"
           }
         }
       },

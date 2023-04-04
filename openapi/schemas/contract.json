@@ -78,6 +78,11 @@
       "type": "string",
       "pattern": "^[a-fA-F0-9]+$"
     },
+    "creationMachineData": {
+      "description": "The initial data when contract was created",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]+$"
+    },
     "machineCodeHashId": {
       "description": "The hash id for the contracts code. So, we can identify different instances of the same contract code by this identifier.",
       "type": "integer",
@@ -126,6 +131,7 @@
     "creator": "2402520554221019656",
     "creatorRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
     "machineCode": "12ed000000303304030300...",
+    "creationMachineData": "000000000000000000000000...",
     "minActivation": "25000000",
     "creationBlock": 440889
   }

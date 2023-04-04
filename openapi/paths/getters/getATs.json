@@ -1,26 +1,34 @@
 {
   "get": {
-    "summary": "Get Account Contracts",
-    "description": "Gets the contracts a given account created.",
+    "summary": "Get Contracts ",
+    "description": "Gets a list of smart contracts by their machin code hash",
     "tags": [
-      "account",
       "contract"
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/account/account.json"
-      },
-      {
         "name": "machineCodeHashId",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The machine code hash",
         "schema": {
           "type": "integer",
-          "format": "int64"
-        },
-        "in": "query",
-        "description": "This hash identifies a specific code. Using this parameter as additional filter to search only for a specific class of contracts, i.e. NFTSRC40.<br/>See also the [green contract specification](https://github.com/signum-network/SIPs/blob/master/SIP/sip-30.md)"
+          "format": "int64",
+          "example": [
+            "5817622329198284865",
+            "15155055045342098571"
+          ]
+        }
       },
       {
         "$ref": "../../parameters/contract/includeDetails.json"
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
       }
     ],
     "responses": {
@@ -37,7 +45,7 @@
                 "nextIndex": {
                   "$ref": "../../schemas/nextIndex.json"
                 },
-                "ats": {
+                "assets": {
                   "type": "array",
                   "items": {
                     "$ref": "../../schemas/contract.json"

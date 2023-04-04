@@ -1,7 +1,7 @@
 {
   "get": {
     "summary": "Get Recipient Subscriptions",
-    "description": "Get subscriptions sent to an account/recipient, incoming subscriptions. See [outgoing subscriptions](#get-/api-requestType-getAccountSubscriptions)",
+    "description": "Get subscriptions sent to an account/recipient, incoming subscriptions. See [subscriptions payments](#get-/api-requestType-getSubscriptionPayments)",
     "tags": [
       "account",
       "payment"
