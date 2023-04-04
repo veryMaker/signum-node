@@ -168,6 +168,7 @@ public final class Peers {
     json.addProperty("version",      Burst.VERSION.toString());
     json.addProperty("platform",     Peers.myPlatform);
     json.addProperty("shareAddress", Peers.shareMyAddress);
+    json.addProperty("networkName", propertyService.getString(Props.NETWORK_NAME));
     if (logger.isDebugEnabled()) {
       logger.debug("My peer info: {}", JSON.toJsonString(json));
     }
@@ -443,6 +444,7 @@ public final class Peers {
              */
 
             if (!peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+                    || (peer.getNetworkName()!=null && !peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))
                     || (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -465,6 +467,7 @@ public final class Peers {
           if (peer.getState() == Peer.State.CONNECTED && now - peer.getLastUpdated() > 3600) {
             peer.connect(timeService.getEpochTime());
             if (!peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION)) ||
+                    (peer.getNetworkName()!=null && !peer.getNetworkName().equals(Burst.getPropertyService().getString(Props.NETWORK_NAME))) ||
                     (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -487,6 +490,7 @@ public final class Peers {
         if (peer.getAnnouncedAddress() != null
                 && ! peer.isBlacklisted()
                 && ! peer.isWellKnown()
+                && (peer.getNetworkName()==null || peer.getNetworkName().equals(Burst.getPropertyService().getString(Props.NETWORK_NAME)))
                 && peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))) {
           currentPeers.add(peer.getAnnouncedAddress());
         }
@@ -565,6 +569,7 @@ public final class Peers {
                   && myPeer.getState() == Peer.State.CONNECTED && myPeer.shareAddress()
                   && ! addedAddresses.contains(myPeer.getAnnouncedAddress())
                   && ! myPeer.getAnnouncedAddress().equals(peer.getAnnouncedAddress())
+                  && (peer.getNetworkName()==null || peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))
                   && myPeer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
           ) {
             myPeers.add(myPeer.getAnnouncedAddress());
@@ -841,6 +846,7 @@ public final class Peers {
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
     return peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+            && (peer.getNetworkName()==null || peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))
             && (! sendSameBRSclass || peer.isAtLeastMyVersion())
             && ! peer.isBlacklisted()
             && peer.getState() == Peer.State.CONNECTED

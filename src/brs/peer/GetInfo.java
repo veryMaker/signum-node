@@ -44,6 +44,9 @@ final class GetInfo implements PeerServlet.PeerRequestHandler {
       platform = "?";
     }
     peerImpl.setPlatform(platform.trim());
+    
+    String networkName = JSON.getAsString(request.get("networkName"));
+    peerImpl.setNetworkName(networkName);
 
     peerImpl.setShareAddress(Boolean.TRUE.equals(JSON.getAsBoolean(request.get("shareAddress"))));
     peerImpl.setLastUpdated(timeService.getEpochTime());

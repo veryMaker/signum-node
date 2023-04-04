@@ -257,6 +257,7 @@ public final class JSONData {
     json.addProperty("application", peer.getApplication());
     json.addProperty("version", peer.getVersion().toStringIfNotEmpty());
     json.addProperty("platform", peer.getPlatform());
+    json.addProperty("networkName", peer.getNetworkName());
     json.addProperty("blacklisted", peer.isBlacklisted());
     json.addProperty("lastUpdated", peer.getLastUpdated());
     return json;
