@@ -1,6 +1,7 @@
 package brs;
 
 import brs.Account.AccountAsset;
+import brs.Alias.Offer;
 import brs.Attachment.AbstractAttachment;
 import brs.Attachment.AutomatedTransactionsCreation;
 import brs.Attachment.CommitmentAdd;
@@ -3236,6 +3237,10 @@ public abstract class TransactionType {
         Subscription subscription = subscriptionService.getSubscription(attachment.getSubscriptionId());
         Alias alias = aliasService.getAlias(subscription.getRecipientId());
         if(alias != null) {
+          Offer offer = aliasService.getOffer(alias);
+          if(offer != null) {
+            Burst.getStores().getAliasStore().getOfferTable().delete(offer);
+          }
           Burst.getStores().getAliasStore().getAliasTable().delete(alias);
         }
         subscriptionService.removeSubscription(attachment.getSubscriptionId());
