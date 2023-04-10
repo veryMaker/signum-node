@@ -3236,7 +3236,7 @@ public abstract class TransactionType {
         Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) transaction.getAttachment();
         Subscription subscription = subscriptionService.getSubscription(attachment.getSubscriptionId());
         Alias alias = aliasService.getAlias(subscription.getRecipientId());
-        if(alias != null) {
+        if(subscription.getRecipientId()!=0L && alias != null) {
           Offer offer = aliasService.getOffer(alias);
           if(offer != null) {
             Burst.getStores().getAliasStore().getOfferTable().delete(offer);

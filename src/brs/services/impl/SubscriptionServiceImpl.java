@@ -108,7 +108,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     Subscription subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id));
     if (subscription != null) {
       Alias alias = aliasService.getAlias(subscription.getRecipientId());
-      if(alias != null) {
+      if(subscription.getRecipientId()!=0L && alias != null) {
         Burst.getStores().getAliasStore().getAliasTable().delete(alias);
       }
       subscriptionTable.delete(subscription);

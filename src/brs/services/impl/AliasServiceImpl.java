@@ -3,6 +3,7 @@ package brs.services.impl;
 import static brs.schema.Tables.ALIAS;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -51,6 +52,20 @@ public class AliasServiceImpl implements AliasService {
   public void addDefaultTLDs() {
     try {
       Burst.getStores().beginTransaction();
+      
+      // TODO: should be removed prior to the next release
+      try {
+        Statement selectTx = Db.getConnection().createStatement();
+        selectTx.executeUpdate(
+          "update alias set latest=1 where alias_name like 'signum' and height=0;" +
+          "delete from alias where alias_name like 'signum' and height <>0 and tld is null;"
+        );
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+      // TODO: end of DB patch, to be removed
+      
       if(aliasStore.getTLD(MAIN_TLD) ==  null) {
         Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(MAIN_TLD, 0);
         addTLD(0L, null, attachment);
