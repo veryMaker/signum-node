@@ -107,9 +107,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   public void removeSubscription(Long id) {
     Subscription subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id));
     if (subscription != null) {
-      Alias alias = aliasService.getAlias(subscription.getRecipientId());
-      if(subscription.getRecipientId()!=0L && alias != null) {
-        Burst.getStores().getAliasStore().getAliasTable().delete(alias);
+      if(subscription.getRecipientId()!=0L) {
+        Alias alias = aliasService.getAlias(subscription.getRecipientId());
+        if(alias != null && alias.getAccountId() == subscription.getSenderId()) {
+          Burst.getStores().getAliasStore().getAliasTable().delete(alias);
+        }
       }
       subscriptionTable.delete(subscription);
     }
