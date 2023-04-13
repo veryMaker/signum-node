@@ -24,7 +24,8 @@ if [[ ! -e $CONF_LOGGING ]]; then
   cp $BOOT_DIR/logging-default.properties $CONF_LOGGING
 fi
 
-./update-phoenix.sh
+./updateClassic.sh
+./updatePhoenix.sh
 
 echo "🚀Starting Signum Node"
 exec java -XX:MaxRAMPercentage=75.0 -jar signum-node.jar --headless
