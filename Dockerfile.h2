@@ -20,8 +20,10 @@ RUN ln -s /db /app/db
 COPY conf/logging-default.properties /app/bootstrap/logging-default.properties
 COPY conf/node-default.properties /app/bootstrap/node-default.properties
 COPY conf/node.properties.h2 /app/bootstrap/node.properties
-COPY update-phoenix.sh /app/update-phoenix.sh
-RUN chmod +x update-phoenix.sh
+COPY ci/updateClassic.sh /app/updateClassic.sh
+RUN chmod +x updateClassic.sh
+COPY ci/updatePhoenix.sh /app/updatePhoenix.sh
+RUN chmod +x updatePhoenix.sh
 COPY docker/start-node.sh /app/start-node.sh
 RUN chmod +x start-node.sh
 
