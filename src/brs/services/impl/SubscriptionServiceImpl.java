@@ -1,6 +1,7 @@
 package brs.services.impl;
 
 import brs.*;
+import brs.Alias.Offer;
 import brs.BurstException.NotValidException;
 import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
@@ -109,7 +110,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     if (subscription != null) {
       if(subscription.getRecipientId()!=0L) {
         Alias alias = aliasService.getAlias(subscription.getRecipientId());
-        if(alias != null && alias.getAccountId() == subscription.getSenderId()) {
+        if(alias != null && alias.getId() == subscription.getId()) {
+          Offer offer = aliasService.getOffer(alias);
+          if(offer != null) {
+            Burst.getStores().getAliasStore().getOfferTable().delete(offer);
+          }
           Burst.getStores().getAliasStore().getAliasTable().delete(alias);
         }
       }
