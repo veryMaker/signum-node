@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import brs.Burst;
-import signumj.Constants;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
 import signumj.entity.SignumValue;
@@ -29,53 +27,21 @@ import signumj.entity.response.Account;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.TransactionBroadcast;
 import signumj.response.appendix.PlaintextMessageAppendix;
-import signumj.service.NodeService;
 import signumj.service.TransactionBuilder;
-import signumj.service.impl.HttpBurstNodeService;
 
 import static chain.ChainUtils.*;
 
 @RunWith(JUnit4.class)
 public class SendTransactionsTest {
 
-    static NodeService nodeService;
-    static SignumCrypto crypto;
-
     @BeforeClass
     public static void setUpTest() {
-        String[] args = {"-l", "-c", "conf/junit"};
-        Burst.main(args);
-
-        crypto = SignumCrypto.getInstance();
-        nodeService = new HttpBurstNodeService(Constants.HTTP_NODE_LOCAL_TESTNET, "mock-node-testing");
-        long startupTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() - startupTime < 10000) {
-            // we wait for the node to boot
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                break;
-            }
-            try{
-                nodeService.getBlockChainStatus().blockingGet();
-
-                // make the accounts to have some balance
-                forgeBlock(nodeService, PASS1);
-                forgeBlock(nodeService, PASS2);
-                forgeBlock(nodeService, PASS3);
-                forgeBlock(nodeService, PASS4);
-
-                return;
-            }
-            catch (Exception e) {
-            }
-        }
-        assertTrue("Mock node did not responded in time", false);
+        assertTrue("Mock node did not responded in time", setupNode());
     }
 
     @AfterClass
     public static void shutdownTest() {
-        Burst.shutdown(false);
+        shutdownNode();
     }
 
     @Test
