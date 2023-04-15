@@ -1,5 +1,17 @@
 package brs;
 
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import brs.Attachment.CommitmentAdd;
 import brs.Attachment.CommitmentRemove;
 import brs.crypto.Crypto;
@@ -14,27 +26,15 @@ import brs.util.DownloadCacheImpl;
 import brs.util.Listener;
 import brs.util.Listeners;
 import brs.util.ThreadPool;
-import burst.kit.crypto.BurstCrypto;
-import burst.kit.entity.BurstID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumID;
 
 public class GeneratorImpl implements Generator {
   private static final Logger logger = LoggerFactory.getLogger(GeneratorImpl.class);
 
   private final Listeners<GeneratorState, Event> listeners = new Listeners<>();
   private final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
-  private final BurstCrypto burstCrypto = BurstCrypto.getInstance();
+  private final SignumCrypto burstCrypto = SignumCrypto.getInstance();
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
   private final TimeService timeService;
@@ -383,7 +383,7 @@ public class GeneratorImpl implements Generator {
       logger.debug("Block {}, Network {} TiB, ID {}, forged {}/{} blocks, {} TiB, committedAmountNQT {}, commitmentNQT {}",
           height,
           (double)genesisTarget/capacityBaseTarget,
-          BurstID.fromLong(generatorId).getID(),
+          SignumID.fromLong(generatorId).getID(),
           nBlocksMined, capacityEstimationBlocks, estimatedCapacityGb/1000D,
           committedAmount,
           commitment);

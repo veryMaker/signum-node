@@ -8,8 +8,9 @@ import brs.props.PropertyService;
 import brs.props.Props;
 import brs.services.AccountService;
 import brs.util.Convert;
-import burst.kit.crypto.BurstCrypto;
-import burst.kit.entity.BurstAddress;
+import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumAddress;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -36,17 +37,17 @@ public final class SubmitNonce extends APIServlet.JsonRequestHandler {
 
   SubmitNonce(PropertyService propertyService, AccountService accountService, Blockchain blockchain, Generator generator) {
     super(new APITag[] {APITag.MINING}, SECRET_PHRASE_PARAMETER, NONCE_PARAMETER, ACCOUNT_ID_PARAMETER, BLOCK_HEIGHT_PARAMETER, DEADLINE_PARAMETER);
-    BurstCrypto burstCrypto = BurstCrypto.getInstance();
+    SignumCrypto burstCrypto = SignumCrypto.getInstance();
     this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
             .stream()
-            .collect(Collectors.toMap(passphrase -> burstCrypto.getBurstAddressFromPassphrase(passphrase).getBurstID().getSignedLongId(), Function.identity()));
+            .collect(Collectors.toMap(passphrase -> burstCrypto.getAddressFromPassphrase(passphrase).getSignedLongId(), Function.identity()));
     this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
     this.checkPointHeight = propertyService.getInt(Props.BRS_CHECKPOINT_HEIGHT);
 
     List<String> soloRecipientPassphrases = propertyService.getStringList(Props.REWARD_RECIPIENT_PASSPHRASES);
     for(String soloRecipient : soloRecipientPassphrases){
       String[] idAndPassphrase = soloRecipient.split(":", 2);
-      this.passphrases.put(BurstAddress.fromEither(idAndPassphrase[0]).getSignedLongId(), idAndPassphrase[1]);
+      this.passphrases.put(SignumAddress.fromEither(idAndPassphrase[0]).getSignedLongId(), idAndPassphrase[1]);
     }
 
     this.accountService = accountService;
@@ -86,7 +87,7 @@ public final class SubmitNonce extends APIServlet.JsonRequestHandler {
     if (secret == null || Objects.equals(secret, "")) {
       long accountIdLong;
       try {
-        accountIdLong = BurstAddress.fromEither(accountId).getBurstID().getSignedLongId();
+        accountIdLong = SignumAddress.fromEither(accountId).getSignedLongId();
       } catch (Exception e) {
         response.addProperty("result", "Missing Passphrase and Account ID is malformed");
         return response;

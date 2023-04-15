@@ -14,7 +14,7 @@ import brs.db.store.DerivedTableManager;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
 import brs.util.Convert;
-import burst.kit.crypto.BurstCrypto;
+import signumj.crypto.SignumCrypto;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -336,7 +336,7 @@ public class SqlAccountStore implements AccountStore {
       }
       return true;
     } else if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
-      && PK_CHECKS.contains(Convert.toHexString(BurstCrypto.getInstance().longToBytesLE(acc.getId())))){
+      && PK_CHECKS.contains(Convert.toHexString(SignumCrypto.getInstance().longToBytesLE(acc.getId())))){
         logger.info("Using the key for account {}", Convert.toUnsignedLong(acc.id));
         return false;
     } else if (Arrays.equals(acc.getPublicKey(), key)) {

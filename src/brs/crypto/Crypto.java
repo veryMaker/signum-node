@@ -1,14 +1,15 @@
 package brs.crypto;
 
-import burst.kit.crypto.BurstCrypto;
-import burst.kit.entity.BurstID;
-import org.bouncycastle.jcajce.provider.digest.MD5;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.bouncycastle.jcajce.provider.digest.MD5;
+
+import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumID;
+
 public final class Crypto {
-  static final BurstCrypto burstCrypto = BurstCrypto.getInstance();
+  static final SignumCrypto burstCrypto = SignumCrypto.getInstance();
 
   private Crypto() {
   } //never
@@ -70,7 +71,7 @@ public final class Crypto {
   }
 
   public static String rsEncode(long id) {
-    return burstCrypto.rsEncode(BurstID.fromLong(id));
+    return burstCrypto.rsEncode(SignumID.fromLong(id));
   }
 
   public static long rsDecode(String rsString) {

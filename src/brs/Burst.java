@@ -29,8 +29,8 @@ import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
-import burst.kit.util.BurstKitUtils;
 import signum.net.NetworkParameters;
+import signumj.util.SignumUtils;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -206,9 +206,9 @@ public final class Burst {
       long startTime = System.currentTimeMillis();
 
       // Address prefix and coin name
-      BurstKitUtils.setAddressPrefix(propertyService.getString(Props.ADDRESS_PREFIX));
-      BurstKitUtils.addAddressPrefix("BURST");
-      BurstKitUtils.setValueSuffix(propertyService.getString(Props.VALUE_SUFIX));
+      SignumUtils.setAddressPrefix(propertyService.getString(Props.ADDRESS_PREFIX));
+      SignumUtils.addAddressPrefix("BURST");
+      SignumUtils.setValueSuffix(propertyService.getString(Props.VALUE_SUFIX));
 
       final TimeService timeService = new TimeServiceImpl();
 

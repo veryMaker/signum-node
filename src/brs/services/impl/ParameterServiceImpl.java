@@ -10,7 +10,7 @@ import brs.http.common.Parameters;
 import brs.services.*;
 import brs.util.Convert;
 import brs.util.JSON;
-import burst.kit.entity.BurstAddress;
+import signumj.entity.SignumAddress;
 
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -79,7 +79,7 @@ public class ParameterServiceImpl implements ParameterService {
     }
     
     try {
-      BurstAddress accountAddress = Convert.parseAddress(accountId);
+      SignumAddress accountAddress = Convert.parseAddress(accountId);
       Account account = height >= 0 ? accountService.getAccount(accountAddress.getSignedLongId(), height)
           : accountService.getAccount(accountAddress.getSignedLongId());
       

@@ -26,7 +26,7 @@ import brs.props.Props;
 import brs.services.AliasService;
 import brs.services.SubscriptionService;
 import brs.util.CollectionWithIndex;
-import burst.kit.crypto.BurstCrypto;
+import signumj.crypto.SignumCrypto;
 
 public class AliasServiceImpl implements AliasService {
 
@@ -76,7 +76,7 @@ public class AliasServiceImpl implements AliasService {
           continue;
         }
 
-        BurstCrypto crypto = BurstCrypto.getInstance();
+        SignumCrypto crypto = SignumCrypto.getInstance();
         long id = crypto.hashToId(crypto.getSha256().digest(tldName.getBytes(StandardCharsets.UTF_8))).getSignedLongId();
         Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(tldName, 0);
         addTLD(id, null, attachment);

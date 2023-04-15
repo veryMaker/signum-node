@@ -1,5 +1,42 @@
 package brs;
 
+import static brs.Constants.FEE_QUANT_SIP3;
+import static brs.Constants.ONE_BURST;
+
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import brs.at.AT;
 import brs.at.AtBlock;
 import brs.at.AtController;
@@ -17,39 +54,24 @@ import brs.peer.Peer;
 import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.Props;
-import brs.services.*;
+import brs.services.AccountService;
+import brs.services.AliasService;
+import brs.services.BlockService;
+import brs.services.EscrowService;
+import brs.services.IndirectIncomingService;
+import brs.services.SubscriptionService;
+import brs.services.TimeService;
+import brs.services.TransactionService;
 import brs.statistics.StatisticsManagerImpl;
 import brs.transactionduplicates.TransactionDuplicatesCheckerImpl;
 import brs.unconfirmedtransactions.UnconfirmedTransactionStore;
-import brs.util.*;
-import burst.kit.entity.BurstID;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import org.bouncycastle.util.encoders.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static brs.Constants.FEE_QUANT_SIP3;
-import static brs.Constants.ONE_BURST;
+import brs.util.Convert;
+import brs.util.DownloadCacheImpl;
+import brs.util.JSON;
+import brs.util.Listener;
+import brs.util.Listeners;
+import brs.util.ThreadPool;
+import signumj.entity.SignumID;
 
 public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
@@ -532,7 +554,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   try {
                     blockService.preVerify(block, blockchain.getLastBlock());
 
-                    logger.debug("Pushing block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()),
+                    logger.debug("Pushing block {} generator {} sig {}", block.getHeight(), SignumID.fromLong(block.getGeneratorId()),
                     		Hex.toHexString(block.getBlockSignature()));
                     logger.debug("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                         block.getCumulativeDifficulty(), block.getCommitment());
@@ -1127,7 +1149,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         		}
         	  }
         	}
-            logger.debug("Popping block {} generator {} sig {}", block.getHeight(), BurstID.fromLong(block.getGeneratorId()).getID(),
+            logger.debug("Popping block {} generator {} sig {}", block.getHeight(), SignumID.fromLong(block.getGeneratorId()).getID(),
                 Hex.toHexString(block.getBlockSignature()));
             logger.debug("Block timestamp {} base target {} difficulty {} commitment {}", block.getTimestamp(), block.getBaseTarget(),
                 block.getCumulativeDifficulty(), block.getCommitment());
