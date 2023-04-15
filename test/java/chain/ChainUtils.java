@@ -59,11 +59,6 @@ public class ChainUtils {
         return false;
     }
     
-    public static void shutdownNode() {
-        nodeService = null;
-        Burst.shutdown(false);
-    }
-
     public static void forgeBlock(NodeService nodeService, String pass, TransactionBroadcast ... txs) {
         for (int i = 0; i < 4; i++) {
             // retries

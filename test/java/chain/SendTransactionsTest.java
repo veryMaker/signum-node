@@ -13,7 +13,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.bouncycastle.util.encoders.Hex;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,11 +36,6 @@ public class SendTransactionsTest {
     @BeforeClass
     public static void setUpTest() {
         assertTrue("Mock node did not responded in time", setupNode());
-    }
-
-    @AfterClass
-    public static void shutdownTest() {
-        shutdownNode();
     }
 
     @Test

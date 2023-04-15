@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.codec.binary.Hex;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,11 +32,6 @@ public class AssetTest {
     @BeforeClass
     public static void setUpTest() {
         assertTrue("Mock node did not responded in time", setupNode());
-    }
-
-    @AfterClass
-    public static void shutdownTest() {
-        shutdownNode();
     }
 
     @Test
