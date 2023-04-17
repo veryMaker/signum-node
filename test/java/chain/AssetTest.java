@@ -45,12 +45,7 @@ public class AssetTest {
                 .quantity(quantity)
                 .decimals(decimals);
 
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         assertEquals(name, asset.getName());
@@ -80,12 +75,7 @@ public class AssetTest {
                 .quantity(quantity)
                 .decimals(decimals);
 
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         
@@ -113,12 +103,7 @@ public class AssetTest {
                 .quantity(quantity)
                 .decimals(decimals);
 
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         
@@ -127,12 +112,7 @@ public class AssetTest {
                 ACCOUNT1.getPublicKey(), SignumValue.fromSigna(150), 1440)
                 .asset(asset.getAssetId())
                 .quantity(quantity);
-        utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        
-        stx = crypto.signTransaction(PASS1, utx);
-        tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        tx = confirm(PASS1, tb);
         
         Account account = nodeService.getAccount(ACCOUNT1).blockingGet();
         for(AssetBalance a : account.getAssetBalances()) {
@@ -150,13 +130,7 @@ public class AssetTest {
                 .mintable(true)
                 .quantity(quantity)
                 .decimals(decimals);
-
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         
@@ -165,13 +139,8 @@ public class AssetTest {
                 ACCOUNT1.getPublicKey(), SignumValue.fromSigna(150), 1440)
                 .recipient(ACCOUNT2)
                 .referencedTransactionFullHash(Hex.encodeHexString(tx.getFullHash()));
-        utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        
-        stx = crypto.signTransaction(PASS1, utx);
-        tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
-        forgeBlock(nodeService, PASS1);
+        tx = confirm(PASS1, tb);
+        forgeBlock(PASS1);
         
         asset = nodeService.getAsset(asset.getAssetId()).blockingGet();
         
@@ -187,13 +156,7 @@ public class AssetTest {
                 .mintable(true)
                 .quantity(quantity)
                 .decimals(decimals);
-
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         
@@ -203,13 +166,8 @@ public class AssetTest {
                 .asset(asset.getAssetId())
                 .recipient(ACCOUNT2)
                 .quantity(quantity);
-        utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        
-        stx = crypto.signTransaction(PASS1, utx);
-        tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
-        forgeBlock(nodeService, PASS1);
+        tx = confirm(PASS1, tb);
+        forgeBlock(PASS1);
         
         asset = nodeService.getAsset(asset.getAssetId()).blockingGet();
         
@@ -234,12 +192,7 @@ public class AssetTest {
                 .mintable(true)
                 .quantity(quantity)
                 .decimals(decimals);
-
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
         Asset asset1 = nodeService.getAsset(tx.getTransactionId()).blockingGet();
 
         tb = new TransactionBuilder(TransactionBuilder.ISSUE_ASSET,
@@ -248,11 +201,7 @@ public class AssetTest {
                 .mintable(true)
                 .quantity(quantity)
                 .decimals(decimals);
-        utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        stx = crypto.signTransaction(PASS1, utx);
-        tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        tx = confirm(PASS1, tb);
         Asset asset2 = nodeService.getAsset(tx.getTransactionId()).blockingGet();
 
         // Transfer some asset and check the results
@@ -263,13 +212,8 @@ public class AssetTest {
                 ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.1), 1440)
                 .recipient(ACCOUNT2)
                 .assetIdsAndQuantities(idsAndQuantities);
-        utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        
-        stx = crypto.signTransaction(PASS1, utx);
-        tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
-        forgeBlock(nodeService, PASS1);
+        tx = confirm(PASS1, tb);
+        forgeBlock(PASS1);
         
         asset1 = nodeService.getAsset(asset1.getAssetId()).blockingGet();
         asset2 = nodeService.getAsset(asset2.getAssetId()).blockingGet();
@@ -302,13 +246,7 @@ public class AssetTest {
                 .mintable(true)
                 .quantity(quantity)
                 .decimals(decimals);
-
-        byte []utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-
-        byte[] stx = crypto.signTransaction(PASS1, utx);
-        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        TransactionBroadcast tx = confirm(PASS1, tb);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         
@@ -318,13 +256,8 @@ public class AssetTest {
                 .asset(asset.getAssetId())
                 .recipient(SignumAddress.fromId(0L))
                 .quantity(quantity);
-        utx = nodeService.generateTransaction(tb).blockingGet();
-        assertTrue(tb.verify(utx));
-        
-        stx = crypto.signTransaction(PASS1, utx);
-        tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
-        forgeBlock(nodeService, PASS1);
+        tx = confirm(PASS1, tb);
+        forgeBlock(PASS1);
         
         asset = nodeService.getAsset(asset.getAssetId()).blockingGet();
         
@@ -346,7 +279,7 @@ public class AssetTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         Asset asset = nodeService.getAsset(tx.getTransactionId()).blockingGet();
         
@@ -365,7 +298,7 @@ public class AssetTest {
             stx = crypto.signTransaction(PASS1, utx);
             tx = nodeService.broadcastTransaction(stx).blockingGet();            
         }
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
         
         // another 10 with half the quantity each, ids = 200, 201, etc.
         for (int i = 0; i < 10; i++) {
@@ -380,7 +313,7 @@ public class AssetTest {
             stx = crypto.signTransaction(PASS1, utx);
             tx = nodeService.broadcastTransaction(stx).blockingGet();            
         }
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
         
         asset = nodeService.getAsset(asset.getAssetId()).blockingGet();
         
@@ -397,7 +330,7 @@ public class AssetTest {
         assertTrue(tb.verify(utx));
         stx = crypto.signTransaction(PASS1, utx);
         tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
         
         Account holder = nodeService.getAccount(SignumAddress.fromId(100L)).blockingGet();
         assertEquals(amount.divide(10), holder.getBalance());

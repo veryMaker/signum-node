@@ -53,7 +53,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         SignumValue newBalance  = nodeService.getAccount(ACCOUNT2).blockingGet().getBalance();
 
@@ -73,7 +73,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         Transaction confirmedTx = nodeService.getTransaction(tx.getTransactionId()).blockingGet();
         assertNotNull(confirmedTx);
@@ -94,7 +94,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         Transaction confirmedTx = nodeService.getTransaction(tx.getTransactionId()).blockingGet();
         assertNotNull(confirmedTx);
@@ -117,7 +117,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         Account accountConfirmed = nodeService.getAccount(recipient).blockingGet();
         assertArrayEquals(recipient.getPublicKey(), accountConfirmed.getPublicKey());
@@ -140,7 +140,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         Transaction confirmedTx = nodeService.getTransaction(tx.getTransactionId()).blockingGet();
         assertNotNull(confirmedTx);
@@ -163,12 +163,12 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS2, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
-        forgeBlock(nodeService, PASS1);
-        forgeBlock(nodeService, PASS1);
-        forgeBlock(nodeService, PASS1);
-        forgeBlock(nodeService, PASS1);
-        forgeBlock(nodeService, PASS1);
+        forgeBlock(PASS1, tx);
+        forgeBlock(PASS1);
+        forgeBlock(PASS1);
+        forgeBlock(PASS1);
+        forgeBlock(PASS1);
+        forgeBlock(PASS1);
 
         SignumAddress rewardConfirmed = nodeService.getRewardRecipient(ACCOUNT2).blockingGet();
         assertEquals(ACCOUNT1, rewardConfirmed);
@@ -186,7 +186,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         Account account1 = nodeService.getAccount(ACCOUNT1, null, true, true).blockingGet();
         assertEquals(amount, account1.getBalance().subtract(account1.getUnconfirmedBalance()));
@@ -206,7 +206,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         // TODO: confirm the alias results here
     }
@@ -231,7 +231,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         SignumValue account2Confirmed = nodeService.getAccount(ACCOUNT2).blockingGet().getBalance();
         SignumValue account3Confirmed = nodeService.getAccount(ACCOUNT3).blockingGet().getBalance();
@@ -260,7 +260,7 @@ public class SendTransactionsTest {
 
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
 
         SignumValue account2Confirmed = nodeService.getAccount(ACCOUNT2).blockingGet().getBalance();
         SignumValue account3Confirmed = nodeService.getAccount(ACCOUNT3).blockingGet().getBalance();
@@ -289,7 +289,7 @@ public class SendTransactionsTest {
         
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
         
         AT at = nodeService.getAt(SignumAddress.fromId(tx.getTransactionId().getSignedLongId())).blockingGet();
         assertEquals(name, at.getName());
@@ -315,7 +315,7 @@ public class SendTransactionsTest {
         
         stx = crypto.signTransaction(PASS1, utx);
         tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
         
         AT atGreen = nodeService.getAt(SignumAddress.fromId(tx.getTransactionId().getSignedLongId())).blockingGet();
         assertEquals(name, atGreen.getName());
@@ -347,7 +347,7 @@ public class SendTransactionsTest {
         
         byte[] stx = crypto.signTransaction(PASS1, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
-        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(PASS1, tx);
         
         AT at = nodeService.getAt(SignumAddress.fromId(tx.getTransactionId().getSignedLongId())).blockingGet();
         assertEquals(name, at.getName());

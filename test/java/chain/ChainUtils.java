@@ -7,6 +7,7 @@ import signumj.entity.SignumAddress;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.TransactionBroadcast;
 import signumj.service.NodeService;
+import signumj.service.TransactionBuilder;
 import signumj.service.impl.HttpNodeService;
 
 public class ChainUtils {
@@ -46,10 +47,10 @@ public class ChainUtils {
                 nodeService.getBlockChainStatus().blockingGet();
 
                 // make the accounts to have some balance
-                forgeBlock(nodeService, PASS1);
-                forgeBlock(nodeService, PASS2);
-                forgeBlock(nodeService, PASS3);
-                forgeBlock(nodeService, PASS4);
+                forgeBlock(PASS1);
+                forgeBlock(PASS2);
+                forgeBlock(PASS3);
+                forgeBlock(PASS4);
 
                 return true;
             }
@@ -59,7 +60,7 @@ public class ChainUtils {
         return false;
     }
     
-    public static void forgeBlock(NodeService nodeService, String pass, TransactionBroadcast ... txs) {
+    public static void forgeBlock(String pass, TransactionBroadcast ... txs) {
         for (int i = 0; i < 4; i++) {
             // retries
             boolean allFound = true;
@@ -78,8 +79,12 @@ public class ChainUtils {
             if (allFound)
                 break;
 
-            forgeBlock(nodeService, pass);
+            forgeBlock(pass);
         }
+    }
+    
+    public static void forgeBlock() {
+        forgeBlock(PASS1);
     }
     
     /**
@@ -87,7 +92,7 @@ public class ChainUtils {
      *
      * Just for testing purposes.
      */
-    public static void forgeBlock(NodeService nodeService, String pass) {
+    public static void forgeBlock(String pass) {
         int timeout = 2000;
         try {
             Thread.sleep(200);
@@ -105,5 +110,21 @@ public class ChainUtils {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }    
+    }
+    
+    /**
+     * Get the transaction bytes, verify, sign, broadcast, and confirm the tx in a block
+     * @param pass
+     * @param tb
+     */
+    public static TransactionBroadcast confirm(String pass, TransactionBuilder tb) {
+        byte []utx = nodeService.generateTransaction(tb).blockingGet();
+        if(!tb.verify(utx)) {
+            throw new IllegalArgumentException("transaction bytes do not match");
+        }
+        byte[] stx = crypto.signTransaction(PASS1, utx);
+        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
+        forgeBlock(PASS1, tx);
+        return tx;
+    }
 }
