@@ -5,6 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+
 import org.apache.commons.codec.binary.Hex;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import signumj.entity.SignumAddress;
+import signumj.entity.SignumID;
 import signumj.entity.SignumValue;
 import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
@@ -221,6 +224,74 @@ public class AssetTest {
             }
         }
         assertTrue("Asset not found on the receiver account", found);
+    }
+
+    @Test
+    public void testTransferAssetMulti() {
+        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.ISSUE_ASSET,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(150), 1440)
+                .name(name).description(description)
+                .mintable(true)
+                .quantity(quantity)
+                .decimals(decimals);
+
+        byte []utx = nodeService.generateTransaction(tb).blockingGet();
+        assertTrue(tb.verify(utx));
+        byte[] stx = crypto.signTransaction(PASS1, utx);
+        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
+        forgeBlock(nodeService, PASS1, tx);
+        Asset asset1 = nodeService.getAsset(tx.getTransactionId()).blockingGet();
+
+        tb = new TransactionBuilder(TransactionBuilder.ISSUE_ASSET,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(150), 1440)
+                .name(name).description(description)
+                .mintable(true)
+                .quantity(quantity)
+                .decimals(decimals);
+        utx = nodeService.generateTransaction(tb).blockingGet();
+        assertTrue(tb.verify(utx));
+        stx = crypto.signTransaction(PASS1, utx);
+        tx = nodeService.broadcastTransaction(stx).blockingGet();
+        forgeBlock(nodeService, PASS1, tx);
+        Asset asset2 = nodeService.getAsset(tx.getTransactionId()).blockingGet();
+
+        // Transfer some asset and check the results
+        HashMap<SignumID, SignumValue> idsAndQuantities = new HashMap<>();
+        idsAndQuantities.put(asset1.getAssetId(), quantity);
+        idsAndQuantities.put(asset2.getAssetId(), quantity);
+        tb = new TransactionBuilder(TransactionBuilder.TRANSFER_ASSET_MULTI,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.1), 1440)
+                .recipient(ACCOUNT2)
+                .assetIdsAndQuantities(idsAndQuantities);
+        utx = nodeService.generateTransaction(tb).blockingGet();
+        assertTrue(tb.verify(utx));
+        
+        stx = crypto.signTransaction(PASS1, utx);
+        tx = nodeService.broadcastTransaction(stx).blockingGet();
+        forgeBlock(nodeService, PASS1, tx);
+        forgeBlock(nodeService, PASS1);
+        
+        asset1 = nodeService.getAsset(asset1.getAssetId()).blockingGet();
+        asset2 = nodeService.getAsset(asset2.getAssetId()).blockingGet();
+        
+        assertEquals(1, asset1.getNumberOfAccounts());
+        assertEquals(1, asset2.getNumberOfAccounts());
+        
+        Account account = nodeService.getAccount(ACCOUNT2).blockingGet();
+        boolean found1 = false;
+        boolean found2 = false;
+        for(AssetBalance a : account.getAssetBalances()) {
+            if(a.getAssetId().equals(asset1.getAssetId())) {
+                assertEquals(quantity, a.getBalance());
+                found1 = true;
+            }
+            if(a.getAssetId().equals(asset2.getAssetId())) {
+                assertEquals(quantity, a.getBalance());
+                found2 = true;
+            }
+        }
+        assertTrue("Asset 1 not found on the receiver account", found1);
+        assertTrue("Asset 2 not found on the receiver account", found2);
     }
 
     @Test

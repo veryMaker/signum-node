@@ -7,7 +7,7 @@ import signumj.entity.SignumAddress;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.TransactionBroadcast;
 import signumj.service.NodeService;
-import signumj.service.impl.HttpBurstNodeService;
+import signumj.service.impl.HttpNodeService;
 
 public class ChainUtils {
 
@@ -33,7 +33,7 @@ public class ChainUtils {
         Burst.main(args);
 
         crypto = SignumCrypto.getInstance();
-        nodeService = new HttpBurstNodeService(Constants.HTTP_NODE_LOCAL_TESTNET, "mock-node-testing");
+        nodeService = new HttpNodeService(Constants.HTTP_NODE_LOCAL_TESTNET, "mock-node-testing");
         long startupTime = System.currentTimeMillis();
         while(System.currentTimeMillis() - startupTime < 10000) {
             // we wait for the node to boot
