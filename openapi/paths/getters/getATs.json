@@ -45,7 +45,7 @@
                 "nextIndex": {
                   "$ref": "../../schemas/nextIndex.json"
                 },
-                "assets": {
+                "ats": {
                   "type": "array",
                   "items": {
                     "$ref": "../../schemas/contract.json"
