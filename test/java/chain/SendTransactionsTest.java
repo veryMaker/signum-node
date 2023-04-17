@@ -59,6 +59,24 @@ public class SendTransactionsTest {
 
         assertEquals(amount, newBalance.subtract(startBalance));
     }
+    
+    @Test
+    public void testSendMoneyBadSignature() {
+        SignumValue amount = SignumValue.fromSigna(1);
+        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.SEND_MONEY,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.01), 1440)
+                .recipient(ACCOUNT2)
+                .amount(amount);
+        Exception ex = null;
+        try {
+            // try to sign with PASS2 for ACCOUNT1, should fail
+            confirm(PASS2, tb);
+        }
+        catch (Exception e) {
+            ex = e;
+        }
+        assertNotNull(ex);
+    }
 
     @Test
     public void testSendMessage() {

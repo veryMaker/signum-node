@@ -122,7 +122,7 @@ public class ChainUtils {
         if(!tb.verify(utx)) {
             throw new IllegalArgumentException("transaction bytes do not match");
         }
-        byte[] stx = crypto.signTransaction(PASS1, utx);
+        byte[] stx = crypto.signTransaction(pass, utx);
         TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
         forgeBlock(PASS1, tx);
         return tx;
