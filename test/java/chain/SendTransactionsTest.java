@@ -1,9 +1,20 @@
 package chain;
 
+import static chain.ChainUtils.ACCOUNT1;
+import static chain.ChainUtils.ACCOUNT2;
+import static chain.ChainUtils.ACCOUNT3;
+import static chain.ChainUtils.PASS1;
+import static chain.ChainUtils.PASS2;
+import static chain.ChainUtils.confirm;
+import static chain.ChainUtils.crypto;
+import static chain.ChainUtils.forgeBlock;
+import static chain.ChainUtils.nodeService;
+import static chain.ChainUtils.setupNode;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
@@ -27,8 +38,6 @@ import signumj.entity.response.Transaction;
 import signumj.entity.response.TransactionBroadcast;
 import signumj.response.appendix.PlaintextMessageAppendix;
 import signumj.service.TransactionBuilder;
-
-import static chain.ChainUtils.*;
 
 @RunWith(JUnit4.class)
 public class SendTransactionsTest {
@@ -58,6 +67,41 @@ public class SendTransactionsTest {
         SignumValue newBalance  = nodeService.getAccount(ACCOUNT2).blockingGet().getBalance();
 
         assertEquals(amount, newBalance.subtract(startBalance));
+    }
+    
+    @Test
+    public void testBurn() {
+        SignumValue amount = SignumValue.fromSigna(1);
+        SignumAddress recipient = SignumAddress.fromId(0L);
+        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.SEND_MONEY,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.01), 1440)
+                .recipient(recipient)
+                .amount(amount);
+        TransactionBroadcast tx = confirm(PASS1, tb);
+
+        Transaction confirmedTx = nodeService.getTransaction(tx.getTransactionId()).blockingGet();
+        assertEquals(amount, confirmedTx.getAmount());
+        // when burning, the JSON object omits the recipient
+        assertNull(confirmedTx.getRecipient());
+    }
+    
+    @Test
+    public void testBlockInactiveAccounts() {
+        SignumValue amount = SignumValue.fromSigna(1);
+        SignumAddress recipient = SignumAddress.fromId(123456789L);
+        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.SEND_MONEY,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.01), 1440)
+                .recipient(recipient)
+                .amount(amount);
+        
+        Exception ex = null;
+        try {
+            confirm(PASS1, tb);
+        }
+        catch (Exception e) {
+            ex = e;
+        }
+        assertNotNull(ex);
     }
     
     @Test

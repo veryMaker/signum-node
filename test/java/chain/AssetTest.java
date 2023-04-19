@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import org.apache.commons.codec.binary.Hex;
 import org.junit.BeforeClass;
@@ -164,7 +165,7 @@ public class AssetTest {
         
         // Mint some asset and check the results
         tb = new TransactionBuilder(TransactionBuilder.TRANSFER_ASSET_OWNERSHIP,
-                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.01), 1440)
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(150), 1440)
                 .recipient(ACCOUNT2)
                 .referencedTransactionFullHash(Hex.encodeHexString(tx.getFullHash()));
         confirm(PASS1, tb);
@@ -400,6 +401,7 @@ public class AssetTest {
     
     @Test
     public void testDistributeToHolders() {
+        Random r = new Random();
         TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.ISSUE_ASSET,
                 ACCOUNT1.getPublicKey(), SignumValue.fromSigna(150), 1440)
                 .name(name).description(description)
@@ -418,12 +420,14 @@ public class AssetTest {
         
         SignumValue holderQuantity = quantity.divide(100);
 
-        // transfer to holders, ids = 100, 101, etc.
+        // first group
+        SignumAddress firstGroup = null;
         for (int i = 0; i < 10; i++) {
+            firstGroup = crypto.getAddressFromPassphrase(Long.toString(r.nextLong()));
             tb = new TransactionBuilder(TransactionBuilder.TRANSFER_ASSET,
                     ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.01), 1440)
                     .asset(asset.getAssetId())
-                    .recipient(SignumAddress.fromId(100 + i))
+                    .recipient(firstGroup)
                     .quantity(holderQuantity);
             utx = nodeService.generateTransaction(tb).blockingGet();
             assertTrue(tb.verify(utx));
@@ -433,12 +437,14 @@ public class AssetTest {
         }
         forgeBlock(PASS1, tx);
         
-        // another 10 with half the quantity each, ids = 200, 201, etc.
+        // another 10 with half the quantity each
+        SignumAddress secondGroup = null;
         for (int i = 0; i < 10; i++) {
+            secondGroup = crypto.getAddressFromPassphrase(Long.toString(r.nextLong()));
             tb = new TransactionBuilder(TransactionBuilder.TRANSFER_ASSET,
                     ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.01), 1440)
                     .asset(asset.getAssetId())
-                    .recipient(SignumAddress.fromId(200 + i))
+                    .recipient(secondGroup)
                     .quantity(holderQuantity.divide(2));
             utx = nodeService.generateTransaction(tb).blockingGet();
             assertTrue(tb.verify(utx));
@@ -461,10 +467,10 @@ public class AssetTest {
                 .amount(amount);
         tx = confirm(PASS1, tb);
         
-        Account holder = nodeService.getAccount(SignumAddress.fromId(100L)).blockingGet();
+        Account holder = nodeService.getAccount(firstGroup).blockingGet();
         assertEquals(amount.divide(10), holder.getBalance());
         
-        Account belowMinimum = nodeService.getAccount(SignumAddress.fromId(200L)).blockingGet();
+        Account belowMinimum = nodeService.getAccount(secondGroup).blockingGet();
         assertEquals(0L, belowMinimum.getBalance().longValue());
     }
     

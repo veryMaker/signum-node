@@ -49,7 +49,6 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.PK_BLOCK_HEIGHT, "500080");
     setProperty(Props.PK2_BLOCK_HEIGHT, "500080");
     setProperty(Props.PK_BLOCKS_PAST, "10000000");
-    setProperty(Props.PK_API_BLOCK, "false");
 
     setProperty(Props.ADDRESS_PREFIX, "TS");
     setProperty(Props.VALUE_SUFIX, "TSIGNA");
