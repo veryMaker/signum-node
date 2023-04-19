@@ -434,6 +434,7 @@ final class PeerImpl implements Peer {
       application.set(JSON.getAsString(response.get("application")));
       setVersion(JSON.getAsString(response.get("version")));
       platform.set(JSON.getAsString(response.get("platform")));
+      setNetworkName(JSON.getAsString(response.get("networkName")));
       shareAddress.set(Boolean.TRUE.equals(JSON.getAsBoolean(response.get("shareAddress"))));
       String newAnnouncedAddress = Convert.emptyToNull(JSON.getAsString(response.get("announcedAddress")));
       int port = this.port.get();
