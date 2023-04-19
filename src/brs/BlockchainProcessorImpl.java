@@ -232,6 +232,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   logger.debug("No peer connected.");
                   return;
                 }
+                if (!peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+                        || (peer.getNetworkName()!=null && !peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))) {
+                  // ignore this peer, it will be removed by the peers discovery thread
+                  continue;
+                }
+                
                 JsonObject response = peer.send(getCumulativeDifficultyRequest);
                 if (response == null) {
                   continue;
