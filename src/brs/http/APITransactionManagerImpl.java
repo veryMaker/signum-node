@@ -139,7 +139,7 @@ public class APITransactionManagerImpl implements APITransactionManager {
       Builder builder = transactionProcessor.newTransactionBuilder(publicKey, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash);
       if (attachment.getTransactionType().hasRecipient()) {
         Account recipientAccount = accountService.getAccount(recipientId);
-        if(Burst.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
+        if(recipientId!=0L && Burst.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
           if((recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {
             return incorrect(RECIPIENT_PARAMETER);
           }
