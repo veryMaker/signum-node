@@ -178,7 +178,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   private Account getRecipient(Subscription subscription) {
     if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       Alias alias = aliasService.getAlias(subscription.getRecipientId());
-      if(alias != null) {
+      if(alias != null && alias.getAccountId() == subscription.getId()) {
+        // this is actually an alias subscription
         Alias tld = aliasService.getTLD(alias.getTLD());
         return accountService.getOrAddAccount(tld.getAccountId());
       }

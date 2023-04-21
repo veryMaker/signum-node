@@ -80,6 +80,60 @@ public class AliasTest {
         Alias alias = aliases[0];
         assertEquals(price, alias.getPrice());
         assertEquals(ACCOUNT2, alias.getBuyer());
+        
+        // try to buy with a wrong account, should not be accepted
+        Exception ex = null;
+        try {
+            tb = new TransactionBuilder(TransactionBuilder.BUY_ALIAS,
+                    ACCOUNT3.getPublicKey(), SignumValue.fromSigna(.01), 1440)
+                    .amount(price)
+                    .alias(aliasName, null);
+            tx = confirm(PASS3, tb);
+        }
+        catch (Exception e) {
+            ex = e;
+        }
+        assertNotNull(ex);
+        
+        // try to buy for a smaller price, should fail
+        ex = null;
+        try {
+            tb = new TransactionBuilder(TransactionBuilder.BUY_ALIAS,
+                    ACCOUNT2.getPublicKey(), SignumValue.fromSigna(.01), 1440)
+                    .amount(price.divide(2))
+                    .alias(aliasName, null);
+            tx = confirm(PASS2, tb);
+        }
+        catch (Exception e) {
+            ex = e;
+        }
+        assertNotNull(ex);
+        
+        // finally buy it
+        tb = new TransactionBuilder(TransactionBuilder.BUY_ALIAS,
+                ACCOUNT2.getPublicKey(), SignumValue.fromSigna(.01), 1440)
+                .amount(price)
+                .alias(aliasName, alias.getAlias());
+        tx = confirm(PASS2, tb);            
+
+        // should not be on account 1
+        aliases = nodeService.getAliases(ACCOUNT1, aliasName, null, null, null, null).blockingGet();
+        assertEquals(0, aliases.length);
+        
+        // should be on account 2
+        aliases = nodeService.getAliases(ACCOUNT2, aliasName, null, null, null, null).blockingGet();
+        assertEquals(1, aliases.length);
+        
+        // including the subscription
+        Subscription[] subs = nodeService.getAccountSubscriptions(ACCOUNT2).blockingGet();
+        Subscription subFound = null;
+        for(Subscription s : subs) {
+            if(s.getAlias().equals(alias.getAlias())) {
+                subFound = s;
+                break;
+            }
+        }
+        assertNotNull(subFound);
     }
     
     @Test
@@ -155,7 +209,48 @@ public class AliasTest {
         aliases = nodeService.getAliases(ACCOUNT2, aliasName, null, null, null, null).blockingGet();
         assertEquals(0, aliases.length);
     }
+
+    @Test
+    public void testAliasCustomSubscription() {
+        String aliasName = "alias" + Integer.toString(r.nextInt(10000));
+        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.SET_ALIAS,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.2), 1440)
+                .alias(aliasName, null);
+        TransactionBroadcast tx = confirm(PASS1, tb);
+        SignumID alias = tx.getTransactionId();
+
+        // subscription should be on account 1
+        Subscription[] subs = nodeService.getAccountSubscriptions(ACCOUNT1).blockingGet();
+        Subscription subFound = null;
+        for(Subscription s : subs) {
+            if(s.getAlias().equals(alias)) {
+                subFound = s;
+                break;
+            }
+        }
+        assertNotNull(subFound);
+        
+        // create a new subscription with the alias as receiver
+        tb = new TransactionBuilder(TransactionBuilder.SUBSCRIPTION,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.01), 1440)
+                .amount(SignumValue.fromSigna(10))
+                .recipient(SignumAddress.fromId(alias))
+                .frequency(360);
+        confirm(PASS1, tb);
+        
+        // TODO: check the subscription payment for this case
+        
+        // if the subscription is cancelled, the alias should go away
+        tb = new TransactionBuilder(TransactionBuilder.SUBSCRIPTION_CANCEL,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.01), 1440)
+                .subscription(subFound.getId());
+        tx = confirm(PASS1, tb);
+        
+        Alias[] aliases = nodeService.getAliases(ACCOUNT1, aliasName, null, null, null, null).blockingGet();
+        assertEquals(0, aliases.length);
+    }
     
+
     @Test
     public void testTransferAlias() {
         String aliasName = "alias" + Integer.toString(r.nextInt(10000));
