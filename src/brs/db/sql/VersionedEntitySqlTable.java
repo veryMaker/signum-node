@@ -7,11 +7,15 @@ import brs.db.store.DerivedTableManager;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> implements VersionedEntityTable<T> {
+    
+  private static final Logger logger = LoggerFactory.getLogger(VersionedEntitySqlTable.class);
 
   VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     super(table, tableClass, dbKeyFactory, true, derivedTableManager);
@@ -87,6 +91,8 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
       }
       selectMaxHeightQuery.addConditions(heightField.lt(height));
       selectMaxHeightQuery.addHaving(DSL.countDistinct(heightField).gt(1));
+      // to avoid problems if trimming is enable after sync
+      selectMaxHeightQuery.addLimit(50000);
 
       // delete all fetched accounts, except if it's height is the max height we figured out
       DeleteQuery deleteLowerHeightQuery = ctx.deleteQuery(tableClass);
@@ -107,6 +113,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
         }
         deleteBatch.bind(bindValues.toArray());
       }
+      logger.debug("Trimming {} to height {} by {} elements", tableClass, height, deleteBatch.size());
       if (deleteBatch.size() > 0) {
         deleteBatch.execute();
       }
