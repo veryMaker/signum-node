@@ -140,7 +140,9 @@ public class APITransactionManagerImpl implements APITransactionManager {
       if (attachment.getTransactionType().hasRecipient()) {
         Account recipientAccount = accountService.getAccount(recipientId);
         if(recipientId!=0L && Burst.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
-          if((recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {
+          long referenceId = Convert.fullHashToId(referencedTransactionFullHash);
+          if((referenceId!=recipientId) // allow to send to a fresh new account if we use the reference to a transaction that has that ID (contract creation pending)
+                  && (recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {
             return incorrect(RECIPIENT_PARAMETER);
           }
         }

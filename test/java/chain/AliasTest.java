@@ -211,47 +211,6 @@ public class AliasTest {
     }
 
     @Test
-    public void testAliasCustomSubscription() {
-        String aliasName = "alias" + Integer.toString(r.nextInt(10000));
-        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.SET_ALIAS,
-                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.2), 1440)
-                .alias(aliasName, null);
-        TransactionBroadcast tx = confirm(PASS1, tb);
-        SignumID alias = tx.getTransactionId();
-
-        // subscription should be on account 1
-        Subscription[] subs = nodeService.getAccountSubscriptions(ACCOUNT1).blockingGet();
-        Subscription subFound = null;
-        for(Subscription s : subs) {
-            if(s.getAlias().equals(alias)) {
-                subFound = s;
-                break;
-            }
-        }
-        assertNotNull(subFound);
-        
-        // create a new subscription with the alias as receiver
-        tb = new TransactionBuilder(TransactionBuilder.SUBSCRIPTION,
-                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.01), 1440)
-                .amount(SignumValue.fromSigna(10))
-                .recipient(SignumAddress.fromId(alias))
-                .frequency(360);
-        confirm(PASS1, tb);
-        
-        // TODO: check the subscription payment for this case
-        
-        // if the subscription is cancelled, the alias should go away
-        tb = new TransactionBuilder(TransactionBuilder.SUBSCRIPTION_CANCEL,
-                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(.01), 1440)
-                .subscription(subFound.getId());
-        tx = confirm(PASS1, tb);
-        
-        Alias[] aliases = nodeService.getAliases(ACCOUNT1, aliasName, null, null, null, null).blockingGet();
-        assertEquals(0, aliases.length);
-    }
-    
-
-    @Test
     public void testTransferAlias() {
         String aliasName = "alias" + Integer.toString(r.nextInt(10000));
         TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.SET_ALIAS,

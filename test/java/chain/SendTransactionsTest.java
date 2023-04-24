@@ -424,4 +424,34 @@ public class SendTransactionsTest {
         
         assertEquals(message, ((PlaintextMessageAppendix)confirmedTx.getAppendages()[0]).getMessage());
     }
+
+    @Test
+    public void testCreateATTransactionInitiateContract() {
+        SignumValue activation = SignumValue.fromSigna(2);
+        byte[] lotteryAtCode = Hex.decode("1e000000003901090000006400000000000000351400000000000201000000000000000104000000803a0900000000000601000000040000003615000200000000000000260200000036160003000000020000001f030000000100000072361b0008000000020000002308000000090000000f1af3000000361c0004000000020000001e0400000035361700040000000200000026040000007f2004000000050000001e02050000000400000036180006000000020000000200000000030000001a39000000352000070000001b07000000181b0500000012332100060000001a310100000200000000030000001a1a0000003618000a0000000200000020080000000900000023070800000009000000341f00080000000a0000001a78000000341f00080000000a0000001ab800000002000000000400000003050000001a1a000000");
+        byte[] lotteryAtCreationBytes = SignumCrypto.getInstance().getATCreationBytes((short) 2, lotteryAtCode, new byte[0], (short) 1, (short) 1, (short) 1, activation);
+        assertEquals("02000000020001000100010000c2eb0b0000000044011e000000003901090000006400000000000000351400000000000201000000000000000104000000803a0900000000000601000000040000003615000200000000000000260200000036160003000000020000001f030000000100000072361b0008000000020000002308000000090000000f1af3000000361c0004000000020000001e0400000035361700040000000200000026040000007f2004000000050000001e02050000000400000036180006000000020000000200000000030000001a39000000352000070000001b07000000181b0500000012332100060000001a310100000200000000030000001a1a0000003618000a0000000200000020080000000900000023070800000009000000341f00080000000a0000001a78000000341f00080000000a0000001ab800000002000000000400000003050000001a1a00000000", Hex.toHexString(lotteryAtCreationBytes));
+
+        String name = "TestAT";
+        String description = "An AT For Testing";
+        TransactionBuilder tb = new TransactionBuilder(TransactionBuilder.CREATE_AT,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(2), 1440)
+                .name(name)
+                .description(description)
+                .creationBytes(lotteryAtCreationBytes);
+
+        byte []utx = nodeService.generateTransaction(tb).blockingGet();
+        assertTrue(tb.verify(utx));
+        
+        byte[] stx = crypto.signTransaction(PASS1, utx);
+        TransactionBroadcast tx = nodeService.broadcastTransaction(stx).blockingGet();
+        
+        tb = new TransactionBuilder(TransactionBuilder.SEND_MONEY,
+                ACCOUNT1.getPublicKey(), SignumValue.fromSigna(0.01), 1440)
+                .recipient(SignumAddress.fromId(tx.getTransactionId()))
+                .amount(activation)
+                .referencedTransactionFullHash(tx.getFullHash());
+        confirm(PASS1, tb);
+    }
+
 }
