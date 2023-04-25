@@ -62,7 +62,12 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty(CUMULATIVE_DIFFICULTY_RESPONSE, blockchain.getLastBlock().getCumulativeDifficulty().toString());
-    response.addProperty("totalMinedNQT", blockchain.getTotalMined());
+    long totalMined = blockchain.getTotalMined();
+    long totalBurnt = Burst.getStores().getAccountStore().getAccountBalanceTable().get(
+            Burst.getStores().getAccountStore().getAccountKeyFactory().newKey(0L)).getBalanceNQT();
+    response.addProperty("totalMinedNQT", totalMined);
+    response.addProperty("totalBurntNQT", totalBurnt);
+    response.addProperty("circulatingSupplyNQT", totalMined - totalBurnt);
 
     if ("true".equalsIgnoreCase(req.getParameter(INCLUDE_COUNTS_PARAMETER))) {
       String apiKey = req.getParameter(API_KEY_PARAMETER);
