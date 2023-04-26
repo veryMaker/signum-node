@@ -1,14 +1,11 @@
 package brs.http;
 
-import brs.Account;
 import brs.Attachment;
 import brs.Attachment.AdvancedPaymentSubscriptionPayment;
 import brs.Blockchain;
 import brs.Burst;
-import brs.BurstException;
 import brs.Transaction;
 import brs.TransactionType;
-import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
@@ -18,7 +15,6 @@ import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 import static brs.http.common.Parameters.FIRST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.LAST_INDEX_PARAMETER;
 import static brs.http.common.Parameters.SUBSCRIPTION_PARAMETER;
@@ -29,17 +25,16 @@ import static brs.http.common.ResultFields.TRANSACTIONS_RESPONSE;
 
 final class GetSubscriptionPayments extends APIServlet.JsonRequestHandler {
 	
-  private final ParameterService parameterService;
+  private final Blockchain blockchain;
 
-  GetSubscriptionPayments(ParameterService parameterService) {
-    super(new APITag[] {APITag.ACCOUNTS}, ACCOUNT_PARAMETER, SUBSCRIPTION_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
-    this.parameterService = parameterService;
+  GetSubscriptionPayments(Blockchain blockchain) {
+    super(new APITag[] {APITag.ACCOUNTS}, SUBSCRIPTION_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER);
+    this.blockchain = blockchain;
   }
 	
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
-    Account account = parameterService.getAccount(req);
+  JsonElement processRequest(HttpServletRequest req) {
     long subscriptionId;
     try {
       subscriptionId = Convert.parseUnsignedLong(Convert.emptyToNull(req.getParameter(SUBSCRIPTION_PARAMETER)));
@@ -50,7 +45,15 @@ final class GetSubscriptionPayments extends APIServlet.JsonRequestHandler {
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid or not specified subscription");
       return response;
     }
-		
+	
+    Transaction tx = blockchain.getTransaction(subscriptionId);
+    if(tx == null) {
+      JsonObject response = new JsonObject();
+      response.addProperty(ERROR_CODE_RESPONSE, 5);
+      response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Subscription not found");
+      return response;
+    }
+    
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex  = ParameterParser.getLastIndex(req);
 
@@ -60,7 +63,7 @@ final class GetSubscriptionPayments extends APIServlet.JsonRequestHandler {
     
     JsonArray transactions = new JsonArray();
     Blockchain blockchain = Burst.getBlockchain();
-    CollectionWithIndex<Transaction> accountTransactions = new CollectionWithIndex<Transaction>(blockchain.getTransactions(account.getId(), TransactionType.TYPE_ADVANCED_PAYMENT.getType(),
+    CollectionWithIndex<Transaction> accountTransactions = new CollectionWithIndex<Transaction>(blockchain.getTransactions(tx.getSenderId(), TransactionType.TYPE_ADVANCED_PAYMENT.getType(),
             TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT, firstIndex, lastIndex), firstIndex, lastIndex);
     for (Transaction transaction : accountTransactions) {
       Attachment.AdvancedPaymentSubscriptionPayment attachment = (AdvancedPaymentSubscriptionPayment) transaction.getAttachment();
