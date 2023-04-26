@@ -84,17 +84,17 @@
                   "format": "int64"
                 },
                 "totalMinedNQT": {
-                  "description": "The total of mined coins in Planck (only available if `includeCounts` is true)",
+                  "description": "The total of mined coins in Planck",
                   "type": "integer",
                   "format": "int64"
                 },
                 "totalBurntNQT": {
-                  "description": "The total of burnt coins in Planck (only available if `includeCounts` is true)",
+                  "description": "The total of burnt coins in Planck",
                   "type": "integer",
                   "format": "int64"
                 },
                 "circulatingSupplyNQT": {
-                  "description": "The total circulating coins in Planck, i.e. burnt coins excluded (only available if `includeCounts` is true)",
+                  "description": "The total circulating coins in Planck, i.e. burnt coins excluded",
                   "type": "integer",
                   "format": "int64"
                 },
