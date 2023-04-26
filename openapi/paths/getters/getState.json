@@ -2,8 +2,25 @@
   "get": {
     "summary": "Get Blockchain Info (Extended)",
     "description": "Get a bunch of information about the current chains status. This method returns more information than [Get Blockchain Info](#get-/api-requestType-getBlockchainStatus)",
-    "tags": ["network"],
-    "parameters": [],
+    "tags": ["network", "admin"],
+    "parameters": [
+      {
+        "name": "includeCounts",
+        "in": "query",
+        "required": false,
+        "description": "⚠\uFE0F If `true` additional stats are returned, but this increases workload of the node. Default is `false` -Note, that an `apiKey` needs to be provided in case of `true`, otherwise method is not allowed",
+        "schema": {
+          "type": "boolean",
+          "example": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "$ref": "../../parameters/apiKey.json"
+      }
+    ],
     "responses": {
       "200": {
         "description": "Time response",
@@ -18,6 +35,8 @@
                 "lastBlock",
                 "cumulativeDifficulty",
                 "totalMinedNQT",
+                "totalBurntNQT",
+                "circulatingSupplyNQT",
                 "numberOfBlocks",
                 "numberOfTransactions",
                 "numberOfATs",
@@ -37,7 +56,8 @@
                 "maxMemory",
                 "totalMemory",
                 "freeMemory",
-                "indirectIncomingServiceEnabled"
+                "indirectIncomingServiceEnabled",
+                "requestProcessingTime"
               ],
               "properties": {
                 "application": {
@@ -68,6 +88,16 @@
                   "type": "integer",
                   "format": "int64"
                 },
+                "totalBurntNQT": {
+                  "description": "The total of burnt coins in Planck (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "circulatingSupplyNQT": {
+                  "description": "The total circulating coins in Planck, i.e. burnt coins excluded (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
                 "totalEffectiveBalance": {
                   "description": "The total supply of the network in Signa (only available if `includeCounts` is true)",
                   "type": "integer",
@@ -80,6 +110,11 @@
                 },
                 "totalCommittedNQT": {
                   "description": "The total amount of commitment of the network in Planck (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfAccounts": {
+                  "description": "The number of accounts (only available if `includeCounts` is true)",
                   "type": "integer",
                   "format": "int64"
                 },
@@ -182,32 +217,38 @@
               },
               "example": {
                 "application": "BRS",
-                "version": "v3.4.2",
-                "time": 251558479,
-                "lastBlock": "2679896531895690186",
-                "cumulativeDifficulty": "152067828601794126565",
-                "totalMinedNQT": 214511790000000000,
-                "numberOfBlocks": 1042087,
-                "numberOfTransactions": 9593626,
-                "numberOfATs": 30939,
-                "numberOfAssets": 537,
-                "numberOfOrders": 3900,
-                "numberOfAskOrders": 3429,
-                "numberOfBidOrders": 471,
-                "numberOfTrades": 133752,
-                "numberOfTransfers": 172090,
-                "numberOfAliases": 60644,
-                "numberOfPeers": 448,
+                "version": "v3.7.0",
+                "time": 274806175,
+                "lastBlock": "549654937453913943",
+                "cumulativeDifficulty": "70624197932486880",
+                "totalMinedNQT": 199245981900000000,
+                "totalBurntNQT": 77607213673905,
+                "circulatingSupplyNQT": 199168374686326080,
+                "totalEffectiveBalance": 1992459819,
+                "totalEffectiveBalanceNQT": 199245981900000000,
+                "totalCommittedNQT": 14722626561649584,
+                "numberOfAccounts": 605334,
+                "numberOfBlocks": 538692,
+                "numberOfTransactions": 2666794,
+                "numberOfATs": 3720,
+                "numberOfAssets": 251,
+                "numberOfOrders": 133,
+                "numberOfAskOrders": 93,
+                "numberOfBidOrders": 40,
+                "numberOfTrades": 479,
+                "numberOfTransfers": 22516,
+                "numberOfAliases": 131,
+                "numberOfPeers": 19,
                 "numberOfUnlockedAccounts": 0,
-                "lastBlockchainFeeder": "79.32.110.163",
-                "lastBlockchainFeederHeight": 1042086,
+                "lastBlockchainFeeder": "t-p2p.notallmine.net:8080",
+                "lastBlockchainFeederHeight": 539454,
                 "isScanning": false,
-                "availableProcessors": 4,
-                "maxMemory": 3078619136,
-                "totalMemory": 1641021440,
-                "freeMemory": 229195688,
+                "availableProcessors": 8,
+                "maxMemory": 8378122240,
+                "totalMemory": 2237661184,
+                "freeMemory": 1033661464,
                 "indirectIncomingServiceEnabled": true,
-                "requestProcessingTime": 4626
+                "requestProcessingTime": 783
               }
             }
           }
