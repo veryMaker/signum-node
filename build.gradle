@@ -30,8 +30,7 @@ repositories {
 }
 
 dependencies {
-    //compile 'com.github.signum-network:signumj:v1.3.0'
-    compile 'com.github.signum-network:signumj:d02d59b5d0'
+    compile 'com.github.signum-network:signumj:v1.3.1'
     
     compile 'io.reactivex.rxjava2:rxjava:2.2.15'
     compile 'org.bouncycastle:bcprov-jdk15on:1.69'
