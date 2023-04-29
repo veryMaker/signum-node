@@ -39,9 +39,10 @@ class ReservedBalanceCache {
       senderAccount = accountStore.getAccountTable().get(accountStore.getAccountKeyFactory().newKey(transaction.getSenderId()));
     }
 
+    final long thisTransactionAmountNQT = transaction.getType().calculateTotalAmountNQT(transaction);
     final Long amountNQT = Convert.safeAdd(
         reservedBalanceCache.getOrDefault(transaction.getSenderId(), 0L),
-        transaction.getType().calculateTotalAmountNQT(transaction)
+        thisTransactionAmountNQT
     );
 
     if (senderAccount == null) {
@@ -54,7 +55,8 @@ class ReservedBalanceCache {
 
     if ( amountNQT > senderAccount.getUnconfirmedBalanceNQT() ) {
       if (LOGGER.isInfoEnabled()) {
-        LOGGER.info(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.getId(), transaction.getSenderId(), amountNQT, senderAccount.getUnconfirmedBalanceNQT()));
+        LOGGER.info("Transaction {} for {}: account {} balance too low. Total required {} > {} balance",
+                Convert.toUnsignedLong(transaction.getId()), thisTransactionAmountNQT, Convert.toUnsignedLong(transaction.getSenderId()), amountNQT, senderAccount.getUnconfirmedBalanceNQT());
       }
       throw new BurstException.NotCurrentlyValidException("Insufficient funds");
     }
