@@ -243,6 +243,11 @@ public class BlockchainImpl implements Blockchain {
   public Collection<Transaction> getTransactions(long senderId, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
     return blockchainStore.getTransactions(senderId, type, subtypeStart, subtypeEnd, from, to);
   }
+  
+  @Override
+  public int countTransactions(byte type, byte subtypeStart, byte subtypeEnd) {
+    return blockchainStore.countTransactions(type, subtypeStart, subtypeEnd);
+  }
 
   @Override
   public Collection<Transaction> getTransactionsWithFullHashReference(String fullHash, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {

@@ -228,6 +228,26 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
 
   @Override
+  public int countTransactions(byte type, byte subtypeStart, byte subtypeEnd) {
+    return Db.useDSLContext(ctx -> {
+      ArrayList<Condition> conditions = new ArrayList<>();
+      if (type >= 0) {
+        conditions.add(TRANSACTION.TYPE.eq(type));
+        if (subtypeStart >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.ge(subtypeStart));
+        }
+        if (subtypeEnd >= 0) {
+          conditions.add(TRANSACTION.SUBTYPE.le(subtypeEnd));
+        }
+      }
+
+      SelectOrderByStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION).where(conditions);
+
+      return ctx.fetchCount(select);
+    });
+  }
+
+  @Override
   public Collection<Transaction> getTransactionsWithFullHashReference(String fullHash, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int from, int to) {
     return Db.useDSLContext(ctx -> {
       ArrayList<Condition> conditions = new ArrayList<>();
