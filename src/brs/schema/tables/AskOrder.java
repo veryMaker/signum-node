@@ -135,7 +135,7 @@ public class AskOrder extends TableImpl<AskOrderRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.ASK_ORDER_ASK_ORDER_ACCOUNT_ID_IDX, Indexes.ASK_ORDER_ASK_ORDER_ASSET_ID_PRICE_IDX, Indexes.ASK_ORDER_ASK_ORDER_CREATION_IDX);
+        return Arrays.asList(Indexes.ASK_ORDER_ASK_ORDER_ACCOUNT_ID_IDX, Indexes.ASK_ORDER_ASK_ORDER_ASSET_ID_PRICE_IDX, Indexes.ASK_ORDER_ASK_ORDER_CREATION_IDX, Indexes.ASK_ORDER_ASK_ORDER_HEIGHT_IDX);
     }
 
     @Override

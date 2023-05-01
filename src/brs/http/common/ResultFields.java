@@ -40,6 +40,7 @@ public class ResultFields {
   public static final String ASSET_BALANCES_RESPONSE = "assetBalances";
   public static final String UNCONFIRMED_ASSET_BALANCES_RESPONSE = "unconfirmedAssetBalances";
   public static final String ACCOUNT_RESPONSE = "account";
+  public static final String ISSUER_RESPONSE = "issuer";
   public static final String REWARD_RECIPIENT_RESPONSE = "rewardRecipient";
   public static final String BLOCK_RESPONSE = "block";
   public static final String HEIGHT_RESPONSE = "height";
@@ -62,6 +63,7 @@ public class ResultFields {
   public static final String VERSION_RESPONSE = "version";
   public static final String BASE_TARGET_RESPONSE = "baseTarget";
   public static final String AVERAGE_COMMITMENT_NQT_RESPONSE = "averageCommitmentNQT";
+  public static final String CUMULATIVE_DIFFICULTY_RESPONSE = "cumulativeDifficulty";
   public static final String PREVIOUS_BLOCK_RESPONSE = "previousBlock";
   public static final String NEXT_BLOCK_RESPONSE = "nextBlock";
   public static final String PAYLOAD_HASH_RESPONSE = "payloadHash";
@@ -118,6 +120,9 @@ public class ResultFields {
   public static final String ALIAS_NAME_RESPONSE = "aliasName";
   public static final String ALIAS_URI_RESPONSE = "aliasURI";
   public static final String ALIAS_RESPONSE = "alias";
+  public static final String TLD_RESPONSE = "tld";
+  public static final String TLD_NAME_RESPONSE = "tldName";
+  public static final String NUMBER_OF_ALIASES = "numberOfAliases";
   public static final String ID_RESPONSE = "id";
   public static final String SENDER_RESPONSE = "sender";
   public static final String SENDER_RS_RESPONSE = "senderRS";
@@ -158,6 +163,7 @@ public class ResultFields {
   public static final String BID_ORDERS_RESPONSE = "bidOrders";
   public static final String TIME_RESPONSE = "time";
   public static final String ALIASES_RESPONSE = "aliases";
+  public static final String TLDS_RESPONSE = "tlds";
   public static final String BID_ORDER_IDS_RESPONSE = "bidOrderIds";
   public static final String TRANSFERS_RESPONSE = "transfers";
   public static final String DELTA_QUANTITY_RESPONSE = "deltaQuantity";

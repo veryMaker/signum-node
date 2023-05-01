@@ -1,6 +1,7 @@
 package brs.http;
 
 import brs.*;
+import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import com.google.gson.JsonElement;
@@ -13,11 +14,13 @@ public final class AddAssetTreasuryAccount extends CreateTransaction {
 
   private final ParameterService parameterService;
   private final Blockchain blockchain;
+  private final AssetExchange assetExchange;
 
-  public AddAssetTreasuryAccount(ParameterService parameterService, Blockchain blockchain, APITransactionManager apiTransactionManager, AccountService accountService) {
+  public AddAssetTreasuryAccount(ParameterService parameterService,AssetExchange assetExchange, Blockchain blockchain, APITransactionManager apiTransactionManager, AccountService accountService) {
     super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, apiTransactionManager, RECIPIENT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
+    this.assetExchange = assetExchange;
   }
 
   @Override
@@ -33,8 +36,11 @@ public final class AddAssetTreasuryAccount extends CreateTransaction {
     }
     
     Transaction transaction = blockchain.getTransactionByFullHash(referenceTransaction);
-    if(transaction == null || transaction.getSenderId() != sender.getId()
-        || !(transaction.getAttachment() instanceof Attachment.ColoredCoinsAssetIssuance)) {
+    if(transaction == null || !(transaction.getAttachment() instanceof Attachment.ColoredCoinsAssetIssuance)) {
+      return JSONResponses.incorrect(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER);
+    }
+    Asset asset = assetExchange.getAsset(transaction.getId());
+    if(asset == null || asset.getAccountId() != sender.getId()) {
       return JSONResponses.incorrect(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER);
     }
 

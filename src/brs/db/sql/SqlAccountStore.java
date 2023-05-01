@@ -14,7 +14,7 @@ import brs.db.store.DerivedTableManager;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
 import brs.util.Convert;
-import burst.kit.crypto.BurstCrypto;
+import signumj.crypto.SignumCrypto;
 
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -221,8 +221,7 @@ public class SqlAccountStore implements AccountStore {
         Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
         if (transaction != null) {
           List<Long> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION)
-            .where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
-            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+            .where(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
             .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
             .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
             .fetch().getValues(TRANSACTION.RECIPIENT_ID);
@@ -247,8 +246,7 @@ public class SqlAccountStore implements AccountStore {
         Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
         if (transaction != null){
           List<Long> ignoredAccounts = ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION)
-            .where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
-            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+            .where(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
             .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
             .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
             .fetch().getValues(TRANSACTION.RECIPIENT_ID);
@@ -301,8 +299,7 @@ public class SqlAccountStore implements AccountStore {
     Transaction transaction = Burst.getBlockchain().getTransaction(asset.getId());
     if(transaction != null){
       treasuryAccounts.addAll(Db.useDSLContext(ctx -> {
-      return ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.SENDER_ID.eq(asset.getAccountId()))
-            .and(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
+      return ctx.select(TRANSACTION.RECIPIENT_ID).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_COLORED_COINS.getType()))
             .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_COLORED_COINS_ADD_TREASURY_ACCOUNT))
             .and(TRANSACTION.REFERENCED_TRANSACTION_FULLHASH.eq(Convert.parseHexString(transaction.getFullHash())))
             .fetch().getValues(TRANSACTION.RECIPIENT_ID);
@@ -328,7 +325,7 @@ public class SqlAccountStore implements AccountStore {
     if (acc.getPublicKey() == null) {
       if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
         && Burst.getBlockchain().getHeight() - acc.getCreationHeight() > Burst.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
-          logger.info("Setting a new key for and old account {} is not allowed, created at height {}", Convert.toUnsignedLong(acc.id), acc.getCreationHeight());
+          logger.info("Setting a new key for an old account {} is not allowed, created at height {}", Convert.toUnsignedLong(acc.id), acc.getCreationHeight());
           return false;
       }
 
@@ -339,7 +336,7 @@ public class SqlAccountStore implements AccountStore {
       }
       return true;
     } else if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)
-      && PK_CHECKS.contains(Convert.toHexString(BurstCrypto.getInstance().longToBytesLE(acc.getId())))){
+      && PK_CHECKS.contains(Convert.toHexString(SignumCrypto.getInstance().longToBytesLE(acc.getId())))){
         logger.info("Using the key for account {}", Convert.toUnsignedLong(acc.id));
         return false;
     } else if (Arrays.equals(acc.getPublicKey(), key)) {

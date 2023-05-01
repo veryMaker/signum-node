@@ -70,6 +70,8 @@ public interface AssetExchange {
 
   CollectionWithIndex<Asset> getAssetsIssuedBy(long accountId, int from, int to);
 
+  CollectionWithIndex<Asset> getAssetsOwnedBy(long accountId, int from, int to);
+
   CollectionWithIndex<AssetTransfer> getAssetTransfers(long assetId, int from, int to);
 
   CollectionWithIndex<AssetTransfer> getAccountAssetTransfers(long id, long id1, int from, int to);

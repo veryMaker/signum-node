@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Signum Node API",
-    "version": "3.5.1",
+    "version": "3.7.0",
     "description": "This is the API documentation of the Signum Node"
   },
   "paths": {
@@ -75,6 +75,9 @@
     "/api?requestType=transferAssetMulti": {
       "$ref": "./paths/token/transferAssetMulti.json"
     },
+    "/api?requestType=transferAssetOwnership": {
+      "$ref": "./paths/token/transferAssetOwnership.json"
+    },
     "/api?requestType=placeAskOrder": {
       "$ref": "./paths/token/placeAskOrder.json"
     },
@@ -116,6 +119,9 @@
     },
     "/api?requestType=getAT": {
       "$ref": "./paths/getters/getAT.json"
+    },
+    "/api?requestType=getATs": {
+      "$ref": "./paths/getters/getATs.json"
     },
     "/api?requestType=getATDetails": {
       "$ref": "./paths/getters/getATDetails.json"
@@ -171,8 +177,17 @@
     "/api?requestType=getAliases": {
       "$ref": "./paths/getters/getAliases.json"
     },
+    "/api?requestType=getAliasesByName": {
+      "$ref": "./paths/getters/getAliasesByName.json"
+    },
     "/api?requestType=getAlias": {
       "$ref": "./paths/getters/getAlias.json"
+    },
+    "/api?requestType=getTLDs": {
+      "$ref": "./paths/getters/getTLDs.json"
+    },
+    "/api?requestType=setTLD": {
+      "$ref": "./paths/alias/setTLD.json"
     },
     "/api?requestType=getECBlock": {
       "$ref": "./paths/getters/getECBlock.json"
@@ -231,6 +246,9 @@
     "/api?requestType=getAssetsByIssuer": {
       "$ref": "./paths/getters/getAssetsByIssuer.json"
     },
+    "/api?requestType=getAssetsByOwner": {
+      "$ref": "./paths/getters/getAssetsByOwner.json"
+    },
     "/api?requestType=getAssetsByName": {
       "$ref": "./paths/getters/getAssetsByName.json"
     },
@@ -251,6 +269,9 @@
     },
     "/api?requestType=getSubscription": {
       "$ref": "./paths/getters/getSubscription.json"
+    },
+    "/api?requestType=getSubscriptionPayments": {
+      "$ref": "./paths/getters/getSubscriptionPayments.json"
     },
     "/api?requestType=getUnconfirmedTransactionIds": {
       "$ref": "./paths/getters/getUnconfirmedTransactionIds.json"
@@ -371,6 +392,9 @@
     "parameters": {
       "alias": {
         "$ref": "./parameters/alias/alias.json"
+      },
+      "tld": {
+        "$ref": "./parameters/alias/tld.json"
       },
       "quantityQNT": {
         "$ref": "./parameters/token/quantityQNT.json"

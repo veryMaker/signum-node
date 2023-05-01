@@ -5,12 +5,17 @@ package brs.schema.tables;
 
 
 import brs.schema.Db;
+import brs.schema.Indexes;
 import brs.schema.Keys;
 import brs.schema.tables.records.AtMapRecord;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Row7;
@@ -116,6 +121,11 @@ public class AtMap extends TableImpl<AtMapRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : Db.DB;
+    }
+
+    @Override
+    public List<Index> getIndexes() {
+        return Arrays.asList(Indexes.AT_MAP_AT_MAP_HEIGHT_IDX);
     }
 
     @Override

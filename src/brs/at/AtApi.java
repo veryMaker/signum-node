@@ -512,6 +512,8 @@ interface AtApi {
      */
     long getCurrentBalance(AtMachineState state);
 
+    long getAccountBalance(AtMachineState state);
+
     /**
      * sets @addr to the balance it had last had when running
      * this amount does not include any additional amounts sent to the

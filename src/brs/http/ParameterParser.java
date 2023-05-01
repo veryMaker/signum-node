@@ -6,7 +6,7 @@ import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FluxValues;
 import brs.http.common.Parameters;
 import brs.util.Convert;
-import burst.kit.entity.BurstAddress;
+import signumj.entity.SignumAddress;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -65,7 +65,7 @@ public final class ParameterParser {
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_QUANTITY);
     }
-    if (quantityQNT <= 0 || quantityQNT > Constants.MAX_ASSET_QUANTITY_QNT) {
+    if (quantityQNT < 0 || quantityQNT > Constants.MAX_ASSET_QUANTITY_QNT) {
       throw new ParameterException(INCORRECT_ASSET_QUANTITY);
     }
     return quantityQNT;
@@ -159,7 +159,7 @@ public final class ParameterParser {
     if(recipientPublicKeyValue == null) {
       // check for extended addresses
       String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
-      BurstAddress address = BurstAddress.fromEither(recipientValue);
+      SignumAddress address = SignumAddress.fromEither(recipientValue);
       if(address!=null && address.getPublicKey() != null) {
         recipientPublicKeyValue = Hex.toHexString(address.getPublicKey());
       }

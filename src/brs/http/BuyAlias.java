@@ -17,7 +17,7 @@ public final class BuyAlias extends CreateTransaction {
   private final Blockchain blockchain;
 
   public BuyAlias(ParameterService parameterService, Blockchain blockchain, AliasService aliasService, APITransactionManager apiTransactionManager) {
-    super(new APITag[]{APITag.ALIASES, APITag.CREATE_TRANSACTION}, apiTransactionManager, ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, AMOUNT_NQT_PARAMETER);
+    super(new APITag[]{APITag.ALIASES, APITag.CREATE_TRANSACTION}, apiTransactionManager, ALIAS_PARAMETER, ALIAS_NAME_PARAMETER, TLD_PARAMETER, AMOUNT_NQT_PARAMETER);
     this.parameterService = parameterService;
     this.blockchain = blockchain;
     this.aliasService = aliasService;
@@ -35,7 +35,7 @@ public final class BuyAlias extends CreateTransaction {
     }
 
     long sellerId = alias.getAccountId();
-    Attachment attachment = new Attachment.MessagingAliasBuy(alias.getAliasName(), blockchain.getHeight());
+    Attachment attachment = new Attachment.MessagingAliasBuy(alias.getId(), alias.getAliasName(), blockchain.getHeight());
     return createTransaction(req, buyer, sellerId, amountNQT, attachment);
   }
 }

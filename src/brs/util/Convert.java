@@ -2,8 +2,9 @@ package brs.util;
 
 import brs.BurstException;
 import brs.Constants;
-import burst.kit.crypto.BurstCrypto;
-import burst.kit.entity.BurstAddress;
+import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumAddress;
+
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -14,7 +15,7 @@ import java.util.Date;
 
 public final class Convert {
 
-  private static final BurstCrypto burstCrypto = BurstCrypto.getInstance();
+  private static final SignumCrypto burstCrypto = SignumCrypto.getInstance();
 
   private static final long[] multipliers = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
@@ -51,16 +52,16 @@ public final class Convert {
   }
 
   public static long parseAccountId(String account) {
-    BurstAddress address = BurstAddress.fromEither(account);
-    return address == null ? 0 : address.getBurstID().getSignedLongId();
+    SignumAddress address = SignumAddress.fromEither(account);
+    return address == null ? 0 : address.getSignedLongId();
   }
   
-  public static BurstAddress parseAddress(String account) {
-    return BurstAddress.fromEither(account);
+  public static SignumAddress parseAddress(String account) {
+    return SignumAddress.fromEither(account);
   }
 
   public static String rsAccount(long accountId) {
-    return BurstAddress.fromId(accountId).getFullAddress();
+    return SignumAddress.fromId(accountId).getFullAddress();
   }
 
   public static long fullHashToId(byte[] hash) {

@@ -747,6 +747,11 @@ public class AtApiImpl implements AtApi {
     }
 
     @Override
+    public long getAccountBalance(AtMachineState state) {
+        return platform.getAccountBalance(state);
+    }
+
+    @Override
     public long getPreviousBalance(AtMachineState state) {
         return platform.getPreviousBalance(state);
     }

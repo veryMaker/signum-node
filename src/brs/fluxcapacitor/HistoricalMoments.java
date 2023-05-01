@@ -23,6 +23,8 @@ public class HistoricalMoments {
     public static HistoricalMoments AT_FIX_BLOCK_5 = new HistoricalMoments(1_051_900, Props.AT_FIX_BLOCK_5_BLOCK_HEIGHT);
     public static HistoricalMoments DISTRIBUTION_FIX = new HistoricalMoments(1_051_900, Props.DISTRIBUTION_FIX_BLOCK_HEIGHT);
     public static HistoricalMoments PK_FREEZE = new HistoricalMoments(1_099_400, Props.PK_BLOCK_HEIGHT);
+    public static HistoricalMoments PK_FREEZE2 = new HistoricalMoments(1_150_000, Props.PK2_BLOCK_HEIGHT);
+    public static HistoricalMoments SMART_ALIASES = new HistoricalMoments(1_150_000, Props.SMART_ALIASES_HEIGHT);
     public static HistoricalMoments NEXT_FORK = new HistoricalMoments(Integer.MAX_VALUE, Props.DEV_NEXT_FORK_BLOCK_HEIGHT);
 
     private final int mainnetHeight;

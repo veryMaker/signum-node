@@ -29,8 +29,8 @@ import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
-import burst.kit.util.BurstKitUtils;
 import signum.net.NetworkParameters;
+import signumj.util.SignumUtils;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 public final class Burst {
 
-  public static final Version VERSION = Version.parse("v3.6.0");
+  public static final Version VERSION = Version.parse("v3.7.0");
   public static final String APPLICATION = "BRS";
 
   public static final String CONF_FOLDER = "./conf";
@@ -82,6 +82,7 @@ public final class Burst {
   private static BlockchainProcessorImpl blockchainProcessor;
   private static TransactionProcessorImpl transactionProcessor;
   private static TransactionService transactionService;
+  private static SubscriptionService subscriptionService;
   private static AssetExchange assetExchange;
 
   private static PropertyService propertyService;
@@ -133,6 +134,10 @@ public final class Burst {
 
   public static TransactionService getTransactionService() {
     return transactionService;
+  }
+  
+  public static SubscriptionService getSubscriptionService() {
+      return subscriptionService;
   }
 
   public static AssetExchange getAssetExchange() {
@@ -201,9 +206,9 @@ public final class Burst {
       long startTime = System.currentTimeMillis();
 
       // Address prefix and coin name
-      BurstKitUtils.setAddressPrefix(propertyService.getString(Props.ADDRESS_PREFIX));
-      BurstKitUtils.addAddressPrefix("BURST");
-      BurstKitUtils.setValueSuffix(propertyService.getString(Props.VALUE_SUFIX));
+      SignumUtils.setAddressPrefix(propertyService.getString(Props.ADDRESS_PREFIX));
+      SignumUtils.addAddressPrefix("BURST");
+      SignumUtils.setValueSuffix(propertyService.getString(Props.VALUE_SUFIX));
 
       final TimeService timeService = new TimeServiceImpl();
 
@@ -226,6 +231,7 @@ public final class Burst {
 
       final AliasService aliasService = new AliasServiceImpl(stores.getAliasStore());
       fluxCapacitor = new FluxCapacitorImpl(blockchain, propertyService);
+      aliasService.addDefaultTLDs();
 
       EconomicClustering economicClustering = new EconomicClustering(blockchain);
 
@@ -243,7 +249,7 @@ public final class Burst {
           accountService, transactionService, threadPool);
 
       final ATService atService = new ATServiceImpl(stores.getAtStore());
-      final SubscriptionService subscriptionService = new SubscriptionServiceImpl(stores.getSubscriptionStore(), transactionDb, blockchain, aliasService, accountService);
+      subscriptionService = new SubscriptionServiceImpl(stores.getSubscriptionStore(), transactionDb, blockchain, aliasService, accountService);
       final DGSGoodsStoreService digitalGoodsStoreService = new DGSGoodsStoreServiceImpl(blockchain, stores.getDigitalGoodsStoreStore(), accountService);
       final EscrowService escrowService = new EscrowServiceImpl(stores.getEscrowStore(), blockchain, aliasService, accountService);
 
@@ -257,7 +263,7 @@ public final class Burst {
       blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain, propertyService, subscriptionService,
           timeService, derivedTableManager,
           blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
-          dbCacheManager, accountService, indirectIncomingService);
+          dbCacheManager, accountService, indirectIncomingService, aliasService);
 
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
 

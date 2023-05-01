@@ -26,6 +26,8 @@ public interface Peer extends Comparable<Peer> {
 
   String getPlatform();
 
+  String getNetworkName();
+
   String getSoftware();
 
   boolean shareAddress();

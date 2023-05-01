@@ -135,7 +135,7 @@ public class Asset extends TableImpl<AssetRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.ASSET_ASSET_ACCOUNT_ID_IDX);
+        return Arrays.asList(Indexes.ASSET_ASSET_ACCOUNT_ID_IDX, Indexes.ASSET_ASSET_HEIGHT_IDX);
     }
 
     @Override

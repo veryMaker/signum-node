@@ -8,6 +8,9 @@
     "parameters": [
       {
         "$ref": "../../parameters/contract/at.json"
+      },
+      {
+        "$ref": "../../parameters/contract/includeDetails.json"
       }
     ],
     "responses": {

@@ -270,7 +270,10 @@ public class SqlATStore implements ATStore {
   @Override
   public List<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to) {
     return Db.useDSLContext(ctx -> {
-      SelectConditionStep<Record1<Long>> request = ctx.select(AT.ID).from(AT).where(AT.LATEST.isTrue()).and(AT.CREATOR_ID.eq(accountId));
+      SelectConditionStep<Record1<Long>> request = ctx.select(AT.ID).from(AT).where(AT.LATEST.isTrue());
+      if(accountId != null) {
+        request = request.and(AT.CREATOR_ID.eq(accountId));
+      }
       if(codeHashId != null){
         request = request.and(AT.AP_CODE_HASH_ID.eq(codeHashId));
       }

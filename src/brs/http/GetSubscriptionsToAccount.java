@@ -1,8 +1,10 @@
 package brs.http;
 
 import brs.Account;
+import brs.Burst;
 import brs.BurstException;
 import brs.Subscription;
+import brs.Transaction;
 import brs.services.ParameterService;
 import brs.services.SubscriptionService;
 import com.google.gson.JsonArray;
@@ -34,7 +36,9 @@ final class GetSubscriptionsToAccount extends APIServlet.JsonRequestHandler {
     JsonArray subscriptions = new JsonArray();
 
     for (Subscription subscription : subscriptionService.getSubscriptionsToId(account.getId())) {
-      subscriptions.add(JSONData.subscription(subscription));
+        
+      Transaction transaction = Burst.getBlockchain().getTransaction(subscription.getId());
+      subscriptions.add(JSONData.subscription(subscription, null, null, transaction));
     }
 		
     response.add("subscriptions", subscriptions);

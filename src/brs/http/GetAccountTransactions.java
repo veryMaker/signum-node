@@ -5,6 +5,8 @@ import brs.Blockchain;
 import brs.BurstException;
 import brs.Transaction;
 import brs.services.ParameterService;
+import brs.util.CollectionWithIndex;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,7 +14,10 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 import static brs.http.common.ResultFields.TRANSACTIONS_RESPONSE;
+
+import java.util.Collection;
 
 final class GetAccountTransactions extends APIServlet.JsonRequestHandler {
 
@@ -55,12 +60,18 @@ final class GetAccountTransactions extends APIServlet.JsonRequestHandler {
     }
 
     JsonArray transactions = new JsonArray();
-    for (Transaction transaction : blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(req))) {
+    CollectionWithIndex<Transaction> accountTransactions = blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(req));
+    for (Transaction transaction : accountTransactions) {
       transactions.add(JSONData.transaction(transaction, blockchain.getHeight()));
     }
 
     JsonObject response = new JsonObject();
     response.add(TRANSACTIONS_RESPONSE, transactions);
+    
+    if(accountTransactions.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, accountTransactions.nextIndex());
+    }
+    
     return response;
   }
 }

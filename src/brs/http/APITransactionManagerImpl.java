@@ -25,6 +25,8 @@ import static brs.http.common.Parameters.*;
 import static brs.http.common.ResultFields.*;
 import static brs.http.common.ResultFields.FULL_HASH_RESPONSE;
 
+import java.util.Arrays;
+
 public class APITransactionManagerImpl implements APITransactionManager {
 
   private final ParameterService parameterService;
@@ -89,8 +91,9 @@ public class APITransactionManagerImpl implements APITransactionManager {
       message = new Message(new byte[0], blockchainHeight);
     }
     PublicKeyAnnouncement publicKeyAnnouncement = null;
+    byte []recipientPublicKey = Convert.parseHexString(recipientPublicKeyValue);
     if (recipientPublicKeyValue != null && Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
-      publicKeyAnnouncement = new PublicKeyAnnouncement(Convert.parseHexString(recipientPublicKeyValue), blockchainHeight);
+      publicKeyAnnouncement = new PublicKeyAnnouncement(recipientPublicKey, blockchainHeight);
     }
 
     if (secretPhrase == null && publicKeyValue == null) {
@@ -135,11 +138,17 @@ public class APITransactionManagerImpl implements APITransactionManager {
     try {
       Builder builder = transactionProcessor.newTransactionBuilder(publicKey, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash);
       if (attachment.getTransactionType().hasRecipient()) {
-        if(Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE)) {
-          Account recipientAccount = accountService.getAccount(recipientId);
-          if((recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {
+        Account recipientAccount = accountService.getAccount(recipientId);
+        if(recipientId!=0L && Burst.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
+          long referenceId = Convert.fullHashToId(referencedTransactionFullHash);
+          if((referenceId!=recipientId) // allow to send to a fresh new account if we use the reference to a transaction that has that ID (contract creation pending)
+                  && (recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {
             return incorrect(RECIPIENT_PARAMETER);
           }
+        }
+        if(recipientAccount != null && recipientAccount.getPublicKey() != null && Arrays.equals(recipientAccount.getPublicKey(),recipientPublicKey)){
+          // no need to announce the same public key already on chain
+          publicKeyAnnouncement = null;
         }
         builder.recipientId(recipientId);
       }

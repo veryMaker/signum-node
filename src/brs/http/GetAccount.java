@@ -1,5 +1,27 @@
 package brs.http;
 
+import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
+import static brs.http.common.Parameters.ESTIMATE_COMMITMENT_PARAMETER;
+import static brs.http.common.Parameters.GET_COMMITTED_AMOUNT_PARAMETER;
+import static brs.http.common.Parameters.HEIGHT_PARAMETER;
+import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
+import static brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE;
+import static brs.http.common.ResultFields.ASSET_RESPONSE;
+import static brs.http.common.ResultFields.BALANCE_QNT_RESPONSE;
+import static brs.http.common.ResultFields.COMMITMENT_NQT_RESPONSE;
+import static brs.http.common.ResultFields.COMMITTED_NQT_RESPONSE;
+import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
+import static brs.http.common.ResultFields.NAME_RESPONSE;
+import static brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE;
+import static brs.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE;
+import static brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
@@ -10,19 +32,7 @@ import brs.Generator;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.Convert;
-import burst.kit.crypto.BurstCrypto;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import javax.servlet.http.HttpServletRequest;
-
-import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.Parameters.ESTIMATE_COMMITMENT_PARAMETER;
-import static brs.http.common.Parameters.GET_COMMITTED_AMOUNT_PARAMETER;
-import static brs.http.common.ResultFields.*;
+import signumj.crypto.SignumCrypto;
 
 public final class GetAccount extends APIServlet.JsonRequestHandler {
 
@@ -67,7 +77,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
 
     if (account.getPublicKey() != null) {
       if(!Convert.checkAllZero(account.getPublicKey())) {
-        response.addProperty(ACCOUNT_RESPONSE + "RSExtended", BurstCrypto.getInstance().getBurstAddressFromPublic(account.getPublicKey()).getExtendedAddress());
+        response.addProperty(ACCOUNT_RESPONSE + "RSExtended", SignumCrypto.getInstance().getAddressFromPublic(account.getPublicKey()).getExtendedAddress());
       }
       response.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(account.getPublicKey()));
     }

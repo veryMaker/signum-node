@@ -35,6 +35,7 @@ final class PeerImpl implements Peer {
   private final AtomicReference<String> platform = new AtomicReference<>();
   private final AtomicReference<String> application = new AtomicReference<>();
   private final AtomicReference<Version> version = new AtomicReference<>();
+  private final AtomicReference<String> networkName = new AtomicReference<>();
   private final AtomicBoolean isOldVersion = new AtomicBoolean(false);
   private final AtomicLong blacklistingTime = new AtomicLong();
   private final AtomicReference<State> state = new AtomicReference<>();
@@ -167,7 +168,16 @@ final class PeerImpl implements Peer {
   void setPlatform(String platform) {
     this.platform.set(platform);
   }
+  
+  @Override
+  public String getNetworkName() {
+    return networkName.get();
+  }
 
+  void setNetworkName(String networkName) {
+    this.networkName.set(networkName);
+  }
+  
   @Override
   public String getSoftware() {
     return Convert.truncate(application.get(), "?", 10, false)
@@ -424,6 +434,7 @@ final class PeerImpl implements Peer {
       application.set(JSON.getAsString(response.get("application")));
       setVersion(JSON.getAsString(response.get("version")));
       platform.set(JSON.getAsString(response.get("platform")));
+      setNetworkName(JSON.getAsString(response.get("networkName")));
       shareAddress.set(Boolean.TRUE.equals(JSON.getAsBoolean(response.get("shareAddress"))));
       String newAnnouncedAddress = Convert.emptyToNull(JSON.getAsString(response.get("announcedAddress")));
       int port = this.port.get();

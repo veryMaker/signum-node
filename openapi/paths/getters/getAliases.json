@@ -1,13 +1,34 @@
 {
   "get": {
-    "summary": "Get Account Aliases",
-    "description": "Get aliases of an account.",
+    "summary": "Get Aliases",
+    "description": "Get aliases by account, complete name or tld. If you want to search for partial alias names use [GetAliasesByName](#get-/api-requestType-getAliasesByName) instead",
     "tags": [
-      "account", "alias"
+      "alias"
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/account/account.json"
+        "name": "account",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": true,
+        "description": "The account identifier",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "aliasName",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": true,
+        "description": "The name of the alias",
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]{1,100}$"
+        }
+      },
+      {
+        "$ref": "../../parameters/alias/tld.json"
       },
       {
         "$ref": "../../parameters/timestamp.json"
@@ -43,31 +64,26 @@
                     "account": "2402520554221019656",
                     "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
                     "aliasName": "devcamp2019",
-                    "aliasURI": "acct:burst-qaja-qw5y-swvp-4rvp4@burst",
                     "timestamp": 157831922,
-                    "alias": "4498738268646491227"
+                    "alias": "4498738268646491227",
+                    "aliasURI": "acct:burst-qaja-qw5y-swvp-4rvp4@burst",
+                    "tld": "0",
+                    "tldName": "signum"
                   },
                   {
                     "account": "2402520554221019656",
                     "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                    "aliasName": "QAJA",
-                    "aliasURI": "magic",
-                    "timestamp": 251228597,
-                    "alias": "6442930183499063033",
-                    "priceNQT": "1500000000"
-                  },
-                  {
-                    "account": "2402520554221019656",
-                    "accountRS": "TS-QAJA-QW5Y-SWVP-4RVP4",
-                    "aliasName": "superduperalias",
-                    "aliasURI": "Contentchange....",
-                    "timestamp": 251224892,
-                    "alias": "8468600040485258181",
-                    "priceNQT": "500000000",
-                    "buyer": "6502115112683865257"
+                    "aliasName": "devil",
+                    "timestamp": 263393263,
+                    "alias": "7785766055119997492",
+                    "aliasURI": "",
+                    "tld": "0",
+                    "tldName": "signum",
+                    "priceNQT": "50000000",
+                    "buyer": "16107620026796983538"
                   }
                 ],
-                "requestProcessingTime": 35
+                "requestProcessingTime": 7
               }
             }
           }

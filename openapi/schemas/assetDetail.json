@@ -3,6 +3,8 @@
   "required": [
     "account",
     "accountRS",
+    "issuer",
+    "issuerRS",
     "publicKey",
     "name",
     "description",
@@ -29,6 +31,12 @@
       "$ref": "./numericId.json"
     },
     "accountRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "issuer": {
+      "$ref": "./numericId.json"
+    },
+    "issuerRS": {
       "$ref": "./rsAddress.json"
     },
     "publicKey": {
@@ -141,6 +149,8 @@
   "example": {
     "account": "16357368130745732388",
     "accountRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+    "issuer": "16357368130745732388",
+    "issuerRS": "TS-C5B6-NTGQ-KTLB-GDA28",
     "publicKey": "42a9845e8d684ba0eb3591de28335667a5580ca394543ee097286c8adff6fd58",
     "name": "TTH",
     "description": "This is test token is test net",

@@ -135,7 +135,7 @@ public class Account extends TableImpl<AccountRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.ACCOUNT_ACCOUNT_ID_BALANCE_HEIGHT_IDX, Indexes.ACCOUNT_ACCOUNT_ID_LATEST_IDX);
+        return Arrays.asList(Indexes.ACCOUNT_ACCOUNT_HEIGHT_IDX, Indexes.ACCOUNT_ACCOUNT_ID_LATEST_IDX);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class Account {
 
   protected String name;
   protected String description;
-  
+
   public static class Balance {
     public final long id;
     public final BurstKey nxtKey;
@@ -29,12 +29,12 @@ public class Account {
     protected long balanceNQT;
     protected long unconfirmedBalanceNQT;
     protected long forgedBalanceNQT;
-    
+
     public Balance(long id) {
       this.id = id;
       this.nxtKey = accountBurstKeyFactory().newKey(this.id);
     }
-    
+
     public void setForgedBalanceNQT(long forgedBalanceNQT) {
       this.forgedBalanceNQT = forgedBalanceNQT;
     }
@@ -46,7 +46,7 @@ public class Account {
     public void setBalanceNQT(long balanceNQT) {
       this.balanceNQT = balanceNQT;
     }
-    
+
     public long getId() {
       return id;
     }
@@ -62,7 +62,7 @@ public class Account {
     public long getForgedBalanceNQT() {
       return forgedBalanceNQT;
     }
-    
+
     public void checkBalance() {
       Account.checkBalance(this.id, this.balanceNQT, this.unconfirmedBalanceNQT);
     }
@@ -156,7 +156,7 @@ public class Account {
     public void setUnconfirmedQuantityQNT(long unconfirmedQuantityQNT) {
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
     }
-    
+
     public void setTreasury(boolean isTreasury) {
         this.isTreasury = isTreasury;
     }
@@ -164,7 +164,7 @@ public class Account {
     public boolean isTreasury() {
         return isTreasury;
     }
-    
+
   }
 
   public static class RewardRecipientAssignment {
@@ -223,7 +223,7 @@ public class Account {
   private static VersionedBatchEntityTable<Account> accountTable() {
     return Burst.getStores().getAccountStore().getAccountTable();
   }
-  
+
   private static VersionedBatchEntityTable<Account.Balance> accountBalanceTable() {
     return Burst.getStores().getAccountStore().getAccountBalanceTable();
   }
@@ -231,9 +231,13 @@ public class Account {
   public static Account getAccount(long id) {
     return id == 0 ? null : accountTable().get(accountBurstKeyFactory().newKey(id));
   }
-  
+
   public static Account.Balance getAccountBalance(long id) {
     return id == 0 ? null : accountBalanceTable().get(accountBalanceBurstKeyFactory().newKey(id));
+  }
+
+  public static Account.AccountAsset getAccountAssetBalance(long id, long assetId) {
+    return Burst.getStores().getAccountStore().getAccountAsset(id, assetId);
   }
 
   public static long getId(byte[] publicKey) {
@@ -294,17 +298,20 @@ public class Account {
   public int getKeyHeight() {
     return keyHeight;
   }
-  
+
   public long getUnconfirmedBalanceNQT() {
-    return Account.getAccountBalance(id).getUnconfirmedBalanceNQT();
+    Balance balance = Account.getAccountBalance(id);
+    return balance == null ? 0L : balance.getUnconfirmedBalanceNQT();
   }
-  
+
   public long getBalanceNQT() {
-    return Account.getAccountBalance(id).getBalanceNQT();
+    Balance balance = Account.getAccountBalance(id);
+    return balance == null ? 0L : balance.getBalanceNQT();
   }
 
   public long getForgedBalanceNQT() {
-    return Account.getAccountBalance(id).getForgedBalanceNQT();
+    Balance balance = Account.getAccountBalance(id);
+    return balance == null ? 0L : balance.getForgedBalanceNQT();
   }
 
   public EncryptedData encryptTo(byte[] data, String senderSecretPhrase) {

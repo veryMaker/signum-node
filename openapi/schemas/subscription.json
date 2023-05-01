@@ -50,6 +50,24 @@
       "description": "The timestamp of the next payment.",
       "type": "integer",
       "format": "int32"
+    },
+    "alias": {
+      "description": "The Alias Id for alias renewal subscriptions",
+      "type": "integer",
+      "format": "int64"
+    },
+    "aliasName": {
+      "description": "The Alias Name for alias renewal subscriptions",
+      "type": "string"
+    },
+    "tld": {
+      "description": "The Alias' namespace Id aka Top Level Domain for alias renewal subscriptions",
+      "type": "integer",
+      "format": "int64"
+    },
+    "tldName": {
+      "description": "The Alias' namespace Name aka Top Level Domain for alias renewal subscriptions",
+      "type": "string"
     }
   }
 }

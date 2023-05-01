@@ -3,6 +3,8 @@
   "required": [
     "account",
     "accountRS",
+    "issuer",
+    "issuerRS",
     "publicKey",
     "name",
     "description",
@@ -29,6 +31,12 @@
       "$ref": "./numericId.json"
     },
     "accountRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "issuer": {
+      "$ref": "./numericId.json"
+    },
+    "issuerRS": {
       "$ref": "./rsAddress.json"
     },
     "publicKey": {
@@ -132,23 +140,27 @@
     }
   },
   "example": {
-    "account": "8703144722673801264",
-    "accountRS": "TS-M83J-2GDW-9YVZ-9AYKK",
-    "name": "TRESTC",
-    "description": "Token issued and controlled by smart contract ID: 8703144722673801264",
-    "decimals": 2,
+    "account": "10657861381637251164",
+    "accountRS": "TS-HA4W-GPUX-QPWD-BN4U9",
+    "issuer": "13112229684715917355",
+    "issuerRS": "TS-863D-FNXF-WVPM-DZZXD",
+    "publicKey": "4d6c56919197e341dd6a0253471e16bfbe223ad0076937c466d8aff56b21dd7b",
+    "name": "HeaderOK",
+    "description": "A check if it works with the new headers",
+    "decimals": 5,
     "mintable": true,
-    "quantityQNT": "0",
-    "quantityCirculatingQNT": "29500000",
-    "asset": "9224329060507884640",
+    "quantityQNT": "10000000",
+    "quantityBurntQNT": "0",
+    "asset": "10306293061970746065",
+    "quantityCirculatingQNT": "10000000",
     "numberOfTrades": 0,
-    "numberOfTransfers": 1,
+    "numberOfTransfers": 0,
     "numberOfAccounts": 1,
     "volumeQNT": "0",
     "priceHigh": "0",
     "priceLow": "0",
     "priceOpen": "0",
     "priceClose": "0",
-    "requestProcessingTime": 67
+    "requestProcessingTime": 103
   }
 }

@@ -1,11 +1,14 @@
 package brs.http;
 
 import brs.Account;
+import brs.Blockchain;
+import brs.Burst;
 import brs.BurstException;
 import brs.Subscription;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
+import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.services.SubscriptionService;
 import brs.util.JSON;
@@ -13,6 +16,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -25,20 +31,30 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Burst.class)
 public class GetAccountSubscriptionsTest extends AbstractUnitTest {
 
   private ParameterService parameterServiceMock;
   private SubscriptionService subscriptionServiceMock;
+  private AliasService aliasServiceMock;
 
   private GetAccountSubscriptions t;
 
   @Before
   public void setUp() {
+    mockStatic(Burst.class);
+
     parameterServiceMock = mock(ParameterService.class);
     subscriptionServiceMock = mock(SubscriptionService.class);
+    aliasServiceMock = mock(AliasService.class);
 
-    t = new GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock);
+    Blockchain mockBlockchain = mock(Blockchain.class);
+    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+
+    t = new GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock, aliasServiceMock);
   }
 
   @Test

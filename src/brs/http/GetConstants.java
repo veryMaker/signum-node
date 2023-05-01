@@ -1,5 +1,11 @@
 package brs.http;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import brs.Burst;
 import brs.Constants;
 import brs.Genesis;
@@ -9,13 +15,7 @@ import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
 import brs.util.Convert;
 import brs.util.JSON;
-import burst.kit.util.BurstKitUtils;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import javax.servlet.http.HttpServletRequest;
+import signumj.util.SignumUtils;
 
 final class GetConstants extends APIServlet.JsonRequestHandler {
 
@@ -35,8 +35,8 @@ final class GetConstants extends APIServlet.JsonRequestHandler {
         response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
         response.addProperty("ordinaryTransactionLength", Constants.ORDINARY_TRANSACTION_BYTES);
-        response.addProperty("addressPrefix", BurstKitUtils.getAddressPrefix());
-        response.addProperty("valueSuffix", BurstKitUtils.getValueSuffix());
+        response.addProperty("addressPrefix", SignumUtils.getAddressPrefix());
+        response.addProperty("valueSuffix", SignumUtils.getValueSuffix());
         response.addProperty("blockTime", Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
         response.addProperty("decimalPlaces", Burst.getPropertyService().getInt(Props.DECIMAL_PLACES));
         response.addProperty("feeQuantNQT", Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT));

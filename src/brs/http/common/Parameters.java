@@ -7,6 +7,7 @@ public final class Parameters {
   public static final String ALIAS_PARAMETER = "alias";
   public static final String AMOUNT_NQT_PARAMETER = "amountNQT";
   public static final String ALIAS_NAME_PARAMETER = "aliasName";
+  public static final String TLD_PARAMETER = "tld";
   public static final String FEE_NQT_PARAMETER = "feeNQT";
   public static final String PRICE_NQT_PARAMETER = "priceNQT";
   public static final String QUANTITY_QNT_PARAMETER = "quantityQNT";

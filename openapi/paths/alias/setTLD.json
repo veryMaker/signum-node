@@ -1,0 +1,79 @@
+{
+  "post": {
+    "summary": "Set Custom Alias TLD",
+    "description": "Create a [Top Level Domain (TLD)](https://github.com/signum-network/SIPs/blob/master/SIP/sip-48.md) for aliases. A TLD is like a namespace for Aliases, such it is possible to have same Aliases in different TLDs.",
+    "tags": [
+      "alias"
+    ],
+    "parameters": [
+      {
+        "name": "tld",
+        "in": "query",
+        "required": true,
+        "allowEmptyValue": false,
+        "description": "Your custom TLD",
+        "schema": {
+          "type": "string",
+          "maxLength": 40,
+          "pattern": "^[a-zA-Z0-9]{1,40}$"
+        }
+      },
+      {
+        "$ref": "../../parameters/transaction/feeNQT.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/secretPhrase.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/publicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/deadline.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/broadcast.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/referencedTransactionFullHash.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/message.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncrypt.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageNonce.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelf.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageNonce.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses/transaction.json"
+      },
+      "500" : {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

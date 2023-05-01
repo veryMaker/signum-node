@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import static brs.http.common.Parameters.INCLUDE_COUNTS_PARAMETER;
 import static brs.http.JSONResponses.ERROR_NOT_ALLOWED;
 import static brs.http.common.Parameters.API_KEY_PARAMETER;
-import static brs.http.common.ResultFields.TIME_RESPONSE;
+import static brs.http.common.ResultFields.*;
 
 import java.util.List;
 
@@ -61,8 +61,13 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("version", Burst.getPropertyService().getString(Props.VERSION));
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
-    response.addProperty("cumulativeDifficulty", blockchain.getLastBlock().getCumulativeDifficulty().toString());
-    response.addProperty("totalMinedNQT", blockchain.getTotalMined());
+    response.addProperty(CUMULATIVE_DIFFICULTY_RESPONSE, blockchain.getLastBlock().getCumulativeDifficulty().toString());
+    long totalMined = blockchain.getTotalMined();
+    long totalBurnt = Burst.getStores().getAccountStore().getAccountBalanceTable().get(
+            Burst.getStores().getAccountStore().getAccountKeyFactory().newKey(0L)).getBalanceNQT();
+    response.addProperty("totalMinedNQT", totalMined);
+    response.addProperty("totalBurntNQT", totalBurnt);
+    response.addProperty("circulatingSupplyNQT", totalMined - totalBurnt);
 
     if ("true".equalsIgnoreCase(req.getParameter(INCLUDE_COUNTS_PARAMETER))) {
       String apiKey = req.getParameter(API_KEY_PARAMETER);
@@ -92,7 +97,12 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("numberOfTrades", assetExchange.getTradesCount());
     response.addProperty("numberOfTransfers", assetExchange.getAssetTransferCount());
     response.addProperty("numberOfAliases", aliasService.getAliasCount());
-    
+
+    response.addProperty("numberOfSubscriptions", blockchain.countTransactions(TransactionType.TYPE_ADVANCED_PAYMENT.getType(),
+            TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_SUBSCRIBE, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_SUBSCRIBE));
+    response.addProperty("numberOfSubscriptionPayments", blockchain.countTransactions(TransactionType.TYPE_ADVANCED_PAYMENT.getType(),
+            TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT));
+
     response.addProperty("numberOfPeers", Peers.getAllPeers().size());
     response.addProperty("numberOfUnlockedAccounts", generator.getAllGenerators().size());
     Peer lastBlockchainFeeder = Burst.getBlockchainProcessor().getLastBlockchainFeeder();
@@ -104,6 +114,7 @@ final class GetState extends APIServlet.JsonRequestHandler {
     response.addProperty("totalMemory", Runtime.getRuntime().totalMemory());
     response.addProperty("freeMemory", Runtime.getRuntime().freeMemory());
     response.addProperty("indirectIncomingServiceEnabled", propertyService.getBoolean(Props.INDIRECT_INCOMING_SERVICE_ENABLE));
+    response.addProperty("databaseTrimmingEnabled", propertyService.getBoolean(Props.DB_TRIM_DERIVED_TABLES));
 
     return response;
   }

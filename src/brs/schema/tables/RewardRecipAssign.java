@@ -125,7 +125,7 @@ public class RewardRecipAssign extends TableImpl<RewardRecipAssignRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_RECIP_ID_HEIGHT_IDX);
+        return Arrays.asList(Indexes.REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_HEIGHT_IDX, Indexes.REWARD_RECIP_ASSIGN_REWARD_RECIP_ASSIGN_RECIP_ID_HEIGHT_IDX);
     }
 
     @Override

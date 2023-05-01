@@ -1,0 +1,58 @@
+{
+  "get": {
+    "summary": "Get Accounts Owned Tokens",
+    "description": "Get all tokens an account owns. Note, that this is different to [Get Accounts Issued Tokens](#get-/api-requestType-getAssetsByIssuer). The ownership of a token can be transferred using [Transfer Token Ownership](#post-/api-requestType-transferAssetOwnership)",
+    "tags": [
+      "token", "account"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/account/account.json"
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightStart.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightEnd.json"
+      },
+      {
+        "$ref": "../../parameters/token/skipZeroVolume.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "The Token List",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+                "assets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../schemas/asset.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

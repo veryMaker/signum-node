@@ -55,7 +55,7 @@ public final class JSONResponses {
   public static final JsonElement MISSING_NAME = missing(NAME_PARAMETER);
   public static final JsonElement MISSING_QUANTITY = missing(QUANTITY_QNT_PARAMETER);
   public static final JsonElement INCORRECT_QUANTITY = incorrect(QUANTITY_PARAMETER);
-  public static final JsonElement INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [1.." + Constants.MAX_ASSET_QUANTITY_QNT + "] range)");
+  public static final JsonElement INCORRECT_ASSET_QUANTITY = incorrect(QUANTITY_PARAMETER, "(must be in [0.." + Constants.MAX_ASSET_QUANTITY_QNT + "] range)");
   public static final JsonElement INCORRECT_DECIMALS = incorrect(DECIMALS_PARAMETER);
   public static final JsonElement MISSING_HOST = missing(HOST_PARAMETER);
   public static final JsonElement MISSING_DATE = missing(DATE_PARAMETER);

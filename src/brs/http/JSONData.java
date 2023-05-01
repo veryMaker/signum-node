@@ -24,13 +24,20 @@ public final class JSONData {
   
   static final long[] PRICE_MULTIPLIER = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
-  static JsonObject alias(Alias alias, Offer offer) {
+  static JsonObject alias(Alias alias, Alias tld, Offer offer, int numbefOfAliases) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, alias.getAccountId());
     json.addProperty(ALIAS_NAME_RESPONSE, alias.getAliasName());
-    json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
     json.addProperty(TIMESTAMP_RESPONSE, alias.getTimestamp());
     json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
+    if(tld != null) {
+      json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
+      json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld.getId()));
+      json.addProperty(TLD_NAME_RESPONSE, tld.getAliasName());
+    }
+    else {
+      json.addProperty(NUMBER_OF_ALIASES, numbefOfAliases);
+    }
 
     if (offer != null) {
       json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNQT()));
@@ -62,6 +69,7 @@ public final class JSONData {
       long tradeVolume, long highPrice, long lowPrice, long openPrice, long closePrice) {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, asset.getAccountId());
+    putAccount(json, ISSUER_RESPONSE, asset.getIssuerId());
     if(issuerAccount != null) {
       json.addProperty(PUBLIC_KEY_RESPONSE, Convert.toHexString(issuerAccount.getPublicKey()));
     }
@@ -150,6 +158,8 @@ public final class JSONData {
     json.addProperty(VERSION_RESPONSE, block.getVersion());
     json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.getCapacityBaseTarget()));
     json.addProperty(AVERAGE_COMMITMENT_NQT_RESPONSE, Convert.toUnsignedLong(block.getAverageCommitment()));
+    json.addProperty(CUMULATIVE_DIFFICULTY_RESPONSE, block.getCumulativeDifficulty().toString());
+
 
     if (block.getPreviousBlockId() != 0) {
       json.addProperty(PREVIOUS_BLOCK_RESPONSE, Convert.toUnsignedLong(block.getPreviousBlockId()));
@@ -247,6 +257,7 @@ public final class JSONData {
     json.addProperty("application", peer.getApplication());
     json.addProperty("version", peer.getVersion().toStringIfNotEmpty());
     json.addProperty("platform", peer.getPlatform());
+    json.addProperty("networkName", peer.getNetworkName());
     json.addProperty("blacklisted", peer.isBlacklisted());
     json.addProperty("lastUpdated", peer.getLastUpdated());
     return json;
@@ -297,14 +308,31 @@ public final class JSONData {
     return json;
   }
 
-  static JsonObject subscription(Subscription subscription) {
+  static JsonObject subscription(Subscription subscription, Alias alias, Alias tld, Transaction transaction) {
     JsonObject json = new JsonObject();
     json.addProperty(ID_RESPONSE, Convert.toUnsignedLong(subscription.getId()));
     putAccount(json, SENDER_RESPONSE, subscription.getSenderId());
-    putAccount(json, RECIPIENT_RESPONSE, subscription.getRecipientId());
+    if(alias == null) {
+      putAccount(json, RECIPIENT_RESPONSE, subscription.getRecipientId());
+    }
+    else {
+      putAccount(json, RECIPIENT_RESPONSE, tld.getAccountId());
+      json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
+      json.addProperty(ALIAS_NAME_RESPONSE, alias.getAliasName());
+      json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld.getId()));
+      json.addProperty(TLD_NAME_RESPONSE, tld.getAliasName());
+    }
     json.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(subscription.getAmountNQT()));
     json.addProperty(FREQUENCY_RESPONSE, subscription.getFrequency());
     json.addProperty(TIME_NEXT_RESPONSE, subscription.getTimeNext());
+    
+    if(transaction != null) {
+      json.addProperty(TIMESTAMP_RESPONSE, transaction.getTimestamp());
+      Appendix.Message message = transaction.getMessage();
+      if(message != null) {
+        json.add(ATTACHMENT_RESPONSE, message.getJsonObject());
+      }
+    }
     return json;
   }
 
@@ -464,17 +492,19 @@ public final class JSONData {
     json.addProperty("dead", at.getMachineState().isDead());
     json.addProperty("machineCodeHashId", Convert.toUnsignedLong(at.getApCodeHashId()) );
 
+    // some immutable data, but still take little bytes
+    json.addProperty("atVersion", at.getVersion());
+    json.addProperty("atRS", Convert.rsAccount(id));
+    json.addProperty("name", at.getName());
+    json.addProperty("description", at.getDescription());
+    json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
+    json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
+    json.addProperty("creationBlock", at.getCreationBlockHeight());
+    
     if(includeDetails) {
-      // These are immutable details, which we might want to avoid getting on every call
-      json.addProperty("atVersion", at.getVersion());
-      json.addProperty("atRS", Convert.rsAccount(id));
-      json.addProperty("name", at.getName());
-      json.addProperty("description", at.getDescription());
-      json.addProperty("creator", Convert.toUnsignedLong(AtApiHelper.getLong(at.getCreator())));
-      json.addProperty("creatorRS", Convert.rsAccount(AtApiHelper.getLong(at.getCreator())));
+      // These take more bytes and can be skipped
       json.addProperty("machineCode", Convert.toHexString(at.getApCodeBytes()));
-      json.addProperty("minActivation", Convert.toUnsignedLong(at.minActivationAmount()));
-      json.addProperty("creationBlock", at.getCreationBlockHeight());
       if(atCreation != null) {
         json.addProperty("creationMachineData", Convert.toHexString(atCreation.getApDataBytes()));
       }

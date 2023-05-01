@@ -1,0 +1,50 @@
+{
+  "get": {
+    "summary": "Get Payments of a Subscriptions",
+    "description": "Gets a subscriptions payment. See [subscription](#get-/api-requestType-getSubscription)",
+    "tags": [
+      "account",
+      "payment"
+    ],
+    "parameters": [
+      {
+        "name": "subscription",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The identifier of a subscription, i.e. its initial transaction id",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Subscription Payment List response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "required": [
+                "transactions"
+              ],
+              "items": {
+                "$ref": "../../schemas/transaction.json"
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

@@ -263,6 +263,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private boolean transactionCanBeAddedToCache(Transaction transaction) {
     return transactionIsCurrentlyNotExpired(transaction)
+        && !transactionDb.hasTransaction(transaction.getId())
         && !cacheFullAndTransactionCheaperThanAllTheRest(transaction)
         && !tooManyTransactionsWithReferencedFullHash(transaction)
         && !tooManyTransactionsForSlotSize(transaction);

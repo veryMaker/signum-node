@@ -7,7 +7,7 @@ import brs.util.CollectionWithIndex;
 public interface Blockchain {
 
   Block getLastBlock();
-    
+
   Block getLastBlock(int timestamp);
 
   void setLastBlock(Block blockImpl);
@@ -45,20 +45,24 @@ public interface Blockchain {
   int getTransactionCount();
 
   Collection<Transaction> getAllTransactions();
-  
+
   public long getAtBurnTotal();
-  
+
   public long getTotalMined();
 
   long getBlockReward(int height);
-  
+
   Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockImplTimestamp, boolean includeIndirectIncoming);
 
-  Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockImplTimestamp, int from, int to, boolean includeIndirectIncoming);
-  
+  CollectionWithIndex<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockImplTimestamp, int from, int to, boolean includeIndirectIncoming);
+
   Collection<Transaction> getTransactions(long senderId, byte type, byte subtypeStart, byte subtypeEnd, int from, int to);
-  
+
+  int countTransactions(byte type, byte subtypeStart, byte subtypeEnd);
+
+  Collection<Transaction> getTransactionsWithFullHashReference(String fullHash, int numberOfConfirmations, byte type, byte subtypeStart, byte subtypeEnd, int from, int to);
+
   Collection<Long> getTransactionIds(Long sender, Long recipient, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming);
-  
+
   long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction);
 }

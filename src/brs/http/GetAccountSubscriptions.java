@@ -1,8 +1,12 @@
 package brs.http;
 
 import brs.Account;
+import brs.Alias;
+import brs.Burst;
 import brs.BurstException;
 import brs.Subscription;
+import brs.Transaction;
+import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.services.SubscriptionService;
 import com.google.gson.JsonArray;
@@ -19,11 +23,13 @@ public final class GetAccountSubscriptions extends APIServlet.JsonRequestHandler
 
   private final ParameterService parameterService;
   private final SubscriptionService subscriptionService;
+  private final AliasService aliasService;
 
-  GetAccountSubscriptions(ParameterService parameterService, SubscriptionService subscriptionService) {
+  GetAccountSubscriptions(ParameterService parameterService, SubscriptionService subscriptionService, AliasService aliasService) {
     super(new APITag[]{APITag.ACCOUNTS}, ACCOUNT_PARAMETER);
     this.parameterService = parameterService;
     this.subscriptionService = subscriptionService;
+    this.aliasService = aliasService;
   }
 
   @Override
@@ -39,7 +45,11 @@ public final class GetAccountSubscriptions extends APIServlet.JsonRequestHandler
     Collection<Subscription> accountSubscriptions = subscriptionService.getSubscriptionsByParticipant(account.getId());
 
     for (Subscription accountSubscription : accountSubscriptions) {
-      subscriptions.add(JSONData.subscription(accountSubscription));
+      Alias alias = aliasService.getAlias(accountSubscription.getRecipientId());
+      Alias tld = alias == null ? null : aliasService.getTLD(alias.getTLD());
+      
+      Transaction transaction = Burst.getBlockchain().getTransaction(alias == null? accountSubscription.getId() : alias.getId());
+      subscriptions.add(JSONData.subscription(accountSubscription, alias, tld, transaction));
     }
 
     response.add(SUBSCRIPTIONS_RESPONSE, subscriptions);

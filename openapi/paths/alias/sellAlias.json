@@ -13,11 +13,14 @@
         "name": "aliasName",
         "in": "query",
         "allowEmptyValue": true,
-        "description": "Instead of `alias` you can use the alias' name also.",
+        "description": "Instead of `alias` you can use the alias' name also. But then you need to specify `tld` also, if it is different from default TLD `signum`",
         "schema": {
           "type": "string",
           "maxLength": 100
         }
+      },
+      {
+        "$ref" : "../../parameters/alias/tld.json"
       },
       {
         "name": "recipient",

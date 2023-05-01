@@ -12,6 +12,8 @@ public interface ParameterService {
 
   Account getAccount(HttpServletRequest req) throws BurstException;
 
+  Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException;
+
   List<Account> getAccounts(HttpServletRequest req) throws ParameterException;
 
   Account getSenderAccount(HttpServletRequest req) throws ParameterException;

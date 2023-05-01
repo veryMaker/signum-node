@@ -153,6 +153,9 @@ class AtApiController {
 
             case GET_CURRENT_BALANCE:
                 return atApi.getCurrentBalance(state);
+            case GET_ACCOUNT_BALANCE:
+                return atApi.getAccountBalance(state);
+
             case GET_PREVIOUS_BALANCE:
                 return atApi.getPreviousBalance(state);
             case SEND_ALL_TO_ADDRESS_IN_B:
