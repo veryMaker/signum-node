@@ -19,6 +19,9 @@
         }
       },
       {
+        "$ref": "../../parameters/transaction/amountNQT.json"
+      },
+      {
         "$ref": "../../parameters/transaction/feeNQT.json"
       },
       {
