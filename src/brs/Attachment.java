@@ -2485,9 +2485,9 @@ public interface Attachment extends Appendix {
 	      dataLen = buffer.getInt();
       }
       
-      if(dataLen > 0 && dataLen < buffer.remaining()) {
+      if(codeLen==0 && dataLen > 0 && dataLen < buffer.remaining()) {
           // fix problematic contracts with incorrect length,
-    	  // so it at least the bytes are all loaded in the attachment.
+          // so it at least the bytes are all loaded in the attachment.
           dataLen = buffer.remaining();
       }
       
