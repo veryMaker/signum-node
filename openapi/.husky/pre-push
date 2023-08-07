@@ -5,3 +5,4 @@ echo "🏗️ Building Open API Docs..."
 
 cd openapi
 npm run build:prod
+git commit -am "ci: OpenAPI distribution built"
