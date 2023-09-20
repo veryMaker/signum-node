@@ -111,7 +111,9 @@ public class AtTransaction {
         attachment = new Attachment.ColoredCoinsAssetDistributeToHolders(assetId, minHolding, assetIdToDistribute, quantity, block.getHeight());
       }
 
-      Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
+      byte[] publicKey = Genesis.getCreatorPublicKey();
+      System.arraycopy(getSenderId(), 0, publicKey, 0, 8);
+      Transaction.Builder builder = new Transaction.Builder((byte) 1, publicKey,
           amount, 0L, block.getTimestamp(), (short) 1440, attachment);
 
       builder.senderId(AtApiHelper.getLong(getSenderId()))
