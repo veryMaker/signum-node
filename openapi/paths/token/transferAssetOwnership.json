@@ -1,7 +1,7 @@
 {
   "post": {
     "summary": "Transfer Token Ownership",
-    "description": "Transfers the tokens ownership to another account, such that the new owner can mint tokens and/or set treasury accounts, and transfer ownership also. One can only transfer the ownership, if s/he is the current owner. Fee is 150 SIGNA.",
+    "description": "Transfers the tokens ownership to another account, such that the new owner can mint tokens and/or set treasury accounts, and transfer ownership also. One can only transfer the ownership, if s/he is the current owner. Fee is 150 SIGNA",
     "tags": [
       "token"
     ],
