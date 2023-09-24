@@ -135,7 +135,7 @@ public final class Burst {
   public static TransactionService getTransactionService() {
     return transactionService;
   }
-  
+
   public static SubscriptionService getSubscriptionService() {
       return subscriptionService;
   }
