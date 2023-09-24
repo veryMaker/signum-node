@@ -2484,6 +2484,13 @@ public interface Attachment extends Appendix {
       else {
 	      dataLen = buffer.getInt();
       }
+      
+      if(codeLen==0 && dataLen > 0 && dataLen < buffer.remaining()) {
+          // fix problematic contracts with incorrect length,
+          // so it at least the bytes are all loaded in the attachment.
+          dataLen = buffer.remaining();
+      }
+      
       byte[] data = new byte[ dataLen ];
       buffer.get( data, 0, dataLen );
 
