@@ -1,8 +1,0 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-echo "🏗️ Building Open API Docs..."
-
-cd openapi
-npm run build:prod
-git commit -am "ci: OpenAPI distribution built" --no-verify
