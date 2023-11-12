@@ -40,10 +40,9 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
             }
 
             private Query getQuery(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
+                return ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
                     INDIRECT_INCOMING.AMOUNT, INDIRECT_INCOMING.QUANTITY,
                     INDIRECT_INCOMING.HEIGHT)
-                    .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
                             indirectIncoming.getHeight());
@@ -87,5 +86,10 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
     @Override
     public IndirectIncoming getIndirectIncoming(long accountId, long transactionId) {
         return indirectIncomingTable.get(indirectIncomingDbKeyFactory.newKey(accountId, transactionId));
+    }
+
+    @Override
+    public void rollback(int height) {
+        indirectIncomingTable.rollback(height);
     }
 }

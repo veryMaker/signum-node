@@ -41,4 +41,10 @@ public class IndirectIncomingServiceImpl implements IndirectIncomingService {
         }
         return false;
     }
+
+    @Override
+    public void rollback(int height) {
+        if (disabled) return;
+        indirectIncomingStore.rollback(height);
+    }
 }

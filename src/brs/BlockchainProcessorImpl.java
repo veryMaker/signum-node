@@ -179,7 +179,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     blockListeners.addListener(block -> transactionProcessor.revalidateUnconfirmedTransactions(), Event.BLOCK_PUSHED);
     if (trimDerivedTables) {
       blockListeners.addListener(block -> {
-        if (block.getHeight() % Constants.MAX_ROLLBACK == 0 && lastTrimHeight.get() > 0) {
+        if (block.getHeight() % (Constants.MAX_ROLLBACK*10) == 0 && lastTrimHeight.get() > 0) {
           logger.debug("Trimming derived tables...");
           this.derivedTableManager.getDerivedTables().forEach(table -> table.trim(lastTrimHeight.get()));
         }
@@ -1167,6 +1167,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             logger.debug("Rolling back {}", table.getTable());
             table.rollback(commonBlock.getHeight());
           }
+          indirectIncomingService.rollback(commonBlock.getHeight());
           dbCacheManager.flushCache();
           stores.commitTransaction();
           downloadCache.resetCache();
