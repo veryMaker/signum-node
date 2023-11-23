@@ -47,7 +47,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
                             indirectIncoming.getHeight())
                         // TODO: it should never be duplicate, look for a better fix and remove the following line
-                        .onDuplicateKeyIgnore();
+                        .onDuplicateKeyUpdate().set(INDIRECT_INCOMING.HEIGHT, indirectIncoming.getHeight());
             }
 
             @Override
