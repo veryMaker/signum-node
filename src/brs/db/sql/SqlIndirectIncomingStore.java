@@ -45,7 +45,9 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                     INDIRECT_INCOMING.HEIGHT)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
-                            indirectIncoming.getHeight());
+                            indirectIncoming.getHeight())
+                        // TODO: it should never be duplicate, look for a better fix and remove the following line
+                        .onDuplicateKeyIgnore();
             }
 
             @Override
