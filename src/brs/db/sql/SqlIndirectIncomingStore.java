@@ -7,6 +7,7 @@ import brs.db.store.IndirectIncomingStore;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.jooq.Record;
+import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,9 +46,7 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                     INDIRECT_INCOMING.HEIGHT)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
-                            indirectIncoming.getHeight())
-                        // TODO: it should never be duplicate, look for a better fix and remove the following line
-                        .onDuplicateKeyUpdate().set(INDIRECT_INCOMING.HEIGHT, indirectIncoming.getHeight());
+                            indirectIncoming.getHeight());
             }
 
             @Override
@@ -64,7 +63,12 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                 for (int i = 0; i < 50000 && iterator.hasNext(); i++) {
                   queries.add(getQuery(ctx, iterator.next()));                  
                 }
-                ctx.batch(queries).execute();                
+                try {
+                    ctx.batch(queries).execute();
+                }
+                catch (DataAccessException e) {
+                    // TODO: remove this catch after better handling of indirects and forks
+                }
               }
             }
         };
