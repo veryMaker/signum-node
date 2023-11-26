@@ -9,10 +9,10 @@ import { useSound } from "@/hooks/useSound";
 export const Header = () => {
   const { playClickSound } = useSound();
 
-  const githubLink = "";
-  const twitterLink = "";
-  const youtubeLink = "";
-  const discordLink = "";
+  const githubLink = "https://github.com/signum-network/signum-node";
+  const twitterLink = "https://twitter.com/signum_official";
+  const youtubeLink = "https://www.youtube.com/@SignumNetwork";
+  const discordLink = "https://discord.com/invite/FATkyfNMxU";
 
   const defaultIconSize = 26;
   const defaultColor = theme.colors.primary.deco(100);
@@ -21,8 +21,6 @@ export const Header = () => {
     color: defaultColor,
     outline: "none",
   };
-
-  const onLinkClick = () => playClickSound();
 
   return (
     <header
@@ -69,7 +67,7 @@ export const Header = () => {
             href={githubLink}
             target="_blank"
             style={defaultStyles}
-            onClick={onLinkClick}
+            onClick={playClickSound}
           >
             <FaGithub />
           </a>
@@ -78,7 +76,7 @@ export const Header = () => {
             href={twitterLink}
             target="_blank"
             style={defaultStyles}
-            onClick={onLinkClick}
+            onClick={playClickSound}
           >
             <FaXTwitter />
           </a>
@@ -87,7 +85,7 @@ export const Header = () => {
             href={youtubeLink}
             target="_blank"
             style={defaultStyles}
-            onClick={onLinkClick}
+            onClick={playClickSound}
           >
             <FaYoutube />
           </a>
@@ -96,7 +94,7 @@ export const Header = () => {
             href={discordLink}
             target="_blank"
             style={defaultStyles}
-            onClick={onLinkClick}
+            onClick={playClickSound}
           >
             <FaDiscord />
           </a>
