@@ -10,4 +10,6 @@ public interface IndirectIncomingStore {
     Collection<Long> getIndirectIncomings(long accountId, int from, int to);
     
     public IndirectIncoming getIndirectIncoming(long accountId, long transactionId);
+
+    public void rollback(int height);
 }

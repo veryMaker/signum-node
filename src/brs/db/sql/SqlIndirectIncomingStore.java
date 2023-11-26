@@ -7,6 +7,7 @@ import brs.db.store.IndirectIncomingStore;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.jooq.Record;
+import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,10 +41,9 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
             }
 
             private Query getQuery(DSLContext ctx, IndirectIncoming indirectIncoming) {
-                return ctx.mergeInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
+                return ctx.insertInto(INDIRECT_INCOMING, INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID,
                     INDIRECT_INCOMING.AMOUNT, INDIRECT_INCOMING.QUANTITY,
                     INDIRECT_INCOMING.HEIGHT)
-                    .key(INDIRECT_INCOMING.ACCOUNT_ID, INDIRECT_INCOMING.TRANSACTION_ID)
                         .values(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId(),
                             indirectIncoming.getAmount(), indirectIncoming.getQuantity(),
                             indirectIncoming.getHeight());
@@ -63,7 +63,12 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
                 for (int i = 0; i < 50000 && iterator.hasNext(); i++) {
                   queries.add(getQuery(ctx, iterator.next()));                  
                 }
-                ctx.batch(queries).execute();                
+                try {
+                    ctx.batch(queries).execute();
+                }
+                catch (DataAccessException e) {
+                    // TODO: remove this catch after better handling of indirects and forks
+                }
               }
             }
         };
@@ -87,5 +92,10 @@ public class SqlIndirectIncomingStore implements IndirectIncomingStore {
     @Override
     public IndirectIncoming getIndirectIncoming(long accountId, long transactionId) {
         return indirectIncomingTable.get(indirectIncomingDbKeyFactory.newKey(accountId, transactionId));
+    }
+
+    @Override
+    public void rollback(int height) {
+        indirectIncomingTable.rollback(height);
     }
 }
