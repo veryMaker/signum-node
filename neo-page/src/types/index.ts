@@ -1,2 +1,2 @@
 export * from "./defaultMaxWidth";
-export * from "./theme";
+export * from "../utils/theme";

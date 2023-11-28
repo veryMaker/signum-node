@@ -25,7 +25,7 @@ export const Background = ({ theme }: Props) => {
         }}
       >
         <GridLines lineColor={theme.colors.primary.deco(0)} />
-        <Dots color={theme.colors.primary.deco(2)} />
+        <Dots color={theme.colors.primary.deco(1)} />
         <MovingLines lineColor={theme.colors.primary.deco(8)} />
       </div>
     </Animator>

@@ -38,6 +38,7 @@ export const Header = () => {
           width: 100%;
           max-width: ${defaultMaxWidth}px;
           margin: auto;
+          margin-bottom: 1rem;
           flex-wrap: wrap;
 
           @media (max-width: 600px) {
