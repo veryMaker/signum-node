@@ -11,7 +11,6 @@ export const NeoChip = ({ label }: Props) => {
         position: "relative",
         zIndex: 0,
         padding: "1rem 2rem",
-        marginBottom: "1rem",
         display: "flex",
         justifyContent: "center",
       }}

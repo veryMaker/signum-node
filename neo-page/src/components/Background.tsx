@@ -15,13 +15,12 @@ export const Background = ({ theme }: Props) => {
     <Animator merge combine>
       <div
         style={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
           background: `linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url(images/bg.webp)`,
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
-          minHeight: "100vh",
         }}
       >
         <GridLines lineColor={theme.colors.primary.deco(0)} />
