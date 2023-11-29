@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
 import { theme } from "@/utils/theme";
 import { FaLink } from "react-icons/fa6";
+import { useSound } from "@/hooks/useSound";
 
 interface Props {
   title: string;
@@ -9,9 +10,12 @@ interface Props {
 }
 
 export const WikiCard = ({ title, description, href }: Props) => {
+  const { playClickSound } = useSound();
+
   return (
     <a
       href={href}
+      onClick={playClickSound}
       target="_blank"
       css={css`
         width: 24%;
