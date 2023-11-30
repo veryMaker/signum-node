@@ -1,14 +1,18 @@
 import { NeoChip } from "@/components/NeoChip";
+import {
+  defaultContainer,
+  defaultCardContainer,
+} from "@/styles/containers.css";
 import { WikiCard } from "./components/WikiCard";
 
 export const Wikis = () => {
   return (
-    <section className="default-container">
+    <section className={defaultContainer}>
       <div style={{ display: "flex" }}>
         <NeoChip label="Wikis" />
       </div>
 
-      <div className="default-cards-container">
+      <div className={defaultCardContainer}>
         <WikiCard
           title="Signum Docs"
           description="Basic Signum Wiki"

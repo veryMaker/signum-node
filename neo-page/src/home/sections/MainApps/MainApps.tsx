@@ -1,39 +1,18 @@
-import { css } from "@emotion/react";
 import { NeoChip } from "@/components/NeoChip";
 import { SyncChip } from "@/components/SyncChip";
 import { AppCard } from "./components/AppCard";
+import { defaultContainer } from "@/styles/containers.css";
+import * as classes from "./MainApps.css";
 
 export const MainApps = () => {
   return (
-    <section className="default-container">
-      <div
-        css={css`
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-
-          @media (max-width: 600px) {
-            flex-direction: column-reverse;
-            justify-content: center;
-            align-items: stretch;
-            gap: 1rem;
-          }
-        `}
-      >
+    <section className={defaultContainer}>
+      <div className={classes.titleContainer}>
         <NeoChip label="Discover" />
         <SyncChip />
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "4rem 1rem",
-          marginTop: "3rem",
-        }}
-      >
+      <div className={classes.cardsContainer}>
         <AppCard
           title="Phoenix Wallet"
           description="Zero config wallet"

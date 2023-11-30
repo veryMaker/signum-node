@@ -1,6 +1,6 @@
 export type ThirdPartyApp = {
   title: string;
   description: string;
-  imgSrc: string;
-  href: string;
+  img: string;
+  url: string;
 };

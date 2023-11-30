@@ -1,19 +1,16 @@
 import { type ReactElement, Fragment } from "react";
-import { type CSSObject, Global } from "@emotion/react";
 import {
-  createAppStylesBaseline,
   AnimatorGeneralProvider,
   type BleepsProviderSettings,
   BleepsProvider,
 } from "@arwes/react";
 import { Background } from "@/components/Background";
 import { theme } from "@/types";
+import "@/styles/global.css";
 
 interface Props {
   children: ReactElement;
 }
-
-const stylesBaseline = createAppStylesBaseline(theme);
 
 const bleepsSettings: BleepsProviderSettings = {
   master: { volume: 0.75 },
@@ -34,7 +31,6 @@ export function ThemeProvider({ children }: Props) {
     <Fragment>
       <AnimatorGeneralProvider>
         <BleepsProvider {...bleepsSettings}>
-          <Global styles={stylesBaseline as Record<string, CSSObject>} />
           <main style={{ position: "relative" }}>
             <Background theme={theme} />
             <div style={{ position: "relative" }}>{children}</div>

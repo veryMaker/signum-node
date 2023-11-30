@@ -1,5 +1,5 @@
 import { FrameSVGNefrex } from "@arwes/react-frames";
-import {frame, neoChip} from '@/components/NeoChip/NeoChip.css.ts';
+import { frame, neoChip } from "./NeoChip.css";
 
 interface Props {
   label: string;

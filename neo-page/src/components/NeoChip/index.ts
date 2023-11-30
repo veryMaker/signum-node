@@ -1,1 +1,1 @@
-export * from "./NeoChip.tsx"
+export * from "./NeoChip.tsx";

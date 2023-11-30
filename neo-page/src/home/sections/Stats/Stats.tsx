@@ -1,24 +1,20 @@
 import { NeoChip } from "@/components/NeoChip";
-import { theme } from "@/utils/theme";
+import {
+  defaultContainer,
+  defaultCardContainer,
+} from "@/styles/containers.css";
 import { KpiCard } from "./components/KpiCard";
+import * as classes from "./Stats.css";
 
 export const Stats = () => {
   return (
-    <section className="default-container">
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-        }}
-      >
+    <section className={defaultContainer}>
+      <div className={classes.titleContainer}>
         <NeoChip label="Stats" />
-        <span style={{ color: theme.colors.warning.deco(30) }}>
-          Since Genesis Block. 2014
-        </span>
+        <span className={classes.genesisText}>Since Genesis Block. 2014</span>
       </div>
 
-      <div className="default-cards-container">
+      <div className={defaultCardContainer}>
         <KpiCard title="Total Transactions" value={10298072} />
         <KpiCard title="Smart Contracts" value={69517} />
         <KpiCard title="Tokens Created" value={680} />

@@ -1,6 +1,5 @@
 import { useBleeps } from "@arwes/react";
-
-type BleepsNames = "click" | "intro";
+import type { BleepsNames } from "@/types";
 
 export const useSound = () => {
   const bleeps = useBleeps<BleepsNames>();
