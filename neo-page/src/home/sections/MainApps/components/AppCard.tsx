@@ -21,27 +21,19 @@ export const AppCard = ({
 }: Props) => {
   const { playClickSound } = useSound();
 
-  const visitLink = async () => {
-    playClickSound();
-
-    setTimeout(() => {
-      window.location.href = url;
-    }, 500);
-  };
-
   return (
     <a
-      onClick={visitLink}
+      onClick={playClickSound}
+      href={`/${url}`}
+      target="_blank"
       css={css`
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        padding: 2rem 1rem;
-        padding-bottom: 1rem;
+        padding: 2rem 1rem 1rem;
         width: 32.2%;
-        border: 1px dashed;
-        border-color: rgba(255, 255, 255, 0.3);
+        border: 1px dashed rgba(255, 255, 255, 0.3);
         color: ${theme.colors.primary.deco(100)};
         transition: all 0.5s ease;
         outline: none;
@@ -101,7 +93,7 @@ export const AppCard = ({
       `}
     >
       <picture>
-        {!!img && <img src={img} />}
+        {!!img && <img src={img}  alt={title}/>}
         {!!initial && <h6>{initial}</h6>}
       </picture>
 

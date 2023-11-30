@@ -2,6 +2,7 @@ import { FrameSVGOctagon } from "@arwes/react-frames";
 import { Animator } from "@arwes/react-animator";
 import { Puffs } from "@arwes/react-bgs";
 
+
 export const SyncChip = () => {
   return (
     <div
