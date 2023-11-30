@@ -1,12 +1,11 @@
-import { NeoChipOld } from "@/components/NeoChipOld.tsx";
+import { NeoChip } from "@/components/NeoChip";
 import { AppCard } from "./components/AppCard";
-import { ThirdPartyApp } from "./types";
 
 export const ThirdPartyApps = () => {
   return (
     <section className="default-container">
       <div style={{ display: "flex" }}>
-        <NeoChipOld label="Third Party Apps" />
+        <NeoChip label="Third Party Apps" />
       </div>
 
       <div

@@ -1,11 +1,11 @@
-import { NeoChipOld } from "@/components/NeoChipOld.tsx";
+import { NeoChip } from "@/components/NeoChip";
 import { WikiCard } from "./components/WikiCard";
 
 export const Wikis = () => {
   return (
     <section className="default-container">
       <div style={{ display: "flex" }}>
-        <NeoChipOld label="Wikis" />
+        <NeoChip label="Wikis" />
       </div>
 
       <div className="default-cards-container">
