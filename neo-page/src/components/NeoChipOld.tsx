@@ -4,7 +4,7 @@ interface Props {
   label: string;
 }
 
-export const NeoChip = ({ label }: Props) => {
+export const NeoChipOld = ({ label }: Props) => {
   return (
     <div
       style={{

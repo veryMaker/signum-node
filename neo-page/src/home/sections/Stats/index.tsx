@@ -1,4 +1,4 @@
-import { NeoChip } from "@/components/NeoChip";
+import { NeoChipOld } from "@/components/NeoChipOld.tsx";
 import { theme } from "@/utils/theme";
 import { KpiCard } from "./components/KpiCard";
 
@@ -12,7 +12,7 @@ export const Stats = () => {
           gap: "1rem",
         }}
       >
-        <NeoChip label="Stats" />
+        <NeoChipOld label="Stats" />
         <span style={{ color: theme.colors.warning.deco(30) }}>
           Since Genesis Block. 2014
         </span>
