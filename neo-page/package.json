@@ -16,9 +16,11 @@
     "@arwes/react": "^1.0.0-alpha.23",
     "@emotion/react": "^11.11.1",
     "@fontsource/titillium-web": "^5.0.17",
+    "@signumjs/util": "^1.0.0-rc.75",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",
+    "swr": "^2.2.4",
     "zustand": "^4.4.6"
   },
   "devDependencies": {

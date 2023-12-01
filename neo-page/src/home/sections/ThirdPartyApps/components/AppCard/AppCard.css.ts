@@ -3,13 +3,13 @@ import { style } from "@vanilla-extract/css";
 export const card = style({
   width: "33%",
   display: "flex",
-  padding: "1rem",
+  padding: "0 1rem",
   gap: 16,
   outline: "none",
   "@media": {
     "(max-width: 1000px)": {
       width: "48%",
-      marginBottom: "1rem",
+      marginBottom: "1.5rem",
     },
     "(max-width: 600px)": {
       width: "100%",

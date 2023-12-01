@@ -34,7 +34,7 @@ export const Wikis = () => {
         <WikiCard
           title="Whitepaper"
           description="Business whitepaper"
-          href="https://signum-network.github.io/whitepaper/business/v1.pdf"
+          href="https://signum-network.github.io/whitepaper"
         />
       </div>
     </section>
