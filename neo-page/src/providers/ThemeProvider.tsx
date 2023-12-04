@@ -1,13 +1,11 @@
-import { Outlet } from "react-router-dom";
 import { Fragment } from "react";
 import {
   AnimatorGeneralProvider,
   type BleepsProviderSettings,
   BleepsProvider,
 } from "@arwes/react";
-import { Background } from "@/components/Background";
-import { theme } from "@/types";
 import "@/styles/global.css";
+import type { Props } from "./types";
 
 const bleepsSettings: BleepsProviderSettings = {
   master: { volume: 0.75 },
@@ -23,16 +21,13 @@ const bleepsSettings: BleepsProviderSettings = {
   },
 };
 
-export function ThemeProvider() {
+// Providers related to arwes framework goes here
+
+export function ThemeProvider({ children }: Props) {
   return (
     <Fragment>
       <AnimatorGeneralProvider>
-        <BleepsProvider {...bleepsSettings}>
-          <main style={{ position: "relative", overflow: "hidden" }}>
-            <Background theme={theme} />
-            <div style={{ position: "relative" }}>{<Outlet />}</div>
-          </main>
-        </BleepsProvider>
+        <BleepsProvider {...bleepsSettings}>{children}</BleepsProvider>
       </AnimatorGeneralProvider>
     </Fragment>
   );

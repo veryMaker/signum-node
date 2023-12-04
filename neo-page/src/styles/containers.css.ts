@@ -14,6 +14,7 @@ export const defaultContainer = style({
 export const defaultCardContainer = style({
   display: "flex",
   flexDirection: "row",
+  justifyContent: "space-between",
   alignItems: "center",
   flexWrap: "wrap",
   gap: "2rem 0rem",

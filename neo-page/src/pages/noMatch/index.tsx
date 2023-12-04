@@ -5,7 +5,7 @@ export function NoMatchPage() {
     <div
       style={{
         width: "100%",
-        height: "100vh",
+        height: "75vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

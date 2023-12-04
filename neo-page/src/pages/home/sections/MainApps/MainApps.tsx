@@ -9,7 +9,9 @@ export const MainApps = () => {
   return (
     <section className={defaultContainer}>
       <div className={classes.titleContainer}>
-        <NeoChip label="Discover" />
+        <div>
+          <NeoChip label="Discover" />
+        </div>
 
         <div className={classes.chipContainer}>
           <HeightChip />
