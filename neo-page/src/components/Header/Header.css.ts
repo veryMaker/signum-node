@@ -2,12 +2,9 @@ import { style } from "@vanilla-extract/css";
 import { defaultMaxWidth } from "@/types";
 import { theme } from "@/styles/theme";
 
-export const header = style({
+export const headerContainer = style({
   position: "sticky",
   overflow: "hidden",
-});
-
-export const headerContainer = style({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -17,7 +14,6 @@ export const headerContainer = style({
   margin: "auto",
   marginBottom: "1rem",
   flexWrap: "wrap",
-
   "@media": {
     "(max-width: 600px)": {
       justifyContent: "center",
@@ -45,16 +41,4 @@ export const avatar = style({
   fontSize: 26,
   color: theme.colors.primary.deco(100),
   outline: "none",
-});
-
-export const svgEffect = style({
-  width: "100%",
-  height: "100%",
-  position: "absolute",
-});
-
-export const illuminator = style({
-  height: "100%",
-  position: "absolute",
-  top: 0,
 });

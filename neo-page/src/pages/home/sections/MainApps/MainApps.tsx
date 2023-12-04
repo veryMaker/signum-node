@@ -1,4 +1,5 @@
 import { NeoChip } from "@/components/NeoChip";
+import { HeightChip } from "@/components/HeightChip";
 import { SyncChip } from "@/components/SyncChip";
 import { AppCard } from "./components/AppCard";
 import { defaultContainer } from "@/styles/containers.css";
@@ -9,7 +10,11 @@ export const MainApps = () => {
     <section className={defaultContainer}>
       <div className={classes.titleContainer}>
         <NeoChip label="Discover" />
-        <SyncChip />
+
+        <div className={classes.chipContainer}>
+          <HeightChip />
+          <SyncChip />
+        </div>
       </div>
 
       <div className={classes.cardsContainer}>
@@ -31,9 +36,9 @@ export const MainApps = () => {
 
         <AppCard
           title="Signum Name System"
-          description="Self hosted Powerful Alias Platform"
+          description="Powerful alias platform"
           background="linear-gradient(227deg, #D481FF 0%, #8855F9 102.12%)"
-          img="/images/signum-translucid.webp"
+          img="/images/alias.webp"
           url="./sns/index.html"
         />
 
@@ -41,20 +46,13 @@ export const MainApps = () => {
           title="Neoclassic Wallet"
           description="Modernized version of Classic Wallet"
           background="linear-gradient(227deg, #F06082 0%, #E94F74 102.12%)"
-          initial="NC"
+          img="/images/neo-wallet.webp"
           url="./neo-classic/index.html"
         />
 
         <AppCard
-          title="Classic Wallet"
-          description="Initial version of Signum wallet"
-          background="#1F2124"
-          initial="C"
-          url="./classic/index.html"
-        />
-
-        <AppCard
           title="API Docs"
+          secondTitle="For developers"
           description="Documentation of Self Hosted API"
           background="linear-gradient(134deg, #FFF 0%, #D7E3EF 100%)"
           img="/images/api-icon.webp"

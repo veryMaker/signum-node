@@ -1,4 +1,5 @@
-import { type ReactElement, Fragment } from "react";
+import { Outlet } from "react-router-dom";
+import { Fragment } from "react";
 import {
   AnimatorGeneralProvider,
   type BleepsProviderSettings,
@@ -7,10 +8,6 @@ import {
 import { Background } from "@/components/Background";
 import { theme } from "@/types";
 import "@/styles/global.css";
-
-interface Props {
-  children: ReactElement;
-}
 
 const bleepsSettings: BleepsProviderSettings = {
   master: { volume: 0.75 },
@@ -26,14 +23,14 @@ const bleepsSettings: BleepsProviderSettings = {
   },
 };
 
-export function ThemeProvider({ children }: Props) {
+export function ThemeProvider() {
   return (
     <Fragment>
       <AnimatorGeneralProvider>
         <BleepsProvider {...bleepsSettings}>
-          <main style={{ position: "relative" }}>
+          <main style={{ position: "relative", overflow: "hidden" }}>
             <Background theme={theme} />
-            <div style={{ position: "relative" }}>{children}</div>
+            <div style={{ position: "relative" }}>{<Outlet />}</div>
           </main>
         </BleepsProvider>
       </AnimatorGeneralProvider>

@@ -6,12 +6,19 @@ export const titleContainer = style({
   alignItems: "center",
   "@media": {
     "(max-width: 600px)": {
-      flexDirection: "column",
+      flexDirection: "column-reverse",
       justifyContent: "center",
       alignItems: "stretch",
       gap: "1rem",
     },
   },
+});
+
+export const chipContainer = style({
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  justifyContent: "space-between",
 });
 
 export const cardsContainer = style({

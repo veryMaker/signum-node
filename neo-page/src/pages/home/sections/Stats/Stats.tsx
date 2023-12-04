@@ -22,7 +22,7 @@ export const Stats = () => {
         <KpiCard title="Subscriptions Created" value={257} />
         <KpiCard title="Subscription Payments" value={123887} />
         <KpiCard title="SIGNA in circulation" value={2161378457} />
-        <KpiCard title="Total of SIGNA Burned 🔥" value={1016442} />
+        <KpiCard title="SIGNA Burned 🔥" value={1016442} isBurning />
       </div>
     </section>
   );

@@ -34,7 +34,22 @@ export const card = style({
   },
 });
 
+export const titleContainer = style({
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+});
+
 export const title = style({ margin: 0 });
+
+export const secondTitle = style({
+  margin: 0,
+  padding: "0 12px",
+  color: theme.colors.secondary.deco(100),
+  background: theme.colors.secondary.deco(5),
+  fontSize: 12,
+  borderRadius: 8,
+});
 
 export const description = style({ fontSize: 14 });
 

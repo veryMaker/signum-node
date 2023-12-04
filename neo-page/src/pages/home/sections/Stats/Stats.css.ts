@@ -1,5 +1,4 @@
 import { style } from "@vanilla-extract/css";
-import { theme } from "@/styles/theme";
 
 export const titleContainer = style({
   display: "flex",
@@ -8,5 +7,5 @@ export const titleContainer = style({
 });
 
 export const genesisText = style({
-  color: theme.colors.warning.deco(30),
+  color: "hsl(152, 39%, 60%)",
 });

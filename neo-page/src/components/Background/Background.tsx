@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import {
   type AppTheme,
   GridLines,
@@ -5,6 +6,7 @@ import {
   MovingLines,
   Animator,
 } from "@arwes/react";
+import { Illuminator } from "@arwes/react-frames";
 import * as classes from "./Background.css";
 
 interface Props {
@@ -15,12 +17,28 @@ export const Background = ({ theme }: Props) => {
   const color = theme.colors.primary.deco(1);
 
   return (
-    <Animator duration={{ interval: 10 }}>
-      <div className={classes.defaultBG}>
-        <GridLines lineColor={color} distance={50} />
-        <Dots color={color} distance={50} />
-        <MovingLines lineColor={color} distance={50} sets={20} />
+    <Fragment>
+      <Animator duration={{ interval: 10 }}>
+        <div className={classes.defaultBG}>
+          <GridLines lineColor={color} distance={50} />
+          <Dots color={color} distance={50} />
+          <MovingLines
+            lineColor={theme.colors.primary.deco(2)}
+            distance={50}
+            sets={20}
+          />
+        </div>
+      </Animator>
+
+      <div className={classes.illuminatorContainer}>
+        <Illuminator
+          color="hsl(180 50% 50% / 20%)"
+          size={82}
+          className={classes.illuminator}
+        />
+
+        <svg className={classes.svgEffect}></svg>
       </div>
-    </Animator>
+    </Fragment>
   );
 };

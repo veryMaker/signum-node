@@ -3,6 +3,7 @@ import * as classes from "./AppCard.css";
 
 interface Props {
   title: string;
+  secondTitle?: string;
   description: string;
   background: string;
   img?: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export const AppCard = ({
   title,
+  secondTitle,
   description,
   background,
   img,
@@ -32,7 +34,14 @@ export const AppCard = ({
         {!!initial && <h6 className={classes.pictureLetters}>{initial}</h6>}
       </picture>
 
-      <h3 className={classes.title}>{title}</h3>
+      <div className={classes.titleContainer}>
+        <h3 className={classes.title}>{title}</h3>
+
+        {!!secondTitle && (
+          <span className={classes.secondTitle}>{secondTitle}</span>
+        )}
+      </div>
+
       <p className={classes.description}>{description}</p>
     </a>
   );
