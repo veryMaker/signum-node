@@ -4,6 +4,7 @@ import { theme } from "@/types";
 import { Providers } from "@/providers";
 import { Background } from "./components/Background";
 import { Header } from "./components/Header";
+import { Alerts } from "./components/Alerts";
 
 export const Layout = () => {
   return (
@@ -13,6 +14,7 @@ export const Layout = () => {
         <div style={{ position: "relative" }}>
           {
             <Fragment>
+              <Alerts />
               <Header />
               <Outlet />
             </Fragment>
