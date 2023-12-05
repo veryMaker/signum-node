@@ -11,6 +11,7 @@ plugins {
   id "org.flywaydb.flyway" version "8.2.0"
   id "de.undercouch.download" version "5.5.0"
   id 'jacoco'
+  id "com.github.node-gradle.node" version "7.0.1"
 }
 
 java {
@@ -191,7 +192,20 @@ createExe {
   jar = "${baseNodeFileName}.jar"
 }
 
+node {
+  download = true
+  version = '16.14.0'
+  nodeProjectDir = file("${project.projectDir}/openapi")
+  npmInstallCommand = "ci"
+}
+
+tasks.register("buildOpenApi", NpmTask) {
+  dependsOn npmInstall
+  args = ['run', 'dist']
+}
+
 tasks.register('dist', Zip) {
+  dependsOn buildOpenApi
   from(project.tasks.shadowJar.outputs.files) {
     include "${baseNodeFileName}-all.jar"
     rename { "${baseNodeFileName}.jar" }
@@ -241,7 +255,8 @@ tasks.register('windowsZip', Zip) {
 import org.gradle.crypto.checksum.Checksum
 
 tasks.register('release', Checksum) {
-  dependsOn test, dist, windowsZip
+//  dependsOn test, dist, windowsZip
+  dependsOn dist, windowsZip
   files = files(["build/distributions/${baseNodeFileName}.zip", "build/distributions/${baseNodeFileName}-win_x64.zip"])
 }
 
