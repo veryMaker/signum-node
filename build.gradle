@@ -1,7 +1,7 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'java'
-    id 'maven'
+    id 'maven-publish'
     id 'application'
     id 'edu.sc.seis.launch4j' version '2.5.1'
     id 'org.gradle.crypto.checksum' version '1.2.0'
@@ -30,42 +30,42 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.signum-network:signumj:v1.3.1'
-    
-    compile 'io.reactivex.rxjava2:rxjava:2.2.15'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.69'
-    compile 'org.ehcache:ehcache:3.9.9'
-    compile 'org.flywaydb:flyway-core:8.2.0'
-    compile 'com.google.code.gson:gson:2.8.9'
-    compile 'com.h2database:h2:1.4.199'
-    compile 'commons-cli:commons-cli:1.4'
-    compile 'com.zaxxer:HikariCP:5.0.1'
-    compile 'org.jocl:jocl:2.0.1'
-    compile 'org.jooq:jooq:3.15.7'
-    compile 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
-    compile 'org.owasp.encoder:encoder:1.2.3'
-    compile 'org.bitlet:weupnp:0.1.4'
+    implementation 'com.github.signum-network:signumj:v1.3.1'
 
-    compile 'com.google.zxing:core:3.4.1'
-    compile 'com.google.zxing:javase:3.4.1'
+  implementation 'io.reactivex.rxjava2:rxjava:2.2.15'
+  implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+  implementation 'org.ehcache:ehcache:3.9.9'
+  implementation 'org.flywaydb:flyway-core:8.2.0'
+  implementation 'com.google.code.gson:gson:2.8.9'
+  implementation 'com.h2database:h2:1.4.199'
+  implementation 'commons-cli:commons-cli:1.4'
+  implementation 'com.zaxxer:HikariCP:5.0.1'
+  implementation 'org.jocl:jocl:2.0.1'
+  implementation 'org.jooq:jooq:3.15.7'
+  implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
+  implementation 'org.owasp.encoder:encoder:1.2.3'
+  implementation 'org.bitlet:weupnp:0.1.4'
 
-    compile 'org.slf4j:slf4j-api:1.7.35'
-    compile 'org.slf4j:slf4j-jdk14:1.7.35'
+  implementation 'com.google.zxing:core:3.4.1'
+  implementation 'com.google.zxing:javase:3.4.1'
 
-    compile 'org.eclipse.jetty:jetty-server:10.0.7'
-    compile 'org.eclipse.jetty:jetty-servlet:10.0.7'
-    compile 'org.eclipse.jetty:jetty-servlets:10.0.7'
-    compile 'org.eclipse.jetty:jetty-rewrite:10.0.7'
+  implementation 'org.slf4j:slf4j-api:1.7.35'
+  implementation 'org.slf4j:slf4j-jdk14:1.7.35'
 
-    compile 'javax.annotation:javax.annotation-api:1.3.2'
+  implementation 'org.eclipse.jetty:jetty-server:10.0.7'
+  implementation 'org.eclipse.jetty:jetty-servlet:10.0.7'
+  implementation 'org.eclipse.jetty:jetty-servlets:10.0.7'
+  implementation 'org.eclipse.jetty:jetty-rewrite:10.0.7'
 
-    compile 'com.github.jiconfont:jiconfont:1.0.0'
-    compile 'com.github.jiconfont:jiconfont-swing:1.0.1'
-    compile 'com.github.jiconfont:jiconfont-font_awesome:4.7.0.1'
+  implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+  implementation 'com.github.jiconfont:jiconfont:1.0.0'
+  implementation 'com.github.jiconfont:jiconfont-swing:1.0.1'
+  implementation 'com.github.jiconfont:jiconfont-font_awesome:4.7.0.1'
 
     //logging
-    compile 'org.apache.logging.log4j:log4j-api:2.17.1'
-    compile 'org.apache.logging.log4j:log4j-core:2.17.1'
+  implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+  implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
 
     // Use JUnit test framework
     testImplementation("org.junit.platform:junit-platform-engine:1.5.1")
@@ -82,7 +82,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
 
     // Needed for build script so "compile" needed
-    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
+  implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 
     jooqRuntime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 }
@@ -178,7 +178,6 @@ jar {
 }
 
 shadowJar{
-    archiveName = "${baseName}-${classifier}.${extension}"
 }
 
 
@@ -198,65 +197,71 @@ createExe {
     jar = "signum-node.jar"
 }
 
-task dist(type: Zip) {
-   from (project.tasks.shadowJar.outputs.files){
+tasks.register('dist', Zip) {
+  from(project.tasks.shadowJar.outputs.files) {
     include 'signum-node-all.jar'
-    rename {'signum-node.jar'}
-   }
-   into('conf') {from "conf/node-default.properties"}
-   into('conf') {from "conf/logging-default.properties"}
-   into('html') {from "html"}
-   from "LICENSE.txt"
-   from "README.md"
-   archiveName "${baseName}.zip"
+    rename { 'signum-node.jar' }
+  }
+  into('conf') { from "conf/node-default.properties" }
+  into('conf') { from "conf/logging-default.properties" }
+  into('html') { from "html" }
+  from "LICENSE.txt"
+  from "README.md"
+  archiveName "${archiveBaseName}.zip"
 }
 
 def jdkVersion = 'zulu11.56.19-ca-jre11.0.15'
 import de.undercouch.gradle.tasks.download.Download
 
-task downloadWindowsJDK(type: Download) {
-    src "https://cdn.azul.com/zulu/bin/${jdkVersion}-win_x64.zip"
-    dest "build/distributions/${jdkVersion}-win_x64.zip"
+tasks.register('downloadWindowsJDK', Download) {
+  src "https://cdn.azul.com/zulu/bin/${jdkVersion}-win_x64.zip"
+  dest "build/distributions/${jdkVersion}-win_x64.zip"
 }
-task unzipWindowsJDK(type: Copy, dependsOn: downloadWindowsJDK) {
-    from(zipTree("build/distributions/${jdkVersion}-win_x64.zip"))
-    into "build/distributions/"
+tasks.register('unzipWindowsJDK', Copy) {
+  dependsOn downloadWindowsJDK
+  from(zipTree("build/distributions/${jdkVersion}-win_x64.zip"))
+  into "build/distributions/"
 }
 
-task windowsZip(type: Zip) {
-   dependsOn createExe
-   dependsOn unzipWindowsJDK
-   from (project.tasks.shadowJar.outputs.files){
+tasks.register('windowsZip', Zip) {
+  dependsOn createExe
+  dependsOn unzipWindowsJDK
+  from(project.tasks.shadowJar.outputs.files) {
     include 'signum-node-all.jar'
-    rename {'signum-node.jar'}
-   }
-   from "${project.buildDir}/launch4j/${baseName}.exe"
-   into('conf') {from "conf/node-default.properties"}
-   into('conf') {from "conf/logging-default.properties"}
-   into('html') {from "html"}
-   from "LICENSE.txt"
-   from "README.md"
+    rename { 'signum-node.jar' }
+  }
+  from "${project.buildDir}/launch4j/${archiveBaseName}.exe"
+  into('conf') { from "conf/node-default.properties" }
+  into('conf') { from "conf/logging-default.properties" }
+  into('html') { from "html" }
+  from "LICENSE.txt"
+  from "README.md"
 
-   into('jre'){
-   	from "build/distributions/${jdkVersion}-win_x64/"
-   }
-   archiveName "${baseName}-win_x64.zip"
+  into('jre') {
+    from "build/distributions/${jdkVersion}-win_x64/"
+  }
+  archiveName "${archiveBaseName}-win_x64.zip"
 }
 
 import org.gradle.crypto.checksum.Checksum
 
-task release(type: Checksum, dependsOn: [test, dist, windowsZip]) {
-    files = files(['build/distributions/signum-node.zip', 'build/distributions/signum-node-win_x64.zip' ])
+//task release(type: Checksum, dependsOn: [test, dist, windowsZip]) {
+tasks.register('release', Checksum) {
+  dependsOn test, dist, windowsZip
+  files = files(['build/distributions/signum-node.zip', 'build/distributions/signum-node-win_x64.zip'])
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+tasks.register('sourcesJar', Jar) {
+  dependsOn classes
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  archiveClassifier = 'sources'
+  from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+tasks.register('javadocJar', Jar) {
+  dependsOn javadoc
+  archiveClassifier = 'javadoc'
+  from javadoc.destinationDir
 }
 
 artifacts {
