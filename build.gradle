@@ -207,7 +207,7 @@ tasks.register('dist', Zip) {
   into('html') { from "html" }
   from "LICENSE.txt"
   from "README.md"
-  archiveName "${archiveBaseName}.zip"
+  archiveName "${baseName}.zip"
 }
 
 def jdkVersion = 'zulu11.56.19-ca-jre11.0.15'
