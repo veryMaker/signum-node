@@ -1,36 +1,31 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'java'
-    id 'maven-publish'
-    id 'application'
-    id 'edu.sc.seis.launch4j' version '2.5.1'
-    id 'org.gradle.crypto.checksum' version '1.2.0'
-    id 'com.palantir.git-version' version '0.12.2'
-    id 'io.spring.dependency-management' version '1.0.1.RELEASE' //for logging - log4j
-
-	  id 'nu.studer.jooq' version '3.0.3'
-
-	  id "org.flywaydb.flyway" version "8.2.0"
-
-    id "de.undercouch.download" version "1.2"
-
-    id 'jacoco'
+  id 'com.github.johnrengelman.shadow' version '7.1.2'
+  id 'java'
+  id 'maven-publish'
+  id 'application'
+  id 'edu.sc.seis.launch4j' version '2.5.1'
+  id 'org.gradle.crypto.checksum' version '1.4.0'
+  id 'com.palantir.git-version' version '0.12.2'
+  id 'io.spring.dependency-management' version '1.0.1.RELEASE' //for logging - log4j
+  id 'nu.studer.jooq' version '3.0.3'
+  id "org.flywaydb.flyway" version "8.2.0"
+  id "de.undercouch.download" version "5.5.0"
+  id 'jacoco'
 }
 
-
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
 }
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
+  mavenCentral()
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation 'com.github.signum-network:signumj:v1.3.1'
+  implementation 'com.github.signum-network:signumj:v1.3.1'
 
   implementation 'io.reactivex.rxjava2:rxjava:2.2.15'
   implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
@@ -63,151 +58,150 @@ dependencies {
   implementation 'com.github.jiconfont:jiconfont-swing:1.0.1'
   implementation 'com.github.jiconfont:jiconfont-font_awesome:4.7.0.1'
 
-    //logging
+  //logging
   implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
   implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
 
-    // Use JUnit test framework
-    testImplementation("org.junit.platform:junit-platform-engine:1.5.1")
-    testImplementation("org.junit.platform:junit-platform-launcher:1.5.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.5.1")
+  // Use JUnit test framework
+  testImplementation("org.junit.platform:junit-platform-engine:1.5.1")
+  testImplementation("org.junit.platform:junit-platform-launcher:1.5.1")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.1")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.5.1")
 
-    testImplementation 'org.apache.httpcomponents:httpclient:4.5.13'
+  testImplementation 'org.apache.httpcomponents:httpclient:4.5.13'
 
-    testImplementation 'org.mockito:mockito-core:3.0.0'
+  testImplementation 'org.mockito:mockito-core:3.0.0'
 
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
-    testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
+  testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
+  testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
 
-    // Needed for build script so "compile" needed
+  // Needed for build script so "compile" needed
   implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 
-    jooqRuntime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
+  jooqRuntime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 }
 test {
-    useJUnitPlatform()
-    testLogging {
-      exceptionFormat "full"
-    }
+  useJUnitPlatform()
+  testLogging {
+    exceptionFormat "full"
+  }
 }
 
 sourceSets {
   main {
-        java {
-            srcDir "src"
-        }
-        resources {
-            srcDir "resources"
-        }
+    java {
+      srcDir "src"
+    }
+    resources {
+      srcDir "resources"
+    }
   }
   test {
-      java {
-        srcDirs = ["test/java"]
-      }
+    java {
+      srcDirs = ["test/java"]
+    }
   }
 }
 
 // Define the main class for the application
 mainClassName = 'signum.Launcher'
-
 description = 'Signum Node.'
 
-def schema_dburl =  "jdbc:mariadb://localhost:3306/signum_jooq"
+def schema_dburl = "jdbc:mariadb://localhost:3306/signum_jooq"
 def schema_dbusername = "root"
 def schema_dbpassword = "pass"
 flyway {
-    url = "${schema_dburl}"
-    user = "${schema_dbusername}"
-    password = "${schema_dbpassword}"
-    locations = ["filesystem:"+project.projectDir.toString()+"/resources/db/migration_mariadb"]
+  url = "${schema_dburl}"
+  user = "${schema_dbusername}"
+  password = "${schema_dbpassword}"
+  locations = ["filesystem:" + project.projectDir.toString() + "/resources/db/migration_mariadb"]
 }
 
 jooq {
-    version = "3.15.7"
-    edition = "OSS"
-    signum(sourceSets.main) {
-        jdbc {
-            url = "${schema_dburl}"
-            user = "${schema_dbusername}"
-            password = "${schema_dbpassword}"
-        }
-        generator {
-            name = 'org.jooq.codegen.JavaGenerator'
-            database {
-                includes = ".*"
-
-                name = "org.jooq.meta.mariadb.MariaDBDatabase"
-                inputSchema = "signum_jooq"
-                outputSchema = "DB"
-
-                excludes = ''
-                // outputSchemaToDefault = true
-
-                forcedTypes {
-                    forcedType {
-                        name = 'BOOLEAN'
-                        expression = '.*\\.(.*\\.LATEST|MINTABLE|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))'
-                        types = '.*'
-                    }
-                }
-            }
-            target {
-                packageName = "brs.schema"
-                directory = "src"
-            }
-        }
+  version = "3.15.7"
+  edition = "OSS"
+  signum(sourceSets.main) {
+    jdbc {
+      url = "${schema_dburl}"
+      user = "${schema_dbusername}"
+      password = "${schema_dbpassword}"
     }
+    generator {
+      name = 'org.jooq.codegen.JavaGenerator'
+      database {
+        includes = ".*"
+
+        name = "org.jooq.meta.mariadb.MariaDBDatabase"
+        inputSchema = "signum_jooq"
+        outputSchema = "DB"
+
+        excludes = ''
+        // outputSchemaToDefault = true
+
+        forcedTypes {
+          forcedType {
+            name = 'BOOLEAN'
+            expression = '.*\\.(.*\\.LATEST|MINTABLE|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))'
+            types = '.*'
+          }
+        }
+      }
+      target {
+        packageName = "brs.schema"
+        directory = "src"
+      }
+    }
+  }
 }
 
 // use the following to generate the schema tables:
 // ./gradlew build -DgenerateSchema=true --rerun-tasks
 generateSignumJooqSchemaSource.dependsOn flywayMigrate
-generateSignumJooqSchemaSource.onlyIf {System.getProperty("generateSchema") == "true"}
-flywayMigrate.onlyIf {System.getProperty("generateSchema") == "true"}
+generateSignumJooqSchemaSource.onlyIf { System.getProperty("generateSchema") == "true" }
+flywayMigrate.onlyIf { System.getProperty("generateSchema") == "true" }
 
 
 def details = versionDetails()
 
 jar {
-    // Needed by the logging library
-    manifest {
-        attributes 'Multi-Release': 'true'
-    }
+  // Needed by the logging library
+  manifest {
+    attributes 'Multi-Release': 'true'
+  }
 }
 
-shadowJar{
+shadowJar {
 }
 
-
+def baseNodeFileName = "signum-node"
 createExe {
-    outfile = 'signum-node.exe'
-    icon = "${projectDir}/resources/images/signum_overlay_logo.ico"
-    copyright = 'signum.network'
-    companyName = 'https://signum.network'
-    textVersion = details.lastTag
-    maxHeapSize = 2048
+  outfile = "${baseNodeFileName}.exe"
+  icon = "${projectDir}/resources/images/signum_overlay_logo.ico"
+  copyright = 'signum.network'
+  companyName = 'https://signum.network'
+  textVersion = details.lastTag
+  maxHeapSize = 2048
 
-    bundledJrePath = 'jre/'
+  bundledJrePath = 'jre/'
 
-    dontWrapJar = true
-    mainClassName = project.mainClassName
-    copyConfigurable = project.tasks.shadowJar.outputs.files
-    jar = "signum-node.jar"
+  dontWrapJar = true
+  mainClassName = project.mainClassName
+  copyConfigurable = project.tasks.shadowJar.outputs.files
+  jar = "${baseNodeFileName}.jar"
 }
 
 tasks.register('dist', Zip) {
   from(project.tasks.shadowJar.outputs.files) {
-    include 'signum-node-all.jar'
-    rename { 'signum-node.jar' }
+    include "${baseNodeFileName}-all.jar"
+    rename { "${baseNodeFileName}.jar" }
   }
   into('conf') { from "conf/node-default.properties" }
   into('conf') { from "conf/logging-default.properties" }
   into('html') { from "html" }
   from "LICENSE.txt"
   from "README.md"
-  archiveName "${baseName}.zip"
+  archiveName "${baseNodeFileName}.zip"
 }
 
 def jdkVersion = 'zulu11.56.19-ca-jre11.0.15'
@@ -216,6 +210,7 @@ import de.undercouch.gradle.tasks.download.Download
 tasks.register('downloadWindowsJDK', Download) {
   src "https://cdn.azul.com/zulu/bin/${jdkVersion}-win_x64.zip"
   dest "build/distributions/${jdkVersion}-win_x64.zip"
+  compress true
 }
 tasks.register('unzipWindowsJDK', Copy) {
   dependsOn downloadWindowsJDK
@@ -227,10 +222,10 @@ tasks.register('windowsZip', Zip) {
   dependsOn createExe
   dependsOn unzipWindowsJDK
   from(project.tasks.shadowJar.outputs.files) {
-    include 'signum-node-all.jar'
-    rename { 'signum-node.jar' }
+    include "${baseNodeFileName}-all.jar"
+    rename { "${baseNodeFileName}.jar" }
   }
-  from "${project.buildDir}/launch4j/${archiveBaseName}.exe"
+  from "${project.buildDir}/launch4j/${baseNodeFileName}.exe"
   into('conf') { from "conf/node-default.properties" }
   into('conf') { from "conf/logging-default.properties" }
   into('html') { from "html" }
@@ -240,15 +235,14 @@ tasks.register('windowsZip', Zip) {
   into('jre') {
     from "build/distributions/${jdkVersion}-win_x64/"
   }
-  archiveName "${archiveBaseName}-win_x64.zip"
+  archiveName "${baseNodeFileName}-win_x64.zip"
 }
 
 import org.gradle.crypto.checksum.Checksum
 
-//task release(type: Checksum, dependsOn: [test, dist, windowsZip]) {
 tasks.register('release', Checksum) {
   dependsOn test, dist, windowsZip
-  files = files(['build/distributions/signum-node.zip', 'build/distributions/signum-node-win_x64.zip'])
+  files = files(["build/distributions/${baseNodeFileName}.zip", "build/distributions/${baseNodeFileName}-win_x64.zip"])
 }
 
 tasks.register('sourcesJar', Jar) {
@@ -265,6 +259,6 @@ tasks.register('javadocJar', Jar) {
 }
 
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+  archives sourcesJar
+  archives javadocJar
 }
