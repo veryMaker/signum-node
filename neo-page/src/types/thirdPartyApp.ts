@@ -4,3 +4,8 @@ export type ThirdPartyApp = {
   img: string;
   url: string;
 };
+
+export type ThirdPartyAppStorage = {
+  mainnet: ThirdPartyApp[];
+  testnet: ThirdPartyApp[];
+};

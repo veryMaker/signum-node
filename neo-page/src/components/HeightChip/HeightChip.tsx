@@ -1,11 +1,17 @@
 import { FrameSVGOctagon } from "@arwes/react-frames";
-import { frame, heightChip } from "./HeightChip.css";
+import { useBlockchainStatus } from "@/hooks/useBlockchainStatus";
+import { formatNumber } from "@/utils/formatNumber";
+import { frame, chip } from "./HeightChip.css";
 
 export const HeightChip = () => {
+  const { numberOfBlocks, isLoading } = useBlockchainStatus();
+  const formattedValue = formatNumber(numberOfBlocks);
+
   return (
-    <div className={heightChip}>
+    <div className={chip}>
       <span>
-        <b>Height: 000,000,000</b>
+        {isLoading && <b>Loading...</b>}
+        {!isLoading && <b>Height: {formattedValue}</b>}
       </span>
       <FrameSVGOctagon className={frame} />
     </div>

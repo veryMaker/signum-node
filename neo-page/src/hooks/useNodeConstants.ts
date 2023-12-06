@@ -1,4 +1,40 @@
-// TODO: Fetch and persist data from getConstants request
+import { useStore } from "@/states";
+import { useFetchingInterval } from "@/hooks/useFetchingInterval";
+import useSWR from "swr";
+
 export const useNodeConstants = () => {
-  return { version: "v0.0.0", syncedPercentage: 25, network: "Signum" };
+  const interval = useFetchingInterval();
+
+  const network = useStore((state) => state.network);
+  const cashBackId = useStore((state) => state.cashBackId);
+  const setNetwork = useStore((state) => state.setNetwork);
+  const setCashbackId = useStore((state) => state.setCashbackId);
+
+  useSWR(
+    interval ? `getConstants` : null,
+    async () => {
+      try {
+        const response = await fetch(
+          "https://latam.signum.network/api?requestType=getConstants"
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          setNetwork(result.networkName);
+          setCashbackId(result.cashBackId);
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (e: any) {
+        console.error(e, "Error Fetching");
+        return null;
+      }
+    },
+    { dedupingInterval: interval, refreshInterval: interval }
+  );
+
+  const isTestnet = network === "Signum-TESTNET";
+  const isLoading = !network;
+
+  return { network, isTestnet, cashBackId, isLoading };
 };

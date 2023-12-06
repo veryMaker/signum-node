@@ -22,8 +22,7 @@ export const picture = style({
   height: 75,
   maxWidth: 75,
   maxHeight: 75,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
+  objectFit: "cover",
   borderRadius: 6,
   flex: 1,
 });

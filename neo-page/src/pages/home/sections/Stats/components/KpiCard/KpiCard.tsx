@@ -1,38 +1,31 @@
-import { Animator } from "@arwes/react-animator";
-import { Puffs } from "@arwes/react-bgs";
+import { formatNumber } from "@/utils/formatNumber";
+import { BurnIndicator } from "./components/BurnIndicator";
+import { LoadingIndicator } from "./components/LoadingIndicator";
 import * as classes from "./KpiCard.css";
 
 interface Props {
   title: string;
   value: number;
   isBurning?: boolean;
+  isLoading: boolean;
 }
 
-export const KpiCard = ({ title, value, isBurning }: Props) => {
-  const formattedValue = new Intl.NumberFormat("en-US").format(value);
+export const KpiCard = ({ title, value, isBurning, isLoading }: Props) => {
+  const formattedValue = formatNumber(value);
 
   return (
     <div className={classes.card}>
       <span
         className={classes.value({ variant: isBurning ? "error" : "success" })}
       >
-        {formattedValue}
+        {isLoading ? "Loading..." : formattedValue}
       </span>
 
       <p className={classes.title}>{title}</p>
 
-      {isBurning && (
-        <Animator
-          active
-          duration={{
-            interval: 1,
-          }}
-        >
-          <div className={classes.puff}>
-            <Puffs color="hsla(40, 81%, 50%, 0.5)" quantity={10} />
-          </div>
-        </Animator>
-      )}
+      {isLoading && <LoadingIndicator />}
+
+      {!!(isBurning && !isLoading) && <BurnIndicator />}
     </div>
   );
 };

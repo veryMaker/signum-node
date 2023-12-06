@@ -7,15 +7,44 @@ export const useStore = create<State & Action>()(
   devtools(
     persist(
       (set) => ({
-        firstName: "",
-        lastName: "",
-        count: 0,
-        setFirstName: (value) => set(() => ({ firstName: value })),
-        setLastName: (value) => set(() => ({ lastName: value })),
-        increment: (qty) => set((state) => ({ count: state.count + qty })),
-        decrement: (qty) => set((state) => ({ count: state.count - qty })),
+        network: "Signum",
+        version: "",
+        cashBackId: "",
+        numberOfBlocks: 0,
+        lastBlockchainFeederHeight: 0,
+        numberOfTransactions: 0,
+        numberOfATs: 0,
+        numberOfAssets: 0,
+        numberOfAliases: 0,
+        numberOfSubscriptions: 0,
+        numberOfSubscriptionPayments: 0,
+        burnedFunds: 0,
+        circulatingFunds: 0,
+        thirdPartyApps: { mainnet: [], testnet: [] },
+        setNetwork: (value) => set(() => ({ network: value })),
+        setVersion: (value) => set(() => ({ version: value })),
+        setCashbackId: (value) => set(() => ({ cashBackId: value })),
+        setNumberOfBlocks: (value) => set(() => ({ numberOfBlocks: value })),
+        setLastBlockchainFeederHeight: (value) =>
+          set(() => ({ lastBlockchainFeederHeight: value })),
+        setNumberOfTransactions: (value) =>
+          set(() => ({ numberOfTransactions: value })),
+        setNumberOfATs: (value) => set(() => ({ numberOfATs: value })),
+        setNumberOfAssets: (value) => set(() => ({ numberOfAssets: value })),
+        setNumberOfAliases: (value) => set(() => ({ numberOfAliases: value })),
+        setNumberOfSubscriptions: (value) =>
+          set(() => ({ numberOfSubscriptions: value })),
+        setNumberOfSubscriptionPayments: (value) =>
+          set(() => ({ numberOfSubscriptionPayments: value })),
+        setBurnedFunds: (value) => set(() => ({ burnedFunds: value })),
+        setCirculatingFunds: (value) =>
+          set(() => ({ circulatingFunds: value })),
+        setThirdPartyApps: (value) => set(() => ({ thirdPartyApps: value })),
       }),
-      { name: "app-storage", version: 1 }
+      {
+        name: "app-storage",
+        version: 1,
+      }
     )
   )
 );

@@ -2,11 +2,14 @@ import { useMemo } from "react";
 import { Animator } from "@arwes/react";
 import { FaCircleInfo } from "react-icons/fa6";
 import { Puffs } from "@arwes/react-bgs";
+import { useNodeConstants } from "@/hooks/useNodeConstants";
 import * as classes from "./Alerts.css";
 
 type variants = "warning" | "error" | "primary";
 
 export const Alerts = () => {
+  const { isTestnet } = useNodeConstants();
+
   const isUnsafeWebsite = useMemo(() => {
     const webUrl = new URL(window.location.href);
     return !!(
@@ -15,8 +18,6 @@ export const Alerts = () => {
       webUrl.hostname !== "127.0.0.1"
     );
   }, []);
-
-  const isTestnet = true;
 
   let title = "";
   let variant: variants = "primary";

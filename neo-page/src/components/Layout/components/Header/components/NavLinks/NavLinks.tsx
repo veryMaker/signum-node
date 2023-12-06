@@ -33,7 +33,7 @@ export const NavLinks = () => {
           variant: isUserOnThirdPartyAppsPage ? "active" : "inactive",
         })}
       >
-        <FaList /> Third Party Apps
+        <FaList /> Explore Apps
         {isUserOnThirdPartyAppsPage && (
           <FrameSVGCorners className={classes.frame} />
         )}

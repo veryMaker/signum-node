@@ -1,11 +1,13 @@
 import { FaGithub, FaYoutube } from "react-icons/fa";
 import { FaXTwitter, FaDiscord } from "react-icons/fa6";
+import { useBlockchainStatus } from "@/hooks/useBlockchainStatus";
 import { useSound } from "@/hooks/useSound";
 
 import * as classes from "./SocialLinks.css";
 
 export const SocialLinks = () => {
   const { playClickSound } = useSound();
+  const { version, isLoading } = useBlockchainStatus();
 
   const githubLink = "https://github.com/signum-network/signum-node";
   const twitterLink = "https://twitter.com/signum_official";
@@ -14,7 +16,7 @@ export const SocialLinks = () => {
 
   return (
     <div className={classes.contentContainer}>
-      <span className={classes.versionTag}>v0.0.0</span>
+      {!isLoading && <span className={classes.versionTag}>{version}</span>}
 
       <a
         href={githubLink}

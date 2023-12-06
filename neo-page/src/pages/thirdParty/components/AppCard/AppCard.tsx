@@ -1,5 +1,5 @@
 import { useSound } from "@/hooks/useSound";
-import type { ThirdPartyApp } from "../../types";
+import type { ThirdPartyApp } from "@/types/thirdPartyApp";
 import * as classes from "./AppCard.css";
 
 export const AppCard = ({ title, description, img, url }: ThirdPartyApp) => {
@@ -12,10 +12,7 @@ export const AppCard = ({ title, description, img, url }: ThirdPartyApp) => {
       target="_blank"
       className={classes.card}
     >
-      <picture
-        className={classes.picture}
-        style={{ backgroundImage: `url(${img})` }}
-      />
+      <img src={img} className={classes.picture} alt={title} />
 
       <div className={classes.content}>
         <h6 className={classes.title}>{title}</h6>
