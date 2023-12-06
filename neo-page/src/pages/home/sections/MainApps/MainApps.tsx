@@ -1,3 +1,4 @@
+import { useNodeConstants } from "@/hooks/useNodeConstants";
 import { NeoChip } from "@/components/NeoChip";
 import { HeightChip } from "@/components/HeightChip";
 import { SyncChip } from "@/components/SyncChip";
@@ -6,6 +7,8 @@ import { defaultContainer } from "@/styles/containers.css";
 import * as classes from "./MainApps.css";
 
 export const MainApps = () => {
+  const { cashBackRS, isDefaultCashbackIdSet } = useNodeConstants();
+
   return (
     <section className={defaultContainer}>
       <div className={classes.titleContainer}>
@@ -60,6 +63,17 @@ export const MainApps = () => {
           img="/images/api-icon.webp"
           url="./api-doc/index.html"
         />
+
+        {!isDefaultCashbackIdSet && (
+          <AppCard
+            title="Cashback"
+            secondTitle="✅ Succesfully set"
+            description={`Account: ${cashBackRS}`}
+            background="linear-gradient(180deg, #35D586 0%, #1E8C5E 100%)"
+            img="/images/cashback.webp"
+            url="https://docs.signum.network/signum/activate-cashback"
+          />
+        )}
       </div>
     </section>
   );

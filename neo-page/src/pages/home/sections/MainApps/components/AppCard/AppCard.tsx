@@ -25,7 +25,7 @@ export const AppCard = ({
   return (
     <a
       onClick={playClickSound}
-      href={`/${url}`}
+      href={url}
       target="_blank"
       className={classes.card}
     >

@@ -20,9 +20,7 @@ export const useBlockchainStatus = () => {
     interval ? `getBlockchainStatus` : null,
     async () => {
       try {
-        const response = await fetch(
-          "https://latam.signum.network/api?requestType=getBlockchainStatus"
-        );
+        const response = await fetch("/api?requestType=getBlockchainStatus");
 
         if (response.ok) {
           const result = await response.json();

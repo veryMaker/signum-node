@@ -37,9 +37,7 @@ export const useNodeState = () => {
     interval ? `getState` : null,
     async () => {
       try {
-        const response = await fetch(
-          "https://latam.signum.network/api?requestType=getState"
-        );
+        const response = await fetch("/api?requestType=getState");
 
         if (response.ok) {
           const result = await response.json();

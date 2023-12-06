@@ -8,7 +8,7 @@ export const defaultContainer = style({
   display: "flex",
   flexDirection: "column",
   padding: "1rem",
-  marginBottom: "2rem",
+  marginBottom: "1rem",
 });
 
 export const defaultCardContainer = style({

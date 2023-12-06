@@ -1,5 +1,7 @@
+import { Address } from "@signumjs/core";
 import { useStore } from "@/states";
 import { useFetchingInterval } from "@/hooks/useFetchingInterval";
+import { defaultCashBackId } from "@/types";
 import useSWR from "swr";
 
 export const useNodeConstants = () => {
@@ -14,9 +16,7 @@ export const useNodeConstants = () => {
     interval ? `getConstants` : null,
     async () => {
       try {
-        const response = await fetch(
-          "https://latam.signum.network/api?requestType=getConstants"
-        );
+        const response = await fetch("/api?requestType=getConstants");
 
         if (response.ok) {
           const result = await response.json();
@@ -33,8 +33,19 @@ export const useNodeConstants = () => {
     { dedupingInterval: interval, refreshInterval: interval }
   );
 
+  const cashBackRS = cashBackId
+    ? Address.fromNumericId(cashBackId).getReedSolomonAddress()
+    : "";
+  const isDefaultCashbackIdSet = cashBackId === defaultCashBackId;
   const isTestnet = network === "Signum-TESTNET";
   const isLoading = !network;
 
-  return { network, isTestnet, cashBackId, isLoading };
+  return {
+    network,
+    isTestnet,
+    cashBackId,
+    cashBackRS,
+    isDefaultCashbackIdSet,
+    isLoading,
+  };
 };

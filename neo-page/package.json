@@ -16,6 +16,7 @@
     "@arwes/react": "^1.0.0-alpha.23",
     "@emotion/react": "^11.11.1",
     "@fontsource/titillium-web": "^5.0.17",
+    "@signumjs/core": "^1.0.0-rc.75",
     "@signumjs/util": "^1.0.0-rc.75",
     "@vanilla-extract/recipes": "^0.5.1",
     "react": "^18.2.0",

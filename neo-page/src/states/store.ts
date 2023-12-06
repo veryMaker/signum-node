@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import type { State, Action } from "./types";
+import { defaultCashBackId } from "@/types";
 
 // Zustand docs recommends to colocate actions and states within the store
 export const useStore = create<State & Action>()(
@@ -9,7 +10,7 @@ export const useStore = create<State & Action>()(
       (set) => ({
         network: "Signum",
         version: "",
-        cashBackId: "",
+        cashBackId: defaultCashBackId,
         numberOfBlocks: 0,
         lastBlockchainFeederHeight: 0,
         numberOfTransactions: 0,
