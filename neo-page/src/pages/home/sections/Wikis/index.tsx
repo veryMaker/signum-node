@@ -9,7 +9,7 @@ export const Wikis = () => {
   return (
     <section className={defaultContainer}>
       <div style={{ display: "flex" }}>
-        <NeoChip label="Wikis" />
+        <NeoChip label="Knowledge Base" />
       </div>
 
       <div className={defaultCardContainer}>

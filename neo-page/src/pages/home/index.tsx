@@ -7,8 +7,8 @@ import { Wikis } from "./sections/Wikis";
 export function HomePage() {
   return (
     <Fragment>
-      <MainApps />
       <Cashback />
+      <MainApps />
       <Stats />
       <Wikis />
     </Fragment>

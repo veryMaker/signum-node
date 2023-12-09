@@ -21,7 +21,7 @@ export const NavLinks = () => {
           variant: isUserOnHomePage ? "active" : "inactive",
         })}
       >
-        <FaHouse /> Discover
+        <FaHouse /> Home
         {isUserOnHomePage && <FrameSVGCorners className={classes.frame} />}
       </Link>
 
