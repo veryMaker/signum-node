@@ -6,12 +6,12 @@ import {
   defaultCardContainer,
 } from "@/styles/containers.css";
 import { NeoChip } from "@/components/NeoChip";
-import { AppCard } from "./components/AppCard";
+import { ThirdPartyAppCard } from "./components/ThirdPartyAppCard";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { ViewSourceButton } from "./components/ViewSourceButton";
-import * as classes from "./thirdParty.css";
+import * as classes from "./ThirpartyApps.css";
 
-export const ThirdPartyAppsPage = () => {
+export const ThirdPartyApps = () => {
   const { isTestnet, isLoading: isLoadingNodeConstants } = useNodeConstants();
   const { thirdPartyApps, isLoading: isLoadingThirdPartyApps } =
     useThirdPartyApps();
@@ -44,7 +44,7 @@ export const ThirdPartyAppsPage = () => {
           style={{ justifyContent: "flex-start" }}
         >
           {apps.map((app) => (
-            <AppCard key={app.title} {...app} />
+            <ThirdPartyAppCard key={app.title} {...app} />
           ))}
         </div>
       )}

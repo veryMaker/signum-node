@@ -2,7 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { NoMatchPage } from "./pages/noMatch";
 import { HomePage } from "./pages/home";
-import { ThirdPartyAppsPage } from "./pages/thirdParty";
+import { AppsPage } from "./pages/apps";
+import { DocsPage } from "./pages/docs";
 
 import "@fontsource/titillium-web/400.css";
 import "@fontsource/titillium-web/600.css";
@@ -14,7 +15,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="third-party" element={<ThirdPartyAppsPage />} />
+        <Route path="apps" element={<AppsPage />} />
+        <Route path="docs" element={<DocsPage />} />
         <Route path="*" element={<NoMatchPage />} />
       </Route>
     </Routes>

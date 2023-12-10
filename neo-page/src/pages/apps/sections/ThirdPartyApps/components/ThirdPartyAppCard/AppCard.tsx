@@ -2,7 +2,12 @@ import { useSound } from "@/hooks/useSound";
 import type { ThirdPartyApp } from "@/types/thirdPartyApp";
 import * as classes from "./AppCard.css";
 
-export const AppCard = ({ title, description, img, url }: ThirdPartyApp) => {
+export const ThirdPartyAppCard = ({
+  title,
+  description,
+  img,
+  url,
+}: ThirdPartyApp) => {
   const { playClickSound } = useSound();
 
   return (

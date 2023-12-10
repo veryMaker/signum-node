@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { theme } from "@/styles/theme";
 import { defaultMaxWidth } from "@/types";
 
 export const headerContainer = style({
@@ -19,6 +20,20 @@ export const headerContainer = style({
       gap: "1rem",
     },
   },
+});
+
+export const nodeVersionContainer = style({
+  display: "flex",
+  alignItems: "center",
+});
+
+export const versionTag = style({
+  color: theme.colors.primary.deco(100),
+  background: theme.colors.primary.deco(5),
+  fontWeight: "bold",
+  padding: "0.5rem",
+  borderRadius: 4,
+  fontSize: 14,
 });
 
 export const navLinksContainer = style({
