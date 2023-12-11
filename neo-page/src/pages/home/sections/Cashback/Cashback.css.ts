@@ -39,7 +39,7 @@ export const frame = style({
     color: "hsla(180, 75%, 10%, 80%)",
   },
   "[data-name=line]": { color: "hsl(180, 75%, 75%)" },
-  background: "url(/images/galaxy.webp)",
+  background: "url(/images/cashback-cta.webp)",
   backgroundSize: "cover",
   backgroundPosition: "center",
   overflow: "hidden",

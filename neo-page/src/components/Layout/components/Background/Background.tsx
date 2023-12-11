@@ -1,11 +1,5 @@
 import { Fragment } from "react";
-import {
-  type AppTheme,
-  GridLines,
-  Dots,
-  MovingLines,
-  Animator,
-} from "@arwes/react";
+import { type AppTheme, Dots, MovingLines, Animator } from "@arwes/react";
 import { Illuminator } from "@arwes/react-frames";
 import * as classes from "./Background.css";
 
@@ -14,16 +8,13 @@ interface Props {
 }
 
 export const Background = ({ theme }: Props) => {
-  const color = theme.colors.primary.deco(1);
-
   return (
     <Fragment>
       <Animator duration={{ interval: 10 }}>
         <div className={classes.defaultBG}>
-          <GridLines lineColor={color} distance={50} />
-          <Dots color={color} distance={50} />
+          <Dots color={theme.colors.primary.deco(1)} distance={50} />
           <MovingLines
-            lineColor={theme.colors.primary.deco(2)}
+            lineColor={theme.colors.primary.deco(3)}
             distance={50}
             sets={20}
           />

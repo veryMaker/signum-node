@@ -6,7 +6,7 @@ export const defaultBG = style({
   right: 0,
   top: 0,
   bottom: 0,
-  background: `linear-gradient(rgba(0%,0%,0%,80%), rgba(0%,0%,0%,80%) ), url("/images/galaxy.webp")`,
+  background: `linear-gradient(rgba(0%,0%,0%,80%), rgba(0%,0%,0%,80%) ), url("/images/bg.webp")`,
   backgroundSize: "cover",
   backgroundPosition: "center",
   // "",

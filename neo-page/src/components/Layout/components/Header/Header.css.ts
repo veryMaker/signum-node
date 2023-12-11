@@ -18,6 +18,7 @@ export const headerContainer = style({
     "(max-width: 600px)": {
       justifyContent: "center",
       gap: "1rem",
+      marginBottom: 0,
     },
   },
 });
