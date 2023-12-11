@@ -42,7 +42,6 @@ export const pictureContainer = style({
     "(max-width: 600px)": {
       width: "100%",
       marginBottom: "1rem",
-      maxHeight: 200,
       overflow: "hidden",
     },
   },
@@ -51,6 +50,11 @@ export const pictureContainer = style({
 export const img = style({
   width: "100%",
   objectFit: "contain",
+  "@media": {
+    "(max-width: 600px)": {
+      maxHeight: 200,
+    },
+  },
 });
 
 export const contentContainer = style({

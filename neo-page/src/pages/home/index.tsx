@@ -3,6 +3,7 @@ import { Cashback } from "./sections/Cashback";
 import { Welcome } from "./sections/Welcome";
 import { Stats } from "./sections/Stats";
 import { Shortcuts } from "./sections/Shortcuts";
+import { PathCta } from "./sections/PathCta";
 
 export function HomePage() {
   return (
@@ -11,6 +12,7 @@ export function HomePage() {
       <Cashback />
       <Shortcuts />
       <Stats />
+      <PathCta />
     </Fragment>
   );
 }

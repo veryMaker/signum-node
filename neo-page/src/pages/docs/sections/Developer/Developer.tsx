@@ -1,30 +1,30 @@
 import { defaultContainer } from "@/styles/containers.css";
+import { NeoChip } from "@/components/NeoChip";
 import { ShortcutCard } from "@/components/ShortcutCard";
-import * as classes from "./Shortcuts.css";
 
-export const Shortcuts = () => {
-  const tradeLinks = [
+export const Developer = () => {
+  const developerLinks = [
     {
-      title: "Cashback",
+      title: "Smart Contracts",
       description:
         "Get 25% cashback On every transaction fee Created on your node",
       href: "https://docs.signum.network/signum/activate-cashback",
       cta: "Learn More",
     },
     {
-      title: "Spot",
+      title: "API Docs",
       description: "Trade Smart Tokens instantly on Signum Blockchain.",
       href: "https://docs.signum.network/signum/activate-cashback",
       cta: "Learn More",
     },
     {
-      title: "Liquidity Pools",
+      title: "SignumJS",
       description: "Swap Signa with Smart tokens or earn trading fees.",
       href: "https://docs.signum.network/signum/activate-cashback",
       cta: "Learn More",
     },
     {
-      title: "CEX",
+      title: "SmartC",
       description: "Discover exchanges where Signum is available",
       href: "https://docs.signum.network/signum/activate-cashback",
       cta: "Learn More",
@@ -33,24 +33,15 @@ export const Shortcuts = () => {
 
   return (
     <section className={defaultContainer}>
-      <h2 className={classes.title}>😎 Boss, what do you want to do?</h2>
-      <p className={classes.description}>
-        No worries if you don't know yet. Take your time to explore the
-        ecosystem.
-      </p>
+      <div style={{ display: "flex", marginBottom: "2rem" }}>
+        <NeoChip label="Young padawan" />
+      </div>
 
       <ShortcutCard
         side="left"
-        imgSrc="/images/woman-holding-hdd.webp"
-        title="Trade"
-        links={tradeLinks}
-      />
-
-      <ShortcutCard
-        side="right"
-        imgSrc="/images/woman-holding-hdd.webp"
-        title="Trade"
-        links={tradeLinks}
+        imgSrc="/images/developers-ballmer-min.gif"
+        title="Developers, Developers, Developers"
+        links={developerLinks}
       />
     </section>
   );
