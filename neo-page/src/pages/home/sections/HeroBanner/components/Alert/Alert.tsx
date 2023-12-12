@@ -1,26 +1,31 @@
 import { FrameSVGCorners } from "@arwes/react-frames";
 import { useSound } from "@/hooks/useSound";
-import { useNodeConstants } from "@/hooks/useNodeConstants";
 import { defaultContainer } from "@/styles/containers.css";
-import * as classes from "./Cashback.css";
+import * as classes from "./Alert.css";
 
-export const Cashback = () => {
-  const { isDefaultCashbackIdSet } = useNodeConstants();
+interface Props {
+  show: boolean;
+  title: string;
+  href: string;
+  cta: string;
+}
+
+export const Alert = ({ show, title, href, cta }: Props) => {
   const { playClickSound } = useSound();
 
-  if (!isDefaultCashbackIdSet) return null;
+  if (!show) return null;
 
   return (
     <section className={defaultContainer}>
       <div className={classes.banner}>
-        Get 25% Cashback from your node fees
+        {title}
         <a
           onClick={playClickSound}
           className={classes.button}
-          href="https://docs.signum.network/signum/activate-cashback"
+          href={href}
           target="_blank"
         >
-          Learn More
+          {cta}
           <FrameSVGCorners className={classes.buttonFrame} />
         </a>
         <FrameSVGCorners className={classes.frame} />

@@ -1,6 +1,6 @@
 import { Fragment } from "react";
-import { Cashback } from "./sections/Cashback";
 import { Welcome } from "./sections/Welcome";
+import { HeroBanner } from "./sections/HeroBanner";
 import { Stats } from "./sections/Stats";
 import { Shortcuts } from "./sections/Shortcuts";
 import { PathCta } from "./sections/PathCta";
@@ -9,7 +9,7 @@ export function HomePage() {
   return (
     <Fragment>
       <Welcome />
-      <Cashback />
+      <HeroBanner />
       <Shortcuts />
       <Stats />
       <PathCta />

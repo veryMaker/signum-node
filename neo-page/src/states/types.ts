@@ -15,6 +15,7 @@ export type State = {
   burnedFunds: number;
   circulatingFunds: number;
   thirdPartyApps: ThirdPartyAppStorage;
+  isXTWalletDetected: boolean;
 };
 
 export type Action = {
@@ -32,4 +33,5 @@ export type Action = {
   setBurnedFunds: (value: number) => void;
   setCirculatingFunds: (value: number) => void;
   setThirdPartyApps: (value: ThirdPartyAppStorage) => void;
+  setIsXTWalletDetected: (value: boolean) => void;
 };

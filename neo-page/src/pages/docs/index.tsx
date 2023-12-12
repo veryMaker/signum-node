@@ -3,6 +3,7 @@ import { Title } from "./sections/Title";
 import { Videotutorials } from "./sections/Videotutorials";
 import { Wikis } from "./sections/Wikis";
 import { Developer } from "./sections/Developer";
+import { CommunityCta } from "./sections/CommunityCta";
 
 export function DocsPage() {
   useEffect(() => {
@@ -15,6 +16,7 @@ export function DocsPage() {
       <Videotutorials />
       <Wikis />
       <Developer />
+      <CommunityCta />
     </Fragment>
   );
 }

@@ -4,6 +4,7 @@ import { theme } from "@/types";
 import { Providers } from "@/providers";
 import { Background } from "./components/Background";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 import { Alerts } from "./components/Alerts";
 
 export const Layout = () => {
@@ -20,6 +21,8 @@ export const Layout = () => {
             </Fragment>
           }
         </div>
+
+        <Footer />
       </main>
     </Providers>
   );

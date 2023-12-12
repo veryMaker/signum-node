@@ -1,16 +1,12 @@
 import { FaGithub, FaYoutube } from "react-icons/fa";
 import { FaXTwitter, FaDiscord } from "react-icons/fa6";
 import { useSound } from "@/hooks/useSound";
+import { githubLink, twitterLink, youtubeLink, discordLink } from "@/types";
 
 import * as classes from "./SocialLinks.css";
 
 export const SocialLinks = () => {
   const { playClickSound } = useSound();
-
-  const githubLink = "https://github.com/signum-network/signum-node";
-  const twitterLink = "https://twitter.com/signum_official";
-  const youtubeLink = "https://www.youtube.com/@SignumNetwork";
-  const discordLink = "https://discord.com/invite/FATkyfNMxU";
 
   return (
     <div className={classes.contentContainer}>

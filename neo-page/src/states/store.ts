@@ -22,6 +22,7 @@ export const useStore = create<State & Action>()(
         burnedFunds: 0,
         circulatingFunds: 0,
         thirdPartyApps: { mainnet: [], testnet: [] },
+        isXTWalletDetected: true,
         setNetwork: (value) => set(() => ({ network: value })),
         setVersion: (value) => set(() => ({ version: value })),
         setCashbackId: (value) => set(() => ({ cashBackId: value })),
@@ -41,6 +42,8 @@ export const useStore = create<State & Action>()(
         setCirculatingFunds: (value) =>
           set(() => ({ circulatingFunds: value })),
         setThirdPartyApps: (value) => set(() => ({ thirdPartyApps: value })),
+        setIsXTWalletDetected: (value) =>
+          set(() => ({ isXTWalletDetected: value })),
       }),
       {
         name: "app-storage",

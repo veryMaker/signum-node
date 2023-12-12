@@ -19,8 +19,7 @@ export const btnContainer = style({
   justifyContent: "center",
   alignItems: "center",
   gap: 8,
-  marginTop: "0.5rem",
-  marginBottom: "2rem",
+  marginTop: "1rem",
 });
 
 export const button = style({
@@ -31,4 +30,7 @@ export const button = style({
   borderRadius: 4,
   fontSize: "1.1rem",
   cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
 });
