@@ -1,35 +1,30 @@
-# Do not forget to do the following
+# Signum Node NEO Page
 
-- Document stack
-- Credit to libraries
+This website embodies a Sci-Fi aesthetic 🤖 and is hosted on future node releases, providing users with a platform to explore the Signum ecosystem. Its primary goal is to replace the previous node website `(v3.7.3 or lower)`, offering a more engaging and informative experience for users keen on delving into the Signum universe.
 
-# React + TypeScript + Vite
+## Software Stack
+- [React](https://react.dev/) 
+- [TypeScript](https://www.typescriptlang.org/) 
+- [Vite](https://vitejs.dev/)
+- [React-three-fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)
+- [SWR](https://swr.vercel.app/)
+- [Arwes](https://arwes.dev/)
+- [Vanilla-extract](https://vanilla-extract.style/)
+- [Zustand](https://zustand-demo.pmnd.rs/)
+- [SignumJS](https://docs.signum.network/signum/signumjs) - Signum Network SDK for Javascript 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Requirements
+- Node.js. The `.nvmrc` file indicates which node version is required
 
-Currently, two official plugins are available:
+## How to develop
+This project uses Vite to make development and deployment a breeze.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Install dependencies by running `npm install`
+- Execute development enviroment by running `npm run dev`
+- Open brower at `http://localhost:5173`
+- Start hacking
 
-## Expanding the ESLint configuration
+Good reasons for using Vite, can be read [here](https://vitejs.dev/guide/why.html#the-problems)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Disclaimer
+*Kindly be aware that all the links provided in this website are solely for your convenience and informational purposes. Their inclusion here does not imply any endorsement by the Signum community of the products, services, or opinions presented by the mentioned corporations, organizations, or individuals. The Signum community assumes no liability for the accuracy, legality, or content of these external websites. If you have any questions about the content on those sites, please reach out to the respective site's administrators. Remember to exercise caution and perform your own research before making any online purchases; "buyer beware" always applies. Always use your best judgment when navigating the digital landscape.*
