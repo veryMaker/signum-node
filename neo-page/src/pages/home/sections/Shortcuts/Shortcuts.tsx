@@ -52,6 +52,34 @@ export const Shortcuts = () => {
         title="Trade"
         links={tradeLinks}
       />
+
+      <ShortcutCard
+        side="left"
+        imgSrc="/images/woman-holding-hdd.webp"
+        title="Trade"
+        links={tradeLinks}
+      />
+
+      <ShortcutCard
+        side="right"
+        imgSrc="/images/woman-holding-hdd.webp"
+        title="Trade"
+        links={tradeLinks}
+      />
+
+      <ShortcutCard
+        side="left"
+        imgSrc="/images/woman-holding-hdd.webp"
+        title="Trade"
+        links={tradeLinks}
+      />
+
+      <ShortcutCard
+        side="right"
+        imgSrc="/images/woman-holding-hdd.webp"
+        title="Trade"
+        links={tradeLinks}
+      />
     </section>
   );
 };
