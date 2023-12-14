@@ -4,6 +4,8 @@ import {
   defaultContainer,
   defaultCardContainer,
 } from "@/styles/containers.css";
+import { HeightChip } from "@/components/HeightChip";
+import { SyncChip } from "@/components/SyncChip";
 import { KpiCard } from "./components/KpiCard";
 import * as classes from "./Stats.css";
 
@@ -23,8 +25,18 @@ export const Stats = () => {
   return (
     <section className={defaultContainer}>
       <div className={classes.titleContainer}>
-        <NeoChip label="Stats" />
-        <span className={classes.genesisText}>Since Genesis Block. 2014</span>
+        <div className={classes.contentContainer}>
+          <NeoChip label="Stats" />
+          <span className={classes.genesisText}>Since Genesis Block. 2014</span>
+        </div>
+
+        <div className={classes.contentContainer}>
+          <HeightChip />
+
+          <span className={classes.syncChip}>
+            <SyncChip />
+          </span>
+        </div>
       </div>
 
       <div className={defaultCardContainer}>

@@ -14,11 +14,22 @@ export const titleContainer = style({
   },
 });
 
-export const cardsContainer = style({
+export const contentContainer = style({
   display: "flex",
-  justifyContent: "flex-start",
   alignItems: "center",
-  flexWrap: "wrap",
-  gap: "4rem 1rem",
-  marginTop: "3rem",
+  gap: 8,
+  justifyContent: "space-between",
+});
+
+export const genesisText = style({
+  color: "hsl(152, 39%, 60%)",
+});
+
+export const syncChip = style({
+  display: "none",
+  "@media": {
+    "(max-width: 600px)": {
+      display: "inline-block",
+    },
+  },
 });

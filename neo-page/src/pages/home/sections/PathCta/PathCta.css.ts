@@ -31,4 +31,7 @@ export const button = style({
   borderRadius: 4,
   fontSize: "1.1rem",
   cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
 });

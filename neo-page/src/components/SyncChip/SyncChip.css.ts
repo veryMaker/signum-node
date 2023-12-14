@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 
 export const container = style({
   position: "relative",
-  zIndex: 0,
+  zIndex: 11,
   padding: "1rem 2rem",
   overflow: "hidden",
 });

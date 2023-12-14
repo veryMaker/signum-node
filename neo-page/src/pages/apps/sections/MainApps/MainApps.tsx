@@ -1,8 +1,6 @@
 import { Fragment } from "react";
 import { useNodeConstants } from "@/hooks/useNodeConstants";
 import { NeoChip } from "@/components/NeoChip";
-import { HeightChip } from "@/components/HeightChip";
-import { SyncChip } from "@/components/SyncChip";
 import { AppCard } from "./components/AppCard";
 import { defaultContainer } from "@/styles/containers.css";
 import * as classes from "./MainApps.css";
@@ -14,14 +12,7 @@ export const MainApps = () => {
     <Fragment>
       <section className={defaultContainer}>
         <div className={classes.titleContainer}>
-          <div>
-            <NeoChip label="Discover" />
-          </div>
-
-          <div className={classes.chipContainer}>
-            <HeightChip />
-            <SyncChip />
-          </div>
+          <NeoChip label="Discover" />
         </div>
 
         <div className={classes.cardsContainer}>
