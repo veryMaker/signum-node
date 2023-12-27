@@ -11,6 +11,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.ResultQuery;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
@@ -150,7 +152,7 @@ public final class Db {
   } // never
 
   public static Dbs getDbsByDatabaseType() {
-    logger.info("Using SQL Backend with Dialect {}", dialect.getName());
+    logger.info("Using SQL Backend with Dialect {} - Version {}", dialect.getName(), getDatabaseVersion());
     return new SqlDbs();
   }
 
@@ -345,5 +347,32 @@ public final class Db {
         logger.debug("Failed to optimize table {}", tableName, e);
       }
     });
+  }
+
+  private static String getDatabaseVersion() {
+    DSLContext ctx = getDSLContext();
+    ResultQuery queryVersion = null;
+    String version = "N/A";
+    try {
+      switch (ctx.dialect()) {
+        case MYSQL:
+        case MARIADB:
+          queryVersion = ctx.resultQuery("SELECT VERSION()");
+          break;
+        case H2:
+          queryVersion = ctx.resultQuery("SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTINGS.SETTING_NAME= 'info.VERSION'");
+        default:
+          break;
+      }
+      if (queryVersion != null) {
+        Record record = queryVersion.fetchOne();
+        if (record != null) {
+          version = record.get(0, String.class);
+        }
+      }
+    } catch (Exception e) {
+      logger.debug("Failed to fetch version");
+    }
+    return version;
   }
 }

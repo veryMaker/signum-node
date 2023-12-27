@@ -232,6 +232,7 @@ artifacts {
 
 
 // ==================== JOOQ Code Gen
+// ./gradlew generateJooq
 
 def schema_dburl = "jdbc:h2:${project.projectDir}/temp/generated/db/signum_jooq"
 def schema_dbusername = ""
