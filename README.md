@@ -272,6 +272,10 @@ git push --tags
 
 See DOCKER.md for information on running and building docker images.
 
+# Database Development
+
+To get more details about how to work with database changes look at [more detailed DB.md](./DB.md) 
+
 # Developers
 
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)

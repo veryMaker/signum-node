@@ -7,8 +7,9 @@ plugins {
   id 'org.gradle.crypto.checksum' version '1.4.0'
   id 'com.palantir.git-version' version '0.12.2'
   id 'io.spring.dependency-management' version '1.0.1.RELEASE' //for logging - log4j
+  // latest version to run with JDK 11
+  // https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
   id 'nu.studer.jooq' version '7.1.1'
-//  id 'nu.studer.jooq' version '3.0.3'
   id "org.flywaydb.flyway" version "8.5.13"
   id "de.undercouch.download" version "5.5.0"
   id 'jacoco'
@@ -30,16 +31,20 @@ dependencies {
   implementation 'com.github.signum-network:signumj:v1.3.1'
 
   implementation 'io.reactivex.rxjava2:rxjava:2.2.15'
-  implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+  implementation 'org.bouncycastle:bcprov-jdk18on:1.75'
   implementation 'org.ehcache:ehcache:3.9.9'
-  implementation 'org.flywaydb:flyway-core:8.5.13'
   implementation 'com.google.code.gson:gson:2.8.9'
-  implementation 'com.h2database:h2:2.2.224'
   implementation 'commons-cli:commons-cli:1.4'
   implementation 'com.zaxxer:HikariCP:5.0.1'
   implementation 'org.jocl:jocl:2.0.1'
-  implementation 'org.jooq:jooq:3.19.1'
+
+  // db related deps
+  //  https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
+  implementation 'org.jooq:jooq:3.16.23'
+  implementation 'org.flywaydb:flyway-core:8.5.13'
+  implementation 'com.h2database:h2:2.2.224'
   implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+
   implementation 'org.owasp.encoder:encoder:1.2.3'
   implementation 'org.bitlet:weupnp:0.1.4'
 
@@ -49,10 +54,10 @@ dependencies {
   implementation 'org.slf4j:slf4j-api:1.7.35'
   implementation 'org.slf4j:slf4j-jdk14:1.7.35'
 
-  implementation 'org.eclipse.jetty:jetty-server:10.0.15'
-  implementation 'org.eclipse.jetty:jetty-servlet:10.0.15'
-  implementation 'org.eclipse.jetty:jetty-servlets:10.0.15'
-  implementation 'org.eclipse.jetty:jetty-rewrite:10.0.15'
+  implementation 'org.eclipse.jetty:jetty-server:10.0.19'
+  implementation 'org.eclipse.jetty:jetty-servlet:10.0.19'
+  implementation 'org.eclipse.jetty:jetty-servlets:10.0.19'
+  implementation 'org.eclipse.jetty:jetty-rewrite:10.0.19'
 
   implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
@@ -78,10 +83,8 @@ dependencies {
   testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
   testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
 
-  // Needed for build script so "compile" needed
-  implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
-//  jooqRuntime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
-//  jooqGenerator 'com.h2database:h2:2.1.214.'
+  jooqGenerator 'com.h2database:h2:2.2.224'
+
 }
 
 
@@ -101,7 +104,7 @@ sourceSets {
       srcDir "resources"
     }
   }
-  if(!project.hasProperty('skipTests')) {
+  if (!project.hasProperty('skipTests')) {
     test {
       java {
         srcDirs = ["test/java"]
@@ -113,141 +116,6 @@ sourceSets {
 // Define the main class for the application
 mainClassName = 'signum.Launcher'
 description = 'Signum Node.'
-
-//def schema_dburl = "jdbc:mariadb://localhost:3306/signum_jooq"
-//def schema_dbusername = "root"
-//def schema_dbpassword = "pass"
-//flyway {
-//  url = "${schema_dburl}"
-//  user = "${schema_dbusername}"
-//  password = "${schema_dbpassword}"
-//  locations = ["filesystem:" + project.projectDir.toString() + "/resources/db/migration_mariadb"]
-//}
-
-// This is used to generate java code from an existing model
-// TODO: there must be a better way to do this...like having generated SQL code to build, without having to connect to a database.
-//jooq {
-//  version = "3.16.4"
-//  edition = "OSS"
-//
-//  signum(sourceSets.main) {
-//    jdbc {
-//      url = "${schema_dburl}"
-//      user = "${schema_dbusername}"
-//      password = "${schema_dbpassword}"
-//    }
-//    generator {
-//      name = 'org.jooq.codegen.JavaGenerator'
-//      database {
-//        includes = ".*"
-//
-//        name = "org.jooq.meta.mariadb.MariaDBDatabase"
-//        inputSchema = "signum_jooq"
-//        outputSchema = "DB"
-//
-//        excludes = ''
-//        // outputSchemaToDefault = true
-//
-//        forcedTypes {
-//          forcedType {
-//            name = 'BOOLEAN'
-//            expression = '.*\\.(.*\\.LATEST|MINTABLE|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))'
-//            types = '.*'
-//          }
-//        }
-//      }
-//      target {
-//        packageName = "brs.schema"
-//        directory = "src"
-//      }
-//    }
-//  }
-//}
-
-//import nu.studer.gradle.jooq.JooqEdition
-
-//jooq {
-//  version = '3.18.7'
-//  edition = JooqEdition.OSS
-//
-//  configurations {
-//    main {
-//      generationTool {
-//        logging = org.jooq.meta.jaxb.Logging.DEBUG
-//        jdbc = null
-//        generator {
-//          name = 'org.jooq.codegen.DefaultGenerator'
-//          database {
-//            name = 'rg.jooq.meta.extensions.ddl.DDLDatabase'
-//            properties {
-//
-//              // Specify the location of your SQL script.
-//              // You may use ant-style file matching, e.g. /path/**/to/*.sql
-//              //
-//              // Where:
-//              // - ** matches any directory subtree
-//              // - * matches any number of characters in a directory / file name
-//              // - ? matches a single character in a directory / file name
-//              property {
-//                key = "scripts"
-//                value = "src/main/resources/db/model.ddl.sql"
-//              }
-//
-//              // The sort order of the scripts within a directory, where:
-//              //
-//              // - semantic: sorts versions, e.g. v-3.10.0 is after v-3.9.0 (default)
-//              // - alphanumeric: sorts strings, e.g. v-3.10.0 is before v-3.9.0
-//              // - flyway: sorts files the same way as flyway does
-//              // - none: doesn't sort directory contents after fetching them from the directory
-//              property {
-//                key = "sort"
-//                value = "semantic"
-//              }
-//            }
-//            forcedTypes {
-//              forcedType {
-//                name = 'varchar'
-//                includeExpression = '.*'
-//                includeTypes = 'JSONB?'
-//              }
-//              forcedType {
-//                name = 'varchar'
-//                includeExpression = '.*'
-//                includeTypes = 'INET'
-//              }
-//            }
-//          }
-//          generate {
-//            deprecated = false
-//            records = false
-//            immutablePojos = false
-//            fluentSetters = false
-//          }
-//          target {
-//            packageName = 'com.signum.generated.jooq'
-//            directory = 'src/generated/jooq'
-//          }
-//          strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
-//        }
-//      }
-//    }
-//  }
-//}
-
-// use the following to generate the schema tables:
-// ./gradlew build -DgenerateSchema=true --rerun-tasks
-//flywayMigrate{
-//  onlyIf { System.getProperty("generateSchema") == "true" }
-//}
-
-//generateSignumJooqSchemaSource{
-////  dependsOn flywayMigrate
-//  onlyIf { System.getProperty("generateSchema") == "true" }
-//}
-
-//generateSignumJooqSchemaSource.dependsOn flywayMigrate
-//generateSignumJooqSchemaSource.onlyIf { System.getProperty("generateSchema") == "true" }
-//flywayMigrate.onlyIf { System.getProperty("generateSchema") == "true" }
 
 jar {
   // Needed by the logging library
@@ -361,3 +229,66 @@ artifacts {
   archives sourcesJar
   archives javadocJar
 }
+
+
+// ==================== JOOQ Code Gen
+
+def schema_dburl = "jdbc:h2:${project.projectDir}/temp/generated/db/signum_jooq"
+def schema_dbusername = ""
+def schema_dbpassword = ""
+
+flyway {
+  url = "${schema_dburl}"
+  user = "${schema_dbusername}"
+  password = "${schema_dbpassword}"
+  locations = ["filesystem:" + project.projectDir.toString() + "/resources/db/migration_h2_v2"]
+}
+
+import nu.studer.gradle.jooq.JooqEdition
+
+jooq {
+  // last version to use with JDK 11
+  version = '3.16.23'
+  edition = JooqEdition.OSS
+
+  configurations {
+    main {
+      generateSchemaSourceOnCompilation = false
+      generationTool {
+        logging = org.jooq.meta.jaxb.Logging.DEBUG
+        jdbc {
+          driver = 'org.h2.Driver'
+          url = "${schema_dburl}"
+          user = "${schema_dbusername}"
+          password = "${schema_dbpassword}"
+        }
+        generator {
+          name = 'org.jooq.codegen.DefaultGenerator'
+          database {
+            name = 'org.jooq.meta.h2.H2Database'
+            includes = '.*'
+            excludes = ''
+            inputSchema = "PUBLIC"
+            outputSchema = "DB"
+
+            forcedTypes {
+              forcedType {
+                name = 'BOOLEAN'
+                expression = '.*\\.(.*\\.LATEST|MINTABLE|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))'
+                types = '.*'
+              }
+            }
+          }
+          target {
+            packageName = 'brs.schema'
+            directory = 'temp/generated/jooq'
+          }
+        }
+      }
+    }
+  }
+}
+
+generateJooq.dependsOn(flywayMigrate)
+
+
