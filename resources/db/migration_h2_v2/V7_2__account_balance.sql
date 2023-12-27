@@ -1,4 +1,4 @@
-// Kept because of JDBC flyway integration V7_3
+// Kept because of JDBC flyway migration V7_3
 
 create table "account_balance"
 (
