@@ -1,5 +1,5 @@
 /* Created by performing all steps of old migration */
-CREATE TABLE IF NOT EXISTS block (db_id IDENTITY, id BIGINT NOT NULL, version INT NOT NULL,
+CREATE TABLE IF NOT EXISTS block (db_id IDENTITY, id BIGINT NOT NULL UNIQUE, version INT NOT NULL,
     timestamp INT NOT NULL, previous_block_id BIGINT,
     FOREIGN KEY (previous_block_id) REFERENCES block (id) ON DELETE CASCADE, total_amount INT NOT NULL,
     total_fee INT NOT NULL, payload_length INT NOT NULL, generator_public_key BINARY(32) NOT NULL,
@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS block (db_id IDENTITY, id BIGINT NOT NULL, version IN
     index INT NOT NULL, height INT NOT NULL, generation_signature BINARY(64) NOT NULL,
     block_signature BINARY(64) NOT NULL, payload_hash BINARY(32) NOT NULL, generator_account_id BIGINT NOT NULL, nonce BIGINT NOT NULL);
 CREATE UNIQUE INDEX IF NOT EXISTS block_id_idx ON block (id);
-CREATE TABLE IF NOT EXISTS transaction (db_id IDENTITY, id BIGINT NOT NULL,
+
+CREATE TABLE IF NOT EXISTS transaction (db_id IDENTITY, id BIGINT NOT NULL UNIQUE,
     deadline SMALLINT NOT NULL, sender_public_key BINARY(32) NOT NULL, recipient_id BIGINT NOT NULL,
     amount INT NOT NULL, fee INT NOT NULL, referenced_transaction_id BIGINT, index INT NOT NULL,
     height INT NOT NULL, block_id BIGINT NOT NULL, FOREIGN KEY (block_id) REFERENCES block (id) ON DELETE CASCADE,

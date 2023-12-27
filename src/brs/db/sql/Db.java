@@ -114,7 +114,7 @@ public final class Db {
           break;
         case H2:
           Class.forName("org.h2.Driver");
-          locationDialect = "classpath:/db/migration_h2";
+          locationDialect = "classpath:/db/migration_h2_v2";
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "250");

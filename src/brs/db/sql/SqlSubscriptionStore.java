@@ -7,12 +7,7 @@ import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
 
-import org.jooq.BatchBindStep;
-import org.jooq.Condition;
-import org.jooq.DSLContext;
-import org.jooq.Query;
-import org.jooq.Record;
-import org.jooq.SortField;
+import org.jooq.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
