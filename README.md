@@ -87,6 +87,8 @@ as it is considered more stable, especially under higher load. MariaDB is not as
 
 #### [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
 
+> The minimum required version is 10.6!
+
 The MariaDb installation will ask to setup a password for the root user.
 This password can be anything you like. 
 
