@@ -79,7 +79,7 @@ Modify these settings in the `node-default.properties` file in the node director
 ```
 **Windows Setup**
 
-after you install MariaDB and use a root passowrd of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
+after you install MariaDB and use a root password of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
 
 **TIP: _use the copy icon in github when you mouse over the text, then use the RIGHT mouse button and click in the command prompt window to paste_**
 ```

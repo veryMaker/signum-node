@@ -42,8 +42,10 @@ dependencies {
   //  https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
   implementation 'org.jooq:jooq:3.16.23'
   implementation 'org.flywaydb:flyway-core:8.5.13'
+  implementation 'org.flywaydb:flyway-mysql:8.5.13'
   implementation 'com.h2database:h2:2.2.224'
   implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+  jooqGenerator 'com.h2database:h2:2.2.224'
 
   implementation 'org.owasp.encoder:encoder:1.2.3'
   implementation 'org.bitlet:weupnp:0.1.4'
@@ -82,8 +84,6 @@ dependencies {
 
   testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
   testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
-
-  jooqGenerator 'com.h2database:h2:2.2.224'
 
 }
 

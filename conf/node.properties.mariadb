@@ -6,6 +6,6 @@ API.allowed = *
 
 # Database connection JDBC url
 # Append ;AUTO_SERVER=TRUE to enable automatic mixed mode access.
-DB.Url=jdbc:mariadb://mariadb:3306/signum
+DB.Url=jdbc:mariadb://localhost:3306/signum
 DB.Username=root
 DB.Password=signum

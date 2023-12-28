@@ -371,7 +371,7 @@ public final class Db {
         }
       }
     } catch (Exception e) {
-      logger.debug("Failed to fetch version");
+      logger.warn("Failed to fetch version");
     }
     return version;
   }
