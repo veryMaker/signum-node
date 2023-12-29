@@ -48,6 +48,8 @@ dependencies {
   implementation 'org.flywaydb:flyway-mysql:8.5.13'
   implementation 'com.h2database:h2:2.2.224'
   implementation 'org.postgresql:postgresql:42.5.1'
+  // unix socket support available - see https://github.com/kohlschutter/junixsocket
+  implementation 'com.kohlschutter.junixsocket:junixsocket-core:2.8.3'
   implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
   jooqGenerator 'com.h2database:h2:2.2.224'
 

@@ -94,24 +94,6 @@ public final class Db {
           config.addDataSourceProperty("maintainTimeStats", "false");
           config.addDataSourceProperty("useUnbufferedIO", "false");
           config.addDataSourceProperty("useReadAheadInput", "false");
-//          MariaDbDataSource flywayDataSource = new MariaDbDataSource(dbUrl) {
-//            @Override
-//            protected synchronized void initialize() throws SQLException {
-//              super.initialize();
-//              Properties props = new Properties();
-//              props.setProperty("user", dbUsername);
-//              props.setProperty("password", dbPassword);
-//              props.setProperty("useMysqlMetadata", "true");
-//              try {
-//                Field f = MariaDbDataSource.class.getDeclaredField("urlParser");
-//                f.setAccessible(true);
-//                f.set(this, UrlParser.parse(dbUrl, props));
-//              } catch (Exception e) {
-//                throw new RuntimeException(e);
-//              }
-//            }
-//          };
-//          flywayBuilder.dataSource(flywayDataSource); // TODO Remove this hack once a stable version of Flyway has this bug fixed
           config.setConnectionInitSql("SET NAMES utf8mb4;");
           break;
         case H2:
