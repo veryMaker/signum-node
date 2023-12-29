@@ -237,7 +237,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   // ignore this peer, it will be removed by the peers discovery thread
                   continue;
                 }
-                
+
                 JsonObject response = peer.send(getCumulativeDifficultyRequest);
                 if (response == null) {
                   continue;
@@ -945,14 +945,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         long calculatedTotalAmount = 0;
         long calculatedTotalFee = 0;
         MessageDigest digest = Crypto.sha256();
-
-        long[] feeArray = new long[block.getTransactions().size()];
+        List<Transaction> transactions = block.getTransactions();
+        long[] feeArray = new long[transactions.size()];
         int slotIdx = 0;
 
         int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
         int indirectsCount = 0;
 
-        for (Transaction transaction : block.getTransactions()) {
+        for (Transaction transaction : transactions) {
           if (transaction.getTimestamp() > curTime + MAX_TIMESTAMP_DIFFERENCE) {
             throw new BlockOutOfOrderException("Invalid transaction timestamp: "
                 + transaction.getTimestamp() + ", current time is " + curTime);
@@ -1017,7 +1017,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           calculatedTotalAmount += transaction.getAmountNQT();
           calculatedTotalFee += transaction.getFeeNQT();
           digest.update(transaction.getBytes());
-          indirectIncomingService.processTransaction(transaction);
           feeArray[slotIdx] = transaction.getFeeNQT();
           slotIdx += 1;
         }
@@ -1045,10 +1044,14 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
         blockService.setPrevious(block, previousLastBlock);
         blockListeners.notify(block, Event.BEFORE_BLOCK_ACCEPT);
-        transactionProcessor.removeForgedTransactions(block.getTransactions());
+        transactionProcessor.removeForgedTransactions(transactions);
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
         addBlock(block);
+        if(indirectIncomingService.isEnabled()){
+          transactions.forEach(indirectIncomingService::processTransaction);
+        }
+
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();

@@ -35,7 +35,7 @@ public class AliasServiceImpl implements AliasService {
   private final BurstKey.LongKeyFactory<Alias> aliasDbKeyFactory;
   private final VersionedEntityTable<Offer> offerTable;
   private final BurstKey.LongKeyFactory<Offer> offerDbKeyFactory;
-  
+
   private static final String MAIN_TLD = "signum";
   private static final String[] DEFAULT_TLDS = {
     "blockchain", "coin", "crypto", "dao", "decentral", "dex", "free", "nft", "p2p", "sig", "signa", "sns", "w3", "wallet", "web3", "x", "y", "z"
@@ -52,20 +52,20 @@ public class AliasServiceImpl implements AliasService {
   public void addDefaultTLDs() {
     try {
       Burst.getStores().beginTransaction();
-      
+
       // TODO: should be removed prior to the next release
-      try {
-        Statement selectTx = Db.getConnection().createStatement();
-        selectTx.executeUpdate(
-          "update alias set latest=1 where alias_name like 'signum' and height=0;" +
-          "delete from alias where alias_name like 'signum' and height <>0 and tld is null;"
-        );
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-      }
-      // TODO: end of DB patch, to be removed
-      
+//      try {
+//        Statement selectTx = Db.getConnection().createStatement();
+//        selectTx.executeUpdate(
+//          "update alias set latest=1 where alias_name like 'signum' and height=0;" +
+//          "delete from alias where alias_name like 'signum' and height <>0 and tld is null;"
+//        );
+//      }
+//      catch (Exception e) {
+//        e.printStackTrace();
+//      }
+//      // TODO: end of DB patch, to be removed
+
       if(aliasStore.getTLD(MAIN_TLD) ==  null) {
         Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(MAIN_TLD, 0);
         addTLD(0L, null, attachment);
@@ -99,7 +99,7 @@ public class AliasServiceImpl implements AliasService {
   public Alias getTLD(String tldName) {
     return aliasStore.getTLD(tldName);
   }
-  
+
   public Alias getTLD(Long tldId) {
     return tldId == null ? null : aliasStore.getTLD(tldId);
   }
@@ -113,7 +113,7 @@ public class AliasServiceImpl implements AliasService {
   public int getAliasCount() {
     return aliasTable.getCount();
   }
-  
+
   @Override
   public int getAliasCount(long tld) {
     return Db.useDSLContext(ctx -> {
@@ -126,7 +126,7 @@ public class AliasServiceImpl implements AliasService {
   public CollectionWithIndex<Alias> getAliasesByOwner(long accountId, String name, Long tld, int from, int to) {
     return new CollectionWithIndex<Alias>(aliasStore.getAliasesByOwner(accountId, name, tld, from, to), from, to);
   }
-  
+
   @Override
   public CollectionWithIndex<Alias> getTLDs(int from, int to) {
     return new CollectionWithIndex<Alias>(aliasStore.getTLDs(from, to), from, to);
@@ -141,12 +141,12 @@ public class AliasServiceImpl implements AliasService {
   public CollectionWithIndex<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
     return new CollectionWithIndex<Alias.Offer>(aliasStore.getAliasOffers(account, buyer, from, to), from, to);
   }
-  
+
   private void createSubscription(Alias alias, int timestamp, boolean updateSubscription){
     if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       return;
     }
-    
+
     SubscriptionService subscriptionService = Burst.getSubscriptionService();
     int frequency = Burst.getPropertyService().getInt(Props.ALIAS_RENEWAL_FREQUENCY);
     long fee = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT) * TransactionType.BASELINE_ALIAS_RENEWAL_FACTOR;
@@ -174,7 +174,7 @@ public class AliasServiceImpl implements AliasService {
       alias.setTimestamp(transaction.getBlockTimestamp());
     }
     aliasTable.insert(alias);
-    
+
     createSubscription(alias, transaction.getBlockTimestamp(), true);
   }
 
@@ -213,7 +213,7 @@ public class AliasServiceImpl implements AliasService {
 
     final Offer offer = getOffer(alias);
     offerTable.delete(offer);
-    
+
     if(alias.getTLD() != null) {
       // only create the subscription if this is not a TLD (that has a null TLD)
       createSubscription(alias, timestamp, updateSubscription);

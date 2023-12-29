@@ -39,11 +39,15 @@ dependencies {
   implementation 'org.jocl:jocl:2.0.1'
 
   // db related deps
-  //  https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
+  // as long as we use 3rd party code gen (nu.studer) we need to use jooq 3.16.23 (and also for JDK11)
+  // https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
   implementation 'org.jooq:jooq:3.16.23'
   implementation 'org.flywaydb:flyway-core:8.5.13'
+  // needed because of license issues since 8.2.0
+  // see https://documentation.red-gate.com/fd/release-notes-for-flyway-engine-179732572.html
   implementation 'org.flywaydb:flyway-mysql:8.5.13'
   implementation 'com.h2database:h2:2.2.224'
+  implementation 'org.postgresql:postgresql:42.5.1'
   implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
   jooqGenerator 'com.h2database:h2:2.2.224'
 
