@@ -5,10 +5,9 @@ import brs.Burst;
 import brs.BurstException;
 import brs.db.BlockDb;
 import brs.schema.tables.records.BlockRecord;
-import org.jooq.DSLContext;
-import org.jooq.DeleteQuery;
-import org.jooq.Record;
-import org.jooq.SelectQuery;
+import io.reactivex.Maybe;
+import org.jooq.*;
+import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +64,16 @@ public class SqlBlockDb implements BlockDb {
   public Block findLastBlock() {
     return Db.useDSLContext(ctx -> {
       try {
-        return loadBlock(ctx.selectFrom(BLOCK).orderBy(BLOCK.DB_ID.desc()).limit(1).fetchAny());
+        
+        // avoid table scans through ordering - using indexed columns for direct lookups
+        SelectConditionStep<BlockRecord> query = ctx.selectFrom(BLOCK)
+          .where(BLOCK.DB_ID.eq(
+            ctx.select(DSL.max(BLOCK.DB_ID)).from(BLOCK))
+          );
+
+        return loadBlock(query.fetchAny());
+        // old statement
+        // return loadBlock(ctx.selectFrom(BLOCK).orderBy(BLOCK.DB_ID.desc()).limit(1).fetchAny());
       } catch (BurstException.ValidationException e) {
         throw new RuntimeException("Last block already in database does not pass validation!", e);
       }
@@ -83,59 +91,59 @@ public class SqlBlockDb implements BlockDb {
   }
 
   public Block loadBlock(BlockRecord r) throws BurstException.ValidationException {
-    int version                     = r.getVersion();
-    int timestamp                   = r.getTimestamp();
-    long previousBlockId            = Optional.ofNullable(r.getPreviousBlockId()).orElse(0L);
-    long totalAmountNQT             = r.getTotalAmount();
-    long totalFeeNQT                = r.getTotalFee();
-    long totalFeeCashBackNQT        = r.getTotalFeeCashBack();
-    long totalFeeBurntNQT           = r.getTotalFeeBurnt();
-    int payloadLength               = r.getPayloadLength();
-    byte[] generatorPublicKey       = r.getGeneratorPublicKey();
-    byte[] previousBlockHash        = r.getPreviousBlockHash();
+    int version = r.getVersion();
+    int timestamp = r.getTimestamp();
+    long previousBlockId = Optional.ofNullable(r.getPreviousBlockId()).orElse(0L);
+    long totalAmountNQT = r.getTotalAmount();
+    long totalFeeNQT = r.getTotalFee();
+    long totalFeeCashBackNQT = r.getTotalFeeCashBack();
+    long totalFeeBurntNQT = r.getTotalFeeBurnt();
+    int payloadLength = r.getPayloadLength();
+    byte[] generatorPublicKey = r.getGeneratorPublicKey();
+    byte[] previousBlockHash = r.getPreviousBlockHash();
     BigInteger cumulativeDifficulty = new BigInteger(r.getCumulativeDifficulty());
-    long baseTarget                 = r.getBaseTarget();
-    long nextBlockId                = Optional.ofNullable(r.getNextBlockId()).orElse(0L);
-    int height                      = r.getHeight();
-    byte[] generationSignature      = r.getGenerationSignature();
-    byte[] blockSignature           = r.getBlockSignature();
-    byte[] payloadHash              = r.getPayloadHash();
-    long id                         = r.getId();
-    long nonce                      = r.getNonce();
-    byte[] blockATs                 = r.getAts();
+    long baseTarget = r.getBaseTarget();
+    long nextBlockId = Optional.ofNullable(r.getNextBlockId()).orElse(0L);
+    int height = r.getHeight();
+    byte[] generationSignature = r.getGenerationSignature();
+    byte[] blockSignature = r.getBlockSignature();
+    byte[] payloadHash = r.getPayloadHash();
+    long id = r.getId();
+    long nonce = r.getNonce();
+    byte[] blockATs = r.getAts();
 
     return new Block(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT,
-                         totalFeeCashBackNQT, totalFeeBurntNQT,
-                         payloadLength, payloadHash,
-                         generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
-                         cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs);
+      totalFeeCashBackNQT, totalFeeBurntNQT,
+      payloadLength, payloadHash,
+      generatorPublicKey, generationSignature, blockSignature, previousBlockHash,
+      cumulativeDifficulty, baseTarget, nextBlockId, height, id, nonce, blockATs);
   }
 
   public void saveBlock(DSLContext ctx, Block block) {
-      ctx.insertInto(BLOCK, BLOCK.ID, BLOCK.VERSION, BLOCK.TIMESTAMP, BLOCK.PREVIOUS_BLOCK_ID,
-              BLOCK.TOTAL_AMOUNT, BLOCK.TOTAL_FEE, BLOCK.TOTAL_FEE_CASH_BACK, BLOCK.TOTAL_FEE_BURNT,
-              BLOCK.PAYLOAD_LENGTH, BLOCK.GENERATOR_PUBLIC_KEY,
-              BLOCK.PREVIOUS_BLOCK_HASH, BLOCK.CUMULATIVE_DIFFICULTY, BLOCK.BASE_TARGET, BLOCK.HEIGHT,
-              BLOCK.GENERATION_SIGNATURE, BLOCK.BLOCK_SIGNATURE, BLOCK.PAYLOAD_HASH, BLOCK.GENERATOR_ID,
-              BLOCK.NONCE, BLOCK.ATS)
-              .values(block.getId(), block.getVersion(), block.getTimestamp(),
-                      block.getPreviousBlockId() == 0 ? null : block.getPreviousBlockId(),
-                      block.getTotalAmountNQT(), block.getTotalFeeNQT(),
-                      block.getTotalFeeCashBackNQT(), block.getTotalFeeBurntNQT(),
-                      block.getPayloadLength(),
-                      block.getGeneratorPublicKey(), block.getPreviousBlockHash(),
-                      block.getCumulativeDifficulty().toByteArray(), block.getBaseTarget(), block.getHeight(),
-                      block.getGenerationSignature(), block.getBlockSignature(), block.getPayloadHash(),
-                      block.getGeneratorId(), block.getNonce(), block.getBlockATs())
-              .execute();
+    ctx.insertInto(BLOCK, BLOCK.ID, BLOCK.VERSION, BLOCK.TIMESTAMP, BLOCK.PREVIOUS_BLOCK_ID,
+        BLOCK.TOTAL_AMOUNT, BLOCK.TOTAL_FEE, BLOCK.TOTAL_FEE_CASH_BACK, BLOCK.TOTAL_FEE_BURNT,
+        BLOCK.PAYLOAD_LENGTH, BLOCK.GENERATOR_PUBLIC_KEY,
+        BLOCK.PREVIOUS_BLOCK_HASH, BLOCK.CUMULATIVE_DIFFICULTY, BLOCK.BASE_TARGET, BLOCK.HEIGHT,
+        BLOCK.GENERATION_SIGNATURE, BLOCK.BLOCK_SIGNATURE, BLOCK.PAYLOAD_HASH, BLOCK.GENERATOR_ID,
+        BLOCK.NONCE, BLOCK.ATS)
+      .values(block.getId(), block.getVersion(), block.getTimestamp(),
+        block.getPreviousBlockId() == 0 ? null : block.getPreviousBlockId(),
+        block.getTotalAmountNQT(), block.getTotalFeeNQT(),
+        block.getTotalFeeCashBackNQT(), block.getTotalFeeBurntNQT(),
+        block.getPayloadLength(),
+        block.getGeneratorPublicKey(), block.getPreviousBlockHash(),
+        block.getCumulativeDifficulty().toByteArray(), block.getBaseTarget(), block.getHeight(),
+        block.getGenerationSignature(), block.getBlockSignature(), block.getPayloadHash(),
+        block.getGeneratorId(), block.getNonce(), block.getBlockATs())
+      .execute();
 
     Burst.getDbs().getTransactionDb().saveTransactions(block.getTransactions());
 
     if (block.getPreviousBlockId() != 0) {
       ctx.update(BLOCK)
-              .set(BLOCK.NEXT_BLOCK_ID, block.getId())
-              .where(BLOCK.ID.eq(block.getPreviousBlockId()))
-              .execute();
+        .set(BLOCK.NEXT_BLOCK_ID, block.getId())
+        .where(BLOCK.ID.eq(block.getPreviousBlockId()))
+        .execute();
     }
   }
 

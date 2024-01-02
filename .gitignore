@@ -1,6 +1,7 @@
 /*.iml
 /dist
 /tmp
+/temp
 .idea
 brs.log
 brs.log.*

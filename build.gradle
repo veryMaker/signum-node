@@ -7,8 +7,10 @@ plugins {
   id 'org.gradle.crypto.checksum' version '1.4.0'
   id 'com.palantir.git-version' version '0.12.2'
   id 'io.spring.dependency-management' version '1.0.1.RELEASE' //for logging - log4j
-  id 'nu.studer.jooq' version '3.0.3'
-  id "org.flywaydb.flyway" version "8.2.0"
+  // latest version to run with JDK 11
+  // https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
+  id 'nu.studer.jooq' version '7.1.1'
+  id "org.flywaydb.flyway" version "8.5.13"
   id "de.undercouch.download" version "5.5.0"
   id 'jacoco'
   id "com.github.node-gradle.node" version "7.0.1"
@@ -29,16 +31,22 @@ dependencies {
   implementation 'com.github.signum-network:signumj:v1.3.1'
 
   implementation 'io.reactivex.rxjava2:rxjava:2.2.15'
-  implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+  implementation 'org.bouncycastle:bcprov-jdk18on:1.75'
   implementation 'org.ehcache:ehcache:3.9.9'
-  implementation 'org.flywaydb:flyway-core:8.2.0'
   implementation 'com.google.code.gson:gson:2.8.9'
-  implementation 'com.h2database:h2:1.4.199'
   implementation 'commons-cli:commons-cli:1.4'
   implementation 'com.zaxxer:HikariCP:5.0.1'
   implementation 'org.jocl:jocl:2.0.1'
-  implementation 'org.jooq:jooq:3.15.7'
-  implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
+
+  // db related deps
+  //  https://github.com/etiennestuder/gradle-jooq-plugin?tab=readme-ov-file#compatibility
+  implementation 'org.jooq:jooq:3.16.23'
+  implementation 'org.flywaydb:flyway-core:8.5.13'
+  implementation 'org.flywaydb:flyway-mysql:8.5.13'
+  implementation 'com.h2database:h2:2.2.224'
+  implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+  jooqGenerator 'com.h2database:h2:2.2.224'
+
   implementation 'org.owasp.encoder:encoder:1.2.3'
   implementation 'org.bitlet:weupnp:0.1.4'
 
@@ -48,10 +56,10 @@ dependencies {
   implementation 'org.slf4j:slf4j-api:1.7.35'
   implementation 'org.slf4j:slf4j-jdk14:1.7.35'
 
-  implementation 'org.eclipse.jetty:jetty-server:10.0.7'
-  implementation 'org.eclipse.jetty:jetty-servlet:10.0.7'
-  implementation 'org.eclipse.jetty:jetty-servlets:10.0.7'
-  implementation 'org.eclipse.jetty:jetty-rewrite:10.0.7'
+  implementation 'org.eclipse.jetty:jetty-server:10.0.19'
+  implementation 'org.eclipse.jetty:jetty-servlet:10.0.19'
+  implementation 'org.eclipse.jetty:jetty-servlets:10.0.19'
+  implementation 'org.eclipse.jetty:jetty-rewrite:10.0.19'
 
   implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
@@ -77,11 +85,9 @@ dependencies {
   testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
   testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
 
-  // Needed for build script so "compile" needed
-  implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
-
-  jooqRuntime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1'
 }
+
+
 test {
   useJUnitPlatform()
   testLogging {
@@ -98,9 +104,11 @@ sourceSets {
       srcDir "resources"
     }
   }
-  test {
-    java {
-      srcDirs = ["test/java"]
+  if (!project.hasProperty('skipTests')) {
+    test {
+      java {
+        srcDirs = ["test/java"]
+      }
     }
   }
 }
@@ -108,62 +116,6 @@ sourceSets {
 // Define the main class for the application
 mainClassName = 'signum.Launcher'
 description = 'Signum Node.'
-
-def schema_dburl = "jdbc:mariadb://localhost:3306/signum_jooq"
-def schema_dbusername = "root"
-def schema_dbpassword = "pass"
-flyway {
-  url = "${schema_dburl}"
-  user = "${schema_dbusername}"
-  password = "${schema_dbpassword}"
-  locations = ["filesystem:" + project.projectDir.toString() + "/resources/db/migration_mariadb"]
-}
-
-jooq {
-  version = "3.15.7"
-  edition = "OSS"
-  signum(sourceSets.main) {
-    jdbc {
-      url = "${schema_dburl}"
-      user = "${schema_dbusername}"
-      password = "${schema_dbpassword}"
-    }
-    generator {
-      name = 'org.jooq.codegen.JavaGenerator'
-      database {
-        includes = ".*"
-
-        name = "org.jooq.meta.mariadb.MariaDBDatabase"
-        inputSchema = "signum_jooq"
-        outputSchema = "DB"
-
-        excludes = ''
-        // outputSchemaToDefault = true
-
-        forcedTypes {
-          forcedType {
-            name = 'BOOLEAN'
-            expression = '.*\\.(.*\\.LATEST|MINTABLE|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))'
-            types = '.*'
-          }
-        }
-      }
-      target {
-        packageName = "brs.schema"
-        directory = "src"
-      }
-    }
-  }
-}
-
-// use the following to generate the schema tables:
-// ./gradlew build -DgenerateSchema=true --rerun-tasks
-generateSignumJooqSchemaSource.dependsOn flywayMigrate
-generateSignumJooqSchemaSource.onlyIf { System.getProperty("generateSchema") == "true" }
-flywayMigrate.onlyIf { System.getProperty("generateSchema") == "true" }
-
-
-def details = versionDetails()
 
 jar {
   // Needed by the logging library
@@ -175,6 +127,7 @@ jar {
 shadowJar {
 }
 
+def details = versionDetails()
 def baseNodeFileName = "signum-node"
 createExe {
   outfile = "${baseNodeFileName}.exe"
@@ -255,8 +208,7 @@ tasks.register('windowsZip', Zip) {
 import org.gradle.crypto.checksum.Checksum
 
 tasks.register('release', Checksum) {
-//  dependsOn test, dist, windowsZip
-  dependsOn dist, windowsZip
+  dependsOn test, dist, windowsZip
   files = files(["build/distributions/${baseNodeFileName}.zip", "build/distributions/${baseNodeFileName}-win_x64.zip"])
 }
 
@@ -277,3 +229,67 @@ artifacts {
   archives sourcesJar
   archives javadocJar
 }
+
+
+// ==================== JOOQ Code Gen
+// ./gradlew generateJooq
+
+def schema_dburl = "jdbc:h2:${project.projectDir}/temp/generated/db/signum_jooq"
+def schema_dbusername = ""
+def schema_dbpassword = ""
+
+flyway {
+  url = "${schema_dburl}"
+  user = "${schema_dbusername}"
+  password = "${schema_dbpassword}"
+  locations = ["filesystem:" + project.projectDir.toString() + "/resources/db/migration_h2_v2"]
+}
+
+import nu.studer.gradle.jooq.JooqEdition
+
+jooq {
+  // last version to use with JDK 11
+  version = '3.16.23'
+  edition = JooqEdition.OSS
+
+  configurations {
+    main {
+      generateSchemaSourceOnCompilation = false
+      generationTool {
+        logging = org.jooq.meta.jaxb.Logging.DEBUG
+        jdbc {
+          driver = 'org.h2.Driver'
+          url = "${schema_dburl}"
+          user = "${schema_dbusername}"
+          password = "${schema_dbpassword}"
+        }
+        generator {
+          name = 'org.jooq.codegen.DefaultGenerator'
+          database {
+            name = 'org.jooq.meta.h2.H2Database'
+            includes = '.*'
+            excludes = ''
+            inputSchema = "PUBLIC"
+            outputSchema = "DB"
+
+            forcedTypes {
+              forcedType {
+                name = 'BOOLEAN'
+                expression = '.*\\.(.*\\.LATEST|MINTABLE|AT_STATE\\.FREEZE_WHEN_SAME_BALANCE|GOODS\\.DELISTED|TRANSACTION\\.(HAS_MESSAGE|HAS_ENCRYPTED_MESSAGE|HAS_PUBLIC_KEY_ANNOUNCEMENT|HAS_ENCRYPTTOSELF_MESSAGE)|PURCHASE\\.(PENDING|HAS_FEEDBACK_NOTES|HAS_PUBLIC_FEEDBACKS))'
+                types = '.*'
+              }
+            }
+          }
+          target {
+            packageName = 'brs.schema'
+            directory = 'temp/generated/jooq'
+          }
+        }
+      }
+    }
+  }
+}
+
+generateJooq.dependsOn(flywayMigrate)
+
+

@@ -62,9 +62,32 @@ OpenJDK 64-Bit Server VM (build 11.0.13+8-Ubuntu-0ubuntu1.20.04, mixed mode, sha
 
 The important part is that the Java version starts with `11.` (Java 11)
 
-### MariaDB (Recommended)
+> Tipp: Use [SDK!](https://sdkman.io/usage) for easy installation of Java
 
-[Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
+
+## MariaDB (optional)
+
+----
+
+### Should I use MariaDB or H2?
+
+H2 is a fast file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up. 
+This makes H2 an interesting choice especially for local (not publicly accessible) nodes. Choose this, if you want to run just a local node without public exposure. Furthermore, 
+the resulting database file is easily shareable, such others can use a snapshot and sync from there.
+
+MariaDB on the other hand requires an additional set-up. It is the better choice for publicly accessible nodes, 
+as it is considered more stable, especially under higher load. MariaDB is not as fast as H2, so expect higher synchronisation times. 
+
+|          | Stability | Speed | Setup | Backup | Purpose     |
+|----------|-----------|------|-------|--------|-------------|
+| H2       | ⭐         | ⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | Local Node  |  
+| MariaDB  | ⭐⭐        | ⭐    | ⭐     | ⭐       | Public Node |  
+
+---- 
+
+#### [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
+
+> The minimum required version is 10.6!
 
 The MariaDb installation will ask to setup a password for the root user.
 This password can be anything you like. 
@@ -79,18 +102,17 @@ Modify these settings in the `node-default.properties` file in the node director
 ```
 **Windows Setup**
 
-after you install MariaDB and use a root passowrd of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
+after you install MariaDB and use a root password of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
 
 **TIP: _use the copy icon in github when you mouse over the text, then use the RIGHT mouse button and click in the command prompt window to paste_**
-```
-create database if not exists signum;
-create user if not exists 'signum_user'@'localhost' identified by 'S!gnumP@$S';
-grant all privileges on signum.* to 'signum_user'@'localhost';
-flush privileges;
+```sql
+CREATE DATABASE IF NOT EXISTS signum;
+CREATE USER IF NOT EXISTS 'signum_user'@'localhost' IDENTIFIED BY 'S!gnumP@$S';
+GRANT ALL PRIVILEGES ON signum.* TO 'signum_user'@'localhost';
+FLUSH PRIVILEGES;
 
 ```
 You should see 4 "Query OK" responses after pasting, maria is now setup!   If you have already updated your node-default.properties file as shown above you should be able to start your node and begin to syncronize it to the network.
-
 
 ## Set Up
 
@@ -124,7 +146,7 @@ node.cashBackId = 8952122635653861124
 ```
 Note: the example ID above `8952122635653861124` is the [SNA](https://www.sna.signum.network/) account.
 
-The cash-back is paid from block 1,029,000.
+The cash-back is paid from block `1,029,000.`
 
 **H2/MariaDB**
 
@@ -270,7 +292,11 @@ git push --tags
 
 # Docker
 
-See DOCKER.md for information on running and building docker images.
+See [DOCKER.md](./DOCKER.md) for information on running and building docker images.
+
+# Database Development
+
+To get more details about how to work with database changes look at [more detailed DB.md](./DB.md) 
 
 # Developers
 

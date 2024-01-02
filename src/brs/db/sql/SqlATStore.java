@@ -210,7 +210,7 @@ public class SqlATStore implements ATStore {
       return createAT(at, atState, height);
     });
   }
-  
+
   @Override
   public AtMapEntry getMapValueEntry(long atId, long key1, long key2) {
     return this.atMapTable.get(this.atMapKeyFactory.newKey(atId, key1, key2));
@@ -320,14 +320,14 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount) {
+  public Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minActivationAmount) {
     return Db.useDSLContext(ctx -> {
       SelectQuery<Record1<Long>> query = ctx.select(TRANSACTION.ID).from(TRANSACTION).where(
         TRANSACTION.HEIGHT.between(startHeight, endHeight - 1)
       ).and(
         TRANSACTION.RECIPIENT_ID.eq(atID)
       ).and(
-        TRANSACTION.AMOUNT.greaterOrEqual(minAmount)
+        TRANSACTION.AMOUNT.greaterOrEqual(minActivationAmount)
       ).orderBy(
         TRANSACTION.HEIGHT, TRANSACTION.ID
       ).getQuery();
@@ -338,14 +338,14 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount) {
+  public int findTransactionHeight(Long transactionId, int height, Long atID, long minActivationAmount) {
     return Db.useDSLContext(ctx -> {
       try {
         Iterator<Record1<Long>> fetch = ctx.select(TRANSACTION.ID)
                 .from(TRANSACTION)
                 .where(TRANSACTION.HEIGHT.eq(height))
                 .and(TRANSACTION.RECIPIENT_ID.eq(atID))
-                .and(TRANSACTION.AMOUNT.greaterOrEqual(minAmount))
+                .and(TRANSACTION.AMOUNT.greaterOrEqual(minActivationAmount))
                 .orderBy(TRANSACTION.HEIGHT, TRANSACTION.ID)
                 .fetch()
                 .iterator();

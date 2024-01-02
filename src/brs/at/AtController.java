@@ -89,6 +89,8 @@ public abstract class AtController {
         listCode(state, true, true);
     }
 
+    // TODO: Check if this method should be conditional and controlled by properties...it's more like a debugging function, and not
+    //       intended to be used in production
     private static void listCode(AtMachineState state, boolean disassembly, boolean determineJumps) {
 
         AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
