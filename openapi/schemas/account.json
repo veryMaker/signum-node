@@ -137,6 +137,7 @@
     "name": "ohager",
     "description": "{\"nm\":\"ohager\",\"ds\":\"Just a simple dev... or not?\",\"av\":{\"QmbbjnCFd8jELVZkVtokChaYAxFMjoGsuwhNeiPrgZGgo3\":\"image/png\"},\"bg\":{\"Qmd45gVYNvz5LPuNfrx8zDH571kz4h8vTRHdZhSFRZx3Hz\":\"image/jpeg\"},\"hp\":\"https://signum.network\",\"tw\":\"https://twitter.com/ohager5\",\"sc\":[]}",
     "isAT": false,
+    "iSecured": true,
     "assetBalances": [
       {
         "asset": "6874634292089191957",
