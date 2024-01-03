@@ -92,12 +92,10 @@ final class GetAccountTransactions extends APIServlet.JsonRequestHandler {
       throw new IllegalArgumentException("lastIndex must be greater or equal to firstIndex");
     }
 
-    JsonArray transactions = new JsonArray();
-    CollectionWithIndex<Transaction> accountTransactions;
     int timestamp = ParameterParser.getTimestamp(req);
     int numberOfConfirmations = parameterService.getNumberOfConfirmations(req);
     boolean includeIndirect = parameterService.getIncludeIndirect(req);
-    accountTransactions = account != null
+    CollectionWithIndex<Transaction> accountTransactions = account != null
       ? blockchain.getTransactions(
       account,
       numberOfConfirmations,
@@ -120,6 +118,7 @@ final class GetAccountTransactions extends APIServlet.JsonRequestHandler {
       parameterService.getBidirectional(req));
 
 
+    JsonArray transactions = new JsonArray();
     for (Transaction transaction : accountTransactions) {
       transactions.add(JSONData.transaction(transaction, blockchain.getHeight()));
     }

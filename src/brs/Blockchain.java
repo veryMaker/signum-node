@@ -52,7 +52,6 @@ public interface Blockchain {
 
   long getBlockReward(int height);
 
-  Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockTimestamp, boolean includeIndirectIncoming);
 
   CollectionWithIndex<Transaction> getTransactions(Long senderId, Long recipientId, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming, boolean bidirectional);
 

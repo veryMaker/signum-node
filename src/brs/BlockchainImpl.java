@@ -229,18 +229,13 @@ public class BlockchainImpl implements Blockchain {
   }
 
   @Override
-  public Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockTimestamp, boolean includeIndirectIncoming) {
-    return getTransactions(account, 0, type, subtype, blockTimestamp, 0, -1, includeIndirectIncoming).getCollection();
-  }
-
-  @Override
   public CollectionWithIndex<Transaction> getTransactions(Long senderId, Long recipientId, int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to, boolean includeIndirectIncoming, boolean bidirectional) {
     return new CollectionWithIndex<>(blockchainStore.getTransactions(senderId, recipientId, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming, bidirectional), from, to);
   }
   @Override
   public CollectionWithIndex<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype,
                                                  int blockTimestamp, int from, int to, boolean includeIndirectIncoming) {
-    return new CollectionWithIndex<Transaction>(blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming), from, to);
+    return new CollectionWithIndex<>(blockchainStore.getTransactions(account, numberOfConfirmations, type, subtype, blockTimestamp, from, to, includeIndirectIncoming), from, to);
   }
 
   @Override

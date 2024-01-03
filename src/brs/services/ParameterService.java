@@ -46,5 +46,7 @@ public interface ParameterService {
 
   boolean getAmountCommitted(HttpServletRequest req);
 
-    boolean getBidirectional(HttpServletRequest req);
+  boolean getBidirectional(HttpServletRequest req);
+
+
 }
