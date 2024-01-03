@@ -180,4 +180,5 @@ public class ResultFields {
   public static final String CHEAP_FEE_RESPONSE = "cheap";
   public static final String STANDARD_FEE_RESPONSE = "standard";
   public static final String PRIORITY_FEE_RESPONSE = "priority";
+  public static final String IS_AT_RESPONSE = "isAT";
 }

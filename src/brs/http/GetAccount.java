@@ -4,17 +4,7 @@ import static brs.http.common.Parameters.ACCOUNT_PARAMETER;
 import static brs.http.common.Parameters.ESTIMATE_COMMITMENT_PARAMETER;
 import static brs.http.common.Parameters.GET_COMMITTED_AMOUNT_PARAMETER;
 import static brs.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.http.common.ResultFields.ACCOUNT_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_BALANCES_RESPONSE;
-import static brs.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.http.common.ResultFields.BALANCE_QNT_RESPONSE;
-import static brs.http.common.ResultFields.COMMITMENT_NQT_RESPONSE;
-import static brs.http.common.ResultFields.COMMITTED_NQT_RESPONSE;
-import static brs.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.http.common.ResultFields.NAME_RESPONSE;
-import static brs.http.common.ResultFields.PUBLIC_KEY_RESPONSE;
-import static brs.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE;
-import static brs.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE;
+import static brs.http.common.ResultFields.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -56,23 +46,23 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     Account account = parameterService.getAccount(req);
 
     JsonObject response = JSONData.accountBalance(account);
-    
+
     int height = parameterService.getHeight(req);
     if(height < 0) {
       height = blockchain.getHeight();
     }
-    
+
     if(parameterService.getAmountCommitted(req)) {
       long committedAmount = Burst.getBlockchain().getCommittedAmount(account.getId(), height+Constants.COMMITMENT_WAIT, height, null);
       response.addProperty(COMMITTED_NQT_RESPONSE, Convert.toUnsignedLong(committedAmount));
     }
-    
+
     if(parameterService.getEstimateCommitment(req)) {
       Block block = blockchain.getBlockAtHeight(height);
       long commitment = generator.estimateCommitment(account.getId(), block);
       response.addProperty(COMMITMENT_NQT_RESPONSE, Convert.toUnsignedLong(commitment));
     }
-    
+
     JSONData.putAccount(response, ACCOUNT_RESPONSE, account.getId());
 
     if (account.getPublicKey() != null) {
@@ -87,6 +77,8 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     if (account.getDescription() != null) {
       response.addProperty(DESCRIPTION_RESPONSE, account.getDescription());
     }
+
+    response.addProperty(IS_AT_RESPONSE, account.isAT());
 
     if(height == blockchain.getHeight()) {
       // Only if the height is the latest as we don't handle past asset balances.
@@ -105,10 +97,10 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
         unconfirmedAssetBalances.add(unconfirmedAssetBalance);
       }
 
-      if (assetBalances.size() > 0) {
+      if (!assetBalances.isEmpty()) {
         response.add(ASSET_BALANCES_RESPONSE, assetBalances);
       }
-      if (unconfirmedAssetBalances.size() > 0) {
+      if (!unconfirmedAssetBalances.isEmpty()) {
         response.add(UNCONFIRMED_ASSET_BALANCES_RESPONSE, unconfirmedAssetBalances);
       }
     }
