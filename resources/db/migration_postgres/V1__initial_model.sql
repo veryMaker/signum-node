@@ -310,9 +310,9 @@ create table if not exists block
   id                    bigint not null unique,
   version               bigint not null,
   timestamp             bigint not null,
-  previous_block_id     bigint
-    constraint constraint_3c
-      references block (id) on delete cascade,
+  previous_block_id     bigint,
+--     constraint constraint_3c
+--       references block (id) on delete cascade,
   total_amount          bigint not null,
   total_fee             bigint not null,
   payload_length        bigint not null,
@@ -320,9 +320,9 @@ create table if not exists block
   previous_block_hash   bytea,
   cumulative_difficulty bytea  not null,
   base_target           bigint not null,
-  next_block_id         bigint
-    constraint constraint_3c5
-      references block (id) on delete set null,
+  next_block_id         bigint,
+--     constraint constraint_3c5
+--       references block (id) on delete set null,
   height                bigint not null,
   generation_signature  bytea  not null,
   block_signature       bytea  not null,
@@ -497,7 +497,7 @@ create index if not exists idx_16549_purchase_buyer_id_height_idx
 create index if not exists idx_16549_purchase_timestamp_idx
   on purchase (timestamp desc, id);
 
-create unique index if not exists idx_16549_purchase_id_height_idx
+create index if not exists idx_16549_purchase_id_height_idx
   on purchase (id, height desc);
 
 create table if not exists purchase_feedback
@@ -712,7 +712,7 @@ create index if not exists idx_16538_indirect_incoming_id_index
 create index if not exists idx_16538_indirect_incoming_height_idx
   on indirect_incoming (height);
 
-create unique index if not exists idx_16538_indirect_incoming_db_id_uindex
+create index if not exists idx_16538_indirect_incoming_db_id_uindex
   on indirect_incoming (account_id, transaction_id);
 
 create index if not exists idx_16538_indirect_incoming_tx_idx
