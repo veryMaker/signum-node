@@ -79,6 +79,7 @@ public final class GetAccount extends APIServlet.JsonRequestHandler {
     }
 
     response.addProperty(IS_AT_RESPONSE, account.isAT());
+    response.addProperty(IS_SECURED_RESPONSE, account.getPublicKey() != null);
 
     if(height == blockchain.getHeight()) {
       // Only if the height is the latest as we don't handle past asset balances.
