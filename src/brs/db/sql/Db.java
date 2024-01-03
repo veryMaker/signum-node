@@ -330,7 +330,7 @@ public final class Db {
 
   private static String getDatabaseVersion() {
     DSLContext ctx = getDSLContext();
-    ResultQuery queryVersion = null;
+    ResultQuery queryVersion;
     String version = "N/A";
     try {
       if (ctx.dialect() == SQLDialect.H2) {
@@ -338,13 +338,11 @@ public final class Db {
       } else {
         queryVersion = ctx.resultQuery("SELECT VERSION()");
       }
-      if (queryVersion != null) {
-        Record record = queryVersion.fetchOne();
-        if (record != null) {
-          version = record.get(0, String.class);
-          if(ctx.dialect() == SQLDialect.POSTGRES){
-            version += " (EXPERIMENTAL)";
-          }
+      Record record = queryVersion.fetchOne();
+      if (record != null) {
+        version = record.get(0, String.class);
+        if (ctx.dialect() == SQLDialect.POSTGRES) {
+          version += " (EXPERIMENTAL)";
         }
       }
     } catch (Exception e) {

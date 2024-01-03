@@ -47,9 +47,4 @@ public class IndirectIncomingServiceImpl implements IndirectIncomingService {
         if (disabled) return;
         indirectIncomingStore.rollback(height);
     }
-
-  @Override
-  public boolean isEnabled() {
-    return !disabled;
-  }
 }

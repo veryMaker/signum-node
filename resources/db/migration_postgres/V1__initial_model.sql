@@ -655,32 +655,6 @@ create table if not exists transaction
   cash_back_id                    bigint  default '0'::bigint
 );
 
-create table if not exists indirect_incoming
-(
-  db_id          bigserial
-    constraint idx_16538_primary
-      primary key,
-  account_id     bigint not null,
-  transaction_id bigint not null
-    constraint indirect_incoming_ibfk_1
-      references transaction (id) on delete cascade,
-  height         bigint not null,
-  amount         bigint default '0'::bigint,
-  quantity       bigint default '0'::bigint
-);
-
-create index if not exists idx_16538_indirect_incoming_id_index
-  on indirect_incoming (account_id);
-
-create index if not exists idx_16538_indirect_incoming_height_idx
-  on indirect_incoming (height);
-
-create unique index if not exists idx_16538_indirect_incoming_db_id_uindex
-  on indirect_incoming (account_id, transaction_id);
-
-create index if not exists idx_16538_indirect_incoming_tx_idx
-  on indirect_incoming (transaction_id);
-
 create index if not exists idx_16601_transaction_recipient_id_idx
   on transaction (recipient_id);
 
@@ -719,6 +693,30 @@ create index if not exists idx_16601_transaction_recipient_id_amount_height_idx
 
 create index if not exists idx_16601_transaction_sender_id_idx
   on transaction (sender_id);
+
+create table if not exists indirect_incoming
+(
+  db_id          bigserial
+    constraint idx_16538_primary
+      primary key,
+  account_id     bigint not null,
+  transaction_id bigint not null,
+  height         bigint not null,
+  amount         bigint default '0'::bigint,
+  quantity       bigint default '0'::bigint
+);
+
+create index if not exists idx_16538_indirect_incoming_id_index
+  on indirect_incoming (account_id);
+
+create index if not exists idx_16538_indirect_incoming_height_idx
+  on indirect_incoming (height);
+
+create unique index if not exists idx_16538_indirect_incoming_db_id_uindex
+  on indirect_incoming (account_id, transaction_id);
+
+create index if not exists idx_16538_indirect_incoming_tx_idx
+  on indirect_incoming (transaction_id);
 
 create table if not exists unconfirmed_transaction
 (

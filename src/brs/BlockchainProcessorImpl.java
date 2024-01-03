@@ -1017,6 +1017,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           calculatedTotalAmount += transaction.getAmountNQT();
           calculatedTotalFee += transaction.getFeeNQT();
           digest.update(transaction.getBytes());
+          indirectIncomingService.processTransaction(transaction);
           feeArray[slotIdx] = transaction.getFeeNQT();
           slotIdx += 1;
         }
@@ -1048,10 +1049,6 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         transactionProcessor.requeueAllUnconfirmedTransactions();
         accountService.flushAccountTable();
         addBlock(block);
-        if(indirectIncomingService.isEnabled()){
-          transactions.forEach(indirectIncomingService::processTransaction);
-        }
-
         accept(block, remainingAmount, remainingFee);
         derivedTableManager.getDerivedTables().forEach(DerivedTable::finish);
         stores.commitTransaction();
