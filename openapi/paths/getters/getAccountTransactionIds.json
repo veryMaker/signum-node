@@ -1,7 +1,7 @@
 {
   "get": {
     "summary": "Get Account Transaction Ids",
-    "description": "Get account transaction identifiers.",
+    "description": "Get account transaction identifiers by different filters.<br/>You can either search for all transactions (incoming and outgoing) per account, or you can selectively filter by sender and/or recipient only.",
     "tags": [
       "payment",
       "alias",
@@ -12,7 +12,31 @@
     ],
     "parameters": [
       {
-        "$ref": "../../parameters/account/account.json"
+        "name": "account",
+        "in": "query",
+        "allowEmptyValue": true,
+        "description": "The account identifier. It is only required when `sender` and `recipient` are not provided.",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "sender",
+        "description": "The senders identifier for wanted transactions.<br/>When used  `sender` the `account` parameter is ignored. Together with this parameter, the `bidirectional` parameter applies.",
+        "in": "query",
+        "allowEmptyValue": true,
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "recipient",
+        "description": "The recipient identifier for wanted transactions.<br/>When used `recipient` the `account` parameter is ignored. Together with this parameter, the `bidirectional` parameter applies.",
+        "in": "query",
+        "allowEmptyValue": true,
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
       },
       {
         "$ref": "../../parameters/timestamp.json"
@@ -53,6 +77,20 @@
         "in": "query",
         "schema": {
           "type": "boolean",
+          "default": false,
+          "example": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "name": "bidirectional",
+        "description": "When set true, all transactions between `sender` and `recipient` are returned. When set false, only transactions from `sender` and optionally to `recipient` are returned. This applies only if either `sender` and/or `recipient` are provided.",
+        "in": "query",
+        "schema": {
+          "type": "boolean",
+          "default": false,
           "example": [
             true,
             false
