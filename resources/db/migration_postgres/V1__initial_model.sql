@@ -497,7 +497,7 @@ create index if not exists idx_16549_purchase_buyer_id_height_idx
 create index if not exists idx_16549_purchase_timestamp_idx
   on purchase (timestamp desc, id);
 
-create index if not exists idx_16549_purchase_id_height_idx
+create unique index if not exists idx_16549_purchase_id_height_idx
   on purchase (id, height desc);
 
 create table if not exists purchase_feedback
@@ -512,7 +512,7 @@ create table if not exists purchase_feedback
   latest         boolean default true not null
 );
 
-create index if not exists idx_16561_purchase_feedback_id_height_idx
+create unique index if not exists idx_16561_purchase_feedback_id_height_idx
   on purchase_feedback (id, height desc);
 
 create table if not exists purchase_public_feedback
@@ -526,7 +526,7 @@ create table if not exists purchase_public_feedback
   latest          boolean default true not null
 );
 
-create index if not exists idx_16571_purchase_public_feedback_id_height_idx
+create unique index if not exists idx_16571_purchase_public_feedback_id_height_idx
   on purchase_public_feedback (id, height desc);
 
 create table if not exists reward_recip_assign
