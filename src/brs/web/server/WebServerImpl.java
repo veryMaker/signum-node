@@ -50,7 +50,7 @@ public final class WebServerImpl implements WebServer {
     host = context.getPropertyService().getString(Props.API_LISTEN);
     port = context.getPropertyService().getInt(Props.API_PORT);
     jettyServer = new Server();
-    ServerConnectorFactory connectorFactory = ServerConnectorFactory.getInstance(context, jettyServer);
+    ServerConnectorFactory connectorFactory = new ServerConnectorFactory(context, jettyServer);
     jettyServer.addConnector(connectorFactory.createHttpConnector());
     ServletContextHandler servletContextHandler = new ServletContextHandler();
 

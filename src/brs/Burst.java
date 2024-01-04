@@ -288,11 +288,29 @@ public final class Burst {
 
       final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
 
-      webServer = new WebServerImpl(new WebServerContext(transactionProcessor, blockchain, blockchainProcessor, parameterService,
-            accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
-            subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
-            transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator,
-            deepLinkQRCodeGenerator, indirectIncomingService, params));
+      webServer = new WebServerImpl(new WebServerContext(transactionProcessor,
+        blockchain,
+        blockchainProcessor,
+        parameterService,
+        accountService,
+        aliasService,
+        assetExchange,
+        escrowService,
+        digitalGoodsStoreService,
+        subscriptionService,
+        atService,
+        timeService,
+        economicClustering,
+        propertyService,
+        threadPool,
+        transactionService,
+        blockService,
+        generator,
+        apiTransactionManager,
+        feeSuggestionCalculator,
+        deepLinkQRCodeGenerator,
+        indirectIncomingService,
+        params));
       webServer.start();
 
       if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED)){

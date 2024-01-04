@@ -3,7 +3,6 @@ package brs.web.api.http;
 import brs.util.Convert;
 import brs.util.Subnet;
 import brs.web.api.http.common.LegacyDocTag;
-import brs.web.server.WebServer;
 import org.owasp.encoder.Encode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
