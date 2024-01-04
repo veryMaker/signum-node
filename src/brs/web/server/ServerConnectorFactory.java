@@ -2,6 +2,7 @@ package brs.web.server;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 public class ServerConnectorFactory {
 
@@ -16,8 +17,8 @@ public class ServerConnectorFactory {
   public ServerConnector createHttpConnector() {
     return new ServerConnectorHttpBuilderImpl(context).build(server);
   }
-  public ServerConnector createWebsocketConnector() {
-    return new ServerConnectorWebsocketBuilderImpl(context).build(server);
+  public ServerConnector createWebsocketConnector(ServletContextHandler servletContextHandler) {
+    return new ServerConnectorWebsocketBuilderImpl(context, servletContextHandler).build(server);
   }
 
 }

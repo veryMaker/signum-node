@@ -50,9 +50,10 @@ public final class WebServerImpl implements WebServer {
     host = context.getPropertyService().getString(Props.API_LISTEN);
     port = context.getPropertyService().getInt(Props.API_PORT);
     jettyServer = new Server();
+    ServletContextHandler servletContextHandler = new ServletContextHandler();
     ServerConnectorFactory connectorFactory = new ServerConnectorFactory(context, jettyServer);
     jettyServer.addConnector(connectorFactory.createHttpConnector());
-    ServletContextHandler servletContextHandler = new ServletContextHandler();
+    jettyServer.addConnector(connectorFactory.createWebsocketConnector(servletContextHandler));
 
     configureWebUI(servletContextHandler);
     configureHttpApi(servletContextHandler);
@@ -68,6 +69,10 @@ public final class WebServerImpl implements WebServer {
     jettyServer.setHandler(rootHandler);
     jettyServer.setStopAtShutdown(true);
     return jettyServer;
+  }
+
+  private void configureWebsocketApi(ServletContextHandler servletContextHandler) {
+
   }
 
   private void configureHttpApi(ServletContextHandler servletContextHandler) {
