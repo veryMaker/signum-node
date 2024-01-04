@@ -108,7 +108,8 @@ public final class WebServerImpl implements WebServer {
   }
 
   private void configureWebUI(ServletContextHandler servletContextHandler) {
-    Optional.of(context.getPropertyService().getString(Props.API_UI_DIR)).ifPresent( apiResourceBase -> {
+    String apiResourceBase = context.getPropertyService().getString(Props.API_UI_DIR);
+    if (!apiResourceBase.isEmpty()) {
       ServletHolder defaultServletHolder = new ServletHolder(new DefaultServlet());
       defaultServletHolder.setInitParameter("resourceBase", apiResourceBase);
       defaultServletHolder.setInitParameter("dirAllowed", "false");
@@ -117,7 +118,7 @@ public final class WebServerImpl implements WebServer {
       defaultServletHolder.setInitParameter("gzip", "true");
       servletContextHandler.addServlet(defaultServletHolder, "/*");
       servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
-    });
+    }
   }
 
 
