@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static brs.http.common.Parameters.*;
+import static brs.web.api.http.common.Parameters.*;
 
 public class APISender {
 

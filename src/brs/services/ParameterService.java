@@ -3,7 +3,7 @@ package brs.services;
 import brs.*;
 import brs.at.AT;
 import brs.crypto.EncryptedData;
-import brs.http.ParameterException;
+import brs.web.api.http.common.ParameterException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -41,7 +41,7 @@ public interface ParameterService {
   AT getAT(HttpServletRequest req) throws ParameterException;
 
   boolean getIncludeIndirect(HttpServletRequest req);
-  
+
   boolean getEstimateCommitment(HttpServletRequest req);
 
   boolean getAmountCommitted(HttpServletRequest req);
