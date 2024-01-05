@@ -57,7 +57,6 @@ public class ParameterServiceImpl implements ParameterService {
     return getAccount(req, true);
   }
 
-
   @Override
   public Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException {
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
@@ -422,6 +421,11 @@ public class ParameterServiceImpl implements ParameterService {
   @Override
   public boolean getAmountCommitted(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(GET_COMMITTED_AMOUNT_PARAMETER));
+  }
+
+  @Override
+  public boolean getBidirectional(HttpServletRequest req) {
+    return Boolean.parseBoolean(req.getParameter(BIDIRECTIONAL_PARAMETER));
   }
 
   @Override

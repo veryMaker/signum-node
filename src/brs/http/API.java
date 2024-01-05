@@ -73,6 +73,7 @@ public final class API {
       allowedBotHosts = null;
     }
 
+    // TODO: refactor this in a better way
     boolean enableAPIServer = propertyService.getBoolean(Props.API_SERVER);
     if (enableAPIServer) {
       final String host = propertyService.getString(Props.API_LISTEN);
