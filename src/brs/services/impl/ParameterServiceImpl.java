@@ -98,6 +98,16 @@ public class ParameterServiceImpl implements ParameterService {
         throw new ParameterException(INCORRECT_ACCOUNT);
       }
 
+      if(Account.checkIsAT(account)) {
+        AT at = atService.getAT(account.getId());
+        if(at == null) {
+          throw new ParameterException(UNKNOWN_AT);
+        }
+        account.setDescription(at.getDescription());
+        account.setName(at.getName());
+        account.setIsAt(true);
+      }
+
       return account;
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ACCOUNT);

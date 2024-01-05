@@ -6,7 +6,9 @@
     "forgedBalanceNQT",
     "guaranteedBalanceNQT",
     "account",
-    "accountRS"
+    "accountRS",
+    "isAT",
+    "isSecured"
   ],
   "properties": {
     "balanceNQT": {
@@ -85,6 +87,14 @@
       "type": "string",
       "description": "The description of the account, if it was set with [Set Account Info](#post-/api-requestType-setAccountInfo)"
     },
+    "isAT": {
+      "type": "boolean",
+      "description": "Indicates whether this account is a Smart Contract or not"
+    },
+    "isSecured": {
+      "type": "boolean",
+      "description": "Indicates whether this account is considered secure, i.e. it has a public key assigned, or not. Not secured accounts should not hold any balances! ⚠\uFE0F"
+    },
     "assetBalances": {
       "description": "The total token balances (in _quantity_) which this account owns, including reserved ones",
       "type": "array",
@@ -127,6 +137,8 @@
     "publicKey": "c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a",
     "name": "ohager",
     "description": "{\"nm\":\"ohager\",\"ds\":\"Just a simple dev... or not?\",\"av\":{\"QmbbjnCFd8jELVZkVtokChaYAxFMjoGsuwhNeiPrgZGgo3\":\"image/png\"},\"bg\":{\"Qmd45gVYNvz5LPuNfrx8zDH571kz4h8vTRHdZhSFRZx3Hz\":\"image/jpeg\"},\"hp\":\"https://signum.network\",\"tw\":\"https://twitter.com/ohager5\",\"sc\":[]}",
+    "isAT": false,
+    "iSecured": true,
     "assetBalances": [
       {
         "asset": "6874634292089191957",
