@@ -98,6 +98,16 @@ public class ParameterServiceImpl implements ParameterService {
         throw new ParameterException(INCORRECT_ACCOUNT);
       }
 
+      if(Account.checkIsAT(account)) {
+        AT at = atService.getAT(account.getId());
+        if(at == null) {
+          throw new ParameterException(UNKNOWN_AT);
+        }
+        account.setDescription(at.getDescription());
+        account.setName(at.getName());
+        account.setIsAt(true);
+      }
+
       return account;
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ACCOUNT);
@@ -411,6 +421,11 @@ public class ParameterServiceImpl implements ParameterService {
   @Override
   public boolean getAmountCommitted(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(GET_COMMITTED_AMOUNT_PARAMETER));
+  }
+
+  @Override
+  public boolean getBidirectional(HttpServletRequest req) {
+    return Boolean.parseBoolean(req.getParameter(BIDIRECTIONAL_PARAMETER));
   }
 
   @Override

@@ -45,4 +45,8 @@ public interface ParameterService {
   boolean getEstimateCommitment(HttpServletRequest req);
 
   boolean getAmountCommitted(HttpServletRequest req);
+
+  boolean getBidirectional(HttpServletRequest req);
+
+
 }

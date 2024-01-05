@@ -7,15 +7,17 @@ import brs.Transaction;
 import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
 
+import brs.util.Convert;
 import brs.web.api.http.ApiServlet;
-import brs.web.api.http.common.LegacyDocTag;
-import brs.web.api.http.common.ParameterParser;
+import brs.web.api.http.common.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import signumj.entity.SignumAddress;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static brs.web.api.http.common.JSONResponses.MISSING_ACCOUNT;
 import static brs.web.api.http.common.Parameters.*;
 import static brs.web.api.http.common.ResultFields.NEXT_INDEX_RESPONSE;
 
@@ -25,19 +27,50 @@ public final class GetAccountTransactionIds extends ApiServlet.JsonRequestHandle
   private final Blockchain blockchain;
 
   public GetAccountTransactionIds(ParameterService parameterService, Blockchain blockchain) {
-    super(new LegacyDocTag[]{LegacyDocTag.ACCOUNTS}, ACCOUNT_PARAMETER, TIMESTAMP_PARAMETER, TYPE_PARAMETER, SUBTYPE_PARAMETER, FIRST_INDEX_PARAMETER, LAST_INDEX_PARAMETER,
-        NUMBER_OF_CONFIRMATIONS_PARAMETER, INCLUDE_INDIRECT_PARAMETER);
+    super(new LegacyDocTag[]{LegacyDocTag.ACCOUNTS},
+      ACCOUNT_PARAMETER,
+      SENDER_PARAMETER,
+      RECIPIENT_PARAMETER,
+      TIMESTAMP_PARAMETER,
+      TYPE_PARAMETER,
+      SUBTYPE_PARAMETER,
+      FIRST_INDEX_PARAMETER,
+      LAST_INDEX_PARAMETER,
+      NUMBER_OF_CONFIRMATIONS_PARAMETER,
+      INCLUDE_INDIRECT_PARAMETER,
+      BIDIRECTIONAL_PARAMETER
+    );
     this.parameterService = parameterService;
     this.blockchain = blockchain;
+  }
+
+  private static Long getAccountIdParameter(String idParameter) {
+    String accountId = Convert.emptyToNull(idParameter);
+    if (accountId == null) {
+      return null;
+    }
+    SignumAddress accountAddress = Convert.parseAddress(accountId);
+    if (accountAddress == null) {
+      return null;
+    }
+    return accountAddress.getSignedLongId();
   }
 
   @Override
   protected
   JsonElement processRequest(HttpServletRequest req) throws BurstException {
 
-    Account account = parameterService.getAccount(req);
-    int timestamp = ParameterParser.getTimestamp(req);
-    int numberOfConfirmations = parameterService.getNumberOfConfirmations(req);
+    Account account = parameterService.getAccount(req, false);
+
+    Long senderId = null, recipientId = null;
+    if (account == null) {
+      recipientId = getAccountIdParameter(req.getParameter(RECIPIENT_PARAMETER));
+      senderId = getAccountIdParameter(req.getParameter(SENDER_PARAMETER));
+      if (senderId == null && recipientId == null) {
+        // account is pre-dominantly required if sender and recipient are not provided
+        throw new ParameterException(MISSING_ACCOUNT);
+      }
+    }
 
     byte type;
     byte subtype;
@@ -55,21 +88,49 @@ public final class GetAccountTransactionIds extends ApiServlet.JsonRequestHandle
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
+    if (lastIndex < firstIndex) {
+      throw new IllegalArgumentException("lastIndex must be greater or equal to firstIndex");
+    }
+
+
+    int timestamp = ParameterParser.getTimestamp(req);
+    int numberOfConfirmations = parameterService.getNumberOfConfirmations(req);
+    boolean includeIndirect = parameterService.getIncludeIndirect(req);
+    CollectionWithIndex<Transaction> accountTransactions = account != null
+      ? blockchain.getTransactions(
+      account,
+      numberOfConfirmations,
+      type,
+      subtype,
+      timestamp,
+      firstIndex,
+      lastIndex,
+      includeIndirect)
+      : blockchain.getTransactions(
+      senderId,
+      recipientId,
+      numberOfConfirmations,
+      type,
+      subtype,
+      timestamp,
+      firstIndex,
+      lastIndex,
+      includeIndirect,
+      parameterService.getBidirectional(req));
+
     JsonArray transactionIds = new JsonArray();
-    CollectionWithIndex<Transaction> transactions = blockchain.getTransactions(account, numberOfConfirmations, type, subtype, timestamp, firstIndex, lastIndex, parameterService.getIncludeIndirect(req));
-    for (Transaction transaction : transactions) {
+    for (Transaction transaction : accountTransactions) {
       transactionIds.add(transaction.getStringId());
     }
 
     JsonObject response = new JsonObject();
     response.add("transactionIds", transactionIds);
 
-    if(transactions.hasNextIndex()) {
-      response.addProperty(NEXT_INDEX_RESPONSE, transactions.nextIndex());
+    if(accountTransactions.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, accountTransactions.nextIndex());
     }
 
     return response;
-
   }
 
 }

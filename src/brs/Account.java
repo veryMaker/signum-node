@@ -6,8 +6,11 @@ import brs.db.BurstKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.util.Convert;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static brs.Constants.AT_PUBLIC_KEY_BYTES;
 
 public class Account {
 
@@ -18,6 +21,7 @@ public class Account {
   private final int creationHeight;
   private byte[] publicKey;
   private int keyHeight;
+  private boolean isAT;
 
   protected String name;
   protected String description;
@@ -85,6 +89,14 @@ public class Account {
     this.keyHeight = keyHeight;
   }
 
+
+  public void setIsAt(boolean isAT) {
+    this.isAT = isAT;
+  }
+
+  public boolean isAT() {
+    return this.isAT;
+  }
   public enum Event {
     BALANCE, UNCONFIRMED_BALANCE, ASSET_BALANCE, UNCONFIRMED_ASSET_BALANCE,
     LEASE_SCHEDULED, LEASE_STARTED, LEASE_ENDED
@@ -356,6 +368,10 @@ public class Account {
       this.keyHeight = height;
       accountTable().insert(this);
     }
+  }
+
+  public static boolean checkIsAT(Account account) {
+    return Arrays.equals(account.getPublicKey(), AT_PUBLIC_KEY_BYTES);
   }
 
   private static void checkBalance(long accountId, long confirmed, long unconfirmed) {

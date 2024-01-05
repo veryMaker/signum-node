@@ -1,21 +1,7 @@
 package brs.web.api.http.handler;
 
-import static brs.web.api.http.common.Parameters.ACCOUNT_PARAMETER;
-import static brs.web.api.http.common.Parameters.ESTIMATE_COMMITMENT_PARAMETER;
-import static brs.web.api.http.common.Parameters.GET_COMMITTED_AMOUNT_PARAMETER;
-import static brs.web.api.http.common.Parameters.HEIGHT_PARAMETER;
-import static brs.web.api.http.common.ResultFields.ACCOUNT_RESPONSE;
-import static brs.web.api.http.common.ResultFields.ASSET_BALANCES_RESPONSE;
-import static brs.web.api.http.common.ResultFields.ASSET_RESPONSE;
-import static brs.web.api.http.common.ResultFields.BALANCE_QNT_RESPONSE;
-import static brs.web.api.http.common.ResultFields.COMMITMENT_NQT_RESPONSE;
-import static brs.web.api.http.common.ResultFields.COMMITTED_NQT_RESPONSE;
-import static brs.web.api.http.common.ResultFields.DESCRIPTION_RESPONSE;
-import static brs.web.api.http.common.ResultFields.NAME_RESPONSE;
-import static brs.web.api.http.common.ResultFields.PUBLIC_KEY_RESPONSE;
-import static brs.web.api.http.common.ResultFields.UNCONFIRMED_ASSET_BALANCES_RESPONSE;
-import static brs.web.api.http.common.ResultFields.UNCONFIRMED_BALANCE_QNT_RESPONSE;
-
+import static brs.web.api.http.common.Parameters.*;
+import static brs.web.api.http.common.ResultFields.*;
 import javax.servlet.http.HttpServletRequest;
 
 import brs.web.api.http.common.LegacyDocTag;
@@ -91,6 +77,9 @@ public final class GetAccount extends ApiServlet.JsonRequestHandler {
       response.addProperty(DESCRIPTION_RESPONSE, account.getDescription());
     }
 
+    response.addProperty(IS_AT_RESPONSE, account.isAT());
+    response.addProperty(IS_SECURED_RESPONSE, account.getPublicKey() != null);
+
     if(height == blockchain.getHeight()) {
       // Only if the height is the latest as we don't handle past asset balances.
       // Returning assets here is needed by the classic wallet, so we keep it.
@@ -108,10 +97,10 @@ public final class GetAccount extends ApiServlet.JsonRequestHandler {
         unconfirmedAssetBalances.add(unconfirmedAssetBalance);
       }
 
-      if (assetBalances.size() > 0) {
+      if (!assetBalances.isEmpty()) {
         response.add(ASSET_BALANCES_RESPONSE, assetBalances);
       }
-      if (unconfirmedAssetBalances.size() > 0) {
+      if (!unconfirmedAssetBalances.isEmpty()) {
         response.add(UNCONFIRMED_ASSET_BALANCES_RESPONSE, unconfirmedAssetBalances);
       }
     }

@@ -2,10 +2,12 @@ package brs.web.api.http.handler;
 
 import brs.Burst;
 import brs.at.AT.AtMapEntry;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import brs.web.api.http.ApiServlet;
 import brs.web.api.http.common.LegacyDocTag;
+import brs.web.api.http.common.ParameterParser;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,22 +15,23 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.web.api.http.common.JSONResponses.*;
-import static brs.web.api.http.common.ResultFields.VALUE_RESPONSE;
-import static brs.web.api.http.common.ResultFields.KEY_VALUES_RESPONSE;
+import static brs.web.api.http.common.Parameters.*;
+import static brs.web.api.http.common.ResultFields.*;
 
 import java.util.Collection;
-
-import static brs.web.api.http.common.Parameters.AT_PARAMETER;
-import static brs.web.api.http.common.Parameters.KEY1_PARAMETER;
-import static brs.web.api.http.common.Parameters.KEY2_PARAMETER;
-import static brs.web.api.http.common.Parameters.VALUE_PARAMETER;
 
 
 public final class GetATMapValues extends ApiServlet.JsonRequestHandler {
 
 
   public GetATMapValues() {
-    super(new LegacyDocTag[] {LegacyDocTag.AT}, AT_PARAMETER, KEY1_PARAMETER, VALUE_PARAMETER);
+    super(new LegacyDocTag[] {LegacyDocTag.AT},
+      AT_PARAMETER,
+      KEY1_PARAMETER,
+      VALUE_PARAMETER,
+      FIRST_INDEX_PARAMETER,
+      LAST_INDEX_PARAMETER
+    );
   }
 
   @Override
@@ -53,10 +56,18 @@ public final class GetATMapValues extends ApiServlet.JsonRequestHandler {
     long atId = Convert.parseUnsignedLong(at);
     long k1 = Convert.parseUnsignedLong(key1);
 
-    Collection<AtMapEntry> list = Burst.getStores().getAtStore().getMapValues(atId, k1, value);
+
+    int firstIndex = ParameterParser.getFirstIndex(req);
+    int lastIndex  = ParameterParser.getLastIndex(req);
+
+    if(lastIndex < firstIndex) {
+      throw new IllegalArgumentException("lastIndex must be greater or equal to firstIndex");
+    }
+
+    CollectionWithIndex<AtMapEntry> atMapEntries = Burst.getStores().getAtStore().getMapValues(atId, k1, value, firstIndex, lastIndex);
 
     JsonArray mapValues = new JsonArray();
-    for (AtMapEntry entry : list) {
+    for (AtMapEntry entry : atMapEntries) {
       JsonObject entryJson = new JsonObject();
       entryJson.addProperty(KEY2_PARAMETER, Convert.toUnsignedLong(entry.getKey2()));
       entryJson.addProperty(VALUE_RESPONSE, Convert.toUnsignedLong(entry.getValue()));
@@ -65,6 +76,9 @@ public final class GetATMapValues extends ApiServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     response.add(KEY_VALUES_RESPONSE, mapValues);
+    if(atMapEntries.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, atMapEntries.nextIndex());
+    }
     return response;
   }
 
