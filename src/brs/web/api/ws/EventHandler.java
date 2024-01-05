@@ -27,13 +27,12 @@ import org.slf4j.LoggerFactory;
 
 
 // https://itnext.io/writing-a-web-socket-server-with-embedded-jetty-46fe9ab1c435 -- check this.
-public class EventHandler extends WebSocketAdapter
-{
+public class EventHandler extends WebSocketAdapter {
   private static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
   private final CountDownLatch closureLatch = new CountDownLatch(1);
   private final WebServerContext context;
 
-  private Map<String, Session> connections = Collections.synchronizedMap( new HashMap<>());
+  private Map<String, Session> connections = Collections.synchronizedMap(new HashMap<>());
 
   public EventHandler(WebServerContext context) {
     this.context = context;
@@ -41,8 +40,7 @@ public class EventHandler extends WebSocketAdapter
 
 
   @Override
-  public void onWebSocketConnect(Session sess)
-  {
+  public void onWebSocketConnect(Session sess) {
     super.onWebSocketConnect(sess);
     logger.debug("Endpoint connected: {}", sess);
 
@@ -54,36 +52,35 @@ public class EventHandler extends WebSocketAdapter
   }
 
   @Override
-  public void onWebSocketText(String message)
-  {
+  public void onWebSocketText(String message) {
     super.onWebSocketText(message);
     logger.debug("Received TEXT message: {}", message);
-
-    if (message.toLowerCase(Locale.US).contains("bye"))
-    {
+    try {
+      this.getRemote().sendString("Echo: " + message);
+    } catch (Exception e) {
+      logger.warn("Failed to send WS message", e);
+    }
+    if (message.toLowerCase(Locale.US).contains("bye")) {
       getSession().close(StatusCode.NORMAL, "Thanks");
     }
   }
 
 
   @Override
-  public void onWebSocketClose(int statusCode, String reason)
-  {
+  public void onWebSocketClose(int statusCode, String reason) {
     super.onWebSocketClose(statusCode, reason);
     logger.debug("Socket Closed: [{}] {}", statusCode, reason);
     closureLatch.countDown();
   }
 
   @Override
-  public void onWebSocketError(Throwable cause)
-  {
+  public void onWebSocketError(Throwable cause) {
     super.onWebSocketError(cause);
     cause.printStackTrace(System.err);
   }
 
 
-  public void awaitClosure() throws InterruptedException
-  {
+  public void awaitClosure() throws InterruptedException {
     logger.debug("Awaiting closure from remote");
     closureLatch.await();
   }

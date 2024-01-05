@@ -135,7 +135,8 @@ public final class WebServerImpl implements WebServer {
     context.getThreadPool().runBeforeStart(() -> {
       try {
         jettyServer.start();
-        logger.info("Started API server at {}:{}", host, port);
+        logger.info("Started Http API server at {}:{}", host, port);
+        logger.info("Started Websocket API server at {}:{}", host, port + 1);
       } catch (Exception e) {
         logger.error("Failed to start API server", e);
         throw new RuntimeException(e.toString(), e);
