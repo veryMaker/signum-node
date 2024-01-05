@@ -1,4 +1,4 @@
-// Kept because of JDBC flyway migration V7_3
+// Kept because of JDBC flyway migration V7_3 - see src.brs.db.sql.migration
 
 create table "account_balance"
 (

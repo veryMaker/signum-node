@@ -6,18 +6,13 @@
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 2014.
 
-The two supported database backends are:
-
-- MariaDB: for Main Net and Production Environments
-- H2 embedded file database, which should only be used for local and/or test net nodes.
-
-
 ## Network Features
 
 - Proof of Commitment - ASIC proof / Energy efficient and sustainable mining
 - No ICO/Airdrops/Premine
-- Turing-complete smart contracts, via [Signum SmartJ](https://github.com/signum-network/signum-smartj)
-- Asset Exchange; Digital Goods Store; Crowdfunds, NFTs, games, and more (via smart contracts); and Alias system
+- Fully Community Driven
+- Turing-complete smart contracts, via [SmartJ](https://github.com/signum-network/signum-smartj) and [SmartC](https://github.com/deleterium/SmartC)
+- Asset Exchange; Updateable On-chain Data (Aliases), Naming System, Crowdfunds, NFTs, games, and more (via smart contracts)
 
 ## Network Specification
 
@@ -25,8 +20,8 @@ The two supported database backends are:
 - Block size is 375,360 byte
 - Minimum transaction size is 184 bytes
 - Minimum network fee is 0.01 Signa
-- TPS is 16
-- STPS is up to 5,000 [STPS](https://docs.signum.network/signum#ny-smart-layer-10)
+- Transactions per second is at least 16
+- Smart Transactions per second (multiple payouts) is up to 5,000 [STPS](https://docs.signum.network/signum#ny-smart-layer-10)
 - Maximum 1,200,000 balance changes per block
 - Total Supply: [2,138,119,200 SIGNA up to block 972k + 100 SIGNA per block after that](https://github.com/signum-network/CIPs/blob/master/cip-0029.md)
 - Block reward started at 10,000/block in 2014
@@ -39,6 +34,7 @@ The two supported database backends are:
 - Built in Java - runs anywhere, from a Raspberry Pi to a Phone
 - Fast sync with multithreaded CPU or, optionally, an OpenCL GPU
 - HTTP API for clients to interact with network
+- Interactive OpenAPI Documentation
 
 # Installation
 
@@ -65,56 +61,39 @@ The important part is that the Java version starts with `11.` (Java 11)
 > Tipp: Use [SDK!](https://sdkman.io/usage) for easy installation of Java
 
 
-## MariaDB (optional)
+## Using an optional RDBMS (MariaDB, PostgreSQL)
+
+Signum Node uses an embedded file based database (H2) as default. But it's possible to use either MariaDB or PostgreSQL as alternative database.
 
 ----
 
-### Should I use MariaDB or H2?
+### Should I use MariaDB, PostgreSQL or H2?
 
-H2 is a fast file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up. 
-This makes H2 an interesting choice especially for local (not publicly accessible) nodes. Choose this, if you want to run just a local node without public exposure. Furthermore, 
-the resulting database file is easily shareable, such others can use a snapshot and sync from there.
+H2 is a very fast file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up. 
+This makes H2 an interesting choice especially for less-technical users who just want to start and/or run a local (not publicly accessible) node. Choose this, if you want to run just a local node without public exposure and/or 
+you don't want to connect to the database while running the node. Furthermore, the resulting database file is easily shareable, such others can use a snapshot and sync from there.
 
-MariaDB on the other hand requires an additional set-up. It is the better choice for publicly accessible nodes, 
-as it is considered more stable, especially under higher load. MariaDB is not as fast as H2, so expect higher synchronisation times. 
+MariaDB and PostgreSQL on the other hand require an additional set-up. It is the better choice for publicly accessible nodes, 
+as they are considered more stable, especially under higher load. 
 
-|          | Stability | Speed | Setup | Backup | Purpose     |
-|----------|-----------|------|-------|--------|-------------|
-| H2       | ⭐         | ⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | Local Node  |  
-| MariaDB  | ⭐⭐        | ⭐    | ⭐     | ⭐       | Public Node |  
+MariaDB and PostgreSQL are not as fast as H2, so expect higher re-synchronisation times.
+The performance hit for MariaDB and PostgreSQL is related to the TCP/IP connection, which is per se slower than File-IO (especially for SSDs).
+Due to that model concurrent access is possible, i.e. one can run an additional service against the same database, which is not possible with H2, as the file gets locked.
 
+|            | Stability | Speed | Setup | Backup | Concurrency | Purpose                          |
+|------------|-----------|------|-------|--------|----------|----------------------------------|
+| H2         | ⭐         | ⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | ❌         | Local Node                       |  
+| MariaDB    | ⭐⭐        | ⭐    | ⭐     | ⭐       |   ✅       | Public Node, Additional Services |  
+| PostgreSQL | ⭐⭐ (*)    | ⭐    | ⭐     | ⭐       |   ✅       | Public Node, Additional Services |  
+
+> (*) PostgreSQL support is still experimental. So, stability needs to be proven over time, but in general Postgres itself is as least stable/reliable as MariaDB.
 ---- 
 
-#### [Download and install MariaDB](https://mariadb.com/downloads/mariadb-tx)
+See in the following documents how to set up for the RDBMS
+- [MariaDB](./DB_SETUP_MARIADB.md)
+- [PostgreSQL](./DB_SETUP_POSTGRESQL.md)
 
-> The minimum required version is 10.6!
-
-The MariaDb installation will ask to setup a password for the root user.
-This password can be anything you like. 
-
-Modify these settings in the `node-default.properties` file in the node directory after installing the Signum node:
-
-**TIP: _remove # from first character of each line so it looks like the below_**
-```properties
- DB.Url=jdbc:mariadb://localhost:3306/signum
- DB.Username=signum_user
- DB.Password=S!gnumP@$S
-```
-**Windows Setup**
-
-after you install MariaDB and use a root password of your choice, go to the windows icon and find the "MariaDB XX.XX" folder and within that open the "MySQL Client" option. You should see a command prompt asking for your root password, type the password you created when installing maria and hit enter. You should now see something like MariaDB [(none)]>  if so copy the below including the blank lines and paste it into that command prompt window.  
-
-**TIP: _use the copy icon in github when you mouse over the text, then use the RIGHT mouse button and click in the command prompt window to paste_**
-```sql
-CREATE DATABASE IF NOT EXISTS signum;
-CREATE USER IF NOT EXISTS 'signum_user'@'localhost' IDENTIFIED BY 'S!gnumP@$S';
-GRANT ALL PRIVILEGES ON signum.* TO 'signum_user'@'localhost';
-FLUSH PRIVILEGES;
-
-```
-You should see 4 "Query OK" responses after pasting, maria is now setup!   If you have already updated your node-default.properties file as shown above you should be able to start your node and begin to syncronize it to the network.
-
-## Set Up
+## Configure the Signum Node
 
 Grab the latest [release](https://github.com/signum-network/signum-node/releases) (or, if you prefer, compile yourself using the instructions below)
 
@@ -296,7 +275,7 @@ See [DOCKER.md](./DOCKER.md) for information on running and building docker imag
 
 # Database Development
 
-To get more details about how to work with database changes look at [more detailed DB.md](./DB.md) 
+To get more details about how to work with database changes look at [more detailed docs](./DB_DEV). 
 
 # Developers
 
