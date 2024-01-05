@@ -2,6 +2,7 @@ package brs.http;
 
 import brs.Burst;
 import brs.at.AT.AtMapEntry;
+import brs.util.CollectionWithIndex;
 import brs.util.Convert;
 
 import com.google.gson.JsonArray;
@@ -11,22 +12,23 @@ import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import static brs.http.JSONResponses.*;
-import static brs.http.common.ResultFields.VALUE_RESPONSE;
-import static brs.http.common.ResultFields.KEY_VALUES_RESPONSE;
+import static brs.http.common.Parameters.*;
+import static brs.http.common.ResultFields.*;
 
 import java.util.Collection;
-
-import static brs.http.common.Parameters.AT_PARAMETER;
-import static brs.http.common.Parameters.KEY1_PARAMETER;
-import static brs.http.common.Parameters.KEY2_PARAMETER;
-import static brs.http.common.Parameters.VALUE_PARAMETER;
 
 
 final class GetATMapValues extends APIServlet.JsonRequestHandler {
 
 
   GetATMapValues() {
-    super(new APITag[] {APITag.AT}, AT_PARAMETER, KEY1_PARAMETER, VALUE_PARAMETER);
+    super(new APITag[] {APITag.AT},
+      AT_PARAMETER,
+      KEY1_PARAMETER,
+      VALUE_PARAMETER,
+      FIRST_INDEX_PARAMETER,
+      LAST_INDEX_PARAMETER
+    );
   }
 
   @Override
@@ -51,10 +53,18 @@ final class GetATMapValues extends APIServlet.JsonRequestHandler {
     long atId = Convert.parseUnsignedLong(at);
     long k1 = Convert.parseUnsignedLong(key1);
 
-    Collection<AtMapEntry> list = Burst.getStores().getAtStore().getMapValues(atId, k1, value);
+
+    int firstIndex = ParameterParser.getFirstIndex(req);
+    int lastIndex  = ParameterParser.getLastIndex(req);
+
+    if(lastIndex < firstIndex) {
+      throw new IllegalArgumentException("lastIndex must be greater or equal to firstIndex");
+    }
+
+    CollectionWithIndex<AtMapEntry> atMapEntries = Burst.getStores().getAtStore().getMapValues(atId, k1, value, firstIndex, lastIndex);
 
     JsonArray mapValues = new JsonArray();
-    for (AtMapEntry entry : list) {
+    for (AtMapEntry entry : atMapEntries) {
       JsonObject entryJson = new JsonObject();
       entryJson.addProperty(KEY2_PARAMETER, Convert.toUnsignedLong(entry.getKey2()));
       entryJson.addProperty(VALUE_RESPONSE, Convert.toUnsignedLong(entry.getValue()));
@@ -63,6 +73,9 @@ final class GetATMapValues extends APIServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
     response.add(KEY_VALUES_RESPONSE, mapValues);
+    if(atMapEntries.hasNextIndex()) {
+      response.addProperty(NEXT_INDEX_RESPONSE, atMapEntries.nextIndex());
+    }
     return response;
   }
 
