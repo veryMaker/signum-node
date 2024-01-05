@@ -15,6 +15,7 @@ import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AtRecord;
 import brs.schema.tables.records.AtStateRecord;
 
+import brs.util.CollectionWithIndex;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 
@@ -225,7 +226,7 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1, Long value) {
+  public CollectionWithIndex<AtMapEntry> getMapValues(long atId, long key1, Long value, int from, int to) {
     Result<Record> result = Db.useDSLContext(ctx -> {
       SelectConditionStep<Record> request = ctx.select(AT_MAP.fields()).from(AT_MAP).where(AT_MAP.LATEST.isTrue()).and(AT_MAP.AT_ID.eq(atId))
           .and(AT_MAP.KEY1.eq(key1));
@@ -233,7 +234,7 @@ public class SqlATStore implements ATStore {
         request = request.and(AT_MAP.VALUE.eq(value));
       }
       SelectQuery<Record> query = request.orderBy(AT_MAP.HEIGHT.desc()).getQuery();
-
+      DbUtils.applyLimits(query, from, to);
       return query.fetch();
     });
 
@@ -242,7 +243,7 @@ public class SqlATStore implements ATStore {
       list.add(new brs.at.AT.AtMapEntry(atId, key1, r.get(AT_MAP.KEY2), r.get(AT_MAP.VALUE)));
     }
 
-    return list;
+    return new CollectionWithIndex<AtMapEntry>(list, from, to) ;
   }
 
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {

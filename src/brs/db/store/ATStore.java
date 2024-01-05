@@ -4,6 +4,7 @@ import brs.at.AT;
 import brs.at.AT.AtMapEntry;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
+import brs.util.CollectionWithIndex;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,8 +38,8 @@ public interface ATStore {
   int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount);
 
   public AtMapEntry getMapValueEntry(long atId, long key1, long key2);
-  
+
   long getMapValue(long atId, long key1, long key2);
-  
-  Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1, Long value);
+
+  CollectionWithIndex<AtMapEntry> getMapValues(long atId, long key1, Long value, int from, int to );
 }
