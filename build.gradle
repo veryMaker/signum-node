@@ -131,6 +131,7 @@ jar {
 }
 
 shadowJar {
+  mergeServiceFiles()
 }
 
 def details = versionDetails()
