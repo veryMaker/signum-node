@@ -2,7 +2,7 @@ package brs.web.server;
 
 import brs.props.PropertyService;
 import brs.props.Props;
-import brs.web.api.ws.EventHandlerCreator;
+import brs.web.api.ws.WebSocketConnectionCreator;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -25,8 +25,9 @@ public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuild
     ServerConnector connector = new ServerConnector(server);
     PropertyService propertyService = context.getPropertyService();
     connector.setHost(propertyService.getString(Props.API_LISTEN));
-    connector.setPort(propertyService.getInt(Props.API_PORT) + 1);
-    connector.setIdleTimeout(context.getPropertyService().getInt(Props.API_SERVER_IDLE_TIMEOUT));
+    connector.setPort(propertyService.getInt(Props.API_WEBSOCKET_PORT));
+//    connector.setIdleTimeout(context.getPropertyService().getInt(Props.API_SERVER_IDLE_TIMEOUT));
+    connector.setIdleTimeout(10_000);
     connector.setReuseAddress(true);
     JettyWebSocketServletContainerInitializer.configure(servletContextHandler, (servletContext, wsContainer) ->
     {
@@ -34,9 +35,8 @@ public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuild
       wsContainer.setMaxTextMessageSize(4  * 1024);
 
       // Add websockets
-      wsContainer.addMapping("/events/*", new EventHandlerCreator(context));
+      wsContainer.addMapping("/events/*", new WebSocketConnectionCreator(context));
     });
-
     return connector;
   }
 }

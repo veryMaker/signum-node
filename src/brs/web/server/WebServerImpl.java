@@ -5,6 +5,7 @@ import brs.props.Props;
 import brs.util.Subnet;
 import brs.web.api.http.ApiServlet;
 import brs.web.api.http.LegacyDocsServlet;
+import brs.web.api.ws.BlockchainEventNotifier;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -27,6 +28,7 @@ public final class WebServerImpl implements WebServer {
   private static final String API_PATH = "/api";
 
   private final org.eclipse.jetty.server.Server jettyServer;
+  private BlockchainEventNotifier eventNotifier;
 
   private final WebServerContext context;
   private String host;
@@ -38,6 +40,7 @@ public final class WebServerImpl implements WebServer {
     boolean enableAPIServer = context.getPropertyService().getBoolean(Props.API_SERVER);
     if (enableAPIServer) {
       jettyServer = createServerInstance();
+      eventNotifier = BlockchainEventNotifier.getInstance(context);
     } else {
       jettyServer = null;
       logger.info("Web server not enabled");
@@ -53,7 +56,9 @@ public final class WebServerImpl implements WebServer {
     ServletContextHandler servletContextHandler = new ServletContextHandler();
     ServerConnectorFactory connectorFactory = new ServerConnectorFactory(context, jettyServer);
     jettyServer.addConnector(connectorFactory.createHttpConnector());
-    jettyServer.addConnector(connectorFactory.createWebsocketConnector(servletContextHandler));
+    if(context.getPropertyService().getBoolean(Props.API_WEBSOCKET_ENABLE)) {
+      jettyServer.addConnector(connectorFactory.createWebsocketConnector(servletContextHandler));
+    }
 
     configureWebUI(servletContextHandler);
     configureHttpApi(servletContextHandler);
@@ -69,10 +74,6 @@ public final class WebServerImpl implements WebServer {
     jettyServer.setHandler(rootHandler);
     jettyServer.setStopAtShutdown(true);
     return jettyServer;
-  }
-
-  private void configureWebsocketApi(ServletContextHandler servletContextHandler) {
-
   }
 
   private void configureHttpApi(ServletContextHandler servletContextHandler) {
@@ -151,6 +152,7 @@ public final class WebServerImpl implements WebServer {
     }
 
     try {
+      eventNotifier.shutdown();
       jettyServer.stop();
     } catch (Exception e) {
       logger.info("Failed to stop API server", e);
