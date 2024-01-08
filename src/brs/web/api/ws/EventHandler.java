@@ -43,7 +43,6 @@ public class EventHandler extends WebSocketAdapter {
   public void onWebSocketConnect(Session sess) {
     super.onWebSocketConnect(sess);
     logger.debug("Endpoint connected: {}", sess);
-
     connections.put(sess.toString(), sess);
 
     // add listeners to blockchain and transaction processor

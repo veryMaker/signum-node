@@ -6,6 +6,7 @@ import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
 
 public class EventHandlerCreator implements JettyWebSocketCreator {
+
   private final WebServerContext context;
 
   public EventHandlerCreator(WebServerContext context) {
