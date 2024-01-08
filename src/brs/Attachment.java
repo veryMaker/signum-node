@@ -15,8 +15,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static brs.http.common.Parameters.*;
-import static brs.http.common.ResultFields.*;
+import static brs.web.api.http.common.Parameters.*;
+import static brs.web.api.http.common.ResultFields.*;
 
 public interface Attachment extends Appendix {
 
@@ -519,7 +519,7 @@ public interface Attachment extends Appendix {
       }
       this.priceNQT = JSON.getAsLong(attachmentData.get(PRICE_NQT_PARAMETER));
     }
-    
+
     public MessagingAliasSell(String aliasName, long priceNQT, int blockchainHeight) {
       super(blockchainHeight);
       this.aliasName = aliasName;
@@ -2418,7 +2418,7 @@ public interface Attachment extends Appendix {
     public TransactionType getTransactionType() {
       return TransactionType.AdvancedPayment.SUBSCRIPTION_PAYMENT;
     }
-    
+
     public long getSubscriptionId() {
       return subscriptionId;
     }
@@ -2484,13 +2484,13 @@ public interface Attachment extends Appendix {
       else {
 	      dataLen = buffer.getInt();
       }
-      
+
       if(codeLen==0 && dataLen > 0 && dataLen < buffer.remaining()) {
           // fix problematic contracts with incorrect length,
           // so it at least the bytes are all loaded in the attachment.
           dataLen = buffer.remaining();
       }
-      
+
       byte[] data = new byte[ dataLen ];
       buffer.get( data, 0, dataLen );
 

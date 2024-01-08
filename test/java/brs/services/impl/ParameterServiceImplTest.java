@@ -8,7 +8,7 @@ import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.http.ParameterException;
+import brs.web.api.http.common.ParameterException;
 import brs.services.ATService;
 import brs.services.AccountService;
 import brs.services.AliasService;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static brs.common.TestConstants.TEST_SECRET_PHRASE;
-import static brs.http.common.Parameters.*;
+import static brs.web.api.http.common.Parameters.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
+import static brs.web.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
 
 public class TransactionProcessorImpl implements TransactionProcessor {
 

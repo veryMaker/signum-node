@@ -5,8 +5,8 @@ import brs.assetexchange.AssetExchange;
 import brs.at.AT;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.http.ParameterException;
-import brs.http.common.Parameters;
+import brs.web.api.http.common.ParameterException;
+import brs.web.api.http.common.Parameters;
 import brs.services.*;
 import brs.util.Convert;
 import brs.util.JSON;
@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static brs.http.JSONResponses.*;
-import static brs.http.common.Parameters.*;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
+import static brs.web.api.http.common.JSONResponses.*;
+import static brs.web.api.http.common.Parameters.*;
+import static brs.web.api.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.web.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 public class ParameterServiceImpl implements ParameterService {
 

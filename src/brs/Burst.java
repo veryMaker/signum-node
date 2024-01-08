@@ -15,9 +15,8 @@ import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
-import brs.http.API;
-import brs.http.APITransactionManager;
-import brs.http.APITransactionManagerImpl;
+import brs.web.api.http.common.APITransactionManager;
+import brs.web.api.http.common.APITransactionManagerImpl;
 import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.PropertyServiceImpl;
@@ -29,6 +28,9 @@ import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
+import brs.web.server.WebServer;
+import brs.web.server.WebServerContext;
+import brs.web.server.WebServerImpl;
 import signum.net.NetworkParameters;
 import signumj.util.SignumUtils;
 
@@ -45,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: rename to Signum
 public final class Burst {
 
   public static final Version VERSION = Version.parse("v3.8.0-dev");
@@ -90,7 +93,7 @@ public final class Burst {
 
   private static DBCacheManagerImpl dbCacheManager;
 
-  private static API api;
+  private static WebServer webServer;
 
   private static AtomicBoolean shuttingdown = new AtomicBoolean(false);
 
@@ -181,6 +184,7 @@ public final class Burst {
   private static void init(String confFolder) {
     loadWallet(loadProperties(confFolder));
   }
+
 
   private static void loadWallet(PropertyService propertyService) {
     LoggerConfigurator.init();
@@ -284,14 +288,34 @@ public final class Burst {
 
       final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
 
-      api = new API(transactionProcessor, blockchain, blockchainProcessor, parameterService,
-          accountService, aliasService, assetExchange, escrowService, digitalGoodsStoreService,
-          subscriptionService, atService, timeService, economicClustering, propertyService, threadPool,
-          transactionService, blockService, generator, apiTransactionManager, feeSuggestionCalculator,
-          deepLinkQRCodeGenerator, indirectIncomingService, params);
+      webServer = new WebServerImpl(new WebServerContext(transactionProcessor,
+        blockchain,
+        blockchainProcessor,
+        parameterService,
+        accountService,
+        aliasService,
+        assetExchange,
+        escrowService,
+        digitalGoodsStoreService,
+        subscriptionService,
+        atService,
+        timeService,
+        economicClustering,
+        propertyService,
+        threadPool,
+        transactionService,
+        blockService,
+        generator,
+        apiTransactionManager,
+        feeSuggestionCalculator,
+        deepLinkQRCodeGenerator,
+        indirectIncomingService,
+        params));
+      webServer.start();
 
-      if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED))
+      if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED)){
         DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
+      }
 
       int timeMultiplier = (propertyService.getBoolean(Props.DEV_OFFLINE)) ? Math.max(propertyService.getInt(Props.DEV_TIMEWARP), 1) : 1;
 
@@ -357,8 +381,9 @@ public final class Burst {
       logger.info("Do not force exit or kill the node process.");
     }
 
-    if (api != null)
-      api.shutdown();
+    if (webServer != null){
+      webServer.shutdown();
+    }
     if (threadPool != null) {
       Peers.shutdown(threadPool);
       threadPool.shutdown();
