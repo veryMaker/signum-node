@@ -26,16 +26,12 @@ public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuild
     PropertyService propertyService = context.getPropertyService();
     connector.setHost(propertyService.getString(Props.API_LISTEN));
     connector.setPort(propertyService.getInt(Props.API_WEBSOCKET_PORT));
-//    connector.setIdleTimeout(context.getPropertyService().getInt(Props.API_SERVER_IDLE_TIMEOUT));
-    connector.setIdleTimeout(10_000);
+    connector.setIdleTimeout(propertyService.getInt(Props.BLOCK_TIME));
     connector.setReuseAddress(true);
     JettyWebSocketServletContainerInitializer.configure(servletContextHandler, (servletContext, wsContainer) ->
     {
-      // Configure default max size
       wsContainer.setMaxTextMessageSize(4  * 1024);
-
-      // Add websockets
-      wsContainer.addMapping("/events/*", new WebSocketConnectionCreator(context));
+      wsContainer.addMapping("/events", new WebSocketConnectionCreator(context));
     });
     return connector;
   }

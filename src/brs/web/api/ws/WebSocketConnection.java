@@ -29,9 +29,10 @@ public class WebSocketConnection {
     try {
       remote.sendString(message);
     } catch (IOException e) {
-      logger.debug("Error sending message to {}: {}", remote.getRemoteAddress().toString(), e.getMessage());
+      logger.warn("Error sending message to {}: {}", remote.getRemoteAddress().toString(), e.getMessage());
     }
   }
+
 
   public void close() {
     this.getSession().close();

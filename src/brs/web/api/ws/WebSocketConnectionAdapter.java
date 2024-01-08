@@ -1,15 +1,3 @@
-//
-// ========================================================================
-// Copyright (c) Mort Bay Consulting Pty Ltd and others.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Eclipse Public License v. 2.0 which is available at
-// https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
-// which is available at https://www.apache.org/licenses/LICENSE-2.0.
-//
-// SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
-// ========================================================================
-//
 
 package brs.web.api.ws;
 
@@ -23,7 +11,6 @@ import org.slf4j.LoggerFactory;
 // https://itnext.io/writing-a-web-socket-server-with-embedded-jetty-46fe9ab1c435 -- check this.
 public class WebSocketConnectionAdapter extends WebSocketAdapter {
   private static final Logger logger = LoggerFactory.getLogger(WebSocketConnectionAdapter.class);
-
   private WebSocketConnection connection;
   private final WebServerContext context;
   private final BlockchainEventNotifier notifier;
@@ -51,7 +38,7 @@ public class WebSocketConnectionAdapter extends WebSocketAdapter {
   @Override
   public void onWebSocketError(Throwable cause) {
     super.onWebSocketError(cause);
-    cause.printStackTrace(System.err);
+    logger.error("Socket Error: {}", cause.getMessage());
   }
 
 }

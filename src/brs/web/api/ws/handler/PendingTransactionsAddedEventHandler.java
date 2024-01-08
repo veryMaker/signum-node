@@ -21,10 +21,10 @@ public class PendingTransactionsAddedEventHandler extends AbstractWebSocketOutgo
   }
 
   private class PendingTransactionsAddedPayload {
-    private final String[] transactionIds;
+    private final int transactionCount;
 
     public PendingTransactionsAddedPayload(List<? extends Transaction> transactions) {
-      this.transactionIds = transactions.stream().map(Transaction::getStringId).toArray(String[]::new);
+      this.transactionCount = transactions.size();
     }
   }
 }
