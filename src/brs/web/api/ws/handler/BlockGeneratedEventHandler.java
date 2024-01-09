@@ -4,15 +4,19 @@ import brs.Block;
 import brs.Transaction;
 import brs.web.api.ws.WebSocketConnection;
 import brs.web.api.ws.common.JSONWebSocketResponse;
+import brs.web.api.ws.common.WebsocketEventNames;
 
 public class BlockGeneratedEventHandler extends AbstractWebSocketOutgoingEventHandlerImpl<Block> {
   public BlockGeneratedEventHandler(WebSocketConnection connection) {
-      super(connection);
+    super(connection);
   }
 
   @Override
   public void notify(Block block) {
-    JSONWebSocketResponse<GeneratedBlockPayload> response = new JSONWebSocketResponse<>("BlockGenerated", new GeneratedBlockPayload(block));
+    JSONWebSocketResponse<GeneratedBlockPayload> response = new JSONWebSocketResponse<>(
+      WebsocketEventNames.BLOCK_GENERATED,
+      new GeneratedBlockPayload(block)
+    );
     this.getConnection().sendMessage(response.toString());
   }
 

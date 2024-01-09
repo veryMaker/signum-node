@@ -67,10 +67,9 @@ public class BlockchainEventNotifier {
     this.executor.submit(() -> {
       ConnectedEventData data = new ConnectedEventData();
       data.version = Burst.VERSION.toString();
-      data.message = "You are now connected to the Signum Blockchain!";
       data.networkName = context.getPropertyService().getString(Props.NETWORK_NAME);
-      data.blockchainHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
-      data.nodeHeight = context.getBlockchain().getHeight();
+      data.globalHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
+      data.localHeight = context.getBlockchain().getHeight();
       new ConnectedEventHandler(connection).notify(data);
     });
 

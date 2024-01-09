@@ -3,6 +3,7 @@ package brs.web.api.ws.handler;
 import brs.Transaction;
 import brs.web.api.ws.WebSocketConnection;
 import brs.web.api.ws.common.JSONWebSocketResponse;
+import brs.web.api.ws.common.WebsocketEventNames;
 
 import java.util.List;
 
@@ -15,8 +16,10 @@ public class PendingTransactionsAddedEventHandler extends AbstractWebSocketOutgo
   @Override
   public void notify(List<? extends Transaction> transactions) {
     JSONWebSocketResponse<PendingTransactionsAddedEventHandler.PendingTransactionsAddedPayload> response =
-      new JSONWebSocketResponse<>("PendingTransactionsAdded",
-        new PendingTransactionsAddedEventHandler.PendingTransactionsAddedPayload(transactions));
+      new JSONWebSocketResponse<>(
+        WebsocketEventNames.PENDING_TRANSACTIONS_ADDED,
+        new PendingTransactionsAddedEventHandler.PendingTransactionsAddedPayload(transactions)
+      );
     this.getConnection().sendMessage(response.toString());
   }
 

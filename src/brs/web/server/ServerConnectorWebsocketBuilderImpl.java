@@ -10,6 +10,8 @@ import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerI
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(ServerConnectorWebsocketBuilderImpl.class);
@@ -26,11 +28,11 @@ public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuild
     PropertyService propertyService = context.getPropertyService();
     connector.setHost(propertyService.getString(Props.API_LISTEN));
     connector.setPort(propertyService.getInt(Props.API_WEBSOCKET_PORT));
-    connector.setIdleTimeout(propertyService.getInt(Props.BLOCK_TIME));
     connector.setReuseAddress(true);
     JettyWebSocketServletContainerInitializer.configure(servletContextHandler, (servletContext, wsContainer) ->
     {
       wsContainer.setMaxTextMessageSize(4  * 1024);
+      wsContainer.setIdleTimeout(Duration.ofSeconds(propertyService.getInt(Props.BLOCK_TIME)));
       wsContainer.addMapping("/events", new WebSocketConnectionCreator(context));
     });
     return connector;
