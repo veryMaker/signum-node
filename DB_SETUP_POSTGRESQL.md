@@ -36,17 +36,11 @@ Then execute the following commands in the `psql` prompt.
 The main net should be the preferred setup, unless you want to do some development.
 
 ```sql
--- Create the database
-CREATE DATABASE signum;
-
 -- Create the user (choose another password if you want)
 CREATE USER signumnode WITH PASSWORD 's1gn00m_n0d3';
 
--- Grant ownership of the database to the user
-GRANT ALL PRIVILEGES ON DATABASE signum TO signumnode;
-
--- Set explicitely the default schema to "public"
-ALTER USER signumnode SET search_path TO public;
+-- Create the database
+CREATE DATABASE signum OWNER=signumnode;
 ```
 
 Now, you need to configure your database connection in the `./conf/node.properties` file
@@ -70,11 +64,7 @@ We assume that the user `signumnode` exists already.
 
 ```sql
 -- Create the database
-CREATE DATABASE signum_testnet;
-
--- Grant ownership of the database to the user
-GRANT ALL PRIVILEGES ON DATABASE signum_testnet TO signumnode;
-
+CREATE DATABASE signum_testnet OWNER=signumnode;
 ```
 
 Then you can switch between both networks by just changing the properties accordingly:
