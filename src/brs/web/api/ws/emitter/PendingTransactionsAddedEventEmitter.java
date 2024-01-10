@@ -26,11 +26,11 @@ public class PendingTransactionsAddedEventEmitter extends AbstractWebSocketEvent
 
   private static class PendingTransactionsAddedPayload {
     private final String[] transactionIds;
-    private final boolean hasMore;
+    private final Boolean hasMore;
 
     public PendingTransactionsAddedPayload(List<? extends Transaction> transactions) {
       this.transactionIds = transactions.stream().map(Transaction::getStringId).limit(MAX_TRANSACTIONS).toArray(String[]::new);
-      this.hasMore = transactions.size() > MAX_TRANSACTIONS;
+      this.hasMore = transactions.size() > MAX_TRANSACTIONS ? true : null;
     }
   }
 }

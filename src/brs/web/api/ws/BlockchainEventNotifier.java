@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public class BlockchainEventNotifier {
 
@@ -48,6 +49,19 @@ public class BlockchainEventNotifier {
     }
   }
 
+  private void withHeartbeatPaused(Runnable fn) {
+    heartbeat.pause();
+    fn.run();
+    heartbeat.resume();
+  }
+
+  private void sendToAll(Consumer<WebSocketConnection> fn) {
+    notifyExecutor.submit(() -> {
+      connections.values().forEach(fn);
+    });
+  }
+
+
   public void addConnection(WebSocketConnection connection) {
     connections.put(connection.getId(), connection);
 
@@ -73,9 +87,7 @@ public class BlockchainEventNotifier {
     }
     heartbeat = new SimpleScheduler(intervalSecs, SHUTDOWN_TIMEOUT_SECS, () ->
       withActiveConnectionsOnly(() -> {
-        notifyExecutor.submit(() -> {
-          connections.values().forEach(connection -> new HeartBeatEventEmitter(connection).emit());
-        });
+        sendToAll(connection -> new HeartBeatEventEmitter(connection).emit());
       })
     );
     heartbeat.start();
@@ -87,22 +99,27 @@ public class BlockchainEventNotifier {
   }
 
   public void onBlockPushedEvent(Block block) {
-    withActiveConnectionsOnly(() -> blockPushedDebouncer.debounce(() -> notifyExecutor.submit(() -> {
-      // pausing heartbeat here, as we send heartbeat only when idle
-      heartbeat.pause();
-      int currentHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
-      connections.values().forEach(connection -> new BlockPushedEventEmitter(connection, currentHeight).emit(block));
-      heartbeat.resume();
-    })));
+    withActiveConnectionsOnly(
+      () -> blockPushedDebouncer.debounce(
+        () -> withHeartbeatPaused(
+          () -> sendToAll(
+            connection -> {
+              int currentHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
+              new BlockPushedEventEmitter(connection, currentHeight).emit(block);
+            })
+        )
+      )
+    );
   }
 
   private void onPendingTransactionEvent(List<? extends Transaction> transactions) {
-    withActiveConnectionsOnly(() -> notifyExecutor.submit(() -> {
-      // pausing heartbeat here, as we send heartbeat only when idle
-      heartbeat.pause();
-      connections.values().forEach(connection -> new PendingTransactionsAddedEventEmitter(connection).emit(transactions));
-      heartbeat.resume();
-    }));
+    withActiveConnectionsOnly(
+      () -> withHeartbeatPaused(
+        () -> sendToAll(
+          connection -> new PendingTransactionsAddedEventEmitter(connection).emit(transactions)
+        )
+      )
+    );
   }
 
   private void shutdownNotifyExecutor() {

@@ -18,13 +18,18 @@ public class SimpleScheduler {
   }
 
   public void start(){
+    stop();
     scheduledFuture = executor.scheduleAtFixedRate(periodicTask, intervalSecs, intervalSecs, TimeUnit.SECONDS);
   }
 
-  public void pause(){
+  public void stop(){
     if(scheduledFuture != null){
       scheduledFuture.cancel(false);
+      scheduledFuture = null;
     }
+  }
+  public void pause(){
+    stop();
   }
   public void resume(){
     start();
@@ -37,7 +42,7 @@ public class SimpleScheduler {
 
     try {
       if(scheduledFuture != null){
-        scheduledFuture.cancel(true);
+        scheduledFuture.cancel(false);
       }
       executor.shutdown();
       if (!executor.awaitTermination(shutdownTimeoutSecs, TimeUnit.SECONDS)) {
