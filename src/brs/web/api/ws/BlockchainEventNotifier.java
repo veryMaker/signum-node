@@ -42,7 +42,6 @@ public class BlockchainEventNotifier {
     initializeHeartBeat();
   }
 
-
   private void withActiveConnectionsOnly(Runnable fn) {
     if (!connections.isEmpty()) {
       fn.run();
@@ -61,7 +60,6 @@ public class BlockchainEventNotifier {
     });
   }
 
-
   public void addConnection(WebSocketConnection connection) {
     connections.put(connection.getId(), connection);
 
@@ -73,6 +71,7 @@ public class BlockchainEventNotifier {
       data.localHeight = context.getBlockchain().getHeight();
       new ConnectedEventEmitter(connection).emit(data);
     });
+    logger.debug("New connection: {} - Having {} connections now", connection.getId(), connections.size());
   }
 
   private void initializeHeartBeat() {
@@ -93,7 +92,6 @@ public class BlockchainEventNotifier {
     heartbeat.start();
   }
 
-
   public void removeConnection(WebSocketConnection connection) {
     connections.remove(connection.getId());
   }
@@ -106,7 +104,8 @@ public class BlockchainEventNotifier {
             connection -> {
               int currentHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
               new BlockPushedEventEmitter(connection, currentHeight).emit(block);
-            })
+            }
+          )
         )
       )
     );

@@ -11,12 +11,11 @@ public abstract class AbstractWebSocketEventEmitterImpl<T> implements WebSocketE
   }
 
   public abstract void emit(T t);
+
   @Override
   public void emit() {
-    // do nothing - optional implementataion
+    // do nothing - optional implementation
   }
-
-
 
   public WebSocketConnection getConnection() {
     return connection;

@@ -33,7 +33,6 @@ public class WebSocketConnection {
     }
   }
 
-
   public void close() {
     this.getSession().close();
   }

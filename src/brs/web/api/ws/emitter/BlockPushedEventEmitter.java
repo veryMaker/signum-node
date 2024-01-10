@@ -30,7 +30,6 @@ public class BlockPushedEventEmitter extends AbstractWebSocketEventEmitterImpl<B
     private final float progress;
     private final int transactionCount;
 
-
     public PushedBlockPayload(Block block, int globalHeight) {
       this.blockId = block.getStringId();
       this.localHeight = block.getHeight();

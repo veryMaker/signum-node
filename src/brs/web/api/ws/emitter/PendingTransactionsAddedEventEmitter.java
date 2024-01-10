@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PendingTransactionsAddedEventEmitter extends AbstractWebSocketEventEmitterImpl<List<? extends Transaction>> {
 
-  private static int MAX_TRANSACTIONS = 100;
+  private static final int MAX_TRANSACTIONS = 100;
   public PendingTransactionsAddedEventEmitter(WebSocketConnection connection) {
     super(connection);
   }
