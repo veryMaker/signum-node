@@ -1,18 +1,18 @@
-package brs.web.api.ws.handler;
+package brs.web.api.ws.emitter;
 
 import brs.web.api.ws.WebSocketConnection;
-import brs.web.api.ws.common.ConnectedEventData;
+import brs.web.api.ws.emitter.data.ConnectedEventData;
 import brs.web.api.ws.common.JSONWebSocketResponse;
 import brs.web.api.ws.common.WebsocketEventNames;
 
-public class ConnectedEventHandler extends AbstractWebSocketOutgoingEventHandlerImpl<ConnectedEventData> {
+public class ConnectedEventEmitter extends AbstractWebSocketEventEmitterImpl<ConnectedEventData> {
 
-  public ConnectedEventHandler(WebSocketConnection connection) {
+  public ConnectedEventEmitter(WebSocketConnection connection) {
       super(connection);
   }
 
   @Override
-  public void notify(ConnectedEventData data) {
+  public void emit(ConnectedEventData data) {
     JSONWebSocketResponse<ConnectedPayload> response = new JSONWebSocketResponse<>(
       WebsocketEventNames.CONNECTED,
       new ConnectedPayload(data)

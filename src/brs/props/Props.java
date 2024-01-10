@@ -17,6 +17,7 @@ public class Props {
   public static final Prop<Integer> API_PORT = new Prop<>("API.Port", 8125);
   public static final Prop<Integer> API_WEBSOCKET_PORT = new Prop<>("API.WebSocketPort", 8126);
   public static final Prop<Boolean> API_WEBSOCKET_ENABLE = new Prop<>("API.WebSocketEnable", true);
+  public static final Prop<Integer> API_WEBSOCKET_HEARTBEAT_INTERVAL = new Prop<>("API.WebSocketHeartbeatInterval", 30);
 
   public static final Prop<String> NETWORK_NAME = new Prop<>("node.networkName", Constants.SIGNUM_NETWORK_NAME);
   public static final Prop<String> GENESIS_BLOCK_ID = new Prop<>("node.genesisBlockId", Convert.toUnsignedLong(Genesis.GENESIS_BLOCK_ID));

@@ -1,4 +1,4 @@
-package brs.web.api.ws.common;
+package brs.web.api.ws.emitter.data;
 
 public class ConnectedEventData {
     public String version;

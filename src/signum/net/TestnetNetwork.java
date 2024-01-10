@@ -57,7 +57,6 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.P2P_PORT, "7123");
     setProperty(Props.API_PORT, "6876");
     setProperty(Props.API_WEBSOCKET_PORT, "6877");
-    setProperty(Props.API_WEBSOCKET_ENABLE, "true");
 
     setProperty(Props.P2P_REBROADCAST_TO, " ");
     setProperty(Props.P2P_BOOTSTRAP_PEERS, "europe3.testnet.signum.network");

@@ -1,20 +1,20 @@
-package brs.web.api.ws.handler;
+package brs.web.api.ws.emitter;
 
 import brs.Block;
 import brs.web.api.ws.WebSocketConnection;
 import brs.web.api.ws.common.JSONWebSocketResponse;
 import brs.web.api.ws.common.WebsocketEventNames;
 
-public class BlockPushedEventHandler extends AbstractWebSocketOutgoingEventHandlerImpl<Block> {
+public class BlockPushedEventEmitter extends AbstractWebSocketEventEmitterImpl<Block> {
   private final int currentHeight;
 
-  public BlockPushedEventHandler(WebSocketConnection connection, int currentHeight) {
+  public BlockPushedEventEmitter(WebSocketConnection connection, int currentHeight) {
     super(connection);
     this.currentHeight = currentHeight;
   }
 
   @Override
-  public void notify(Block block) {
+  public void emit(Block block) {
     JSONWebSocketResponse<PushedBlockPayload> response = new JSONWebSocketResponse<>(
       WebsocketEventNames.BLOCK_PUSHED,
       new PushedBlockPayload(block, currentHeight)

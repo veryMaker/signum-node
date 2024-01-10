@@ -1,4 +1,4 @@
-package brs.web.api.ws.handler;
+package brs.web.api.ws.emitter;
 
 import brs.Block;
 import brs.Transaction;
@@ -6,13 +6,13 @@ import brs.web.api.ws.WebSocketConnection;
 import brs.web.api.ws.common.JSONWebSocketResponse;
 import brs.web.api.ws.common.WebsocketEventNames;
 
-public class BlockGeneratedEventHandler extends AbstractWebSocketOutgoingEventHandlerImpl<Block> {
-  public BlockGeneratedEventHandler(WebSocketConnection connection) {
+public class BlockGeneratedEventEmitter extends AbstractWebSocketEventEmitterImpl<Block> {
+  public BlockGeneratedEventEmitter(WebSocketConnection connection) {
     super(connection);
   }
 
   @Override
-  public void notify(Block block) {
+  public void emit(Block block) {
     JSONWebSocketResponse<GeneratedBlockPayload> response = new JSONWebSocketResponse<>(
       WebsocketEventNames.BLOCK_GENERATED,
       new GeneratedBlockPayload(block)

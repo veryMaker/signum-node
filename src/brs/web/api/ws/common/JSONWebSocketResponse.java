@@ -7,6 +7,10 @@ public class JSONWebSocketResponse<T> extends BaseWebSocketResponse<T> {
     super(eventName, payload);
   }
 
+  public JSONWebSocketResponse(String eventName) {
+    super(eventName, null);
+  }
+
   @Override
   public String toString() {
     Gson gson = new Gson();

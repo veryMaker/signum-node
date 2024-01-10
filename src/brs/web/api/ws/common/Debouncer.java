@@ -1,10 +1,17 @@
 package brs.web.api.ws.common;
 
+import brs.web.api.ws.WebSocketConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Debouncer {
+
+  private static final Logger logger = LoggerFactory.getLogger(Debouncer.class);
+
   private final int delay;
   private Timer timer;
   private final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -31,8 +38,13 @@ public class Debouncer {
   }
 
   public void shutdown() {
-    if(isRunning.get()) {
-      timer.cancel();
+    try{
+      if(isRunning.get()) {
+        timer.cancel();
+      }
+    } catch(Exception e){
+      logger.warn("Debouncer graceful shutdown failed: {}", e.getMessage());
+    } finally {
       isRunning.set(false);
     }
   }

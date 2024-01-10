@@ -137,7 +137,7 @@ public final class WebServerImpl implements WebServer {
       try {
         jettyServer.start();
         logger.info("Started Http API server at {}:{}", host, port);
-        logger.info("Started Websocket API server at {}:{}", host, port + 1);
+        logger.info("Started [EXPERIMENTAL] Websocket API server at {}:{}", host, port + 1);
       } catch (Exception e) {
         logger.error("Failed to start API server", e);
         throw new RuntimeException(e.toString(), e);
