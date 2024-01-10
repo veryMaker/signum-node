@@ -1,6 +1,5 @@
 package brs.web.api.ws.common;
 
-import brs.web.api.ws.WebSocketConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +12,7 @@ public class Debouncer {
   private static final Logger logger = LoggerFactory.getLogger(Debouncer.class);
 
   private final int delay;
-  private Timer timer;
+  private final Timer timer;
   private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
   public Debouncer(int delayMillies) {
