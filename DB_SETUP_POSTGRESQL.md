@@ -64,11 +64,7 @@ We assume that the user `signumnode` exists already.
 
 ```sql
 -- Create the database
-CREATE DATABASE signum_testnet;
-
--- Grant ownership of the database to the user
-GRANT ALL PRIVILEGES ON DATABASE signum_testnet TO signumnode;
-
+CREATE DATABASE signum_testnet OWNER=signumnode;
 ```
 
 Then you can switch between both networks by just changing the properties accordingly:
