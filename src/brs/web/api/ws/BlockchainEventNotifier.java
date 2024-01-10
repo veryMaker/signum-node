@@ -20,7 +20,6 @@ public class BlockchainEventNotifier {
   private final static int IO_THREAD_COUNT = 10;
   private static BlockchainEventNotifier instance;
   private final ExecutorService notifyExecutor;
-  //  private final Debouncer blockPushedDebouncer;
   private final Logger logger = LoggerFactory.getLogger(BlockchainEventNotifier.class);
   private final WebServerContext context;
   private final ConcurrentHashMap<String, WebSocketConnection> connections = new ConcurrentHashMap<>();
@@ -37,7 +36,6 @@ public class BlockchainEventNotifier {
   private BlockchainEventNotifier(WebServerContext context) {
     this.context = context;
     this.notifyExecutor = Executors.newFixedThreadPool(IO_THREAD_COUNT);
-    this.context.getBlockchainProcessor().addListener(this::onBlockGeneratedEvent, BlockchainProcessor.Event.BLOCK_GENERATED);
     this.context.getBlockchainProcessor().addListener(this::onBlockPushedEvent, BlockchainProcessor.Event.BLOCK_PUSHED);
     this.context.getTransactionProcessor().addListener(this::onPendingTransactionEvent, TransactionProcessor.Event.ADDED_UNCONFIRMED_TRANSACTIONS);
     initializeHeartBeat();
@@ -73,36 +71,37 @@ public class BlockchainEventNotifier {
       intervalSecs = blockTimeSecs / 2;
       logger.warn("Heartbeat interval must be less than block time ({} seconds) - set to {} seconds", blockTimeSecs, intervalSecs);
     }
-    heartbeat = new SimpleScheduler(intervalSecs, SHUTDOWN_TIMEOUT_SECS);
-    heartbeat.start(() ->
+    heartbeat = new SimpleScheduler(intervalSecs, SHUTDOWN_TIMEOUT_SECS, () ->
       withActiveConnectionsOnly(() -> {
         notifyExecutor.submit(() -> {
           connections.values().forEach(connection -> new HeartBeatEventEmitter(connection).emit());
         });
       })
     );
+    heartbeat.start();
   }
+
 
   public void removeConnection(WebSocketConnection connection) {
     connections.remove(connection.getId());
   }
 
-  public void onBlockGeneratedEvent(Block block) {
-    withActiveConnectionsOnly(() -> notifyExecutor.submit(() -> {
-      connections.values().forEach(connection -> new BlockGeneratedEventEmitter(connection).emit(block));
-    }));
-  }
-
   public void onBlockPushedEvent(Block block) {
     withActiveConnectionsOnly(() -> blockPushedDebouncer.debounce(() -> notifyExecutor.submit(() -> {
+      // pausing heartbeat here, as we send heartbeat only when idle
+      heartbeat.pause();
       int currentHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
       connections.values().forEach(connection -> new BlockPushedEventEmitter(connection, currentHeight).emit(block));
+      heartbeat.resume();
     })));
   }
 
   private void onPendingTransactionEvent(List<? extends Transaction> transactions) {
     withActiveConnectionsOnly(() -> notifyExecutor.submit(() -> {
+      // pausing heartbeat here, as we send heartbeat only when idle
+      heartbeat.pause();
       connections.values().forEach(connection -> new PendingTransactionsAddedEventEmitter(connection).emit(transactions));
+      heartbeat.resume();
     }));
   }
 

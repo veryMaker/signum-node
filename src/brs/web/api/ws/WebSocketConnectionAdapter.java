@@ -36,14 +36,6 @@ public class WebSocketConnectionAdapter extends WebSocketAdapter {
   }
 
   @Override
-  public void onWebSocketText(String message) {
-    // websocket common standard
-    if(message.trim().equalsIgnoreCase("ping")) {
-      this.connection.sendMessage("pong");
-    }
-  }
-
-  @Override
   public void onWebSocketError(Throwable cause) {
     super.onWebSocketError(cause);
     logger.error("Socket Error: {}", cause.getMessage());

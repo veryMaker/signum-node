@@ -1,31 +1,45 @@
 package brs.web.api.ws.common;
 
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SimpleScheduler {
 
-  private final ScheduledThreadPoolExecutor executor;
+  private final ScheduledExecutorService executor;
   private final int intervalSecs;
   private final int shutdownTimeoutSecs;
-
-  public SimpleScheduler(int intervalSecs, int shutdownTimeoutSecs){
+  private final Runnable periodicTask;
+  private ScheduledFuture<?> scheduledFuture;
+  public SimpleScheduler(int intervalSecs, int shutdownTimeoutSecs, Runnable task){
     this.intervalSecs = intervalSecs;
     this.shutdownTimeoutSecs = shutdownTimeoutSecs;
-    executor = new java.util.concurrent.ScheduledThreadPoolExecutor(1);
+    this.periodicTask = task;
+    executor = Executors.newSingleThreadScheduledExecutor();
   }
 
-  public void start(Runnable task){
-    executor.scheduleAtFixedRate(task, 0, intervalSecs, TimeUnit.SECONDS);
+  public void start(){
+    scheduledFuture = executor.scheduleAtFixedRate(periodicTask, intervalSecs, intervalSecs, TimeUnit.SECONDS);
   }
 
+  public void pause(){
+    if(scheduledFuture != null){
+      scheduledFuture.cancel(false);
+    }
+  }
+  public void resume(){
+    start();
+  }
   public void shutdown(){
+
     if(executor.isTerminated()){
       return;
     }
 
-    executor.shutdown();
     try {
+      if(scheduledFuture != null){
+        scheduledFuture.cancel(true);
+      }
+      executor.shutdown();
       if (!executor.awaitTermination(shutdownTimeoutSecs, TimeUnit.SECONDS)) {
         executor.shutdownNow();
       }
