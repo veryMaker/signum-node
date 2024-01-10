@@ -55,9 +55,7 @@ public class BlockchainEventNotifier {
   }
 
   private void sendToAll(Consumer<WebSocketConnection> fn) {
-    notifyExecutor.submit(() -> {
-      connections.values().forEach(fn);
-    });
+    notifyExecutor.submit(() -> connections.values().forEach(fn));
   }
 
   public void addConnection(WebSocketConnection connection) {
@@ -85,9 +83,7 @@ public class BlockchainEventNotifier {
       logger.warn("Heartbeat interval must be less than block time ({} seconds) - set to {} seconds", blockTimeSecs, intervalSecs);
     }
     heartbeat = new SimpleScheduler(intervalSecs, SHUTDOWN_TIMEOUT_SECS, () ->
-      withActiveConnectionsOnly(() -> {
-        sendToAll(connection -> new HeartBeatEventEmitter(connection).emit());
-      })
+      withActiveConnectionsOnly(() -> sendToAll(connection -> new HeartBeatEventEmitter(connection).emit()))
     );
     heartbeat.start();
   }

@@ -15,12 +15,12 @@ public class ConnectedEventEmitter extends AbstractWebSocketEventEmitterImpl<Con
   public void emit(ConnectedEventData data) {
     JSONWebSocketResponse<ConnectedPayload> response = new JSONWebSocketResponse<>(
       WebsocketEventNames.CONNECTED,
-      new ConnectedPayload(data)
+            new ConnectedPayload(data)
     );
     this.getConnection().sendMessage(response.toString());
   }
 
-  private class ConnectedPayload {
+  private static class ConnectedPayload {
 
     private final String version;
     private final String networkName;

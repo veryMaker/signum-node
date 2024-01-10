@@ -1,7 +1,6 @@
 package brs.web.api.ws.common;
 
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SimpleScheduler {
 

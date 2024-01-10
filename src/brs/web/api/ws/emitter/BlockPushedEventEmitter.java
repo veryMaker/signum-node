@@ -17,12 +17,12 @@ public class BlockPushedEventEmitter extends AbstractWebSocketEventEmitterImpl<B
   public void emit(Block block) {
     JSONWebSocketResponse<PushedBlockPayload> response = new JSONWebSocketResponse<>(
       WebsocketEventNames.BLOCK_PUSHED,
-      new PushedBlockPayload(block, currentHeight)
+            new PushedBlockPayload(block, currentHeight)
     );
     this.getConnection().sendMessage(response.toString());
   }
 
-  private class PushedBlockPayload {
+  private static class PushedBlockPayload {
     private final int timestamp;
     private final String blockId;
     private final int localHeight;
