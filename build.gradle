@@ -14,7 +14,6 @@ plugins {
   id "de.undercouch.download" version "5.5.0"
   id 'jacoco'
   id "com.github.node-gradle.node" version "7.0.1"
-  id 'org.kordamp.gradle.jdeps' version '0.20.0'
 }
 
 java {

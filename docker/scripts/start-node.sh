@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script will be executed inside the docker container
-# The paths are all relative to docker /app folder
+# The paths are all relative to docker /signum folder
 
 set -e
 
@@ -28,6 +28,7 @@ if [[ ! -e $CONF_LOGGING ]]; then
 fi
 
 ./update-phoenix.sh
+./update-classic.sh
 
 echo "🚀Starting Signum Node"
-exec java -XX:MaxRAMPercentage=75.0 -jar signum-node.jar --headless
+exec java -XX:MaxRAMPercentage=90.0 -jar signum-node.jar --headless

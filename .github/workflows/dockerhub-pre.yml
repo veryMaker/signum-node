@@ -7,11 +7,11 @@
 #    DOCKERHUB_REPO
 # This workflow will use them automatically.
 
-name: Publish Docker images
+name: Publish Pre-Release Docker images
 
 on:
   release:
-    types: [released]
+    types: [prereleased]
   workflow_dispatch:
 
 jobs:

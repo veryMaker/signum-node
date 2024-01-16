@@ -1,5 +1,5 @@
 # Signum Node (previously Burstcoin Reference Software)
-[![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
+[![Build](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
@@ -13,6 +13,7 @@ The two supported database backends are:
 - PostgreSQL (advanced users)
 
 > Requirements: [Docker installed](https://docs.docker.com/engine/install/)
+
 
 # Running on Docker
 Running the Signum node on docker is a great way to provide easy updates upon new releases, but requires some knowledge of how to use docker.
@@ -83,6 +84,7 @@ services:
     ports:
       - "8123:8123"
       - "8125:8125"
+      - "8126:8126"
     volumes:
       - "./conf:/conf"
 
@@ -152,6 +154,7 @@ services:
     ports:
       - "8123:8123"
       - "8125:8125"
+      - "8126:8126"
     volumes:
       - ./conf:/conf
       - signum_db:/db
@@ -203,6 +206,42 @@ Within the `conf` folder you'll see three file created:
 - node-default.properties - default config reference
 - node.properties - override default config settings
 
+
+# Building Image Manually
+
+The _official_ Dockerfiles are all within the folder `./docker` and structured like this:
+
+```
+├── DOCKER.md
+├── mainnet
+│   ├── h2
+│   │   └── Dockerfile
+│   ├── mariadb
+│   │   └── Dockerfile
+│   └── postgres
+│       └── Dockerfile
+├── scripts
+│   └── start-node.sh
+└── testnet
+    ├── h2
+    │   └── Dockerfile
+    ├── mariadb
+    │   └── Dockerfile
+    └── postgres
+        └── Dockerfile
+```
+> requires to have cloned this repository using `git clone --depth 1 https://github.com/signum-network/signum-node.git`
+
+The structure should be self-explanatory. To build your own image, e.g. with some modified Dockerfile maybe, 
+just copy the desired build from the related folder to the projects root directory and then run
+
+`docker build -t signumnode:custom-h2 .`
+
+To run the image see [here](#starting-manually-in-the-console)
+
+### Start Script
+
+The provided start script updates Phoenix and Classic wallet each time you restart a docker container!
 
 # Configuring Dockerhub Releases on Github
 The github actions workflow that releases docker images to dockerhub is set up to do so automatically whenever there is a 'release' created via the Github interface, or when the workflow is manually triggered. Some configuration is required to succesfully run this workflow.
