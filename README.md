@@ -271,7 +271,7 @@ git push --tags
 
 # Docker
 
-See [./docker/DOCKER.md](./DOCKER.md) for information on running and building docker images.
+See [DOCKER.md](./docker/DOCKER.md) for information on running and building docker images.
 
 # Database Development
 
