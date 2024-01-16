@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script will be executed inside the docker container
+# The paths are all relative to docker /app folder
+
 set -e
 
 BOOT_DIR=./bootstrap

@@ -1,7 +1,12 @@
 .github/
 .gradle/
+.idea/
 bin/
 build/
 doc/
 t/
+db/
 target/
+openapi/node_modules/
+temp/
+

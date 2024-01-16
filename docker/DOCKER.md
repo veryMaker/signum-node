@@ -127,7 +127,7 @@ Docker-compose can launch multiple replicas if software properly supports it, bu
 Once you port-forward the two relevant ports, the website should be available at the server's host name on port 8125. There is no need to expose the mariadb ports. The two images communicate within the docker network.
 
 ## H2 Image via docker-compose
-> **ATTENTION**
+> \>>>ATTENTION<<<
 >
 > H2 is not currently recommended as there is a problem with it disconnecting the database randomly, leaving the node in a stuck state. Please use mariadb.
 >

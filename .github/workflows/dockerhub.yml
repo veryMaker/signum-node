@@ -7,7 +7,7 @@
 #    DOCKERHUB_REPO
 # This workflow will use them automatically.
 
-name: Publish Docker image
+name: Publish Docker images
 
 on:
   release:
