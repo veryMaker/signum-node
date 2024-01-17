@@ -14,7 +14,7 @@ echo "⬇️  Downloading latest release..."
 git clone --depth 1 https://github.com/signum-network/signum-classic-wallet.git
 
 echo "📝 Updating code base..."
-cp -r signum-classic-wallet/src/* /signum/html/ui/classic/
+cp -r signum-classic-wallet/src/* ./html/ui/classic/
 
 echo "🛀 Cleaning up..."
 rm -rf signum-classic-wallet

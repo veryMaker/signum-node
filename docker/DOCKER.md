@@ -209,31 +209,10 @@ Within the `conf` folder you'll see three file created:
 
 # Building Image Manually
 
-The _official_ Dockerfiles are all within the folder `./docker` and structured like this:
-
-```
-├── DOCKER.md
-├── mainnet
-│   ├── h2
-│   │   └── Dockerfile
-│   ├── mariadb
-│   │   └── Dockerfile
-│   └── postgres
-│       └── Dockerfile
-├── scripts
-│   └── start-node.sh
-└── testnet
-    ├── h2
-    │   └── Dockerfile
-    ├── mariadb
-    │   └── Dockerfile
-    └── postgres
-        └── Dockerfile
-```
 > requires to have cloned this repository using `git clone --depth 1 https://github.com/signum-network/signum-node.git`
 
-The structure should be self-explanatory. To build your own image, e.g. with some modified Dockerfile maybe, 
-just copy the desired build from the related folder to the projects root directory and then run
+The _official_ Dockerfile is in the root folder.
+To build your own image, e.g. with some modified Dockerfile maybe, 
 
 `docker build -t signumnode:custom-h2 .`
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script will be executed inside the docker container
-# The paths are all relative to docker /signum folder
+# The paths are all relative to docker root folder '/signum'
 
 set -e
 
@@ -31,4 +31,4 @@ fi
 ./update-classic.sh
 
 echo "🚀Starting Signum Node"
-exec java -XX:MaxRAMPercentage=90.0 -jar signum-node.jar --headless
+exec java -XX:MaxRAMPercentage=90.0 -jar signum-node.jar --headless -c /conf/
