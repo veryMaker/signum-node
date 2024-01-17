@@ -9,10 +9,10 @@
 
 name: Publish Docker images
 
-on:
-  release:
-    types: [released]
-  workflow_dispatch:
+on: workflow_dispatch
+#    TODO: put this back once the docker files work correctly
+#  release:
+#    types: [released]
 
 jobs:
   publish-h2-image:
