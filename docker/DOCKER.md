@@ -1,17 +1,19 @@
 # Signum Node (previously Burstcoin Reference Software)
-[![Build BRS](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
+[![Build](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml/badge.svg)](https://github.com/burst-apps-team/burstcoin/actions/workflows/build.yml)
 [![GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE.txt)
 [![Get Support at https://discord.gg/ms6eagX](https://img.shields.io/badge/join-discord-blue.svg)](https://discord.gg/ms6eagX)
 
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Commitment (PoC+) consensus algorithm.
 
-The two supported database backends are:
+The three supported database backends are:
 
 - H2 (embedded, recommended)
 - MariaDB (advanced users)
+- PostgreSQL (advanced users)
 
 > Requirements: [Docker installed](https://docs.docker.com/engine/install/)
+
 
 # Running on Docker
 Running the Signum node on docker is a great way to provide easy updates upon new releases, but requires some knowledge of how to use docker.
@@ -21,11 +23,37 @@ These containers are built with a script that will automatically download the la
 Each time you launch the container, it will download and install the latest Phoenix interface.
 
 The easiest way is to use docker-compose to launch the image consistently every time.
+
+
 ## Database Choices
 
-There are two choices of database driver: `h2` and `mariadb`. The H2 driver is built into the node and will be completely self-contained. MariaDB is a separate database server that can be installed locally or run alongside the node in a second docker container.
 
-H2 seems to do an initial sync faster, but MariaDB is far more stable and seems to use much less ram
+## Using an optional RDBMS (MariaDB, PostgreSQL)
+
+Signum Node uses an embedded file based database (H2) as default. But it's possible to use either MariaDB or PostgreSQL as alternative database.
+
+----
+
+### Should I use MariaDB, PostgreSQL or H2?
+
+H2 is a very fast file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up.
+This makes H2 an interesting choice especially for less-technical users who just want to start and/or run a local (not publicly accessible) node. Choose this, if you want to run just a local node without public exposure and/or
+you don't want to connect to the database while running the node. Furthermore, the resulting database file is easily shareable, such others can use a snapshot and sync from there.
+
+MariaDB and PostgreSQL on the other hand require an additional set-up. It is the better choice for publicly accessible nodes,
+as they are considered more stable, especially under higher load.
+
+MariaDB and PostgreSQL are not as fast as H2, so expect higher re-synchronisation times.
+The performance hit for MariaDB and PostgreSQL is related to the TCP/IP connection, which is per se slower than File-IO (especially for SSDs).
+Due to that model concurrent access is possible, i.e. one can run an additional service against the same database, which is not possible with H2, as the file gets locked.
+
+|            | Stability | Speed | Setup | Backup | Concurrency | Purpose                          |
+|------------|-----------|------|-------|--------|----------|----------------------------------|
+| H2         | ⭐         | ⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | ❌         | Local Node                       |  
+| MariaDB    | ⭐⭐        | ⭐    | ⭐     | ⭐       |   ✅       | Public Node, Additional Services |  
+| PostgreSQL | ⭐⭐ (*)    | ⭐    | ⭐     | ⭐       |   ✅       | Public Node, Additional Services |  
+
+> (*) PostgreSQL support is still experimental. So, stability needs to be proven over time, but in general Postgres itself is as least stable/reliable as MariaDB.
 
 ## Mariadb Image via docker-compose
 Running the Mariadb image is similar to the H2 image, except it does not create a database docker volume. You must also provide the configuration in `node.properties` to point it to a mariadb instance.
@@ -56,6 +84,7 @@ services:
     ports:
       - "8123:8123"
       - "8125:8125"
+      - "8126:8126"
     volumes:
       - "./conf:/conf"
 
@@ -125,6 +154,7 @@ services:
     ports:
       - "8123:8123"
       - "8125:8125"
+      - "8126:8126"
     volumes:
       - ./conf:/conf
       - signum_db:/db
@@ -139,7 +169,7 @@ volumes:
 You should now have a running docker node. Port-forward it manually since the docker container interferes with automatic port forwarding. Read on for more details on what's going on.
 
 ### More detail
-The h2 image will create 2 docker volumes by default: a `db` volume and a `conf` volume, though these will show up in `docker volume ls` as a pair of UUIDs. The above compose file and `docker volume create` command, however, overrides the `db` mapping so that you will have a persistent `signum_db` volume that will exist until you delete it explicitly or run `docker volume prune` while no container exists that is attached to the volume.
+The H2 image will create 2 docker volumes by default: a `db` volume and a `conf` volume, though these will show up in `docker volume ls` as a pair of UUIDs. The above compose file and `docker volume create` command, however, overrides the `db` mapping so that you will have a persistent `signum_db` volume that will exist until you delete it explicitly or run `docker volume prune` while no container exists that is attached to the volume.
 
 By default the node will use all default settings. The `volumes` section in the docker-compose.yml file above tells docker to map the internal '/conf' folder to an external folder on the host's hard drive instead of using a docker volume. This allows node configuration files to be easily customized.
 
@@ -177,6 +207,43 @@ Within the `conf` folder you'll see three file created:
 - node.properties - override default config settings
 
 
+# Building Image Manually
+
+> requires to have cloned this repository using `git clone --depth 1 https://github.com/signum-network/signum-node.git`
+
+## Build Arguments
+
+The Dockerfile supports the following build arguments
+
+|           | Purpose              | Allowed Values                 | Default |
+|-----------|----------------------|--------------------------------|---------|  
+| database  | Select the database  | h2, mariadb, postgres          | h2      |  
+| network   | Select the network   | mainnet, testnet               | mainnet |  
+| port_p2p  | The P2P port         | any port, usually 8123 or 7123 | 8123    |  
+| port_http | The HTTP API port    | any port, usually 8125 or 6876 | 8125    |  
+| port_ws   | The Websocket port   | any port, usually 8126 or 6877 | 8126    |  
+
+__Examples__:
+
+Build H2 for Testnet
+```
+docker build --build-arg database=h2 --build-arg network=testnet -t signum/node:h2-testnet .
+```
+
+Build PostgreSQL for Mainnet
+
+```
+docker build --build-arg database=postgres -t signum/node:postgres .
+```
+
+> Note: this setting just defines some preset default configurations. You can always override the configuration in your `node.properties` file
+
+To run the image see [here](#starting-manually-in-the-console)
+
+### Start Script
+
+The provided start script updates Phoenix and Classic wallet each time you restart a docker container!
+
 # Configuring Dockerhub Releases on Github
 The github actions workflow that releases docker images to dockerhub is set up to do so automatically whenever there is a 'release' created via the Github interface, or when the workflow is manually triggered. Some configuration is required to succesfully run this workflow.
 
@@ -194,10 +261,20 @@ The github actions workflow that releases docker images to dockerhub is set up t
 
 With all of that in place, Github Actions should automatically build and deploy a new pair of docker images each time a release is made, and each time the workflow is manually run. It will create the following tags (where `<version>` is replaced by the most recent 'release' version.):
 
+## At this moment (17-01-2023) version 3.8 images are not provided yet and will come very soon
+
 * `<version>-h2`
 * `<version>-maria`
+* `<version>-postgres`
 * `latest-h2`
 * `latest-maria`
+* `latest-postgres` 
+* `<version>-h2-testnet`
+* `<version>-maria-testnet`
+* `<version>-postgres-testnet`
+* `latest-h2-testnet`
+* `latest-maria-testnet`
+* `latest-postgres-testnet`
 
 To manually deploy images, click on Github Actions, choose the 'Publish Docker Image' workflow, the click the 'Run Workflow' button, and choose a branch, then click 'Run'.
 

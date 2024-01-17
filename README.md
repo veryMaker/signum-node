@@ -271,7 +271,7 @@ git push --tags
 
 # Docker
 
-See [DOCKER.md](./DOCKER.md) for information on running and building docker images.
+See [DOCKER.md](./docker/DOCKER.md) for information on running and building docker images.
 
 # Database Development
 
@@ -282,6 +282,7 @@ To get more details about how to work with database changes look at [more detail
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)
 Frequent Contributors: 
 - [ohager](https://github.com/ohager). Donation address: [S-9K9L-4CB5-88Y5-F5G4Z](https://explorer.signum.network/?action=account&account=16107620026796983538)
+- [frankTheTank72](https://github.com/frankTheTank72).
 - [damccull](https://github.com/damccull).
 
 For more information, see [Credits](doc/Credits.md)
