@@ -72,17 +72,18 @@ RUN ln -s /db /signum/db
 
 # We use the bootstrap folder to copy the config files to the host machine in the start-node.sh script
 # use one of [h2,mariadb,postgres]
-ARG DATABASE=h2
+ARG database=h2
+ARG network=mainnet
 
 # Injectable ports defaulting to mainnet
-ARG PORT_P2P=8123
-ARG PORT_HTTP=8125
-ARG PORT_WS=8126
+ARG port_p2p=8123
+ARG port_http=8125
+ARG port_ws=8126
 
 RUN mkdir ./bootstrap
 COPY conf/logging-default.properties ./bootstrap/logging-default.properties
 COPY conf/node-default.properties ./bootstrap/node-default.properties
-COPY conf/node.properties.${DATABASE} ./bootstrap/node.properties
+COPY conf/${network}/node.${database}.properties ./bootstrap/node.properties
 
 COPY docker/scripts/start-node.sh ./start-node.sh
 RUN chmod +x start-node.sh
@@ -91,6 +92,6 @@ RUN chmod +x start-node.sh
 RUN rm signum-node.exe 2> /dev/null || true
 RUN rm signum-node.zip 2> /dev/null || true
 
-EXPOSE $PORT_WS $PORT_HTTP $PORT_P2P
+EXPOSE $port_ws $port_http $port_p2p
 
 ENTRYPOINT [ "./start-node.sh" ]

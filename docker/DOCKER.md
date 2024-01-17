@@ -6,7 +6,7 @@
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Commitment (PoC+) consensus algorithm.
 
-The two supported database backends are:
+The three supported database backends are:
 
 - H2 (embedded, recommended)
 - MariaDB (advanced users)
@@ -211,10 +211,32 @@ Within the `conf` folder you'll see three file created:
 
 > requires to have cloned this repository using `git clone --depth 1 https://github.com/signum-network/signum-node.git`
 
-The _official_ Dockerfile is in the root folder.
-To build your own image, e.g. with some modified Dockerfile maybe, 
+## Build Arguments
 
-`docker build -t signumnode:custom-h2 .`
+The Dockerfile supports the following build arguments
+
+|           | Purpose              | Allowed Values                 | Default |
+|-----------|----------------------|--------------------------------|---------|  
+| database  | Select the database  | h2, mariadb, postgres          | h2      |  
+| network   | Select the network   | mainnet, testnet               | mainnet |  
+| port_p2p  | The P2P port         | any port, usually 8123 or 7123 | 8123    |  
+| port_http | The HTTP API port    | any port, usually 8125 or 6876 | 8125    |  
+| port_ws   | The Websocket port   | any port, usually 8126 or 6877 | 8126    |  
+
+__Examples__:
+
+Build H2 for Testnet
+```
+docker build --build-arg database=h2 --build-arg network=testnet -t signum/node:h2-testnet .
+```
+
+Build PostgreSQL for Mainnet
+
+```
+docker build --build-arg database=postgres -t signum/node:postgres .
+```
+
+> Note: this setting just defines some preset default configurations. You can always override the configuration in your `node.properties` file
 
 To run the image see [here](#starting-manually-in-the-console)
 
@@ -239,10 +261,20 @@ The github actions workflow that releases docker images to dockerhub is set up t
 
 With all of that in place, Github Actions should automatically build and deploy a new pair of docker images each time a release is made, and each time the workflow is manually run. It will create the following tags (where `<version>` is replaced by the most recent 'release' version.):
 
+## At this moment (17-01-2023) version 3.8 images are not provided yet and will come very soon
+
 * `<version>-h2`
 * `<version>-maria`
+* `<version>-postgres`
 * `latest-h2`
 * `latest-maria`
+* `latest-postgres` 
+* `<version>-h2-testnet`
+* `<version>-maria-testnet`
+* `<version>-postgres-testnet`
+* `latest-h2-testnet`
+* `latest-maria-testnet`
+* `latest-postgres-testnet`
 
 To manually deploy images, click on Github Actions, choose the 'Publish Docker Image' workflow, the click the 'Run Workflow' button, and choose a branch, then click 'Run'.
 
