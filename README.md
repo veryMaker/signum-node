@@ -65,6 +65,8 @@ The important part is that the Java version starts with `11.` (Java 11)
 
 Signum Node uses an embedded file based database (H2) as default. But it's possible to use either MariaDB or PostgreSQL as alternative database.
 
+The minimum required version of MariaDB is 10.6.
+
 ----
 
 ### Should I use MariaDB, PostgreSQL or H2?
