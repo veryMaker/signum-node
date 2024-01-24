@@ -8,6 +8,7 @@ import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
 
 import org.jooq.*;
+import org.jooq.Record;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -7,6 +7,7 @@ import brs.db.BlockDb;
 import brs.schema.tables.records.BlockRecord;
 import io.reactivex.Maybe;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

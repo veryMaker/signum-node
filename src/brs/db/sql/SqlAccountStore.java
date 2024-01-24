@@ -17,6 +17,7 @@ import brs.util.Convert;
 import signumj.crypto.SignumCrypto;
 
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.slf4j.LoggerFactory;
 

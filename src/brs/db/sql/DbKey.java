@@ -3,6 +3,7 @@ package brs.db.sql;
 import brs.db.BurstKey;
 import brs.util.StringUtils;
 import org.jooq.*;
+import org.jooq.Record;
 
 import java.util.ArrayList;
 import java.util.Collection;
