@@ -2,10 +2,8 @@ package brs.assetexchange;
 
 import brs.AssetTransfer;
 import brs.AssetTransfer.Event;
-import brs.Attachment;
 import brs.Transaction;
 import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetTransferStore;
 import brs.util.Listener;

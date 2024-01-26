@@ -15,7 +15,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class DeeplinkGenerator {
 

@@ -11,7 +11,6 @@ import brs.util.TextUtils;
 
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.ParameterParser;
-import brs.web.api.http.handler.AbstractAssetsRetrieval;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

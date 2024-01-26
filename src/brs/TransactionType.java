@@ -1,7 +1,6 @@
 package brs;
 
 import brs.Account.AccountAsset;
-import brs.Alias.Offer;
 import brs.Attachment.AbstractAttachment;
 import brs.Attachment.AutomatedTransactionsCreation;
 import brs.Attachment.CommitmentAdd;

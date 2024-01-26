@@ -6,7 +6,6 @@ import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
-import brs.schema.tables.records.AssetRecord;
 import brs.util.Convert;
 
 import org.jooq.Condition;
@@ -14,10 +13,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Result;
-import org.jooq.SelectQuery;
 import org.jooq.SortField;
-import org.jooq.impl.DSL;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +21,6 @@ import java.util.Locale;
 
 import static brs.schema.Tables.ALIAS;
 import static brs.schema.Tables.ALIAS_OFFER;
-import static brs.schema.Tables.ASSET;
 
 public class SqlAliasStore implements AliasStore {
 

@@ -5,7 +5,6 @@ import brs.Burst;
 import brs.BurstException;
 import brs.db.BlockDb;
 import brs.schema.tables.records.BlockRecord;
-import io.reactivex.Maybe;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.slf4j.Logger;
