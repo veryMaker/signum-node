@@ -31,8 +31,6 @@ public final class WebServerImpl implements WebServer {
   private BlockchainEventNotifier eventNotifier;
 
   private final WebServerContext context;
-  private String host;
-  private int port;
 
   public WebServerImpl(WebServerContext context) {
 
@@ -50,8 +48,6 @@ public final class WebServerImpl implements WebServer {
 
   private Server createServerInstance() {
     final Server jettyServer;
-    host = context.getPropertyService().getString(Props.API_LISTEN);
-    port = context.getPropertyService().getInt(Props.API_PORT);
     jettyServer = new Server();
     ServletContextHandler servletContextHandler = new ServletContextHandler();
     ServerConnectorFactory connectorFactory = new ServerConnectorFactory(context, jettyServer);
@@ -136,8 +132,7 @@ public final class WebServerImpl implements WebServer {
     context.getThreadPool().runBeforeStart(() -> {
       try {
         jettyServer.start();
-        logger.info("Started Http API server at {}:{}", host, port);
-        logger.info("Started [EXPERIMENTAL] Websocket API server at {}:{}", host, port + 1);
+        logger.info("Web Server started successfully");
       } catch (Exception e) {
         logger.error("Failed to start API server", e);
         throw new RuntimeException(e.toString(), e);
