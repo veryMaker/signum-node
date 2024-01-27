@@ -28,7 +28,7 @@ public final class WebServerImpl implements WebServer {
   private static final String API_PATH = "/api";
 
   private final org.eclipse.jetty.server.Server jettyServer;
-  private BlockchainEventNotifier eventNotifier;
+  private BlockchainEventNotifier eventNotifier = null;
 
   private final WebServerContext context;
 
@@ -38,12 +38,10 @@ public final class WebServerImpl implements WebServer {
     boolean enableAPIServer = context.getPropertyService().getBoolean(Props.API_SERVER);
     if (enableAPIServer) {
       jettyServer = createServerInstance();
-      eventNotifier = BlockchainEventNotifier.getInstance(context);
     } else {
       jettyServer = null;
       logger.info("Web server not enabled");
     }
-
   }
 
   private Server createServerInstance() {
@@ -53,6 +51,7 @@ public final class WebServerImpl implements WebServer {
     ServerConnectorFactory connectorFactory = new ServerConnectorFactory(context, jettyServer);
     jettyServer.addConnector(connectorFactory.createHttpConnector());
     if(context.getPropertyService().getBoolean(Props.API_WEBSOCKET_ENABLE)) {
+      eventNotifier = BlockchainEventNotifier.getInstance(context);
       jettyServer.addConnector(connectorFactory.createWebsocketConnector(servletContextHandler));
     }
 
@@ -147,7 +146,9 @@ public final class WebServerImpl implements WebServer {
     }
 
     try {
-      eventNotifier.shutdown();
+      if(eventNotifier != null) {
+        eventNotifier.shutdown();
+      }
       jettyServer.stop();
     } catch (Exception e) {
       logger.info("Failed to stop API server", e);
