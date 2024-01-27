@@ -7,10 +7,14 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
 public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuilder {
+
+  private static final Logger logger = LoggerFactory.getLogger(ServerConnectorWebsocketBuilderImpl.class);
   private final WebServerContext context;
   private final ServletContextHandler servletContextHandler;
 
@@ -28,10 +32,11 @@ public class ServerConnectorWebsocketBuilderImpl implements ServerConnectorBuild
     connector.setReuseAddress(true);
     JettyWebSocketServletContainerInitializer.configure(servletContextHandler, (servletContext, wsContainer) ->
     {
-      wsContainer.setMaxTextMessageSize(4  * 1024);
+      wsContainer.setMaxTextMessageSize(2  * 1024);
       wsContainer.setIdleTimeout(Duration.ofSeconds(propertyService.getInt(Props.BLOCK_TIME)));
       wsContainer.addMapping("/events", new WebSocketConnectionCreator(context));
     });
+    logger.info("[Experimental] WebSockets server enabled for {}:{}", connector.getHost(), connector.getPort());
     return connector;
   }
 
