@@ -11,7 +11,6 @@ import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
 import brs.util.JSON;
-import brs.web.api.http.handler.GetAccount;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.junit.Before;

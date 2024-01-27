@@ -3,7 +3,6 @@ package brs.services.impl;
 import static brs.schema.Tables.ALIAS;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 

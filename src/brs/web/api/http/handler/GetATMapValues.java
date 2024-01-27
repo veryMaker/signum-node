@@ -18,8 +18,6 @@ import static brs.web.api.http.common.JSONResponses.*;
 import static brs.web.api.http.common.Parameters.*;
 import static brs.web.api.http.common.ResultFields.*;
 
-import java.util.Collection;
-
 
 public final class GetATMapValues extends ApiServlet.JsonRequestHandler {
 

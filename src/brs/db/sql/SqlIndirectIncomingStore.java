@@ -10,11 +10,8 @@ import org.jooq.Query;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static brs.schema.Tables.INDIRECT_INCOMING;
