@@ -1,6 +1,7 @@
 package brs.db;
 
 import org.jooq.*;
+import org.jooq.Record;
 
 import java.util.Collection;
 import java.util.List;

@@ -5,6 +5,7 @@ import brs.db.BurstKey;
 import brs.db.EntityTable;
 import brs.db.store.DerivedTableManager;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 

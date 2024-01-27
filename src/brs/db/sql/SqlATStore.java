@@ -17,6 +17,7 @@ import brs.schema.tables.records.AtStateRecord;
 
 import brs.util.CollectionWithIndex;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;

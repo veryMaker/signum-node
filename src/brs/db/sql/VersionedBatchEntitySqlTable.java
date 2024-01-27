@@ -6,6 +6,7 @@ import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.DerivedTableManager;
 import org.ehcache.Cache;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.TableImpl;
 
 import java.util.*;
