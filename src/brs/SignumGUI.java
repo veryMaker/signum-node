@@ -51,7 +51,7 @@ import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
 @SuppressWarnings("serial")
-public class BurstGUI extends JFrame {
+public class SignumGUI extends JFrame {
     private static final String FAILED_TO_START_MESSAGE = "Signum caught exception while starting";
     private static final String UNEXPECTED_EXIT_MESSAGE = "Signum Quit unexpectedly! Exit code ";
 
@@ -59,7 +59,7 @@ public class BurstGUI extends JFrame {
 
     private static final int OUTPUT_MAX_LINES = 500;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BurstGUI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SignumGUI.class);
     private static String []args;
 
     private boolean userClosed = false;
@@ -74,12 +74,12 @@ public class BurstGUI extends JFrame {
     Color iconColor = Color.BLACK;
 
     public static void main(String []args) {
-        new BurstGUI("Signum Node", Props.ICON_LOCATION.getDefaultValue(), Signum.VERSION.toString(), args);
+        new SignumGUI("Signum Node", Props.ICON_LOCATION.getDefaultValue(), Signum.VERSION.toString(), args);
     }
 
-    public BurstGUI(String programName, String iconLocation, String version, String []args) {
+    public SignumGUI(String programName, String iconLocation, String version, String []args) {
         System.setSecurityManager(new BurstGUISecurityManager());
-        BurstGUI.args = args;
+        SignumGUI.args = args;
         this.programName = programName;
         this.version = version;
         setTitle(programName + " " + version);
@@ -169,7 +169,7 @@ public class BurstGUI extends JFrame {
         	@Override
         	public void windowClosing(WindowEvent e) {
         		if(trayIcon == null) {
-        			if (JOptionPane.showConfirmDialog(BurstGUI.this,
+        			if (JOptionPane.showConfirmDialog(SignumGUI.this,
         					"This will stop the node. Are you sure?", "Exit and stop node",
         					JOptionPane.YES_NO_OPTION,
         					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
@@ -292,7 +292,7 @@ public class BurstGUI extends JFrame {
           iconLocation = newIconLocation;
           setIconImage(ImageIO.read(getClass().getResourceAsStream(iconLocation)));
         }
-    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(iconLocation)), "Signum Node", popupMenu);
+    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(SignumGUI.class.getResource(iconLocation)), "Signum Node", popupMenu);
     		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
     		if(phoenixIndex.isFile() && phoenixIndex.exists()) {
     		  newTrayIcon.addActionListener(e -> openWebUi("/phoenix"));
