@@ -13,7 +13,7 @@ public class EncryptedData {
     if (plaintext.length == 0) {
       return EMPTY_DATA;
     }
-    EncryptedMessage message = Crypto.burstCrypto.encryptBytesMessage(plaintext, myPrivateKey, theirPublicKey);
+    EncryptedMessage message = Crypto.signumCrypto.encryptBytesMessage(plaintext, myPrivateKey, theirPublicKey);
     return new EncryptedData(message.getData(), message.getNonce());
   }
 
@@ -44,7 +44,7 @@ public class EncryptedData {
     if (data.length == 0) {
       return data;
     }
-    return Crypto.burstCrypto.decryptMessage(new EncryptedMessage(data, nonce, false), myPrivateKey, theirPublicKey);
+    return Crypto.signumCrypto.decryptMessage(new EncryptedMessage(data, nonce, false), myPrivateKey, theirPublicKey);
   }
 
   public byte[] getData() {

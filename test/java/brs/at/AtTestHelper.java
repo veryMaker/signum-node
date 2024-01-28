@@ -82,8 +82,8 @@ public class AtTestHelper {
             }
             return null;
         }).when(mockAtTable).insert(ArgumentMatchers.any());
-        when(mockAccount.getBalanceNQT()).thenReturn(TestConstants.TEN_BURST);
-        when(mockAccountBalance.getBalanceNQT()).thenReturn(TestConstants.TEN_BURST);
+        when(mockAccount.getBalanceNQT()).thenReturn(TestConstants.TEN_SIGNA);
+        when(mockAccountBalance.getBalanceNQT()).thenReturn(TestConstants.TEN_SIGNA);
         when(mockAccountStore.getAccountTable()).thenReturn(mockAccountTable);
         when(mockAccountStore.setOrVerify(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
                 .thenReturn(true);
@@ -154,7 +154,7 @@ public class AtTestHelper {
         short dpages = 1;
         short cspages = 1;
         short uspages = 1;
-        long minActivationAmount = TestConstants.TEN_BURST;
+        long minActivationAmount = TestConstants.TEN_SIGNA;
         byte[] data = new byte[0];
         int creationLength = 4; // version + reserved
         creationLength += 8; // pages

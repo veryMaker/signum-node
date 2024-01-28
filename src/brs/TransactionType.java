@@ -32,7 +32,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static brs.Constants.ONE_BURST;
+import static brs.Constants.ONE_SIGNA;
 
 public abstract class TransactionType {
 
@@ -45,7 +45,7 @@ public abstract class TransactionType {
   public static final Type TYPE_COLORED_COINS = new Type((byte)2, "Colored coins");
   public static final Type TYPE_DIGITAL_GOODS = new Type((byte)3, "Digital Goods");
   public static final Type TYPE_ACCOUNT_CONTROL = new Type((byte)4, "Account Control");
-  public static final Type TYPE_BURST_MINING = new Type((byte)20, "Mining");
+  public static final Type TYPE_SIGNA_MINING = new Type((byte)20, "Mining");
   public static final Type TYPE_ADVANCED_PAYMENT = new Type((byte)21, "Advanced Payment");
   public static final Type TYPE_AUTOMATED_TRANSACTIONS = new Type((byte)22, "Automated Transactions");
 
@@ -86,9 +86,9 @@ public abstract class TransactionType {
 
   public static final byte SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING = 0;
 
-  public static final byte SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT = 0;
-  public static final byte SUBTYPE_BURST_MINING_COMMITMENT_ADD = 1;
-  public static final byte SUBTYPE_BURST_MINING_COMMITMENT_REMOVE = 2;
+  public static final byte SUBTYPE_SIGNA_MINING_REWARD_RECIPIENT_ASSIGNMENT = 0;
+  public static final byte SUBTYPE_SIGNA_MINING_COMMITMENT_ADD = 1;
+  public static final byte SUBTYPE_SIGNA_MINING_COMMITMENT_REMOVE = 2;
 
   public static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION = 0;
   public static final byte SUBTYPE_ADVANCED_PAYMENT_ESCROW_SIGN = 1;
@@ -189,10 +189,10 @@ public abstract class TransactionType {
     Map<Byte, TransactionType> accountControlTypes = new HashMap<>();
     accountControlTypes.put(SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING, AccountControl.EFFECTIVE_BALANCE_LEASING);
 
-    Map<Byte, TransactionType> burstMiningTypes = new HashMap<>();
-    burstMiningTypes.put(SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT, BurstMining.REWARD_RECIPIENT_ASSIGNMENT);
-    burstMiningTypes.put(SUBTYPE_BURST_MINING_COMMITMENT_ADD, BurstMining.COMMITMENT_ADD);
-    burstMiningTypes.put(SUBTYPE_BURST_MINING_COMMITMENT_REMOVE, BurstMining.COMMITMENT_REMOVE);
+    Map<Byte, TransactionType> signumMiningTypes = new HashMap<>();
+    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_REWARD_RECIPIENT_ASSIGNMENT, BurstMining.REWARD_RECIPIENT_ASSIGNMENT);
+    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_COMMITMENT_ADD, BurstMining.COMMITMENT_ADD);
+    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_COMMITMENT_REMOVE, BurstMining.COMMITMENT_REMOVE);
 
     Map<Byte, TransactionType> advancedPaymentTypes = new HashMap<>();
     advancedPaymentTypes.put(SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION, AdvancedPayment.ESCROW_CREATION);
@@ -207,7 +207,7 @@ public abstract class TransactionType {
     TRANSACTION_TYPES.put(TYPE_COLORED_COINS, coloredCoinsTypes);
     TRANSACTION_TYPES.put(TYPE_DIGITAL_GOODS, digitalGoodsTypes);
     TRANSACTION_TYPES.put(TYPE_ACCOUNT_CONTROL, accountControlTypes);
-    TRANSACTION_TYPES.put(TYPE_BURST_MINING, burstMiningTypes);
+    TRANSACTION_TYPES.put(TYPE_SIGNA_MINING, signumMiningTypes);
     TRANSACTION_TYPES.put(TYPE_ADVANCED_PAYMENT, advancedPaymentTypes);
     TRANSACTION_TYPES.put(TYPE_AUTOMATED_TRANSACTIONS, atTypes);
   }
@@ -2619,7 +2619,7 @@ public abstract class TransactionType {
 
     @Override
     public final byte getType() {
-      return TransactionType.TYPE_BURST_MINING.getType();
+      return TransactionType.TYPE_SIGNA_MINING.getType();
     }
 
     public static final TransactionType REWARD_RECIPIENT_ASSIGNMENT = new BurstMining() {
@@ -2634,7 +2634,7 @@ public abstract class TransactionType {
 
       @Override
       public final byte getSubtype() {
-        return TransactionType.SUBTYPE_BURST_MINING_REWARD_RECIPIENT_ASSIGNMENT;
+        return TransactionType.SUBTYPE_SIGNA_MINING_REWARD_RECIPIENT_ASSIGNMENT;
       }
 
       @Override
@@ -2704,7 +2704,7 @@ public abstract class TransactionType {
 
       @Override
       public final byte getSubtype() {
-        return TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD;
+        return TransactionType.SUBTYPE_SIGNA_MINING_COMMITMENT_ADD;
       }
 
       @Override
@@ -2786,7 +2786,7 @@ public abstract class TransactionType {
 
       @Override
       public final byte getSubtype() {
-        return TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE;
+        return TransactionType.SUBTYPE_SIGNA_MINING_COMMITMENT_REMOVE;
       }
 
       @Override
@@ -2913,7 +2913,7 @@ public abstract class TransactionType {
       @Override
       public Long calculateAttachmentTotalAmountNQT(Transaction transaction) {
         Attachment.AdvancedPaymentEscrowCreation attachment = (Attachment.AdvancedPaymentEscrowCreation) transaction.getAttachment();
-        return Convert.safeAdd(attachment.getAmountNQT(), Convert.safeMultiply(attachment.getTotalSigners(), Constants.ONE_BURST));
+        return Convert.safeAdd(attachment.getAmountNQT(), Convert.safeMultiply(attachment.getTotalSigners(), Constants.ONE_SIGNA));
       }
 
       @Override
@@ -2922,7 +2922,7 @@ public abstract class TransactionType {
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
         accountService.addToBalanceNQT(senderAccount, -totalAmountNQT);
         Collection<Long> signers = attachment.getSigners();
-        signers.forEach(signer -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(signer), Constants.ONE_BURST));
+        signers.forEach(signer -> accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(signer), Constants.ONE_SIGNA));
         escrowService.addEscrowTransaction(senderAccount,
                 recipientAccount,
                 transaction.getId(),
@@ -2950,7 +2950,7 @@ public abstract class TransactionType {
         if (transaction.getSenderId() == transaction.getRecipientId()) {
           throw new SignumException.NotValidException("Escrow must have different sender and recipient");
         }
-        totalAmountNQT = Convert.safeAdd(totalAmountNQT, attachment.getTotalSigners() * Constants.ONE_BURST);
+        totalAmountNQT = Convert.safeAdd(totalAmountNQT, attachment.getTotalSigners() * Constants.ONE_SIGNA);
         if (transaction.getAmountNQT() != 0) {
           throw new SignumException.NotValidException("Transaction sent amount must be 0 for escrow");
         }
@@ -2959,7 +2959,7 @@ public abstract class TransactionType {
         {
           throw new SignumException.NotValidException("Invalid escrow creation amount");
         }
-        if (transaction.getFeeNQT() < Constants.ONE_BURST) {
+        if (transaction.getFeeNQT() < Constants.ONE_SIGNA) {
           throw new SignumException.NotValidException("Escrow transaction must have a fee at least 1 burst");
         }
         if (attachment.getRequiredSigners() < 1 || attachment.getRequiredSigners() > 10) {
@@ -3042,7 +3042,7 @@ public abstract class TransactionType {
       @Override
       protected void validateAttachment(Transaction transaction) throws SignumException.ValidationException {
         Attachment.AdvancedPaymentEscrowSign attachment = (Attachment.AdvancedPaymentEscrowSign) transaction.getAttachment();
-        if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() != Constants.ONE_BURST) {
+        if (transaction.getAmountNQT() != 0 || transaction.getFeeNQT() != Constants.ONE_SIGNA) {
           throw new SignumException.NotValidException("Escrow signing must have amount 0 and fee of 1");
         }
         if (attachment.getEscrowId() == null || attachment.getDecision() == null) {
@@ -3179,11 +3179,11 @@ public abstract class TransactionType {
       protected void validateAttachment(Transaction transaction) throws SignumException.ValidationException {
         Attachment.AdvancedPaymentSubscriptionSubscribe attachment = (Attachment.AdvancedPaymentSubscriptionSubscribe) transaction.getAttachment();
         if (attachment.getFrequency() == null ||
-                attachment.getFrequency() < Constants.BURST_SUBSCRIPTION_MIN_FREQ ||
-                attachment.getFrequency() > Constants.BURST_SUBSCRIPTION_MAX_FREQ) {
+                attachment.getFrequency() < Constants.SIGNUM_SUBSCRIPTION_MIN_FREQ ||
+                attachment.getFrequency() > Constants.SIGNUM_SUBSCRIPTION_MAX_FREQ) {
           throw new SignumException.NotValidException("Invalid subscription frequency");
         }
-        if (transaction.getAmountNQT() < Constants.ONE_BURST || transaction.getAmountNQT() > Constants.MAX_BALANCE_NQT) {
+        if (transaction.getAmountNQT() < Constants.ONE_SIGNA || transaction.getAmountNQT() > Constants.MAX_BALANCE_NQT) {
           throw new SignumException.NotValidException("Subscriptions must be at least one " + Signum.getPropertyService().getString(Props.VALUE_SUFIX));
         }
         if (transaction.getSenderId() == transaction.getRecipientId()) {
@@ -3530,7 +3530,7 @@ public abstract class TransactionType {
     if(fluxCapacitor.getValue(FluxValues.SPEEDWAY, height)) {
       return new Fee(FEE_QUANT, FEE_QUANT);
     }
-    return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_BURST), 0);
+    return new Fee((fluxCapacitor.getValue(FluxValues.PRE_POC2, height) ? FEE_QUANT : ONE_SIGNA), 0);
   }
 
   public static final class Fee {

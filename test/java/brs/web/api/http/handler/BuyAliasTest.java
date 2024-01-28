@@ -52,7 +52,7 @@ public class BuyAliasTest extends AbstractTransactionTest {
   @Test
   public void processRequest() throws SignumException {
     mockStatic(Signum.class);
-    final HttpServletRequest req = QuickMocker.httpServletRequestDefaultKeys(new MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST));
+    final HttpServletRequest req = QuickMocker.httpServletRequestDefaultKeys(new MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_SIGNA));
 
     final Offer mockOfferOnAlias = mock(Offer.class);
 

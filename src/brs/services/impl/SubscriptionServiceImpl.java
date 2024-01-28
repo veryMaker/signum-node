@@ -71,7 +71,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   @Override
   public boolean isEnabled() {
-    if (blockchain.getLastBlock().getHeight() >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
+    if (blockchain.getLastBlock().getHeight() >= Constants.SIGNUM_SUBSCRIPTION_START_BLOCK) {
       return true;
     }
 
@@ -101,7 +101,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   private long getFee(int height) {
 	if (Signum.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
 	  return Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
-    return Constants.ONE_BURST;
+    return Constants.ONE_SIGNA;
   }
 
   @Override

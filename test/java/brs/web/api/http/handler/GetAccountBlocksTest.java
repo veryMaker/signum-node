@@ -61,7 +61,7 @@ public class GetAccountBlocksTest extends AbstractUnitTest {
     mockStatic(Signum.class);
     PropertyService propertyService = mock(PropertyService.class);
     when(Signum.getPropertyService()).thenReturn(propertyService);
-    doReturn((int)Constants.ONE_BURST).when(propertyService).getInt(eq(Props.ONE_COIN_NQT));
+    doReturn((int)Constants.ONE_SIGNA).when(propertyService).getInt(eq(Props.ONE_COIN_NQT));
 
     t = new GetAccountBlocks(blockchainMock, parameterServiceMock, blockServiceMock);
   }

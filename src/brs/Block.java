@@ -375,8 +375,8 @@ public class Block {
     buffer.putLong(previousBlockId);
     buffer.putInt(getTransactions().size());
     if (version < 3) {
-      buffer.putInt((int) (totalAmountNQT / Constants.ONE_BURST));
-      buffer.putInt((int) (totalFeeNQT / Constants.ONE_BURST));
+      buffer.putInt((int) (totalAmountNQT / Constants.ONE_SIGNA));
+      buffer.putInt((int) (totalFeeNQT / Constants.ONE_SIGNA));
     } else {
       buffer.putLong(totalAmountNQT);
       buffer.putLong(totalFeeNQT);

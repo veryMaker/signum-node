@@ -60,7 +60,7 @@ public class EscrowServiceImpl implements EscrowService {
 
   @Override
   public boolean isEnabled() {
-    if(blockchain.getLastBlock().getHeight() >= Constants.BURST_ESCROW_START_BLOCK) {
+    if(blockchain.getLastBlock().getHeight() >= Constants.SIGNUM_ESCROW_START_BLOCK) {
       return true;
     }
 

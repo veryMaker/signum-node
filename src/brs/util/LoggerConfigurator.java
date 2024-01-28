@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import brs.Signum;
 
 /**
- * Handle logging for the Burst node server
+ * Handle logging for the Signum node server
  */
 
 public final class LoggerConfigurator {

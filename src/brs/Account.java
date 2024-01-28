@@ -36,7 +36,7 @@ public class Account {
 
     public Balance(long id) {
       this.id = id;
-      this.nxtKey = accountBurstKeyFactory().newKey(this.id);
+      this.nxtKey = accountSignumKeyFactory().newKey(this.id);
     }
 
     public void setForgedBalanceNQT(long forgedBalanceNQT) {
@@ -106,24 +106,24 @@ public class Account {
   public static class AccountAsset {
     public final long accountId;
     public final long assetId;
-    public final SignumKey burstKey;
+    public final SignumKey signumKey;
     private long quantityQNT;
     private long unconfirmedQuantityQNT;
     private boolean isTreasury;
 
-    protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, SignumKey burstKey) {
+    protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, SignumKey signumKey) {
       this.accountId = accountId;
       this.assetId = assetId;
       this.quantityQNT = quantityQNT;
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
-      this.burstKey = burstKey;
+      this.signumKey = signumKey;
       this.isTreasury = false;
     }
 
-    public AccountAsset(SignumKey burstKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
+    public AccountAsset(SignumKey signumKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
       this.accountId = accountId;
       this.assetId = assetId;
-      this.burstKey = burstKey;
+      this.signumKey = signumKey;
       this.quantityQNT = quantityQNT;
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
       this.isTreasury = false;
@@ -184,14 +184,14 @@ public class Account {
     private Long prevRecipientId;
     private Long recipientId;
     private int fromHeight;
-    public final SignumKey burstKey;
+    public final SignumKey signumKey;
 
-    public RewardRecipientAssignment(Long accountId, Long prevRecipientId, Long recipientId, int fromHeight, SignumKey burstKey) {
+    public RewardRecipientAssignment(Long accountId, Long prevRecipientId, Long recipientId, int fromHeight, SignumKey signumKey) {
       this.accountId = accountId;
       this.prevRecipientId = prevRecipientId;
       this.recipientId = recipientId;
       this.fromHeight = fromHeight;
-      this.burstKey = burstKey;
+      this.signumKey = signumKey;
     }
 
     public long getAccountId() {
@@ -224,11 +224,11 @@ public class Account {
 
   }
 
-  private static SignumKey.LongKeyFactory<Account> accountBurstKeyFactory() {
+  private static SignumKey.LongKeyFactory<Account> accountSignumKeyFactory() {
     return Signum.getStores().getAccountStore().getAccountKeyFactory();
   }
 
-  private static SignumKey.LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory() {
+  private static SignumKey.LongKeyFactory<Account.Balance> accountBalanceSignumKeyFactory() {
     return Signum.getStores().getAccountStore().getAccountBalanceKeyFactory();
   }
 
@@ -241,11 +241,11 @@ public class Account {
   }
 
   public static Account getAccount(long id) {
-    return id == 0 ? null : accountTable().get(accountBurstKeyFactory().newKey(id));
+    return id == 0 ? null : accountTable().get(accountSignumKeyFactory().newKey(id));
   }
 
   public static Account.Balance getAccountBalance(long id) {
-    return id == 0 ? null : accountBalanceTable().get(accountBalanceBurstKeyFactory().newKey(id));
+    return id == 0 ? null : accountBalanceTable().get(accountBalanceSignumKeyFactory().newKey(id));
   }
 
   public static Account.AccountAsset getAccountAssetBalance(long id, long assetId) {
@@ -271,16 +271,16 @@ public class Account {
       logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id);
     }
     this.id = id;
-    this.nxtKey = accountBurstKeyFactory().newKey(this.id);
+    this.nxtKey = accountSignumKeyFactory().newKey(this.id);
     this.creationHeight = Signum.getBlockchain().getHeight();
   }
 
-  protected Account(long id, SignumKey burstKey, int creationHeight) {
+  protected Account(long id, SignumKey signumKey, int creationHeight) {
     if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
       logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id);
     }
     this.id = id;
-    this.nxtKey = burstKey;
+    this.nxtKey = signumKey;
     this.creationHeight = creationHeight;
   }
 

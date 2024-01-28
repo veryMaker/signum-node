@@ -43,8 +43,8 @@ public final class SendMoneySubscription extends CreateTransaction {
       return response;
     }
 
-    if(frequency < Constants.BURST_SUBSCRIPTION_MIN_FREQ ||
-       frequency > Constants.BURST_SUBSCRIPTION_MAX_FREQ) {
+    if(frequency < Constants.SIGNUM_SUBSCRIPTION_MIN_FREQ ||
+       frequency > Constants.SIGNUM_SUBSCRIPTION_MAX_FREQ) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 4);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Invalid frequency amount");

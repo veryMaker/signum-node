@@ -272,7 +272,7 @@ public class BlockServiceImpl implements BlockService {
     } else if (block.getHeight() < 4) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET))));
-    } else if (block.getHeight() < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK && !Signum.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+    } else if (block.getHeight() < Constants.SIGNUM_DIFF_ADJUST_CHANGE_BLOCK && !Signum.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
       Block itBlock = previousBlock;
       BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
       do {

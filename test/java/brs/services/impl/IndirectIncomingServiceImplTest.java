@@ -44,10 +44,10 @@ public class IndirectIncomingServiceImplTest {
             assertEquals(new HashSet<>(indirectIncomings).size(), indirectIncomings.size()); // Assert that there are no duplicates
         });
         List<List<Long>> recipients = new ArrayList<>();
-        recipients.add(Arrays.asList(1L, Constants.ONE_BURST));
-        recipients.add(Arrays.asList(2L, Constants.ONE_BURST));
-        recipients.add(Arrays.asList(3L, Constants.ONE_BURST));
-        recipients.add(Arrays.asList(4L, Constants.ONE_BURST));
+        recipients.add(Arrays.asList(1L, Constants.ONE_SIGNA));
+        recipients.add(Arrays.asList(2L, Constants.ONE_SIGNA));
+        recipients.add(Arrays.asList(3L, Constants.ONE_SIGNA));
+        recipients.add(Arrays.asList(4L, Constants.ONE_SIGNA));
         Attachment.PaymentMultiOutCreation attachment = mock(Attachment.PaymentMultiOutCreation.class);
         when(attachment.getRecipients()).thenReturn(recipients);
         Transaction multiOut = mock(Transaction.class);

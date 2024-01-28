@@ -48,7 +48,7 @@ public class UnconfirmedTransactionStoreTest {
 
   private AccountStore accountStoreMock;
   private VersionedBatchEntityTable<Account> accountTableMock;
-  private LongKeyFactory<Account> accountBurstKeyFactoryMock;
+  private LongKeyFactory<Account> accountSignumKeyFactoryMock;
 
   private TimeService timeService = new TimeServiceImpl();
   private UnconfirmedTransactionStore t;
@@ -68,14 +68,14 @@ public class UnconfirmedTransactionStoreTest {
 
     accountStoreMock = mock(AccountStore.class);
     accountTableMock = mock(VersionedBatchEntityTable.class);
-    accountBurstKeyFactoryMock = mock(LongKeyFactory.class);
+    accountSignumKeyFactoryMock = mock(LongKeyFactory.class);
     TransactionDb transactionDbMock = mock(TransactionDb.class, Answers.RETURNS_DEFAULTS);
     when(accountStoreMock.getAccountTable()).thenReturn(accountTableMock);
-    when(accountStoreMock.getAccountKeyFactory()).thenReturn(accountBurstKeyFactoryMock);
+    when(accountStoreMock.getAccountKeyFactory()).thenReturn(accountSignumKeyFactoryMock);
 
     final Account mockAccount = mock(Account.class);
     final SignumKey mockAccountKey = mock(SignumKey.class);
-    when(accountBurstKeyFactoryMock.newKey(eq(123L))).thenReturn(mockAccountKey);
+    when(accountSignumKeyFactoryMock.newKey(eq(123L))).thenReturn(mockAccountKey);
     when(accountTableMock.get(eq(mockAccountKey))).thenReturn(mockAccount);
     when(mockAccount.getUnconfirmedBalanceNQT()).thenReturn(Constants.MAX_BALANCE_NQT);
 

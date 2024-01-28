@@ -31,8 +31,8 @@ public class AccountServiceImpl implements AccountService {
   private final AccountStore accountStore;
   private final VersionedBatchEntityTable<Account> accountTable;
   private final VersionedBatchEntityTable<Account.Balance> accountBalanceTable;
-  private final LongKeyFactory<Account> accountBurstKeyFactory;
-  private final LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory;
+  private final LongKeyFactory<Account> accountSignumKeyFactory;
+  private final LongKeyFactory<Account.Balance> accountBalanceSignumKeyFactory;
   private final VersionedEntityTable<AccountAsset> accountAssetTable;
   private final LinkKeyFactory<AccountAsset> accountAssetKeyFactory;
   private final VersionedEntityTable<RewardRecipientAssignment> rewardRecipientAssignmentTable;
@@ -47,8 +47,8 @@ public class AccountServiceImpl implements AccountService {
     this.accountStore = accountStore;
     this.accountTable = accountStore.getAccountTable();
     this.accountBalanceTable = accountStore.getAccountBalanceTable();
-    this.accountBurstKeyFactory = accountStore.getAccountKeyFactory();
-    this.accountBalanceBurstKeyFactory = accountStore.getAccountBalanceKeyFactory();
+    this.accountSignumKeyFactory = accountStore.getAccountKeyFactory();
+    this.accountBalanceSignumKeyFactory = accountStore.getAccountBalanceKeyFactory();
     this.assetTransferStore = assetTransferStore;
     this.accountAssetTable = accountStore.getAccountAssetTable();
     this.accountAssetKeyFactory = accountStore.getAccountAssetKeyFactory();
@@ -68,12 +68,12 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Account getAccount(long id) {
-    return id == 0 ? null : accountTable.get(accountBurstKeyFactory.newKey(id));
+    return id == 0 ? null : accountTable.get(accountSignumKeyFactory.newKey(id));
   }
 
   @Override
   public Account.Balance getAccountBalance(long id) {
-    Account.Balance account = accountBalanceTable.get(accountBalanceBurstKeyFactory.newKey(id));
+    Account.Balance account = accountBalanceTable.get(accountBalanceSignumKeyFactory.newKey(id));
     if(account == null){
       account = new Account.Balance(id);
     }
@@ -82,17 +82,17 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Account getNullAccount() {
-    return accountTable.get(accountBurstKeyFactory.newKey(0L));
+    return accountTable.get(accountSignumKeyFactory.newKey(0L));
   }
 
   @Override
   public Account getAccount(long id, int height) {
-    return id == 0 ? null : accountTable.get(accountBurstKeyFactory.newKey(id), height);
+    return id == 0 ? null : accountTable.get(accountSignumKeyFactory.newKey(id), height);
   }
 
   @Override
   public Account getAccount(byte[] publicKey) {
-    final Account account = accountTable.get(accountBurstKeyFactory.newKey(getId(publicKey)));
+    final Account account = accountTable.get(accountSignumKeyFactory.newKey(getId(publicKey)));
 
     if (account == null) {
       return null;
@@ -138,7 +138,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Account getOrAddAccount(long id) {
-    Account account = accountTable.get(accountBurstKeyFactory.newKey(id));
+    Account account = accountTable.get(accountSignumKeyFactory.newKey(id));
     if (account == null) {
       account = new Account(id);
       accountTable.insert(account);
@@ -304,10 +304,10 @@ public class AccountServiceImpl implements AccountService {
     int currentHeight = Signum.getBlockchain().getLastBlock().getHeight();
     RewardRecipientAssignment assignment = getRewardRecipientAssignment(account.getId());
     if (assignment == null) {
-      SignumKey burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.getId());
-      assignment = new RewardRecipientAssignment(account.getId(), account.getId(), recipient, (int) (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME), burstKey);
+      SignumKey signumKey = rewardRecipientAssignmentKeyFactory.newKey(account.getId());
+      assignment = new RewardRecipientAssignment(account.getId(), account.getId(), recipient, (int) (currentHeight + Constants.SIGNA_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME), signumKey);
     } else {
-      assignment.setRecipient(recipient, (int) (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME));
+      assignment.setRecipient(recipient, (int) (currentHeight + Constants.SIGNA_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME));
     }
     rewardRecipientAssignmentTable.insert(assignment);
   }

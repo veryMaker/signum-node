@@ -21,7 +21,7 @@ public class AccountServiceImplTest {
 
   private AccountStore accountStoreMock;
   private VersionedBatchEntityTable<Account> accountTableMock;
-  private LongKeyFactory<Account> accountBurstKeyFactoryMock;
+  private LongKeyFactory<Account> accountSignumKeyFactoryMock;
   private AssetTransferStore assetTransferStoreMock;
 
   private AccountServiceImpl t;
@@ -30,11 +30,11 @@ public class AccountServiceImplTest {
   public void setUp() {
     accountStoreMock = mock(AccountStore.class);
     accountTableMock = mock(VersionedBatchEntityTable.class);
-    accountBurstKeyFactoryMock = mock(LongKeyFactory.class);
+    accountSignumKeyFactoryMock = mock(LongKeyFactory.class);
     assetTransferStoreMock = mock(AssetTransferStore.class);
 
     when(accountStoreMock.getAccountTable()).thenReturn(accountTableMock);
-    when(accountStoreMock.getAccountKeyFactory()).thenReturn(accountBurstKeyFactoryMock);
+    when(accountStoreMock.getAccountKeyFactory()).thenReturn(accountSignumKeyFactoryMock);
 
     t = new AccountServiceImpl(accountStoreMock, assetTransferStoreMock);
   }
@@ -45,7 +45,7 @@ public class AccountServiceImplTest {
     final SignumKey mockKey = mock(SignumKey.class);
     final Account mockResultAccount = mock(Account.class);
 
-    when(accountBurstKeyFactoryMock.newKey(eq(mockId))).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(eq(mockId))).thenReturn(mockKey);
     when(accountTableMock.get(eq((mockKey)))).thenReturn(mockResultAccount);
 
     assertEquals(mockResultAccount, t.getAccount(mockId));
@@ -63,7 +63,7 @@ public class AccountServiceImplTest {
     final SignumKey mockKey = mock(SignumKey.class);
     final Account mockResultAccount = mock(Account.class);
 
-    when(accountBurstKeyFactoryMock.newKey(eq(id))).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(eq(id))).thenReturn(mockKey);
     when(accountTableMock.get(eq(mockKey), eq(height))).thenReturn(mockResultAccount);
 
     assertEquals(mockResultAccount, t.getAccount(id, height));
@@ -82,7 +82,7 @@ public class AccountServiceImplTest {
     final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
-    when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
     when(accountTableMock.get(mockKey)).thenReturn(mockAccount);
 
     when(mockAccount.getPublicKey()).thenReturn(publicKey);
@@ -98,7 +98,7 @@ public class AccountServiceImplTest {
     final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
-    when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
     when(accountTableMock.get(mockKey)).thenReturn(mockAccount);
 
     when(mockAccount.getPublicKey()).thenReturn(null);
@@ -111,7 +111,7 @@ public class AccountServiceImplTest {
     final byte[] publicKey = new byte[0];
     final SignumKey mockKey = mock(SignumKey.class);
 
-    when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
     when(accountTableMock.get(mockKey)).thenReturn(null);
 
     assertNull(t.getAccount(publicKey));
@@ -127,7 +127,7 @@ public class AccountServiceImplTest {
     final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
-    when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
     when(accountTableMock.get(mockKey)).thenReturn(mockAccount);
 
     when(mockAccount.getPublicKey()).thenReturn(otherPublicKey);
@@ -191,7 +191,7 @@ public class AccountServiceImplTest {
 
     final SignumKey mockKey = mock(SignumKey.class);
 
-    when(accountBurstKeyFactoryMock.newKey(eq(accountId))).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(eq(accountId))).thenReturn(mockKey);
     when(accountTableMock.get(eq(mockKey))).thenReturn(null);
 
     final Account createdAccount = t.getOrAddAccount(accountId);
@@ -209,7 +209,7 @@ public class AccountServiceImplTest {
     final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
-    when(accountBurstKeyFactoryMock.newKey(eq(accountId))).thenReturn(mockKey);
+    when(accountSignumKeyFactoryMock.newKey(eq(accountId))).thenReturn(mockKey);
     when(accountTableMock.get(eq(mockKey))).thenReturn(mockAccount);
 
     final Account retrievedAccount = t.getOrAddAccount(accountId);

@@ -1,7 +1,7 @@
 package brs;
 
 import static brs.Constants.FEE_QUANT_SIP3;
-import static brs.Constants.ONE_BURST;
+import static brs.Constants.ONE_SIGNA;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -1351,7 +1351,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
           indirectsCount += txIndirects;
 
-          long slotFee = Signum.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_SIP3 : ONE_BURST;
+          long slotFee = Signum.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_SIP3 : ONE_SIGNA;
           if(Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
             // we already got the list by priority, no need to check the fees again
             slotFee = FEE_QUANT;

@@ -44,7 +44,7 @@ public class SqlAccountStore implements AccountStore {
     = new DbKey.LongKeyFactory<Account.RewardRecipientAssignment>(REWARD_RECIP_ASSIGN.ACCOUNT_ID) {
     @Override
     public DbKey newKey(Account.RewardRecipientAssignment assignment) {
-      return (DbKey) assignment.burstKey;
+      return (DbKey) assignment.signumKey;
     }
   };
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SqlAccountStore.class);
@@ -52,7 +52,7 @@ public class SqlAccountStore implements AccountStore {
     = new DbKey.LinkKeyFactory<Account.AccountAsset>("account_id", "asset_id") {
     @Override
     public DbKey newKey(Account.AccountAsset accountAsset) {
-      return (DbKey) accountAsset.burstKey;
+      return (DbKey) accountAsset.signumKey;
     }
   };
 
