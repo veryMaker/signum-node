@@ -2,7 +2,7 @@ package brs.db.sql;
 
 import brs.Signum;
 import brs.Subscription;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
@@ -18,9 +18,9 @@ import static brs.schema.Tables.SUBSCRIPTION;
 
 public class SqlSubscriptionStore implements SubscriptionStore {
 
-  private final BurstKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
+  private final SignumKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
       @Override
-      public BurstKey newKey(Subscription subscription) {
+      public SignumKey newKey(Subscription subscription) {
         return subscription.dbKey;
       }
     };
@@ -58,7 +58,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Subscription> getSubscriptionDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Subscription> getSubscriptionDbKeyFactory() {
     return subscriptionDbKeyFactory;
   }
 

@@ -2,12 +2,12 @@ package brs;
 
 import java.util.Collection;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 
 public class Asset {
 
   private final long assetId;
-  public final BurstKey dbKey;
+  public final SignumKey dbKey;
   private final long issuerId;
   private long accountId;
   private final String name;
@@ -16,7 +16,7 @@ public class Asset {
   private final byte decimals;
   private final boolean mintable;
 
-  protected Asset(long assetId, BurstKey dbKey, long accountId, String name, String description, long quantityQNT, byte decimals, boolean mintable) {
+  protected Asset(long assetId, SignumKey dbKey, long accountId, String name, String description, long quantityQNT, byte decimals, boolean mintable) {
     this.assetId = assetId;
     this.dbKey = dbKey;
     this.accountId = accountId;
@@ -28,7 +28,7 @@ public class Asset {
     this.mintable = mintable;
   }
 
-  public Asset(BurstKey dbKey, long assetId, long accountId, Attachment.ColoredCoinsAssetIssuance attachment) {
+  public Asset(SignumKey dbKey, long assetId, long accountId, Attachment.ColoredCoinsAssetIssuance attachment) {
     this.dbKey = dbKey;
     this.assetId = assetId;
     this.accountId = accountId;

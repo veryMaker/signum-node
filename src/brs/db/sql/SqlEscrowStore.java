@@ -3,7 +3,7 @@ package brs.db.sql;
 import brs.Signum;
 import brs.Escrow;
 import brs.Transaction;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.EscrowStore;
@@ -18,9 +18,9 @@ import static brs.schema.Tables.ESCROW;
 import static brs.schema.Tables.ESCROW_DECISION;
 
 public class SqlEscrowStore implements EscrowStore {
-  private final BurstKey.LongKeyFactory<Escrow> escrowDbKeyFactory = new DbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
+  private final SignumKey.LongKeyFactory<Escrow> escrowDbKeyFactory = new DbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
       @Override
-      public BurstKey newKey(Escrow escrow) {
+      public SignumKey newKey(Escrow escrow) {
         return escrow.dbKey;
       }
     };
@@ -29,7 +29,7 @@ public class SqlEscrowStore implements EscrowStore {
   private final DbKey.LinkKeyFactory<Escrow.Decision> decisionDbKeyFactory =
       new DbKey.LinkKeyFactory<Escrow.Decision>("escrow_id", "account_id") {
         @Override
-        public BurstKey newKey(Escrow.Decision decision) {
+        public SignumKey newKey(Escrow.Decision decision) {
           return decision.dbKey;
         }
       };
@@ -71,7 +71,7 @@ public class SqlEscrowStore implements EscrowStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Escrow> getEscrowDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Escrow> getEscrowDbKeyFactory() {
     return escrowDbKeyFactory;
   }
 

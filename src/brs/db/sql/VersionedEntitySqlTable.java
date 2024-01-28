@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Signum;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import org.jooq.*;
@@ -18,7 +18,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
     
   private static final Logger logger = LoggerFactory.getLogger(VersionedEntitySqlTable.class);
 
-  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
+  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, SignumKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     super(table, tableClass, dbKeyFactory, true, derivedTableManager);
   }
 

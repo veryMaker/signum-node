@@ -2,7 +2,7 @@ package brs.db.store;
 
 import brs.at.AT;
 import brs.at.AT.AtMapEntry;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.util.CollectionWithIndex;
 
@@ -23,11 +23,11 @@ public interface ATStore {
 
   Collection<Long> getAllATIds(Long codeHashId);
 
-  BurstKey.LongKeyFactory<AT> getAtDbKeyFactory();
+  SignumKey.LongKeyFactory<AT> getAtDbKeyFactory();
 
   VersionedEntityTable<AT> getAtTable();
 
-  BurstKey.LongKeyFactory<AT.ATState> getAtStateDbKeyFactory();
+  SignumKey.LongKeyFactory<AT.ATState> getAtStateDbKeyFactory();
 
   VersionedEntityTable<AT.ATState> getAtStateTable();
 

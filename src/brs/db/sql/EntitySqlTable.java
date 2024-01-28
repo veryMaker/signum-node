@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Signum;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.EntityTable;
 import brs.db.store.DerivedTableManager;
 import org.jooq.*;
@@ -22,11 +22,11 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
   final Field<Integer> heightField;
   final Field<Boolean> latestField;
 
-  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
+  EntitySqlTable(String table, TableImpl<?> tableClass, SignumKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     this(table, tableClass, dbKeyFactory, false, derivedTableManager);
   }
 
-  EntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, boolean multiversion, DerivedTableManager derivedTableManager) {
+  EntitySqlTable(String table, TableImpl<?> tableClass, SignumKey.Factory<T> dbKeyFactory, boolean multiversion, DerivedTableManager derivedTableManager) {
     super(table, tableClass, derivedTableManager);
     this.dbKeyFactory = (DbKey.Factory<T>) dbKeyFactory;
     this.multiversion = multiversion;
@@ -41,7 +41,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
     defaultSort.add(heightField.desc());
   }
 
-  private Map<BurstKey, T> getCache() {
+  private Map<SignumKey, T> getCache() {
     return Db.getCache(table);
   }
 
@@ -68,7 +68,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
   }
 
   @Override
-  public T get(BurstKey nxtKey) {
+  public T get(SignumKey nxtKey) {
     DbKey dbKey = (DbKey) nxtKey;
     if (Db.isInTransaction()) {
       T t = getCache().get(dbKey);
@@ -90,7 +90,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
   }
 
   @Override
-  public T get(BurstKey nxtKey, int height) {
+  public T get(SignumKey nxtKey, int height) {
     DbKey dbKey = (DbKey) nxtKey;
 
     return Db.useDSLContext(ctx -> {

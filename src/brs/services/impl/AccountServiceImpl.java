@@ -8,9 +8,9 @@ import brs.AssetTransfer;
 import brs.Signum;
 import brs.Constants;
 import brs.crypto.Crypto;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LinkKeyFactory;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LinkKeyFactory;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AccountStore;
@@ -190,7 +190,7 @@ public class AccountServiceImpl implements AccountService {
     }
     AccountAsset accountAsset;
 
-    BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
+    SignumKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     accountAsset = accountAssetTable.get(newKey);
     long assetBalance = accountAsset == null ? 0 : accountAsset.getQuantityQNT();
     assetBalance = Convert.safeAdd(assetBalance, quantityQNT);
@@ -210,7 +210,7 @@ public class AccountServiceImpl implements AccountService {
       return;
     }
     AccountAsset accountAsset;
-    BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
+    SignumKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     accountAsset = accountAssetTable.get(newKey);
     long unconfirmedAssetBalance = accountAsset == null ? 0 : accountAsset.getUnconfirmedQuantityQNT();
     unconfirmedAssetBalance = Convert.safeAdd(unconfirmedAssetBalance, quantityQNT);
@@ -230,7 +230,7 @@ public class AccountServiceImpl implements AccountService {
       return;
     }
     AccountAsset accountAsset;
-    BurstKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
+    SignumKey newKey = accountAssetKeyFactory.newKey(account.getId(), assetId);
     accountAsset = accountAssetTable.get(newKey);
     long assetBalance = accountAsset == null ? 0 : accountAsset.getQuantityQNT();
     assetBalance = Convert.safeAdd(assetBalance, quantityQNT);
@@ -304,7 +304,7 @@ public class AccountServiceImpl implements AccountService {
     int currentHeight = Signum.getBlockchain().getLastBlock().getHeight();
     RewardRecipientAssignment assignment = getRewardRecipientAssignment(account.getId());
     if (assignment == null) {
-      BurstKey burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.getId());
+      SignumKey burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.getId());
       assignment = new RewardRecipientAssignment(account.getId(), account.getId(), recipient, (int) (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME), burstKey);
     } else {
       assignment.setRecipient(recipient, (int) (currentHeight + Constants.BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME));
@@ -314,7 +314,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public long getUnconfirmedAssetBalanceQNT(Account account, long assetId) {
-    BurstKey newKey = Signum.getStores().getAccountStore().getAccountAssetKeyFactory().newKey(account.getId(), assetId);
+    SignumKey newKey = Signum.getStores().getAccountStore().getAccountAssetKeyFactory().newKey(account.getId(), assetId);
     AccountAsset accountAsset = accountAssetTable.get(newKey);
     return accountAsset == null ? 0 : accountAsset.getUnconfirmedQuantityQNT();
   }

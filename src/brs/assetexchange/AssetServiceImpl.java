@@ -2,7 +2,7 @@ package brs.assetexchange;
 
 import brs.Account.AccountAsset;
 import brs.*;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetStore;
 import brs.util.CollectionWithIndex;
@@ -19,7 +19,7 @@ class AssetServiceImpl {
 
   private final EntitySqlTable<Asset> assetTable;
 
-  private final BurstKey.LongKeyFactory<Asset> assetDbKeyFactory;
+  private final SignumKey.LongKeyFactory<Asset> assetDbKeyFactory;
 
   public AssetServiceImpl(AssetAccountServiceImpl assetAccountService, TradeServiceImpl tradeService, AssetStore assetStore, AssetTransferServiceImpl assetTransferService) {
     this.assetAccountService = assetAccountService;
@@ -107,7 +107,7 @@ class AssetServiceImpl {
   }
 
   public void addAsset(long assetId, long senderId, Attachment.ColoredCoinsAssetIssuance attachment) {
-    final BurstKey dbKey = assetDbKeyFactory.newKey(assetId);
+    final SignumKey dbKey = assetDbKeyFactory.newKey(assetId);
     assetTable.insert(new Asset(dbKey, assetId, senderId, attachment));
   }
 

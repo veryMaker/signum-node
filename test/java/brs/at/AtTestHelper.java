@@ -5,7 +5,7 @@ import brs.Blockchain;
 import brs.Signum;
 import brs.common.QuickMocker;
 import brs.common.TestConstants;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
@@ -55,9 +55,9 @@ public class AtTestHelper {
         ATStore mockAtStore = mock(ATStore.class);
         FluxCapacitor mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor();
         //noinspection unchecked
-        BurstKey.LongKeyFactory<AT> atLongKeyFactory = mock(BurstKey.LongKeyFactory.class);
+        SignumKey.LongKeyFactory<AT> atLongKeyFactory = mock(SignumKey.LongKeyFactory.class);
         //noinspection unchecked
-        BurstKey.LongKeyFactory<AT.ATState> atStateLongKeyFactory = mock(BurstKey.LongKeyFactory.class);
+        SignumKey.LongKeyFactory<AT.ATState> atStateLongKeyFactory = mock(SignumKey.LongKeyFactory.class);
         mockStatic(Signum.class);
         Blockchain mockBlockchain = mock(Blockchain.class);
         PropertyService mockPropertyService = mock(PropertyService.class);
@@ -69,7 +69,7 @@ public class AtTestHelper {
         VersionedEntityTable<AT.ATState> mockAtStateTable = mock(VersionedEntityTable.class);
         AccountStore mockAccountStore = mock(AccountStore.class);
         //noinspection unchecked
-        BurstKey.LongKeyFactory<Account> mockAccountKeyFactory = mock(BurstKey.LongKeyFactory.class);
+        SignumKey.LongKeyFactory<Account> mockAccountKeyFactory = mock(SignumKey.LongKeyFactory.class);
         Account mockAccount = mock(Account.class);
         Account.Balance mockAccountBalance = mock(Account.Balance.class);
         mockStatic(Account.class);

@@ -3,8 +3,8 @@ package brs.services.impl;
 import brs.*;
 import brs.Escrow.Decision;
 import brs.Escrow.DecisionType;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.sql.DbKey.LinkKeyFactory;
 import brs.db.store.EscrowStore;
@@ -81,17 +81,17 @@ public class EscrowServiceImpl implements EscrowService {
 
   @Override
   public void addEscrowTransaction(Account sender, Account recipient, Long id, Long amountNQT, int requiredSigners, Collection<Long> signers, int deadline, DecisionType deadlineAction) {
-    final BurstKey dbKey = escrowDbKeyFactory.newKey(id);
+    final SignumKey dbKey = escrowDbKeyFactory.newKey(id);
     Escrow newEscrowTransaction = new Escrow(dbKey, sender, recipient, id, amountNQT, requiredSigners, deadline, deadlineAction);
     escrowTable.insert(newEscrowTransaction);
-    BurstKey senderDbKey = decisionDbKeyFactory.newKey(id, sender.getId());
+    SignumKey senderDbKey = decisionDbKeyFactory.newKey(id, sender.getId());
     Decision senderDecision = new Decision(senderDbKey, id, sender.getId(), DecisionType.UNDECIDED);
     decisionTable.insert(senderDecision);
-    BurstKey recipientDbKey = decisionDbKeyFactory.newKey(id, recipient.getId());
+    SignumKey recipientDbKey = decisionDbKeyFactory.newKey(id, recipient.getId());
     Decision recipientDecision = new Decision(recipientDbKey, id, recipient.getId(), DecisionType.UNDECIDED);
     decisionTable.insert(recipientDecision);
     for(Long signer : signers) {
-      BurstKey signerDbKey = decisionDbKeyFactory.newKey(id, signer);
+      SignumKey signerDbKey = decisionDbKeyFactory.newKey(id, signer);
       Decision decision = new Decision(signerDbKey, id, signer, DecisionType.UNDECIDED);
       decisionTable.insert(decision);
     }

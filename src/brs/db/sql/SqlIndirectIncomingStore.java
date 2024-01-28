@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.IndirectIncoming;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.IndirectIncomingStore;
 import org.jooq.BatchBindStep;
@@ -19,12 +19,12 @@ import static brs.schema.Tables.INDIRECT_INCOMING;
 public class SqlIndirectIncomingStore implements IndirectIncomingStore {
 
   private final EntitySqlTable<IndirectIncoming> indirectIncomingTable;
-  private final BurstKey.LinkKeyFactory<IndirectIncoming> indirectIncomingDbKeyFactory;
+  private final SignumKey.LinkKeyFactory<IndirectIncoming> indirectIncomingDbKeyFactory;
 
   public SqlIndirectIncomingStore(DerivedTableManager derivedTableManager) {
     indirectIncomingDbKeyFactory = new DbKey.LinkKeyFactory<IndirectIncoming>("account_id", "transaction_id") {
       @Override
-      public BurstKey newKey(IndirectIncoming indirectIncoming) {
+      public SignumKey newKey(IndirectIncoming indirectIncoming) {
         return newKey(indirectIncoming.getAccountId(), indirectIncoming.getTransactionId());
       }
     };

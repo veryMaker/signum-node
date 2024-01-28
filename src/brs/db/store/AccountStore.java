@@ -2,7 +2,7 @@ package brs.db.store;
 
 import brs.Account;
 import brs.Asset;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 
@@ -21,9 +21,9 @@ public interface AccountStore {
 
   VersionedEntityTable<Account.RewardRecipientAssignment> getRewardRecipientAssignmentTable();
 
-  BurstKey.LongKeyFactory<Account.RewardRecipientAssignment> getRewardRecipientAssignmentKeyFactory();
+  SignumKey.LongKeyFactory<Account.RewardRecipientAssignment> getRewardRecipientAssignmentKeyFactory();
 
-  BurstKey.LinkKeyFactory<Account.AccountAsset> getAccountAssetKeyFactory();
+  SignumKey.LinkKeyFactory<Account.AccountAsset> getAccountAssetKeyFactory();
 
   VersionedEntityTable<Account.AccountAsset> getAccountAssetTable();
 
@@ -31,9 +31,9 @@ public interface AccountStore {
 
   long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury, boolean unconfirmed);
 
-  BurstKey.LongKeyFactory<Account> getAccountKeyFactory();
+  SignumKey.LongKeyFactory<Account> getAccountKeyFactory();
 
-  BurstKey.LongKeyFactory<Account.Balance> getAccountBalanceKeyFactory();
+  SignumKey.LongKeyFactory<Account.Balance> getAccountBalanceKeyFactory();
 
   Collection<Account.RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId);
 

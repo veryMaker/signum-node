@@ -8,7 +8,7 @@ package brs.at;
 
 
 import brs.*;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
@@ -32,7 +32,7 @@ public class AT extends AtMachineState {
     private static final LinkedHashMap<Long, LinkedHashMap<Long, Long>> pendingFeesMap = new LinkedHashMap<>();
     private static final LinkedHashMap<Long, List<AtTransaction>> pendingTransactionsMap = new LinkedHashMap<>();
     private static final LinkedHashMap<Long, List<AtMapEntry>> pendingEntryUpdatesMap = new LinkedHashMap<>();
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
     private final String name;
     private final String description;
     private final int nextHeight;
@@ -118,7 +118,7 @@ public class AT extends AtMachineState {
         return false;
     }
 
-    private static BurstKey.LongKeyFactory<AT> atDbKeyFactory() {
+    private static SignumKey.LongKeyFactory<AT> atDbKeyFactory() {
         return Signum.getStores().getAtStore().getAtDbKeyFactory();
     }
 
@@ -126,7 +126,7 @@ public class AT extends AtMachineState {
         return Signum.getStores().getAtStore().getAtTable();
     }
 
-    private static BurstKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
+    private static SignumKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
         return Signum.getStores().getAtStore().getAtStateDbKeyFactory();
     }
 
@@ -300,7 +300,7 @@ public class AT extends AtMachineState {
 
     public static class ATState {
 
-        public final BurstKey dbKey;
+        public final SignumKey dbKey;
         private final long atId;
         private byte[] state;
         private int prevHeight;

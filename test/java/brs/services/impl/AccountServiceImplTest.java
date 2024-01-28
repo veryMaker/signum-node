@@ -2,8 +2,8 @@ package brs.services.impl;
 
 import brs.Account;
 import brs.Account.RewardRecipientAssignment;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.store.AccountStore;
 import brs.db.store.AssetTransferStore;
@@ -42,7 +42,7 @@ public class AccountServiceImplTest {
   @Test
   public void getAccount() {
     final long mockId = 123l;
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
     final Account mockResultAccount = mock(Account.class);
 
     when(accountBurstKeyFactoryMock.newKey(eq(mockId))).thenReturn(mockKey);
@@ -60,7 +60,7 @@ public class AccountServiceImplTest {
   public void getAccount_withHeight() {
     final long id = 123l;
     final int height = 2;
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
     final Account mockResultAccount = mock(Account.class);
 
     when(accountBurstKeyFactoryMock.newKey(eq(id))).thenReturn(mockKey);
@@ -79,7 +79,7 @@ public class AccountServiceImplTest {
     byte[] publicKey = new byte[1];
     publicKey[0] = (byte) 1;
 
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
     when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
@@ -95,7 +95,7 @@ public class AccountServiceImplTest {
     byte[] publicKey = new byte[1];
     publicKey[0] = (byte) 1;
 
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
     when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
@@ -109,7 +109,7 @@ public class AccountServiceImplTest {
   @Test
   public void getAccount_withPublicKey_notFoundReturnsNull() {
     final byte[] publicKey = new byte[0];
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
 
     when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
     when(accountTableMock.get(mockKey)).thenReturn(null);
@@ -124,7 +124,7 @@ public class AccountServiceImplTest {
     byte[] otherPublicKey = new byte[1];
     otherPublicKey[0] = (byte) 2;
 
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
     when(accountBurstKeyFactoryMock.newKey(anyLong())).thenReturn(mockKey);
@@ -189,7 +189,7 @@ public class AccountServiceImplTest {
   public void getOrAddAccount_addAccount() {
     long accountId = 123L;
 
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
 
     when(accountBurstKeyFactoryMock.newKey(eq(accountId))).thenReturn(mockKey);
     when(accountTableMock.get(eq(mockKey))).thenReturn(null);
@@ -206,7 +206,7 @@ public class AccountServiceImplTest {
   public void getOrAddAccount_getAccount() {
     long accountId = 123L;
 
-    final BurstKey mockKey = mock(BurstKey.class);
+    final SignumKey mockKey = mock(SignumKey.class);
     final Account mockAccount = mock(Account.class);
 
     when(accountBurstKeyFactoryMock.newKey(eq(accountId))).thenReturn(mockKey);

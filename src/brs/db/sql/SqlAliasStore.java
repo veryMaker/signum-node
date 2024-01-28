@@ -2,7 +2,7 @@ package brs.db.sql;
 
 import brs.Alias;
 import brs.Signum;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
@@ -26,7 +26,7 @@ public class SqlAliasStore implements AliasStore {
 
   private static final DbKey.LongKeyFactory<Alias.Offer> offerDbKeyFactory = new DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
       @Override
-      public BurstKey newKey(Alias.Offer offer) {
+      public SignumKey newKey(Alias.Offer offer) {
         return offer.dbKey;
       }
     };
@@ -65,20 +65,20 @@ public class SqlAliasStore implements AliasStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory() {
     return offerDbKeyFactory;
   }
 
-  private static final BurstKey.LongKeyFactory<Alias> aliasDbKeyFactory = new DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
+  private static final SignumKey.LongKeyFactory<Alias> aliasDbKeyFactory = new DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
 
       @Override
-      public BurstKey newKey(Alias alias) {
+      public SignumKey newKey(Alias alias) {
         return alias.dbKey;
       }
     };
 
   @Override
-  public BurstKey.LongKeyFactory<Alias> getAliasDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Alias> getAliasDbKeyFactory() {
     return aliasDbKeyFactory;
   }
 

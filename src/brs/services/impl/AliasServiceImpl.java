@@ -16,7 +16,7 @@ import brs.Signum;
 import brs.Subscription;
 import brs.Transaction;
 import brs.TransactionType;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.sql.Db;
 import brs.db.store.AliasStore;
@@ -31,9 +31,9 @@ public class AliasServiceImpl implements AliasService {
 
   private final AliasStore aliasStore;
   private final VersionedEntityTable<Alias> aliasTable;
-  private final BurstKey.LongKeyFactory<Alias> aliasDbKeyFactory;
+  private final SignumKey.LongKeyFactory<Alias> aliasDbKeyFactory;
   private final VersionedEntityTable<Offer> offerTable;
-  private final BurstKey.LongKeyFactory<Offer> offerDbKeyFactory;
+  private final SignumKey.LongKeyFactory<Offer> offerDbKeyFactory;
 
   private static final String MAIN_TLD = "signum";
   private static final String[] DEFAULT_TLDS = {
@@ -165,7 +165,7 @@ public class AliasServiceImpl implements AliasService {
   public void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment) {
     Alias alias = getAlias(attachment.getAliasName(), attachment.getTLD());
     if (alias == null) {
-      BurstKey aliasDBId = aliasDbKeyFactory.newKey(transaction.getId());
+      SignumKey aliasDBId = aliasDbKeyFactory.newKey(transaction.getId());
       alias = new Alias(transaction.getId(), aliasDBId, transaction, attachment);
     } else {
       alias.setAccountId(transaction.getSenderId());
@@ -179,7 +179,7 @@ public class AliasServiceImpl implements AliasService {
 
   @Override
   public void addTLD(long id, Transaction transaction, Attachment.MessagingTLDAssignment attachment) {
-    BurstKey aliasDBId = aliasDbKeyFactory.newKey(id);
+    SignumKey aliasDBId = aliasDbKeyFactory.newKey(id);
     Alias alias = new Alias(id, aliasDBId, transaction, attachment);
     aliasTable.insert(alias);
   }
@@ -192,7 +192,7 @@ public class AliasServiceImpl implements AliasService {
     if (priceNQT > 0) {
       Offer offer = getOffer(alias);
       if (offer == null) {
-        BurstKey dbKey = offerDbKeyFactory.newKey(alias.getId());
+        SignumKey dbKey = offerDbKeyFactory.newKey(alias.getId());
         offerTable.insert(new Offer(dbKey, alias.getId(), priceNQT, buyerId));
       } else {
         offer.setPriceNQT(priceNQT);

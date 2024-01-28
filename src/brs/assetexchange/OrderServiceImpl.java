@@ -6,8 +6,8 @@ import brs.Attachment.ColoredCoinsOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
 import brs.Order.OrderJournal;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.OrderStore;
 import brs.services.AccountService;
@@ -131,14 +131,14 @@ class OrderServiceImpl {
   }
 
   public void addAskOrder(Transaction transaction, Attachment.ColoredCoinsAskOrderPlacement attachment) {
-    BurstKey dbKey = askOrderDbKeyFactory.newKey(transaction.getId());
+    SignumKey dbKey = askOrderDbKeyFactory.newKey(transaction.getId());
     Ask order = new Ask(dbKey, transaction, attachment);
     askOrderTable.insert(order);
     matchOrders(attachment.getAssetId());
   }
 
   public void addBidOrder(Transaction transaction, Attachment.ColoredCoinsBidOrderPlacement attachment) {
-    BurstKey dbKey = bidOrderDbKeyFactory.newKey(transaction.getId());
+    SignumKey dbKey = bidOrderDbKeyFactory.newKey(transaction.getId());
     Bid order = new Bid(dbKey, transaction, attachment);
     bidOrderTable.insert(order);
     matchOrders(attachment.getAssetId());

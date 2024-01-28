@@ -3,7 +3,7 @@ package brs.db.sql;
 import brs.Signum;
 import brs.DigitalGoodsStore;
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.VersionedValuesTable;
 import brs.db.store.DerivedTableManager;
@@ -24,15 +24,15 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   private static final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> feedbackDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         @Override
-        public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
+        public SignumKey newKey(DigitalGoodsStore.Purchase purchase) {
           return purchase.dbKey;
         }
       };
 
-  private final BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> purchaseDbKeyFactory
+  private final SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> purchaseDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         @Override
-        public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
+        public SignumKey newKey(DigitalGoodsStore.Purchase purchase) {
           return purchase.dbKey;
         }
       };
@@ -45,16 +45,16 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   private final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> publicFeedbackDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         @Override
-        public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
+        public SignumKey newKey(DigitalGoodsStore.Purchase purchase) {
           return purchase.dbKey;
         }
       };
 
   private final VersionedValuesTable<DigitalGoodsStore.Purchase, String> publicFeedbackTable;
 
-  private final BurstKey.LongKeyFactory<DigitalGoodsStore.Goods> goodsDbKeyFactory = new DbKey.LongKeyFactory<DigitalGoodsStore.Goods>(GOODS.ID) {
+  private final SignumKey.LongKeyFactory<DigitalGoodsStore.Goods> goodsDbKeyFactory = new DbKey.LongKeyFactory<DigitalGoodsStore.Goods>(GOODS.ID) {
       @Override
-      public BurstKey newKey(DigitalGoodsStore.Goods goods) {
+      public SignumKey newKey(DigitalGoodsStore.Goods goods) {
         return goods.dbKey;
       }
     };
@@ -165,12 +165,12 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getFeedbackDbKeyFactory() {
+  public SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getFeedbackDbKeyFactory() {
     return feedbackDbKeyFactory;
   }
 
   @Override
-  public BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPurchaseDbKeyFactory() {
+  public SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPurchaseDbKeyFactory() {
     return purchaseDbKeyFactory;
   }
 
@@ -194,7 +194,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<DigitalGoodsStore.Goods> getGoodsDbKeyFactory() {
+  public SignumKey.LongKeyFactory<DigitalGoodsStore.Goods> getGoodsDbKeyFactory() {
     return goodsDbKeyFactory;
   }
 

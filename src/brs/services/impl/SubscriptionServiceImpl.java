@@ -3,8 +3,8 @@ package brs.services.impl;
 import brs.*;
 import brs.Alias.Offer;
 import brs.SignumException.NotValidException;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.db.store.SubscriptionStore;
@@ -63,7 +63,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   @Override
   public void addSubscription(Account sender, long recipientId, Long id, Long amountNQT, int startTimestamp, int frequency) {
-    final BurstKey dbKey = subscriptionDbKeyFactory.newKey(id);
+    final SignumKey dbKey = subscriptionDbKeyFactory.newKey(id);
     final Subscription subscription = new Subscription(sender.getId(), recipientId, id, amountNQT, frequency, startTimestamp + frequency, dbKey);
 
     subscriptionTable.insert(subscription);

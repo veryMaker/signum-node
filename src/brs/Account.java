@@ -2,7 +2,7 @@ package brs;
 
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.util.Convert;
 
@@ -17,7 +17,7 @@ public class Account {
   private static final Logger logger = Logger.getLogger(Account.class.getSimpleName());
 
   public final long id;
-  public final BurstKey nxtKey;
+  public final SignumKey nxtKey;
   private final int creationHeight;
   private byte[] publicKey;
   private int keyHeight;
@@ -28,7 +28,7 @@ public class Account {
 
   public static class Balance {
     public final long id;
-    public final BurstKey nxtKey;
+    public final SignumKey nxtKey;
 
     protected long balanceNQT;
     protected long unconfirmedBalanceNQT;
@@ -106,12 +106,12 @@ public class Account {
   public static class AccountAsset {
     public final long accountId;
     public final long assetId;
-    public final BurstKey burstKey;
+    public final SignumKey burstKey;
     private long quantityQNT;
     private long unconfirmedQuantityQNT;
     private boolean isTreasury;
 
-    protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, BurstKey burstKey) {
+    protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, SignumKey burstKey) {
       this.accountId = accountId;
       this.assetId = assetId;
       this.quantityQNT = quantityQNT;
@@ -120,7 +120,7 @@ public class Account {
       this.isTreasury = false;
     }
 
-    public AccountAsset(BurstKey burstKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
+    public AccountAsset(SignumKey burstKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
       this.accountId = accountId;
       this.assetId = assetId;
       this.burstKey = burstKey;
@@ -184,9 +184,9 @@ public class Account {
     private Long prevRecipientId;
     private Long recipientId;
     private int fromHeight;
-    public final BurstKey burstKey;
+    public final SignumKey burstKey;
 
-    public RewardRecipientAssignment(Long accountId, Long prevRecipientId, Long recipientId, int fromHeight, BurstKey burstKey) {
+    public RewardRecipientAssignment(Long accountId, Long prevRecipientId, Long recipientId, int fromHeight, SignumKey burstKey) {
       this.accountId = accountId;
       this.prevRecipientId = prevRecipientId;
       this.recipientId = recipientId;
@@ -224,11 +224,11 @@ public class Account {
 
   }
 
-  private static BurstKey.LongKeyFactory<Account> accountBurstKeyFactory() {
+  private static SignumKey.LongKeyFactory<Account> accountBurstKeyFactory() {
     return Signum.getStores().getAccountStore().getAccountKeyFactory();
   }
 
-  private static BurstKey.LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory() {
+  private static SignumKey.LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory() {
     return Signum.getStores().getAccountStore().getAccountBalanceKeyFactory();
   }
 
@@ -275,7 +275,7 @@ public class Account {
     this.creationHeight = Signum.getBlockchain().getHeight();
   }
 
-  protected Account(long id, BurstKey burstKey, int creationHeight) {
+  protected Account(long id, SignumKey burstKey, int creationHeight) {
     if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
       logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id);
     }

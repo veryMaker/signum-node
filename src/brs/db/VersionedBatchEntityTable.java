@@ -12,7 +12,7 @@ public interface VersionedBatchEntityTable<T> extends DerivedTable, EntityTable<
   boolean delete(T t);
 
   @Override
-  T get(BurstKey dbKey);
+  T get(SignumKey dbKey);
 
   @Override
   void insert(T t);
@@ -21,7 +21,7 @@ public interface VersionedBatchEntityTable<T> extends DerivedTable, EntityTable<
   void finish();
 
   @Override
-  T get(BurstKey dbKey, int height);
+  T get(SignumKey dbKey, int height);
 
   @Override
   T getBy(Condition condition);
@@ -65,7 +65,7 @@ public interface VersionedBatchEntityTable<T> extends DerivedTable, EntityTable<
   @Override
   void truncate();
 
-  Map<BurstKey, T> getBatch();
+  Map<SignumKey, T> getBatch();
 
   Cache getCache();
 

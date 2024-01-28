@@ -2,7 +2,7 @@ package brs.db.sql;
 
 import brs.Signum;
 import brs.Order;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.OrderStore;
@@ -25,7 +25,7 @@ public class SqlOrderStore implements OrderStore {
   private final DbKey.LongKeyFactory<Order.Ask> askOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
 
     @Override
-    public BurstKey newKey(Order.Ask ask) {
+    public SignumKey newKey(Order.Ask ask) {
       return ask.dbKey;
     }
 
@@ -34,7 +34,7 @@ public class SqlOrderStore implements OrderStore {
   private final DbKey.LongKeyFactory<Order.Bid> bidOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
 
     @Override
-    public BurstKey newKey(Order.Bid bid) {
+    public SignumKey newKey(Order.Bid bid) {
       return bid.dbKey;
     }
 

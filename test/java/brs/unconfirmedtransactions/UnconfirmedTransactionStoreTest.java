@@ -7,8 +7,8 @@ import brs.SignumException.ValidationException;
 import brs.Transaction.Builder;
 import brs.common.QuickMocker;
 import brs.common.TestConstants;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.TransactionDb;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.store.AccountStore;
@@ -74,7 +74,7 @@ public class UnconfirmedTransactionStoreTest {
     when(accountStoreMock.getAccountKeyFactory()).thenReturn(accountBurstKeyFactoryMock);
 
     final Account mockAccount = mock(Account.class);
-    final BurstKey mockAccountKey = mock(BurstKey.class);
+    final SignumKey mockAccountKey = mock(SignumKey.class);
     when(accountBurstKeyFactoryMock.newKey(eq(123L))).thenReturn(mockAccountKey);
     when(accountTableMock.get(eq(mockAccountKey))).thenReturn(mockAccount);
     when(mockAccount.getUnconfirmedBalanceNQT()).thenReturn(Constants.MAX_BALANCE_NQT);

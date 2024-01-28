@@ -1,6 +1,6 @@
 package brs;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 
 public class AssetTransfer {
 
@@ -9,7 +9,7 @@ public class AssetTransfer {
   }
 
   private final long id;
-  private final BurstKey dbKey;
+  private final SignumKey dbKey;
   private final long assetId;
   private final int height;
   private final long senderId;
@@ -17,7 +17,7 @@ public class AssetTransfer {
   private final long quantityQNT;
   private final int timestamp;
 
-  public AssetTransfer(BurstKey dbKey, Transaction transaction, long assetId, long quantityQNT) {
+  public AssetTransfer(SignumKey dbKey, Transaction transaction, long assetId, long quantityQNT) {
     this.dbKey = dbKey;
     this.id = transaction.getId();
     this.height = transaction.getHeight();
@@ -28,7 +28,7 @@ public class AssetTransfer {
     this.timestamp = transaction.getBlockTimestamp();
   }
 
-  protected AssetTransfer(long id, BurstKey dbKey, long assetId, int height, long senderId, long recipientId, long quantityQNT, int timestamp) {
+  protected AssetTransfer(long id, SignumKey dbKey, long assetId, int height, long senderId, long recipientId, long quantityQNT, int timestamp) {
     this.id = id;
     this.dbKey = dbKey;
     this.assetId = assetId;
@@ -39,7 +39,7 @@ public class AssetTransfer {
     this.timestamp = timestamp;
   }
 
-  public BurstKey getDbKey(){
+  public SignumKey getDbKey(){
     return dbKey;
   }
 

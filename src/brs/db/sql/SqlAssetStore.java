@@ -2,7 +2,7 @@ package brs.db.sql;
 
 import brs.Asset;
 import brs.Signum;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.store.AssetStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AssetRecord;
@@ -18,10 +18,10 @@ import static brs.schema.Tables.ASSET;
 
 public class SqlAssetStore implements AssetStore {
 
-  private final BurstKey.LongKeyFactory<Asset> assetDbKeyFactory = new DbKey.LongKeyFactory<Asset>(ASSET.ID) {
+  private final SignumKey.LongKeyFactory<Asset> assetDbKeyFactory = new DbKey.LongKeyFactory<Asset>(ASSET.ID) {
 
       @Override
-      public BurstKey newKey(Asset asset) {
+      public SignumKey newKey(Asset asset) {
         return asset.dbKey;
       }
 
@@ -56,7 +56,7 @@ public class SqlAssetStore implements AssetStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Asset> getAssetDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Asset> getAssetDbKeyFactory() {
     return assetDbKeyFactory;
   }
 

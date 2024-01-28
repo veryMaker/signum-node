@@ -8,7 +8,7 @@ import brs.at.AT.AtMapEntry;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
 import brs.at.AtMachineState;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
 import brs.db.store.DerivedTableManager;
@@ -29,17 +29,17 @@ import static brs.schema.Tables.*;
 
 public class SqlATStore implements ATStore {
 
-  private final BurstKey.LongKeyFactory<brs.at.AT> atDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
+  private final SignumKey.LongKeyFactory<brs.at.AT> atDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
       @Override
-      public BurstKey newKey(brs.at.AT at) {
+      public SignumKey newKey(brs.at.AT at) {
         return at.dbKey;
       }
     };
   private final VersionedEntityTable<brs.at.AT> atTable;
 
-  private final BurstKey.LongKeyFactory<brs.at.AT.ATState> atStateDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT.ATState>(AT_STATE.AT_ID) {
+  private final SignumKey.LongKeyFactory<brs.at.AT.ATState> atStateDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT.ATState>(AT_STATE.AT_ID) {
       @Override
-      public BurstKey newKey(brs.at.AT.ATState atState) {
+      public SignumKey newKey(brs.at.AT.ATState atState) {
         return atState.dbKey;
       }
     };
@@ -49,7 +49,7 @@ public class SqlATStore implements ATStore {
 
   private final DbKey.LinkKey3Factory<brs.at.AT.AtMapEntry> atMapKeyFactory = new DbKey.LinkKey3Factory<brs.at.AT.AtMapEntry>("at_id", "key1", "key2"){
     @Override
-    public BurstKey newKey(brs.at.AT.AtMapEntry atDb) {
+    public SignumKey newKey(brs.at.AT.AtMapEntry atDb) {
       return newKey(atDb.getAtId(), atDb.getKey1(), atDb.getKey2());
     }
   };
@@ -297,7 +297,7 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<brs.at.AT> getAtDbKeyFactory() {
+  public SignumKey.LongKeyFactory<brs.at.AT> getAtDbKeyFactory() {
     return atDbKeyFactory;
   }
 
@@ -312,7 +312,7 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<brs.at.AT.ATState> getAtStateDbKeyFactory() {
+  public SignumKey.LongKeyFactory<brs.at.AT.ATState> getAtStateDbKeyFactory() {
     return atStateDbKeyFactory;
   }
 
