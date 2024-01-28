@@ -1,6 +1,6 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.db.BurstKey;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.Dbs;
@@ -159,7 +159,7 @@ public final class Db {
         Connection con = cp.getConnection();
         Statement stmt = con.createStatement();
         // COMPACT is not giving good result.
-        if (Burst.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+        if (Signum.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
           logger.info("H2 defragmentation started, this can take a while");
           stmt.execute("SHUTDOWN DEFRAG");
         } else {

@@ -1,14 +1,14 @@
 package brs.props;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.Genesis;
 import brs.util.Convert;
 
 public class Props {
 
-  public static final Prop<String> APPLICATION = new Prop<>("node.application", Burst.APPLICATION);
-  public static final Prop<String> VERSION = new Prop<>("node.version", Burst.VERSION.toString());
+  public static final Prop<String> APPLICATION = new Prop<>("node.application", Signum.APPLICATION);
+  public static final Prop<String> VERSION = new Prop<>("node.version", Signum.VERSION.toString());
 
   // Structural parameters
   public static final Prop<Integer> BLOCK_TIME = new Prop<>("node.blockTime", 240);

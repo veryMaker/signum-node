@@ -1,6 +1,6 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
@@ -135,7 +135,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
         SelectQuery<Record> countQuery = ctx.selectQuery();
         countQuery.addFrom(tableClass);
         countQuery.addConditions(dbKey.getPKConditions(tableClass));
-        countQuery.addConditions(heightField.lt(Burst.getBlockchain().getHeight()));
+        countQuery.addConditions(heightField.lt(Signum.getBlockchain().getHeight()));
         if (ctx.fetchCount(countQuery) > 0) {
           UpdateQuery updateQuery = ctx.updateQuery(tableClass);
           updateQuery.addValue(

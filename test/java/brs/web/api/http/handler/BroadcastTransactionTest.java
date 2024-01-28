@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Transaction;
 import brs.TransactionProcessor;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class BroadcastTransactionTest {
 
   private BroadcastTransaction t;
@@ -45,9 +45,9 @@ public class BroadcastTransactionTest {
     this.parameterServiceMock = mock(ParameterService.class);
     this.transactionServiceMock = mock(TransactionService.class);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     FluxCapacitor mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor();
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new BroadcastTransaction(transactionProcessorMock, parameterServiceMock, transactionServiceMock);
   }

@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Constants;
 import brs.common.QuickMocker;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class SetAliasTest extends AbstractTransactionTest {
 
   private SetAlias t;
@@ -45,7 +45,7 @@ public class SetAliasTest extends AbstractTransactionTest {
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     parameterServiceMock = mock(ParameterService.class);
     blockchainMock = mock(Blockchain.class);
@@ -53,7 +53,7 @@ public class SetAliasTest extends AbstractTransactionTest {
     apiTransactionManagerMock = mock(APITransactionManager.class);
 
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new SetAlias(parameterServiceMock, blockchainMock, aliasServiceMock, apiTransactionManagerMock);
   }
@@ -68,9 +68,9 @@ public class SetAliasTest extends AbstractTransactionTest {
         new MockParam(ALIAS_URI_PARAMETER, aliasUrl)
     );
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.MessagingAliasAssignment attachment = (Attachment.MessagingAliasAssignment) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

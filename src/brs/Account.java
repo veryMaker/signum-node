@@ -225,19 +225,19 @@ public class Account {
   }
 
   private static BurstKey.LongKeyFactory<Account> accountBurstKeyFactory() {
-    return Burst.getStores().getAccountStore().getAccountKeyFactory();
+    return Signum.getStores().getAccountStore().getAccountKeyFactory();
   }
 
   private static BurstKey.LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory() {
-    return Burst.getStores().getAccountStore().getAccountBalanceKeyFactory();
+    return Signum.getStores().getAccountStore().getAccountBalanceKeyFactory();
   }
 
   private static VersionedBatchEntityTable<Account> accountTable() {
-    return Burst.getStores().getAccountStore().getAccountTable();
+    return Signum.getStores().getAccountStore().getAccountTable();
   }
 
   private static VersionedBatchEntityTable<Account.Balance> accountBalanceTable() {
-    return Burst.getStores().getAccountStore().getAccountBalanceTable();
+    return Signum.getStores().getAccountStore().getAccountBalanceTable();
   }
 
   public static Account getAccount(long id) {
@@ -249,7 +249,7 @@ public class Account {
   }
 
   public static Account.AccountAsset getAccountAssetBalance(long id, long assetId) {
-    return Burst.getStores().getAccountStore().getAccountAsset(id, assetId);
+    return Signum.getStores().getAccountStore().getAccountAsset(id, assetId);
   }
 
   public static long getId(byte[] publicKey) {
@@ -272,7 +272,7 @@ public class Account {
     }
     this.id = id;
     this.nxtKey = accountBurstKeyFactory().newKey(this.id);
-    this.creationHeight = Burst.getBlockchain().getHeight();
+    this.creationHeight = Signum.getBlockchain().getHeight();
   }
 
   protected Account(long id, BurstKey burstKey, int creationHeight) {
@@ -353,7 +353,7 @@ public class Account {
   // or
   // this.publicKey is already set to an array equal to key
   public boolean setOrVerify(byte[] key, int height) {
-    return Burst.getStores().getAccountStore().setOrVerify(this, key, height);
+    return Signum.getStores().getAccountStore().setOrVerify(this, key, height);
   }
 
   public void apply(byte[] key, int height) {

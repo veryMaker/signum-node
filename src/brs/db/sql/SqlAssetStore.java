@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Asset;
-import brs.Burst;
+import brs.Signum;
 import brs.db.BurstKey;
 import brs.db.store.AssetStore;
 import brs.db.store.DerivedTableManager;
@@ -52,7 +52,7 @@ public class SqlAssetStore implements AssetStore {
       set(ASSET.QUANTITY, asset.getQuantityQNT()).
       set(ASSET.DECIMALS, asset.getDecimals()).
       set(ASSET.MINTABLE, asset.getMintable()).
-      set(ASSET.HEIGHT, Burst.getBlockchain().getHeight()).execute();
+      set(ASSET.HEIGHT, Signum.getBlockchain().getHeight()).execute();
   }
 
   @Override

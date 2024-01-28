@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Burst.class})
+@PrepareForTest({Signum.class})
 public class BuyAliasTest extends AbstractTransactionTest {
 
   private BuyAlias t;
@@ -51,7 +51,7 @@ public class BuyAliasTest extends AbstractTransactionTest {
 
   @Test
   public void processRequest() throws BurstException {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final HttpServletRequest req = QuickMocker.httpServletRequestDefaultKeys(new MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST));
 
     final Offer mockOfferOnAlias = mock(Offer.class);
@@ -67,9 +67,9 @@ public class BuyAliasTest extends AbstractTransactionTest {
 
     when(parameterServiceMock.getAlias(eq(req))).thenReturn(mockAlias);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.MessagingAliasBuy attachment = (Attachment.MessagingAliasBuy) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

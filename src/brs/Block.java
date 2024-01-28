@@ -62,7 +62,7 @@ public class Block {
       byte[] blockSignature, byte[] previousBlockHash, List<Transaction> transactions,
       long nonce, byte[] blockATs, int height, long baseTarget) throws BurstException.ValidationException {
 
-    if (payloadLength > Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
+    if (payloadLength > Signum.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
       throw new BurstException.NotValidException(
           "attempted to create a block with payloadLength " + payloadLength + " height " + height + "previd " + previousBlockId);
     }
@@ -83,7 +83,7 @@ public class Block {
     this.previousBlockHash = previousBlockHash;
     if (transactions != null) {
       this.blockTransactions.set(Collections.unmodifiableList(transactions));
-      if (blockTransactions.get().size() > (Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height))) {
+      if (blockTransactions.get().size() > (Signum.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height))) {
         throw new BurstException.NotValidException(
             "attempted to create a block with " + blockTransactions.get().size() + " transactions");
       }
@@ -114,7 +114,7 @@ public class Block {
   }
 
   private TransactionDb transactionDb() {
-    return Burst.getDbs().getTransactionDb();
+    return Signum.getDbs().getTransactionDb();
   }
 
   public boolean isVerified() {
@@ -211,7 +211,7 @@ public class Block {
 
   public long getCapacityBaseTarget() {
     long capacityBaseTarget = baseTarget;
-    if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height)) {
+    if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height)) {
       // Base target encoded as two floats, one for the commitment and the other the classical base target
       float capacityBaseTargetFloat = Float.intBitsToFloat((int)(baseTarget & 0xFFFFFFFFL));
       capacityBaseTarget = (long)capacityBaseTargetFloat;
@@ -220,7 +220,7 @@ public class Block {
   }
 
   public long getAverageCommitment() {
-    if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height)) {
+    if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height)) {
       // Base target encoded as two floats, one for the commitment and the other the classical base target
       float commitmentBaseTargetFloat = Float.intBitsToFloat((int)((baseTarget) >> 32));
       return (long)commitmentBaseTargetFloat;
@@ -339,7 +339,7 @@ public class Block {
       long nonce = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("nonce")));
       long baseTarget = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("baseTarget")));
 
-      if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && baseTarget == 0L) {
+      if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && baseTarget == 0L) {
         throw new BurstException.NotValidException("Block received without a baseTarget");
       }
 

@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
@@ -38,7 +38,7 @@ public final class AddCommitment extends CreateTransaction {
     final Account account = parameterService.getSenderAccount(req);
     long amountNQT = ParameterParser.getAmountNQT(req);
 
-    long minimumFeeNQT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
+    long minimumFeeNQT = Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     long feeNQT = ParameterParser.getFeeNQT(req);
     if (feeNQT < minimumFeeNQT) {
       return INCORRECT_FEE;

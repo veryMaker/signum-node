@@ -87,7 +87,7 @@ class OrderServiceImpl {
   }
 
   public CollectionWithIndex<OrderJournal> getTradeJournal(final long accountId, final long assetId, int from, int to) {
-    Collection<Transaction> transactions = Burst.getBlockchain().getTransactions(accountId,
+    Collection<Transaction> transactions = Signum.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT,
         TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, from, to);
     
@@ -105,7 +105,7 @@ class OrderServiceImpl {
     }
     
     // check the cancellations
-    transactions = Burst.getBlockchain().getTransactions(accountId,
+    transactions = Signum.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION,
         TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, -1, -1);
     for(Transaction transaction : transactions) {
@@ -145,11 +145,11 @@ class OrderServiceImpl {
   }
 
   private Ask getNextAskOrder(long assetId) {
-    return Burst.getStores().getOrderStore().getNextOrder(assetId);
+    return Signum.getStores().getOrderStore().getNextOrder(assetId);
   }
 
   private Bid getNextBidOrder(long assetId) {
-    return Burst.getStores().getOrderStore().getNextBid(assetId);
+    return Signum.getStores().getOrderStore().getNextBid(assetId);
   }
 
   private void matchOrders(long assetId) {
@@ -165,7 +165,7 @@ class OrderServiceImpl {
       }
 
 
-      Trade trade = tradeService.addTrade(assetId, Burst.getBlockchain().getLastBlock(), askOrder, bidOrder);
+      Trade trade = tradeService.addTrade(assetId, Signum.getBlockchain().getLastBlock(), askOrder, bidOrder);
 
       askOrderUpdateQuantityQNT(askOrder, Convert.safeSubtract(askOrder.getQuantityQNT(), trade.getQuantityQNT()));
       Account askAccount = accountService.getAccount(askOrder.getAccountId());

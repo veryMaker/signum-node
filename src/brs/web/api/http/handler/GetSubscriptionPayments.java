@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Attachment;
 import brs.Attachment.AdvancedPaymentSubscriptionPayment;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.util.CollectionWithIndex;
@@ -66,7 +66,7 @@ public final class GetSubscriptionPayments extends ApiServlet.JsonRequestHandler
     }
 
     JsonArray transactions = new JsonArray();
-    Blockchain blockchain = Burst.getBlockchain();
+    Blockchain blockchain = Signum.getBlockchain();
     CollectionWithIndex<Transaction> accountTransactions = new CollectionWithIndex<Transaction>(blockchain.getTransactions(tx.getSenderId(), TransactionType.TYPE_ADVANCED_PAYMENT.getType(),
             TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT, TransactionType.SUBTYPE_ADVANCED_PAYMENT_SUBSCRIPTION_PAYMENT, firstIndex, lastIndex), firstIndex, lastIndex);
     for (Transaction transaction : accountTransactions) {

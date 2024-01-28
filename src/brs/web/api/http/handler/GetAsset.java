@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.fluxcapacitor.FluxValues;
@@ -39,13 +39,13 @@ public final class GetAsset extends ApiServlet.JsonRequestHandler {
 
     int tradeCount = assetExchange.getTradeCount(asset.getId());
     int transferCount = assetExchange.getTransferCount(asset.getId());
-    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
+    boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
     int accountsCount = assetExchange.getAssetAccountsCount(asset, minimumQuantity, true, unconfirmed);
     long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, true, unconfirmed);
 
     long quantityBurnt = accountService.getUnconfirmedAssetBalanceQNT(accountService.getNullAccount(), asset.getId());
 
-    int heightEnd = Burst.getBlockchain().getHeight();
+    int heightEnd = Signum.getBlockchain().getHeight();
     // default is one day window
     int heightStart = heightEnd - 360;
 

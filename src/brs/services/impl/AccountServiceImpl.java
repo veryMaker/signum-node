@@ -5,7 +5,7 @@ import brs.Account.AccountAsset;
 import brs.Account.Event;
 import brs.Account.RewardRecipientAssignment;
 import brs.AssetTransfer;
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.crypto.Crypto;
 import brs.db.BurstKey;
@@ -301,7 +301,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public void setRewardRecipientAssignment(Account account, Long recipient) {
-    int currentHeight = Burst.getBlockchain().getLastBlock().getHeight();
+    int currentHeight = Signum.getBlockchain().getLastBlock().getHeight();
     RewardRecipientAssignment assignment = getRewardRecipientAssignment(account.getId());
     if (assignment == null) {
       BurstKey burstKey = rewardRecipientAssignmentKeyFactory.newKey(account.getId());
@@ -314,7 +314,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public long getUnconfirmedAssetBalanceQNT(Account account, long assetId) {
-    BurstKey newKey = Burst.getStores().getAccountStore().getAccountAssetKeyFactory().newKey(account.getId(), assetId);
+    BurstKey newKey = Signum.getStores().getAccountStore().getAccountAssetKeyFactory().newKey(account.getId(), assetId);
     AccountAsset accountAsset = accountAssetTable.get(newKey);
     return accountAsset == null ? 0 : accountAsset.getUnconfirmedQuantityQNT();
   }

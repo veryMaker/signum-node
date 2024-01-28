@@ -186,8 +186,8 @@ public final class DebugTrace {
     Account.Balance account = Account.getAccountBalance(accountId);
     map.put("balance", String.valueOf(account != null ? account.getBalanceNQT() : 0));
     map.put("unconfirmed balance", String.valueOf(account != null ? account.getUnconfirmedBalanceNQT() : 0));
-    map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));
-    map.put("height", String.valueOf(Burst.getBlockchain().getHeight()));
+    map.put("timestamp", String.valueOf(Signum.getBlockchain().getLastBlock().getTimestamp()));
+    map.put("height", String.valueOf(Signum.getBlockchain().getHeight()));
     map.put("event", unconfirmed ? "unconfirmed balance" : "balance");
     return map;
   }
@@ -252,8 +252,8 @@ public final class DebugTrace {
     } else {
       map.put("asset balance", String.valueOf(accountAsset.getQuantityQNT()));
     }
-    map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));
-    map.put("height", String.valueOf(Burst.getBlockchain().getHeight()));
+    map.put("timestamp", String.valueOf(Signum.getBlockchain().getLastBlock().getTimestamp()));
+    map.put("height", String.valueOf(Signum.getBlockchain().getHeight()));
     map.put("event", "asset balance");
     return map;
   }
@@ -351,8 +351,8 @@ public final class DebugTrace {
     else if (attachment == Attachment.ARBITRARY_MESSAGE) {
       map = new HashMap<>();
       map.put("account", Convert.toUnsignedLong(accountId));
-      map.put("timestamp", String.valueOf(Burst.getBlockchain().getLastBlock().getTimestamp()));
-      map.put("height", String.valueOf(Burst.getBlockchain().getHeight()));
+      map.put("timestamp", String.valueOf(Signum.getBlockchain().getLastBlock().getTimestamp()));
+      map.put("height", String.valueOf(Signum.getBlockchain().getHeight()));
       map.put("event", "message");
       if (isRecipient) {
         map.put("sender", Convert.toUnsignedLong(transaction.getSenderId()));

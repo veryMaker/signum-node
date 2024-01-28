@@ -1,6 +1,6 @@
 package it.common;
 
-import brs.Burst;
+import brs.Signum;
 import brs.common.TestInfrastructure;
 import brs.peer.Peers;
 import brs.peer.ProcessBlock;
@@ -29,14 +29,14 @@ public abstract class AbstractIT {
   @Before
   public void setUp() {
     mockStatic(Peers.class);
-    Burst.init(testProperties());
+    Signum.init(testProperties());
 
-    processBlock = new ProcessBlock(Burst.getBlockchain(), Burst.getBlockchainProcessor());
+    processBlock = new ProcessBlock(Signum.getBlockchain(), Signum.getBlockchainProcessor());
   }
 
   @After
   public void shutdown() {
-    Burst.shutdown(true);
+    Signum.shutdown(true);
   }
 
   private Properties testProperties() {
@@ -61,6 +61,6 @@ public abstract class AbstractIT {
   }
 
   public void rollback(int height) {
-    Burst.getBlockchainProcessor().popOffTo(0);
+    Signum.getBlockchainProcessor().popOffTo(0);
   }
 }

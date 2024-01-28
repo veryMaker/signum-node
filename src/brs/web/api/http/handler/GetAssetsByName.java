@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
@@ -46,7 +46,7 @@ public final class GetAssetsByName extends AbstractAssetsRetrieval {
           return INCORRECT_ASSET_NAME;
         }
 
-        int heightEnd = Burst.getBlockchain().getHeight();
+        int heightEnd = Signum.getBlockchain().getHeight();
         // default is one day window
         int heightStart = heightEnd - 360;
 

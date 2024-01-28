@@ -1,7 +1,7 @@
 package brs.services.impl;
 
 import brs.Alias;
-import brs.Burst;
+import brs.Signum;
 import brs.Alias.Offer;
 import brs.Attachment.MessagingAliasAssignment;
 import brs.Attachment.MessagingAliasSell;
@@ -32,7 +32,7 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class AliasServiceImplTest extends AbstractUnitTest {
 
   private AliasServiceImpl t;
@@ -45,7 +45,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     aliasStoreMock = mock(AliasStore.class);
     aliasTableMock = mock(VersionedEntityTable.class);
@@ -54,7 +54,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     offerDbKeyFactoryMock = mock(LongKeyFactory.class);
 
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     when(aliasStoreMock.getAliasTable()).thenReturn(aliasTableMock);
     when(aliasStoreMock.getAliasDbKeyFactory()).thenReturn(aliasDbKeyFactoryMock);

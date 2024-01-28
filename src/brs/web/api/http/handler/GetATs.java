@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Transaction;
 import brs.at.AT;
@@ -59,7 +59,7 @@ public final class GetATs extends ApiServlet.JsonRequestHandler {
       }
     }
 
-    Blockchain blockchain = Burst.getBlockchain();
+    Blockchain blockchain = Signum.getBlockchain();
     CollectionWithIndex<Long> atIds = atService.getATsIssuedBy(null, codeHashId, firstIndex, lastIndex);
     JsonArray ats = new JsonArray();
     for(long atId : atIds) {

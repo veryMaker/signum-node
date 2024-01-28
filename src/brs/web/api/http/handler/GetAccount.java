@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Constants;
 import brs.Generator;
@@ -52,7 +52,7 @@ public final class GetAccount extends ApiServlet.JsonRequestHandler {
     }
 
     if(parameterService.getAmountCommitted(req)) {
-      long committedAmount = Burst.getBlockchain().getCommittedAmount(account.getId(), height+Constants.COMMITMENT_WAIT, height, null);
+      long committedAmount = Signum.getBlockchain().getCommittedAmount(account.getId(), height+Constants.COMMITMENT_WAIT, height, null);
       response.addProperty(COMMITTED_NQT_RESPONSE, Convert.toUnsignedLong(committedAmount));
     }
 

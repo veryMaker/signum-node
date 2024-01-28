@@ -5,7 +5,7 @@ import brs.Appendix;
 import brs.Asset;
 import brs.Attachment;
 import brs.Attachment.ColoredCoinsAssetTransfer;
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.Transaction;
 import brs.TransactionType;
@@ -37,11 +37,11 @@ public class AtApiPlatformImpl extends AtApiImpl {
     }
 
     private static Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount) {
-        return Burst.getStores().getAtStore().findTransaction(startHeight, endHeight, atID, numOfTx, minAmount);
+        return Signum.getStores().getAtStore().findTransaction(startHeight, endHeight, atID, numOfTx, minAmount);
     }
 
     private static int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount) {
-        return Burst.getStores().getAtStore().findTransactionHeight(transactionId, height, atID, minAmount);
+        return Signum.getStores().getAtStore().findTransactionHeight(transactionId, height, atID, minAmount);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         ByteBuffer b = ByteBuffer.allocate(state.getA1().length * 4);
         b.order(ByteOrder.LITTLE_ENDIAN);
 
-        b.put(Burst.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getBlockHash());
+        b.put(Signum.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getBlockHash());
 
         b.clear();
 
@@ -104,7 +104,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getTypeForTxInA(AtMachineState state) {
         long txid = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txid);
+        Transaction tx = Signum.getBlockchain().getTransaction(txid);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -125,7 +125,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getAmountForTxInA(AtMachineState state) {
         long txId = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = Signum.getBlockchain().getTransaction(txId);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -151,7 +151,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return 0L;
           }
         }
-        if ((tx.getMessage() == null || Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
+        if ((tx.getMessage() == null || Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
             return tx.getAmountNQT() - state.minActivationAmount();
         }
 
@@ -192,7 +192,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getTimestampForTxInA(AtMachineState state) {
         long txId = AtApiHelper.getLong(state.getA1());
         logger.debug("get timestamp for tx with id {} found", txId);
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = Signum.getBlockchain().getTransaction(txId);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -209,7 +209,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long getRandomIdForTxInA(AtMachineState state) {
         long txId = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = Signum.getBlockchain().getTransaction(txId);
 
         if (tx == null || (tx.getHeight() >= state.getHeight())) {
             return -1;
@@ -229,11 +229,11 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         byte[] senderPublicKey = tx.getSenderPublicKey();
 
-        ByteBuffer bf = ByteBuffer.allocate((Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) ?
+        ByteBuffer bf = ByteBuffer.allocate((Signum.getFluxCapacitor().getValue(FluxValues.SODIUM)) ?
         		32 + 8 + senderPublicKey.length :
         		32 + Long.SIZE + senderPublicKey.length);
         bf.order(ByteOrder.LITTLE_ENDIAN);
-        bf.put(Burst.getBlockchain().getBlockAtHeight(blockHeight - 1).getGenerationSignature());
+        bf.put(Signum.getBlockchain().getBlockAtHeight(blockHeight - 1).getGenerationSignature());
         bf.putLong(tx.getId());
         bf.put(senderPublicKey);
 
@@ -247,7 +247,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public long checkSignBWithA(AtMachineState state) {
         if (state.getVersion() > 2) {
           long txid = AtApiHelper.getLong(state.getA1());
-          Transaction tx = Burst.getBlockchain().getTransaction(txid);
+          Transaction tx = Signum.getBlockchain().getTransaction(txid);
           if (tx == null || tx.getHeight() >= state.getHeight() || tx.getMessage() == null) {
               return 0L;
           }
@@ -291,7 +291,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
     public void messageFromTxInAToB(AtMachineState state) {
         long txid = AtApiHelper.getLong(state.getA1());
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txid);
+        Transaction tx = Signum.getBlockchain().getTransaction(txid);
         if (tx != null && tx.getHeight() >= state.getHeight()) {
             tx = null;
         }
@@ -340,7 +340,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         clearB(state);
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = Signum.getBlockchain().getTransaction(txId);
         if (tx != null && tx.getHeight() >= state.getHeight()) {
             tx = null;
         }
@@ -356,7 +356,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         clearB(state);
 
-        Transaction tx = Burst.getBlockchain().getTransaction(txId);
+        Transaction tx = Signum.getBlockchain().getTransaction(txId);
         if (tx != null && tx.getHeight() >= state.getHeight()) {
             tx = null;
         }
@@ -393,7 +393,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         if (atId != 0L) {
           creator = 0L;
           // asking for the creator of the given at_id
-          AT at = Burst.getStores().getAtStore().getAT(atId);
+          AT at = Signum.getStores().getAtStore().getAT(atId);
           if (at != null) {
             creator = AtApiHelper.getLong(at.getCreator());
           }
@@ -414,7 +414,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
       if(atId == 0L){
         atId = AtApiHelper.getLong(state.getId());
       }
-      AT at = Burst.getStores().getAtStore().getAT(atId);
+      AT at = Signum.getStores().getAtStore().getAT(atId);
       if (at != null) {
         return at.getApCodeHashId();
       }
@@ -433,7 +433,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         atId = AtApiHelper.getLong(state.getId());
       }
       // asking for the creator of the given at_id
-      AT at = Burst.getStores().getAtStore().getAT(atId);
+      AT at = Signum.getStores().getAtStore().getAT(atId);
       if (at != null) {
         return at.minActivationAmount();
       }
@@ -445,7 +445,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
         ByteBuffer b = ByteBuffer.allocate(state.getA1().length * 4);
         b.order(ByteOrder.LITTLE_ENDIAN);
 
-        b.put(Burst.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getGenerationSignature());
+        b.put(Signum.getBlockchain().getBlockAtHeight(state.getHeight() - 1).getGenerationSignature());
 
         b.clear();
 
@@ -466,7 +466,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getCurrentBalance(AtMachineState state) {
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
+        if (!Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
             return 0;
         }
 
@@ -480,7 +480,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getAccountBalance(AtMachineState state) {
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2, state.getHeight())) {
+        if (!Signum.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2, state.getHeight())) {
             return 0;
         }
 
@@ -498,7 +498,7 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
     @Override
     public long getPreviousBalance(AtMachineState state) {
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
+        if (!Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) {
             return 0;
         }
 
@@ -559,14 +559,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long accountId = AtApiHelper.getLong(state.getId());
       long quantity = AtApiHelper.getLong(state.getB1());
 
-      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      Asset asset = Signum.getStores().getAssetStore().getAsset(assetId);
       if (asset == null || asset.getAccountId() != accountId || quantity <= 0L) {
         // only assets that we have created internally and no burning by mint
         return;
       }
 
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
-      long circulatingSupply = Burst.getAssetExchange().getAssetCirculatingSupply(asset, false, unconfirmed);
+      boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      long circulatingSupply = Signum.getAssetExchange().getAssetCirculatingSupply(asset, false, unconfirmed);
       long newSupply = circulatingSupply + quantity;
       if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {
         // do not mint extra to keep the limit
@@ -593,15 +593,15 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long assetToDistribute = AtApiHelper.getLong(state.getA3());
       long quantityToDistribute = 0L;
 
-      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      Asset asset = Signum.getStores().getAssetStore().getAsset(assetId);
       if (asset == null) {
         // asset not found, do nothing
         return;
       }
 
-      int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
-      int holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
+      int maxIndirects = Signum.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+      boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      int holdersCount = Signum.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
       if(holdersCount == 0 || state.getIndirectsCount() + holdersCount > maxIndirects){
         // no holders to distribute or over the maximum, so do not distribute
         return;
@@ -639,14 +639,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
       long minHolding = AtApiHelper.getLong(state.getB1());
       long assetId = AtApiHelper.getLong(state.getB2());
 
-      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      Asset asset = Signum.getStores().getAssetStore().getAsset(assetId);
       if (asset == null) {
         // asset not found, no holders
         return 0L;
       }
 
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
-      return Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
+      boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      return Signum.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
     }
 
     @Override
@@ -657,14 +657,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
       long assetId = AtApiHelper.getLong(state.getB2());
 
-      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      Asset asset = Signum.getStores().getAssetStore().getAsset(assetId);
       if (asset == null) {
         // asset not found, no supply
         return 0L;
       }
 
-      boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
-      return Burst.getAssetExchange().getAssetCirculatingSupply(asset, true, unconfirmed);
+      boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, state.getHeight());
+      return Signum.getAssetExchange().getAssetCirculatingSupply(asset, true, unconfirmed);
     }
 
     @Override

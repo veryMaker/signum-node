@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Block;
 import brs.Blockchain;
 import brs.BlockchainProcessor;
-import brs.Burst;
+import brs.Signum;
 import brs.peer.Peer;
 import brs.props.Props;
 import brs.services.TimeService;
@@ -33,8 +33,8 @@ public final class GetBlockchainStatus extends ApiServlet.JsonRequestHandler {
   protected
   JsonElement processRequest(HttpServletRequest req) {
     JsonObject response = new JsonObject();
-    response.addProperty("application", Burst.getPropertyService().getString(Props.APPLICATION));
-    response.addProperty("version", Burst.getPropertyService().getString(Props.VERSION));
+    response.addProperty("application", Signum.getPropertyService().getString(Props.APPLICATION));
+    response.addProperty("version", Signum.getPropertyService().getString(Props.VERSION));
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     Block lastBlock = blockchain.getLastBlock();
     response.addProperty("lastBlock", lastBlock.getStringId());

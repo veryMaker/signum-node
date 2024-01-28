@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.Burst;
+import brs.Signum;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
 import brs.util.CollectionWithIndex;
@@ -33,7 +33,7 @@ public final class GetAllAssets extends AbstractAssetsRetrieval {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 
-    int heightEnd = Burst.getBlockchain().getHeight();
+    int heightEnd = Signum.getBlockchain().getHeight();
     // default is one day window
     int heightStart = heightEnd - 360;
 

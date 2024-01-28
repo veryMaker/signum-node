@@ -1,6 +1,6 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Subscription;
 import brs.db.BurstKey;
 import brs.db.VersionedEntityTable;
@@ -89,7 +89,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
 
   private Query insertSubscription(DSLContext ctx, Subscription subscription) {
     return ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true);
+            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Signum.getBlockchain().getHeight(), true);
   }
 
   private class SqlSubscription extends Subscription {
@@ -127,7 +127,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
         for (Subscription subscription : subscriptions) {
           insertBatch.bind(
             subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency,
-            subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true
+            subscription.getTimeNext(), Signum.getBlockchain().getHeight(), true
           );
         }
         insertBatch.execute();

@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class SubscriptionCancelTest extends AbstractTransactionTest {
 
   private SubscriptionCancel t;
@@ -69,9 +69,9 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(mockSender);
     when(subscriptionServiceMock.getSubscription(eq(subscriptionIdParameter))).thenReturn(mockSubscription);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.AdvancedPaymentSubscriptionCancel attachment = (Attachment.AdvancedPaymentSubscriptionCancel) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

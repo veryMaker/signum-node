@@ -382,8 +382,8 @@ public interface Attachment extends Appendix {
     }
 
     public MessagingAliasAssignment(String aliasName, String aliasURI, long tld, int blockchainHeight) {
-      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
-            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      super((byte)((Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
 
       this.aliasName = aliasName.trim();
       this.aliasURI = aliasURI.trim();
@@ -527,8 +527,8 @@ public interface Attachment extends Appendix {
     }
 
     public MessagingAliasSell(long aliasId, String aliasName, long priceNQT, int blockchainHeight) {
-      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
-            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      super((byte)((Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
       this.aliasId = aliasId;
       this.aliasName = aliasName;
       this.priceNQT = priceNQT;
@@ -606,8 +606,8 @@ public interface Attachment extends Appendix {
     }
 
     public MessagingAliasBuy(long aliasId, String aliasName, int blockchainHeight) {
-      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
-            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      super((byte)((Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
 
       this.aliasId = aliasId;
       this.aliasName = aliasName;
@@ -751,7 +751,7 @@ public interface Attachment extends Appendix {
 
     public ColoredCoinsAssetIssuance(String name, String description, long quantityQNT, byte decimals, int blockchainHeight, boolean mintable) {
       super((byte)(mintable ? 2 :
-        Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0));
+        Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0));
       this.name = name;
       this.description = Convert.nullToEmpty(description);
       this.quantityQNT = quantityQNT;

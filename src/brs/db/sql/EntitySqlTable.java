@@ -1,6 +1,6 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.db.BurstKey;
 import brs.db.EntityTable;
 import brs.db.store.DerivedTableManager;
@@ -62,7 +62,7 @@ public abstract class EntitySqlTable<T> extends DerivedSqlTable implements Entit
 
   @Override
   public final void checkAvailable(int height) {
-    if (multiversion && height < Burst.getBlockchainProcessor().getMinRollbackHeight()) {
+    if (multiversion && height < Signum.getBlockchainProcessor().getMinRollbackHeight()) {
       throw new IllegalArgumentException("Historical data as of height " + height + " not available, set DB.trimDerivedTables=false and re-scan");
     }
   }

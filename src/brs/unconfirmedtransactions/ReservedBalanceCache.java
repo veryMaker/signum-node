@@ -1,7 +1,7 @@
 package brs.unconfirmedtransactions;
 
 import brs.Account;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Constants;
 import brs.BurstException.ValidationException;
@@ -65,7 +65,7 @@ class ReservedBalanceCache {
       CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
       long totalAmountNQT = commitmentRemove.getAmountNQT();
 
-      Blockchain blockchain = Burst.getBlockchain();
+      Blockchain blockchain = Signum.getBlockchain();
       int nBlocksMined = blockchain.getBlocksCount(senderAccount.getId(), blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
       long amountCommitted = blockchain.getCommittedAmount(senderAccount.getId(), blockchain.getHeight(), blockchain.getHeight(), transaction);
       if (nBlocksMined > 0 || amountCommitted < totalAmountNQT ) {

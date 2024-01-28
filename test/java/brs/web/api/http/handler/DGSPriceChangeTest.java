@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class DGSPriceChangeTest extends AbstractTransactionTest {
 
   private DGSPriceChange t;
@@ -66,9 +66,9 @@ public class DGSPriceChangeTest extends AbstractTransactionTest {
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(mockAccount);
     when(parameterServiceMock.getGoods(eq(req))).thenReturn(mockGoods);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.DigitalGoodsPriceChange attachment = (Attachment.DigitalGoodsPriceChange) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);

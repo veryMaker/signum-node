@@ -18,7 +18,7 @@ import brs.Appendix;
 import brs.Asset;
 import brs.Attachment;
 import brs.Block;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException.NotValidException;
 import brs.Constants;
 import brs.Genesis;
@@ -126,7 +126,7 @@ public class AtTransaction {
 
       byte[] message = getMessage();
       if (message != null) {
-          builder.message(new Appendix.Message(message, Burst.getBlockchain().getHeight()));
+          builder.message(new Appendix.Message(message, Signum.getBlockchain().getHeight()));
       }
 
       return builder.build();
@@ -142,18 +142,18 @@ public class AtTransaction {
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, getAssetId(), quantity);
 
         ColoredCoinsAssetTransfer assetTransferAttachment = (ColoredCoinsAssetTransfer) attachment;
-        Burst.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
+        Signum.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
 
         // we also have coins to send besides the asset
-        if(getAmount() > 0L && Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_5, transaction.getHeight())) {
+        if(getAmount() > 0L && Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_5, transaction.getHeight())) {
           accountService.addToBalanceAndUnconfirmedBalanceNQT(senderAccount, -getAmount());
           accountService.addToBalanceAndUnconfirmedBalanceNQT(recipientAccount, getAmount());
         }
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_ISSUANCE) {
-        Asset asset = Burst.getAssetExchange().getAsset(assetId);
+        Asset asset = Signum.getAssetExchange().getAsset(assetId);
         if(asset == null && assetId != 0L) {
-          Burst.getAssetExchange().addAsset(assetId, senderAccount.getId(), (ColoredCoinsAssetIssuance) attachment);
+          Signum.getAssetExchange().addAsset(assetId, senderAccount.getId(), (ColoredCoinsAssetIssuance) attachment);
         }
       }
       else if (getType() == TransactionType.ColoredCoins.ASSET_MINT) {
@@ -184,7 +184,7 @@ public class AtTransaction {
               accountService.addToAssetAndUnconfirmedAssetBalanceQNT(indirecRecipient, assetIdToDistribute, incoming.getQuantity());
             }
           }
-          Burst.getStores().getIndirectIncomingStore().addIndirectIncomings(indirects);
+          Signum.getStores().getIndirectIncomingStore().addIndirectIncomings(indirects);
         }
       }
       else {

@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Block;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.db.BlockDb;
 import brs.schema.tables.records.BlockRecord;
@@ -137,7 +137,7 @@ public class SqlBlockDb implements BlockDb {
         block.getGeneratorId(), block.getNonce(), block.getBlockATs())
       .execute();
 
-    Burst.getDbs().getTransactionDb().saveTransactions(block.getTransactions());
+    Signum.getDbs().getTransactionDb().saveTransactions(block.getTransactions());
 
     if (block.getPreviousBlockId() != 0) {
       ctx.update(BLOCK)

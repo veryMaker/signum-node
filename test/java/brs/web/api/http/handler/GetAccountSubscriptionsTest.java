@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Subscription;
 import brs.common.AbstractUnitTest;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class GetAccountSubscriptionsTest extends AbstractUnitTest {
 
   private ParameterService parameterServiceMock;
@@ -45,14 +45,14 @@ public class GetAccountSubscriptionsTest extends AbstractUnitTest {
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     parameterServiceMock = mock(ParameterService.class);
     subscriptionServiceMock = mock(SubscriptionService.class);
     aliasServiceMock = mock(AliasService.class);
 
     Blockchain mockBlockchain = mock(Blockchain.class);
-    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(Signum.getBlockchain()).thenReturn(mockBlockchain);
 
     t = new GetAccountSubscriptions(parameterServiceMock, subscriptionServiceMock, aliasServiceMock);
   }

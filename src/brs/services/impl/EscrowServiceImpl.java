@@ -133,7 +133,7 @@ public class EscrowServiceImpl implements EscrowService {
     int countRefund = 0;
     int countSplit = 0;
 
-    for (Decision decision : Burst.getStores().getEscrowStore().getDecisions(escrow.getId())) {
+    for (Decision decision : Signum.getStores().getEscrowStore().getDecisions(escrow.getId())) {
       if(decision.getAccountId().equals(escrow.getSenderId()) ||
           decision.getAccountId().equals(escrow.getRecipientId())) {
         continue;
@@ -193,7 +193,7 @@ public class EscrowServiceImpl implements EscrowService {
         }
       }
       if (!resultTransactions.isEmpty()) {
-        Burst.getDbs().getTransactionDb().saveTransactions( resultTransactions);
+        Signum.getDbs().getTransactionDb().saveTransactions( resultTransactions);
       }
       updatedEscrowIds.clear();
     }
@@ -248,7 +248,7 @@ public class EscrowServiceImpl implements EscrowService {
       throw new RuntimeException(e.toString(), e);
     }
 
-    if(!Burst.getDbs().getTransactionDb().hasTransaction(transaction.getId())) {
+    if(!Signum.getDbs().getTransactionDb().hasTransaction(transaction.getId())) {
       resultTransactions.add(transaction);
     }
   }

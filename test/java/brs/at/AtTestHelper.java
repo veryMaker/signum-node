@@ -2,7 +2,7 @@ package brs.at;
 
 import brs.Account;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.db.BurstKey;
@@ -58,7 +58,7 @@ public class AtTestHelper {
         BurstKey.LongKeyFactory<AT> atLongKeyFactory = mock(BurstKey.LongKeyFactory.class);
         //noinspection unchecked
         BurstKey.LongKeyFactory<AT.ATState> atStateLongKeyFactory = mock(BurstKey.LongKeyFactory.class);
-        mockStatic(Burst.class);
+        mockStatic(Signum.class);
         Blockchain mockBlockchain = mock(Blockchain.class);
         PropertyService mockPropertyService = mock(PropertyService.class);
         //noinspection unchecked
@@ -120,14 +120,14 @@ public class AtTestHelper {
         when(mockAtStore.getAtStateTable()).thenReturn(mockAtStateTable);
         when(mockPropertyService.getBoolean(ArgumentMatchers.eq(Props.ENABLE_AT_DEBUG_LOG))).thenReturn(true);
         when(mockAtStore.getAtTable()).thenReturn(mockAtTable);
-        when(Burst.getPropertyService()).thenReturn(mockPropertyService);
-        when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+        when(Signum.getPropertyService()).thenReturn(mockPropertyService);
+        when(Signum.getBlockchain()).thenReturn(mockBlockchain);
         when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
         when(mockAtStore.getAtDbKeyFactory()).thenReturn(atLongKeyFactory);
         when(mockAtStore.getAtStateDbKeyFactory()).thenReturn(atStateLongKeyFactory);
         when(mockStores.getAtStore()).thenReturn(mockAtStore);
-        when(Burst.getStores()).thenReturn(mockStores);
-        when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+        when(Signum.getStores()).thenReturn(mockStores);
+        when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
     }
 
     static void clearAddedAts() {

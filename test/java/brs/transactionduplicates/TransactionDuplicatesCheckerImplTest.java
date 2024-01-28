@@ -4,7 +4,7 @@ import brs.Attachment.AdvancedPaymentEscrowResult;
 import brs.Attachment.AdvancedPaymentSubscriptionSubscribe;
 import brs.Attachment.MessagingAliasSell;
 import brs.BlockchainImpl;
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.BurstException.NotValidException;
 import brs.Escrow.DecisionType;
@@ -31,20 +31,20 @@ import static org.mockito.Mockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class TransactionDuplicatesCheckerImplTest {
 
   private TransactionDuplicatesCheckerImpl t = new TransactionDuplicatesCheckerImpl();
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     final FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2);
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
     BlockchainImpl mockBlockchain = mock(BlockchainImpl.class);
     when(mockBlockchain.getHeight()).thenReturn(4);
-    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(Signum.getBlockchain()).thenReturn(mockBlockchain);
 
     doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
 

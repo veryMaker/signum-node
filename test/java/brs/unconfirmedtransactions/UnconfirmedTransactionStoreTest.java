@@ -41,7 +41,7 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class UnconfirmedTransactionStoreTest {
 
   private BlockchainImpl mockBlockChain;
@@ -55,16 +55,16 @@ public class UnconfirmedTransactionStoreTest {
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     final PropertyService mockPropertyService = mock(PropertyService.class);
-    when(Burst.getPropertyService()).thenReturn(mockPropertyService);
+    when(Signum.getPropertyService()).thenReturn(mockPropertyService);
     when(mockPropertyService.getInt(eq(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS))).thenReturn(8192);
     when(mockPropertyService.getInt(eq(Props.P2P_MAX_PERCENTAGE_UNCONFIRMED_TRANSACTIONS_FULL_HASH_REFERENCE))).thenReturn(5);
     when(mockPropertyService.getInt(eq(Props.P2P_MAX_UNCONFIRMED_TRANSACTIONS_RAW_SIZE_BYTES_TO_SEND))).thenReturn(175000);
 
     mockBlockChain = mock(BlockchainImpl.class);
-    when(Burst.getBlockchain()).thenReturn(mockBlockChain);
+    when(Signum.getBlockchain()).thenReturn(mockBlockChain);
 
     accountStoreMock = mock(AccountStore.class);
     accountTableMock = mock(VersionedBatchEntityTable.class);
@@ -81,7 +81,7 @@ public class UnconfirmedTransactionStoreTest {
 
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
 
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
     doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));

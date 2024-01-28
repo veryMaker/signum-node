@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Alias;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Subscription;
 import brs.Transaction;
@@ -51,7 +51,7 @@ public final class GetAccountSubscriptions extends ApiServlet.JsonRequestHandler
       Alias alias = aliasService.getAlias(accountSubscription.getRecipientId());
       Alias tld = alias == null ? null : aliasService.getTLD(alias.getTLD());
 
-      Transaction transaction = Burst.getBlockchain().getTransaction(alias == null? accountSubscription.getId() : alias.getId());
+      Transaction transaction = Signum.getBlockchain().getTransaction(alias == null? accountSubscription.getId() : alias.getId());
       subscriptions.add(JSONData.subscription(accountSubscription, alias, tld, transaction));
     }
 

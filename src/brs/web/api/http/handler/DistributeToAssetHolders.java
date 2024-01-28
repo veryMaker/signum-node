@@ -19,7 +19,7 @@ import brs.Account.AccountAsset;
 import brs.Asset;
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.Constants;
 import brs.assetexchange.AssetExchange;
@@ -66,7 +66,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
       }
     }
 
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+    if(!Signum.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       return JSONResponses.incorrect("asset distribution is not enabled yet");
     }
 
@@ -99,7 +99,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
       return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
     }
 
-    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
+    boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
     CollectionWithIndex<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, unconfirmed, -1, -1);
     long circulatingSupply = 0;
     for(AccountAsset holder : holders) {

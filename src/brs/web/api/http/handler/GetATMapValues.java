@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.Burst;
+import brs.Signum;
 import brs.at.AT.AtMapEntry;
 import brs.util.CollectionWithIndex;
 import brs.util.Convert;
@@ -62,7 +62,7 @@ public final class GetATMapValues extends ApiServlet.JsonRequestHandler {
       throw new IllegalArgumentException("lastIndex must be greater or equal to firstIndex");
     }
 
-    CollectionWithIndex<AtMapEntry> atMapEntries = Burst.getStores().getAtStore().getMapValues(atId, k1, value, firstIndex, lastIndex);
+    CollectionWithIndex<AtMapEntry> atMapEntries = Signum.getStores().getAtStore().getMapValues(atId, k1, value, firstIndex, lastIndex);
 
     JsonArray mapValues = new JsonArray();
     for (AtMapEntry entry : atMapEntries) {

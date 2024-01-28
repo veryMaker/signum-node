@@ -19,11 +19,11 @@ public final class DigitalGoodsStore {
   public static class Goods {
 
     private static BurstKey.LongKeyFactory<Goods> goodsDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getGoodsDbKeyFactory();
+      return Signum.getStores().getDigitalGoodsStoreStore().getGoodsDbKeyFactory();
     }
 
     private static VersionedEntityTable<Goods> goodsTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getGoodsTable();
+      return Signum.getStores().getDigitalGoodsStoreStore().getGoodsTable();
     }
 
     private final long id;
@@ -122,23 +122,23 @@ public final class DigitalGoodsStore {
   public static class Purchase {
 
     private static BurstKey.LongKeyFactory<Purchase> purchaseDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPurchaseDbKeyFactory();
+      return Signum.getStores().getDigitalGoodsStoreStore().getPurchaseDbKeyFactory();
     }
 
     private static BurstKey.LongKeyFactory<Purchase> feedbackDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackDbKeyFactory();
+      return Signum.getStores().getDigitalGoodsStoreStore().getFeedbackDbKeyFactory();
     }
 
     private static VersionedValuesTable<Purchase, EncryptedData> feedbackTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackTable();
+      return Signum.getStores().getDigitalGoodsStoreStore().getFeedbackTable();
     }
 
     private static BurstKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackDbKeyFactory();
+      return Signum.getStores().getDigitalGoodsStoreStore().getPublicFeedbackDbKeyFactory();
     }
 
     private static VersionedValuesTable<Purchase, String> publicFeedbackTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackTable();
+      return Signum.getStores().getDigitalGoodsStoreStore().getPublicFeedbackTable();
     }
 
     private final long id;

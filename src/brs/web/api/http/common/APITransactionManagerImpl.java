@@ -55,7 +55,7 @@ public class APITransactionManagerImpl implements APITransactionManager {
     String recipientPublicKeyValue = Convert.emptyToNull(ParameterParser.getRecipientPublicKey(req));
     boolean broadcast = !Parameters.isFalse(req.getParameter(BROADCAST_PARAMETER));
 
-    long cashBackId = Convert.parseUnsignedLong(Burst.getPropertyService().getString(Props.CASH_BACK_ID));
+    long cashBackId = Convert.parseUnsignedLong(Signum.getPropertyService().getString(Props.CASH_BACK_ID));
 
     EncryptedMessage encryptedMessage = null;
 
@@ -74,24 +74,24 @@ public class APITransactionManagerImpl implements APITransactionManager {
     Message message = null;
     String messageValue = Convert.emptyToNull(req.getParameter(MESSAGE_PARAMETER));
     if (messageValue != null) {
-      boolean messageIsText = Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)
+      boolean messageIsText = Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)
           && !Parameters.isFalse(req.getParameter(MESSAGE_IS_TEXT_PARAMETER));
       try {
         message = messageIsText ? new Message(messageValue, blockchainHeight) : new Message(Convert.parseHexString(messageValue), blockchainHeight);
       } catch (RuntimeException e) {
         throw new ParameterException(INCORRECT_ARBITRARY_MESSAGE);
       }
-    } else if (attachment instanceof Attachment.ColoredCoinsAssetTransfer && Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+    } else if (attachment instanceof Attachment.ColoredCoinsAssetTransfer && Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
       String commentValue = Convert.emptyToNull(req.getParameter(COMMENT_PARAMETER));
       if (commentValue != null) {
         message = new Message(commentValue, blockchainHeight);
       }
-    } else if (attachment == Attachment.ARBITRARY_MESSAGE && ! Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+    } else if (attachment == Attachment.ARBITRARY_MESSAGE && ! Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
       message = new Message(new byte[0], blockchainHeight);
     }
     PublicKeyAnnouncement publicKeyAnnouncement = null;
     byte []recipientPublicKey = Convert.parseHexString(recipientPublicKeyValue);
-    if (recipientPublicKeyValue != null && Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
+    if (recipientPublicKeyValue != null && Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)) {
       publicKeyAnnouncement = new PublicKeyAnnouncement(recipientPublicKey, blockchainHeight);
     }
 
@@ -138,7 +138,7 @@ public class APITransactionManagerImpl implements APITransactionManager {
       Builder builder = transactionProcessor.newTransactionBuilder(publicKey, amountNQT, feeNQT, deadline, attachment).referencedTransactionFullHash(referencedTransactionFullHash);
       if (attachment.getTransactionType().hasRecipient()) {
         Account recipientAccount = accountService.getAccount(recipientId);
-        if(recipientId!=0L && Burst.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
+        if(recipientId!=0L && Signum.getPropertyService().getBoolean(Props.PK_API_BLOCK)) {
           long referenceId = Convert.fullHashToId(referencedTransactionFullHash);
           if((referenceId!=recipientId) // allow to send to a fresh new account if we use the reference to a transaction that has that ID (contract creation pending)
                   && (recipientAccount == null || recipientAccount.getPublicKey() == null) && publicKeyAnnouncement == null) {

@@ -32,7 +32,7 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class EscrowSignTest extends AbstractTransactionTest {
 
   private ParameterService parameterServiceMock;
@@ -69,9 +69,9 @@ public class EscrowSignTest extends AbstractTransactionTest {
     final Account sender = mock(Account.class);
     when(sender.getId()).thenReturn(senderId);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     when(escrowServiceMock.getEscrowTransaction(eq(escrowId))).thenReturn(escrow);
@@ -105,9 +105,9 @@ public class EscrowSignTest extends AbstractTransactionTest {
     when(escrowServiceMock.getEscrowTransaction(eq(escrowId))).thenReturn(escrow);
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(sender);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.AdvancedPaymentEscrowSign attachment = (brs.Attachment.AdvancedPaymentEscrowSign) attachmentCreatedTransaction(() -> t.processRequest(req),
@@ -135,9 +135,9 @@ public class EscrowSignTest extends AbstractTransactionTest {
     final Account sender = mock(Account.class);
     when(sender.getId()).thenReturn(senderId);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     when(escrowServiceMock.isIdSigner(eq(senderId), eq(escrow))).thenReturn(true);

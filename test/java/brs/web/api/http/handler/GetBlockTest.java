@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Block;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
@@ -31,7 +31,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import java.math.BigInteger;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class GetBlockTest {
 
   private GetBlock t;
@@ -44,9 +44,9 @@ public class GetBlockTest {
     blockchainMock = mock(Blockchain.class);
     blockServiceMock = mock(BlockService.class);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     PropertyService propertyService = mock(PropertyService.class);
-    when(Burst.getPropertyService()).thenReturn(propertyService);
+    when(Signum.getPropertyService()).thenReturn(propertyService);
     doReturn((int)Constants.ONE_BURST).when(propertyService).getInt(eq(Props.ONE_COIN_NQT));
 
     t = new GetBlock(blockchainMock, blockServiceMock);

@@ -41,7 +41,7 @@ public class Asset {
   }
 
   public void updateCurrentOwnerAccount() {
-    Blockchain blockchain = Burst.getBlockchain();
+    Blockchain blockchain = Signum.getBlockchain();
 
     Transaction issuanceTransaction = blockchain.getTransaction(assetId);
     if(issuanceTransaction == null){

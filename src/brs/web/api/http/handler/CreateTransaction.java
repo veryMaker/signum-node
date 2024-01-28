@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Attachment;
-import brs.Burst;
+import brs.Signum;
 import brs.BurstException;
 import brs.fluxcapacitor.FluxValues;
 import brs.web.api.http.ApiServlet;
@@ -62,7 +62,7 @@ public abstract class CreateTransaction extends ApiServlet.JsonRequestHandler {
   }
 
   private long minimumFeeNQT() {
-    return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
+    return Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
   }
 
 }

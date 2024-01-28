@@ -80,7 +80,7 @@ class AssetServiceImpl {
     
     if(nextIndex < 0) {
       // now check for ownership transfers
-      Blockchain blockchain = Burst.getBlockchain();
+      Blockchain blockchain = Signum.getBlockchain();
       int remainingSize = from - to - assetsIssued.size();
 
       Collection<Long> txIds = blockchain.getTransactionIds(null, accountId, 0, 

@@ -216,7 +216,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
               // Keep the download cache below the rollback limit
               int cacheHeight = downloadCache.getLastBlock().getHeight();
-              if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, cacheHeight) && cacheHeight - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
+              if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, cacheHeight) && cacheHeight - blockchain.getHeight() > Constants.MAX_ROLLBACK / 2) {
                 logger.debug("GetMoreBlocks, skip download, wait for other threads to catch up");
                 return;
               }
@@ -232,7 +232,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   logger.debug("No peer connected.");
                   return;
                 }
-                if (!peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+                if (!peer.isHigherOrEqualVersionThan(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
                         || (peer.getNetworkName()!=null && !peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))) {
                   // ignore this peer, it will be removed by the peers discovery thread
                   continue;
@@ -331,7 +331,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 int height = lastBlock.getHeight() + 1;
                 blockData = JSON.getAsJsonObject(o);
                 try {
-                  if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && height - blockchain.getHeight() >= Constants.MAX_ROLLBACK) {
+                  if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && height - blockchain.getHeight() >= Constants.MAX_ROLLBACK) {
                     logger.debug("GetMoreBlocks, wait for other threads to catch up");
                     break;
                   }
@@ -874,7 +874,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       Block lastBlock = blockDb.findLastBlock();
       blockchain.setLastBlock(lastBlock);
       logger.info("Last block height: {}, baseTarget: {}{}", lastBlock.getHeight(),
-          lastBlock.getCapacityBaseTarget(), Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS) ?
+          lastBlock.getCapacityBaseTarget(), Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS) ?
               ", averageCommitmentNQT " + lastBlock.getAverageCommitment() : "");
       return;
     }
@@ -886,7 +886,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       ByteBuffer bf = ByteBuffer.allocate(0);
       bf.order(ByteOrder.LITTLE_ENDIAN);
       byte[] byteATs = bf.array();
-      int genesisTimestamp = Burst.getPropertyService().getInt(Props.GENESIS_TIMESTAMP);
+      int genesisTimestamp = Signum.getPropertyService().getInt(Props.GENESIS_TIMESTAMP);
       Block genesisBlock = new Block(-1, genesisTimestamp, 0, 0, 0, 0, 0, transactions.size() * 128,
           digest.digest(), Genesis.getCreatorPublicKey(), new byte[32],
           Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, Constants.INITIAL_BASE_TARGET);
@@ -949,7 +949,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
         long[] feeArray = new long[transactions.size()];
         int slotIdx = 0;
 
-        int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+        int maxIndirects = Signum.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
         int indirectsCount = 0;
 
         for (Transaction transaction : transactions) {
@@ -987,7 +987,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 + transaction.getStringId() + " at height " + previousLastBlock.getHeight(),
                 transaction);
           }
-            if (Burst.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !economicClustering.verifyFork(transaction)) {
+            if (Signum.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK) && !economicClustering.verifyFork(transaction)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}", block.getStringId(), previousLastBlock.getHeight() + 1, transaction.getStringId(), transaction.getECBlockHeight(), Convert.toUnsignedLong(transaction.getECBlockId()));
                 }
@@ -1027,7 +1027,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.SODIUM) && !Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           Arrays.sort(feeArray);
           for (int i = 0; i < feeArray.length; i++) {
             if (feeArray[i] < Constants.FEE_QUANT_SIP3 * (i + 1)) {
@@ -1198,7 +1198,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   private int getBlockVersion() {
-    return Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES) ? 4 : 3;
+    return Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES) ? 4 : 3;
   }
 
   private boolean preCheckUnconfirmedTransaction(TransactionDuplicatesCheckerImpl transactionDuplicatesChecker, UnconfirmedTransactionStore unconfirmedTransactionStore, Transaction transaction) {
@@ -1223,8 +1223,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       UnconfirmedTransactionStore unconfirmedTransactionStore = stores.getUnconfirmedTransactionStore();
       SortedSet<Transaction> orderedBlockTransactions = new TreeSet<>();
 
-      int blockSize   = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
-      int payloadSize = Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH);
+      int blockSize   = Signum.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
+      int payloadSize = Signum.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH);
 
       long totalAmountNQT = 0;
       long totalFeeNQT = 0;
@@ -1252,7 +1252,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           long feePriority = transaction.getFeeNQT() * (transaction.getSize()/Constants.ORDINARY_TRANSACTION_BYTES);
           // So the age has less priority (60 minutes to increase the priority to the next level)
           // TODO: consider giving priority based on the last sent transaction and not transaction age to improve spam protection
-          long priority = (feePriority * 60) + Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT)*age;
+          long priority = (feePriority * 60) + Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT)*age;
 
           return priority;
         };
@@ -1265,17 +1265,17 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                                 && transaction.getExpiration() >= blockTimestamp
                                 && transaction.getTimestamp() <= blockTimestamp + MAX_TIMESTAMP_DIFFERENCE
                                 && (
-                                !Burst.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK)
+                                !Signum.getFluxCapacitor().getValue(FluxValues.AUTOMATED_TRANSACTION_BLOCK)
                                         || economicClustering.verifyFork(transaction)
                         ))
                 .filter(transaction -> preCheckUnconfirmedTransaction(transactionDuplicatesChecker, unconfirmedTransactionStore, transaction)); // Extra check for transactions that are to be considered
 
-        if (Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.PRE_POC2) && !Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
           // In this step we get all unconfirmed transactions and then sort them by slot, followed by priority
           Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
             inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong)).forEach((transaction, priority) -> {
             long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_SIP3)) / FEE_QUANT_SIP3;
-            slot = Math.min(Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
+            slot = Math.min(Signum.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS), slot);
             TreeMap<Long, Transaction> utxInSlot = unconfirmedTransactionsOrderedBySlotThenPriority.get(slot);
             if(utxInSlot == null) {
               // Use a tree map in reverse order so we automatically get a descending priority list
@@ -1291,7 +1291,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
           // Fill the unconfirmed transactions to be included from top to bottom
           Map<Long, Transaction> slotTransactionsToBeincluded = new HashMap<>();
-          int maxSlot = Burst.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
+          int maxSlot = Signum.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS);
           for (long slot = maxSlot; slot >= 1; slot--) {
             boolean slotFilled = false;
             for (long slotUnconfirmed = maxSlot; slotUnconfirmed >= slot; slotUnconfirmed--) {
@@ -1331,8 +1331,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           transactionsToBeIncluded = transactionsOrderedBySlot;
         }
 
-        int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
-        long FEE_QUANT = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
+        int maxIndirects = Signum.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+        long FEE_QUANT = Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
         transactionService.startNewBlock();
         for (Map.Entry<Long, Transaction> entry : transactionsToBeIncluded.entrySet()) {
           long slot = entry.getKey();
@@ -1351,8 +1351,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           }
           indirectsCount += txIndirects;
 
-          long slotFee = Burst.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_SIP3 : ONE_BURST;
-          if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+          long slotFee = Signum.getFluxCapacitor().getValue(FluxValues.PRE_POC2) ? slot * FEE_QUANT_SIP3 : ONE_BURST;
+          if(Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
             // we already got the list by priority, no need to check the fees again
             slotFee = FEE_QUANT;
           }
@@ -1363,7 +1363,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 payloadSize -= transaction.getSize();
                 totalAmountNQT += transaction.getAmountNQT();
                 totalFeeNQT += transaction.getFeeNQT();
-                if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)){
+                if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)){
                   totalFeeCashBackNQT += transaction.getFeeNQT() / propertyService.getInt(Props.CASH_BACK_FACTOR);
                 }
                 orderedBlockTransactions.add(transaction);
@@ -1385,7 +1385,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           subscriptionService.clearRemovals();
           long subscriptionFeeNQT = subscriptionService.calculateFees(blockTimestamp, blockHeight);
           totalFeeNQT += subscriptionFeeNQT;
-          if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
+          if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
             totalFeeBurntNQT += subscriptionFeeNQT;
           }
         }
@@ -1409,7 +1409,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       if (byteATs != null) {
         payloadSize    -= byteATs.length;
         totalFeeNQT    += atBlock.getTotalFees();
-        if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
           totalFeeBurntNQT += atBlock.getTotalFees();
         }
         totalAmountNQT += atBlock.getTotalAmount();
@@ -1427,7 +1427,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
       try {
         block = new Block(getBlockVersion(), blockTimestamp,
             previousBlock.getId(), totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeBurntNQT,
-            Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
+            Signum.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
             byteATs, previousBlock.getHeight(), Constants.INITIAL_BASE_TARGET);
       } catch (BurstException.ValidationException e) {
@@ -1463,7 +1463,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   private boolean hasAllReferencedTransactions(Transaction transaction, int timestamp, int count) {
     // TODO: consider cleaning this method after the upgrade.
     if (transaction.getReferencedTransactionFullHash() == null) {
-      if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+      if(Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
         return true;
       }
       return timestamp - transaction.getTimestamp() < 60 * 1440 * 60 && count < 10;
@@ -1472,7 +1472,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     if (!subscriptionService.isEnabled() && transaction != null && transaction.getSignature() == null) {
       transaction = null;
     }
-    if(Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+    if(Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // No need to go deeper checking, if it is on the DB and confirmed already
       return transaction != null;
     }

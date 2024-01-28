@@ -32,8 +32,8 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   private final Logger logger = LoggerFactory.getLogger(SqlBlockchainStore.class);
 
-  private final TransactionDb transactionDb = Burst.getDbs().getTransactionDb();
-  private final BlockDb blockDb = Burst.getDbs().getBlockDb();
+  private final TransactionDb transactionDb = Signum.getDbs().getTransactionDb();
+  private final BlockDb blockDb = Signum.getDbs().getBlockDb();
 
   public SqlBlockchainStore() {
   }
@@ -41,7 +41,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public Collection<Block> getBlocks(int from, int to) {
     return Db.useDSLContext(ctx -> {
-      int blockchainHeight = Burst.getBlockchain().getHeight();
+      int blockchainHeight = Signum.getBlockchain().getHeight();
       return
         getBlocks(ctx.selectFrom(BLOCK)
           .where(BLOCK.HEIGHT.between(blockchainHeight - Math.max(to, 0)).and(blockchainHeight - Math.max(from, 0)))
@@ -198,9 +198,9 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
 
   private static int getHeightForNumberOfConfirmations(int numberOfConfirmations) {
-    int height = numberOfConfirmations > 0 ? Burst.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
+    int height = numberOfConfirmations > 0 ? Signum.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
     if (height < 0) {
-      throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Burst.getBlockchain().getHeight());
+      throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Signum.getBlockchain().getHeight());
     }
     return height;
   }
@@ -334,7 +334,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       ArrayList<Condition> conditions = new ArrayList<>();
 
       // must be confirmed already
-      int height = Burst.getBlockchain().getHeight() - numberOfConfirmations;
+      int height = Signum.getBlockchain().getHeight() - numberOfConfirmations;
       conditions.add(TRANSACTION.HEIGHT.le(height));
       if (type >= 0) {
         conditions.add(TRANSACTION.TYPE.eq(type));
@@ -393,7 +393,7 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   @Override
   public long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction) {
-    int commitmentWait = Burst.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
+    int commitmentWait = Signum.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
     int commitmentHeight = Math.min(height - commitmentWait, endHeight);
 
     Collection<byte[]> commitmmentAddBytes = Db.useDSLContext(ctx -> {

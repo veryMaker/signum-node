@@ -99,8 +99,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private long getFee(int height) {
-	if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
-	  return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
+	if (Signum.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
+	  return Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
     return Constants.ONE_BURST;
   }
 
@@ -113,9 +113,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         if(alias != null && alias.getId() == subscription.getId()) {
           Offer offer = aliasService.getOffer(alias);
           if(offer != null) {
-            Burst.getStores().getAliasStore().getOfferTable().delete(offer);
+            Signum.getStores().getAliasStore().getOfferTable().delete(offer);
           }
-          Burst.getStores().getAliasStore().getAliasTable().delete(alias);
+          Signum.getStores().getAliasStore().getAliasTable().delete(alias);
         }
       }
       subscriptionTable.delete(subscription);
@@ -176,7 +176,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private Account getRecipient(Subscription subscription) {
-    if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
+    if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       Alias alias = aliasService.getAlias(subscription.getRecipientId());
       if(alias != null) {
         Alias tld = aliasService.getTLD(alias.getTLD());

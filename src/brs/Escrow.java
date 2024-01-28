@@ -164,7 +164,7 @@ public class Escrow {
   }
 
   public Collection<Decision> getDecisions() {
-    return Burst.getStores().getEscrowStore().getDecisions(id);
+    return Signum.getStores().getEscrowStore().getDecisions(id);
   }
 
   public int getDeadline() {

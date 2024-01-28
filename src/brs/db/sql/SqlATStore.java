@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Attachment;
-import brs.Burst;
+import brs.Signum;
 import brs.Transaction;
 import brs.at.AT;
 import brs.at.AT.AtMapEntry;
@@ -123,13 +123,13 @@ public class SqlATStore implements ATStore {
     ctx.insertInto( // .mergeInto(
       AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
             //.key(AT_STATE.AT_ID, AT_STATE.HEIGHT)
-            .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Burst.getBlockchain().getHeight(), true)
+            .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 
   private void saveATMapEntry(DSLContext ctx, brs.at.AT.AtMapEntry atEntry) {
     ctx.insertInto(AT_MAP, AT_MAP.AT_ID, AT_MAP.KEY1, AT_MAP.KEY2, AT_MAP.VALUE, AT_STATE.HEIGHT, AT_STATE.LATEST)
-            .values(atEntry.getAtId(), atEntry.getKey1(), atEntry.getKey2(), atEntry.getValue(), Burst.getBlockchain().getHeight(), true)
+            .values(atEntry.getAtId(), atEntry.getKey1(), atEntry.getKey2(), atEntry.getValue(), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 
@@ -144,7 +144,7 @@ public class SqlATStore implements ATStore {
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
       at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
       at.getcCallStackBytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight(), at.getApCodeHashId()
+      brs.at.AT.compressState(at.getApCodeBytes()), Signum.getBlockchain().getHeight(), at.getApCodeHashId()
     ).execute();
   }
 
@@ -168,11 +168,11 @@ public class SqlATStore implements ATStore {
       ).and(
               ACCOUNT_BALANCE.LATEST.isTrue()
       ).and(
-              AT_STATE.NEXT_HEIGHT.lessOrEqual(Burst.getBlockchain().getHeight() + 1)
+              AT_STATE.NEXT_HEIGHT.lessOrEqual(Signum.getBlockchain().getHeight() + 1)
       ).and(
         ACCOUNT_BALANCE.BALANCE.greaterOrEqual(
-                atConstants.stepFee(atConstants.atVersion(Burst.getBlockchain().getHeight()))
-                              * atConstants.apiStepMultiplier(atConstants.atVersion(Burst.getBlockchain().getHeight()))
+                atConstants.stepFee(atConstants.atVersion(Signum.getBlockchain().getHeight()))
+                              * atConstants.apiStepMultiplier(atConstants.atVersion(Signum.getBlockchain().getHeight()))
               )
       ).and(
               AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse().or(
@@ -253,8 +253,8 @@ public class SqlATStore implements ATStore {
     int codeSize = at.getCsize();
     if(code == null) {
       // Check the creation transaction for the reference code
-      Transaction atCreationTransaction = Burst.getBlockchain().getTransaction(at.getId());
-      Transaction transaction = Burst.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
+      Transaction atCreationTransaction = Signum.getBlockchain().getTransaction(at.getId());
+      Transaction transaction = Signum.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
       if(transaction!=null && transaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
         Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
         AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), 0);

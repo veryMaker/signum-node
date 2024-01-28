@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import brs.Burst;
+import brs.Signum;
 
 /**
  * Handle logging for the Burst node server
@@ -46,13 +46,13 @@ public final class LoggerConfigurator {
       try {
         boolean foundProperties = false;
         Properties loggingProperties = new Properties();
-        try (InputStream is = new FileInputStream(new File(Burst.CONF_FOLDER, "logging-default.properties"))) {
+        try (InputStream is = new FileInputStream(new File(Signum.CONF_FOLDER, "logging-default.properties"))) {
           if (is != null) {
             loggingProperties.load(is);
             foundProperties = true;
           }
         }
-        try (InputStream is = new FileInputStream(new File(Burst.CONF_FOLDER, "logging.properties"))) {
+        try (InputStream is = new FileInputStream(new File(Signum.CONF_FOLDER, "logging.properties"))) {
           if (is != null) {
             loggingProperties.load(is);
             foundProperties = true;

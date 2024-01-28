@@ -48,7 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO: rename to Signum
-public final class Burst {
+public final class Signum {
 
   public static final Version VERSION = Version.parse("v3.8.0");
   public static final String APPLICATION = "BRS";
@@ -74,7 +74,7 @@ public final class Burst {
 	        		.longOpt("help")
 	        		.build());
 
-  private static final Logger logger = LoggerFactory.getLogger(Burst.class);
+  private static final Logger logger = LoggerFactory.getLogger(Signum.class);
 
   private static Stores stores;
   private static Dbs dbs;
@@ -120,7 +120,7 @@ public final class Burst {
     return new PropertyServiceImpl(properties);
   }
 
-  private Burst() {
+  private Signum() {
   } // never
 
   public static Blockchain getBlockchain() {
@@ -156,7 +156,7 @@ public final class Burst {
   }
 
   public static void main(String []args) {
-    Runtime.getRuntime().addShutdownHook(new Thread(Burst::shutdown));
+    Runtime.getRuntime().addShutdownHook(new Thread(Signum::shutdown));
     String confFolder = CONF_FOLDER;
     try {
       CommandLine cmd = new DefaultParser().parse(CLI_OPTIONS, args);
@@ -189,7 +189,7 @@ public final class Burst {
   private static void loadWallet(PropertyService propertyService) {
     LoggerConfigurator.init();
 
-    Burst.propertyService = propertyService;
+    Signum.propertyService = propertyService;
 
     String networkParametersClass = propertyService.getString(Props.NETWORK_PARAMETERS);
     NetworkParameters params = null;
@@ -333,7 +333,7 @@ public final class Burst {
       logger.error(e.getMessage(), e);
       System.exit(1);
     }
-    (new Thread(Burst::commandHandler)).start();
+    (new Thread(Signum::commandHandler)).start();
   }
 
   private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, AssetExchange assetExchange, DGSGoodsStoreService goodsService, Blockchain blockchain,

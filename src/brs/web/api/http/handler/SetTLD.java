@@ -61,7 +61,7 @@ public final class SetTLD extends CreateTransaction {
 
     long recipient = 0L;
     long amountNQT = ParameterParser.getAmountNQT(req);
-    if(amountNQT < TransactionType.BASELINE_TLD_ASSIGNMENT_FACTOR * Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, blockchain.getLastBlock().getHeight())) {
+    if(amountNQT < TransactionType.BASELINE_TLD_ASSIGNMENT_FACTOR * Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, blockchain.getLastBlock().getHeight())) {
       return incorrect(AMOUNT_NQT_PARAMETER);
     }
 

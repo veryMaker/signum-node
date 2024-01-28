@@ -12,7 +12,7 @@ import brs.Account;
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.Attachment;
-import brs.Burst;
+import brs.Signum;
 import brs.Subscription;
 import brs.Transaction;
 import brs.TransactionType;
@@ -50,7 +50,7 @@ public class AliasServiceImpl implements AliasService {
 
   public void addDefaultTLDs() {
     try {
-      Burst.getStores().beginTransaction();
+      Signum.getStores().beginTransaction();
 
       // TODO: should be removed prior to the next release
 //      try {
@@ -80,10 +80,10 @@ public class AliasServiceImpl implements AliasService {
         Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(tldName, 0);
         addTLD(id, null, attachment);
       }
-      Burst.getStores().commitTransaction();
+      Signum.getStores().commitTransaction();
     }
     finally {
-      Burst.getStores().endTransaction();
+      Signum.getStores().endTransaction();
     }
   }
 
@@ -142,19 +142,19 @@ public class AliasServiceImpl implements AliasService {
   }
 
   private void createSubscription(Alias alias, int timestamp, boolean updateSubscription){
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
+    if(!Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       return;
     }
 
-    SubscriptionService subscriptionService = Burst.getSubscriptionService();
-    int frequency = Burst.getPropertyService().getInt(Props.ALIAS_RENEWAL_FREQUENCY);
-    long fee = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT) * TransactionType.BASELINE_ALIAS_RENEWAL_FACTOR;
+    SubscriptionService subscriptionService = Signum.getSubscriptionService();
+    int frequency = Signum.getPropertyService().getInt(Props.ALIAS_RENEWAL_FREQUENCY);
+    long fee = Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT) * TransactionType.BASELINE_ALIAS_RENEWAL_FACTOR;
     Subscription subscription = subscriptionService.getSubscription(alias.getId());
     if(subscription != null && updateSubscription && subscription.getSenderId() != alias.getAccountId()) {
       subscription.setSenderId(alias.getAccountId());
       ArrayList<Subscription> subscriptions = new ArrayList<>();
       subscriptions.add(subscription);
-      Burst.getStores().getSubscriptionStore().saveSubscriptions(subscriptions);
+      Signum.getStores().getSubscriptionStore().saveSubscriptions(subscriptions);
     }
     if(subscription == null) {
       subscriptionService.addSubscription(Account.getAccount(alias.getAccountId()), alias.getId(), alias.getId(), fee, timestamp, frequency);

@@ -7,7 +7,7 @@
 
 package brs.at;
 
-import brs.Burst;
+import brs.Signum;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 
@@ -533,7 +533,7 @@ public class AtApiImpl implements AtApi {
         mdb.order(ByteOrder.LITTLE_ENDIAN);
 
         state.setB1(AtApiHelper.getByteArray(mdb.getLong(0)));
-        if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
             state.setB2(AtApiHelper.getByteArray(mdb.getLong(8)));
         } else {
             state.setB1(AtApiHelper.getByteArray(mdb.getLong(8)));
@@ -543,7 +543,7 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkMd5AWithB(AtMachineState state) {
-        if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
             ByteBuffer b = ByteBuffer.allocate(16);
             b.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -582,7 +582,7 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkHash160AWithB(AtMachineState state) {
-        if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
             ByteBuffer b = ByteBuffer.allocate(32);
             b.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -627,7 +627,7 @@ public class AtApiImpl implements AtApi {
 
     @Override
     public long checkSha256AWithB(AtMachineState state) {
-        if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
+        if (Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_3)) {
             ByteBuffer b = ByteBuffer.allocate(32);
             b.order(ByteOrder.LITTLE_ENDIAN);
 
