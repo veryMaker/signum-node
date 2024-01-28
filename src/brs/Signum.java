@@ -47,7 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: rename to Signum
 public final class Signum {
 
   public static final Version VERSION = Version.parse("v3.8.0");
