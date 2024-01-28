@@ -41,11 +41,11 @@ public class Launcher {
 
     if (canRunGui) {
       try {
-        Class.forName("brs.BurstGUI")
+        Class.forName("brs.SignumGUI")
           .getDeclaredMethod("main", String[].class)
           .invoke(null, (Object) args);
       } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-        logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...");
+        logger.warn("Your build does not seem to include the SignumGUI extension or it cannot be run. Running as headless...");
         Signum.main(args);
       }
     } else {
