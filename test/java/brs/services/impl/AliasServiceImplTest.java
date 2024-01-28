@@ -167,7 +167,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
   }
 
   @Test
-  public void sellAlias_forBurst_newOffer() {
+  public void sellAlias_forSigna_newOffer() {
     final String aliasName = "aliasName";
     final long aliasId = 123L;
     final Alias mockAlias = mock(Alias.class);
@@ -202,7 +202,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
   }
 
   @Test
-  public void sellAlias_forBurst_offerExists() {
+  public void sellAlias_forSigna_offerExists() {
     final String aliasName = "aliasName";
     final long aliasId = 123L;
     final Alias mockAlias = mock(Alias.class);

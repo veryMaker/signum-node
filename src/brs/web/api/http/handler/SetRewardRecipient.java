@@ -43,7 +43,7 @@ public final class SetRewardRecipient extends CreateTransaction {
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "recipient account does not have public key");
       return response;
     }
-    Attachment attachment = new Attachment.BurstMiningRewardRecipientAssignment(blockchain.getHeight());
+    Attachment attachment = new Attachment.SignaMiningRewardRecipientAssignment(blockchain.getHeight());
     return createTransaction(req, account, recipient, 0, attachment);
   }
 

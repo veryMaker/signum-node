@@ -48,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Override
   public boolean applyUnconfirmed(Transaction transaction) {
-    if(transaction.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE) {
+    if(transaction.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
       // we only accept one removal per account per block
       if(accountCommitmentRemovals.get(transaction.getSenderId()) != null)
         return false;

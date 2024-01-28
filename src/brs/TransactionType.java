@@ -190,9 +190,9 @@ public abstract class TransactionType {
     accountControlTypes.put(SUBTYPE_ACCOUNT_CONTROL_EFFECTIVE_BALANCE_LEASING, AccountControl.EFFECTIVE_BALANCE_LEASING);
 
     Map<Byte, TransactionType> signumMiningTypes = new HashMap<>();
-    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_REWARD_RECIPIENT_ASSIGNMENT, BurstMining.REWARD_RECIPIENT_ASSIGNMENT);
-    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_COMMITMENT_ADD, BurstMining.COMMITMENT_ADD);
-    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_COMMITMENT_REMOVE, BurstMining.COMMITMENT_REMOVE);
+    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_REWARD_RECIPIENT_ASSIGNMENT, SignaMining.REWARD_RECIPIENT_ASSIGNMENT);
+    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_COMMITMENT_ADD, SignaMining.COMMITMENT_ADD);
+    signumMiningTypes.put(SUBTYPE_SIGNA_MINING_COMMITMENT_REMOVE, SignaMining.COMMITMENT_REMOVE);
 
     Map<Byte, TransactionType> advancedPaymentTypes = new HashMap<>();
     advancedPaymentTypes.put(SUBTYPE_ADVANCED_PAYMENT_ESCROW_CREATION, AdvancedPayment.ESCROW_CREATION);
@@ -2613,16 +2613,16 @@ public abstract class TransactionType {
 
   }
 
-  public abstract static class BurstMining extends TransactionType {
+  public abstract static class SignaMining extends TransactionType {
 
-    private BurstMining() {}
+    private SignaMining() {}
 
     @Override
     public final byte getType() {
       return TransactionType.TYPE_SIGNA_MINING.getType();
     }
 
-    public static final TransactionType REWARD_RECIPIENT_ASSIGNMENT = new BurstMining() {
+    public static final TransactionType REWARD_RECIPIENT_ASSIGNMENT = new SignaMining() {
 
       @Override
       protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
@@ -2643,14 +2643,14 @@ public abstract class TransactionType {
       }
 
       @Override
-      public Attachment.BurstMiningRewardRecipientAssignment
+      public Attachment.SignaMiningRewardRecipientAssignment
       parseAttachment(ByteBuffer buffer, byte transactionVersion) {
-        return new Attachment.BurstMiningRewardRecipientAssignment(buffer, transactionVersion);
+        return new Attachment.SignaMiningRewardRecipientAssignment(buffer, transactionVersion);
       }
 
       @Override
-      protected Attachment.BurstMiningRewardRecipientAssignment parseAttachment(JsonObject attachmentData) {
-        return new Attachment.BurstMiningRewardRecipientAssignment(attachmentData);
+      protected Attachment.SignaMiningRewardRecipientAssignment parseAttachment(JsonObject attachmentData) {
+        return new Attachment.SignaMiningRewardRecipientAssignment(attachmentData);
       }
 
       @Override
@@ -2664,7 +2664,7 @@ public abstract class TransactionType {
           return TransactionDuplicationKey.IS_NEVER_DUPLICATE; // sync fails after 7007 without this
         }
 
-        return new TransactionDuplicationKey(BurstMining.REWARD_RECIPIENT_ASSIGNMENT, Convert.toUnsignedLong(transaction.getSenderId()));
+        return new TransactionDuplicationKey(SignaMining.REWARD_RECIPIENT_ASSIGNMENT, Convert.toUnsignedLong(transaction.getSenderId()));
       }
 
       @Override
@@ -2700,7 +2700,7 @@ public abstract class TransactionType {
       }
     };
 
-    public static final TransactionType COMMITMENT_ADD = new BurstMining() {
+    public static final TransactionType COMMITMENT_ADD = new SignaMining() {
 
       @Override
       public final byte getSubtype() {
@@ -2759,7 +2759,7 @@ public abstract class TransactionType {
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         CommitmentAdd attachment = (CommitmentAdd) transaction.getAttachment();
-        return new TransactionDuplicationKey(BurstMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()) + ":" + attachment.getAmountNQT());
+        return new TransactionDuplicationKey(SignaMining.COMMITMENT_ADD, Convert.toUnsignedLong(transaction.getSenderId()) + ":" + attachment.getAmountNQT());
       }
 
       @Override
@@ -2782,7 +2782,7 @@ public abstract class TransactionType {
       }
     };
 
-    public static final TransactionType COMMITMENT_REMOVE = new BurstMining() {
+    public static final TransactionType COMMITMENT_REMOVE = new SignaMining() {
 
       @Override
       public final byte getSubtype() {
@@ -2843,7 +2843,7 @@ public abstract class TransactionType {
       @Override
       public TransactionDuplicationKey getDuplicationKey(Transaction transaction) {
         // All commitment remove transactions from the same account are considered duplicates, so just the one with highest fee is kept
-        return new TransactionDuplicationKey(BurstMining.COMMITMENT_REMOVE, Convert.toUnsignedLong(transaction.getSenderId()));
+        return new TransactionDuplicationKey(SignaMining.COMMITMENT_REMOVE, Convert.toUnsignedLong(transaction.getSenderId()));
       }
 
       @Override

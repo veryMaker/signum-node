@@ -1921,17 +1921,17 @@ public interface Attachment extends Appendix {
 
   }
 
-  final class BurstMiningRewardRecipientAssignment extends AbstractAttachment {
+  final class SignaMiningRewardRecipientAssignment extends AbstractAttachment {
 
-    BurstMiningRewardRecipientAssignment(ByteBuffer buffer, byte transactionVersion) {
+    SignaMiningRewardRecipientAssignment(ByteBuffer buffer, byte transactionVersion) {
       super(buffer, transactionVersion);
     }
 
-    BurstMiningRewardRecipientAssignment(JsonObject attachmentData) {
+    SignaMiningRewardRecipientAssignment(JsonObject attachmentData) {
       super(attachmentData);
     }
 
-    public BurstMiningRewardRecipientAssignment(int blockchainHeight) {
+    public SignaMiningRewardRecipientAssignment(int blockchainHeight) {
       super(blockchainHeight);
     }
 
@@ -1957,7 +1957,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
+      return TransactionType.SignaMining.REWARD_RECIPIENT_ASSIGNMENT;
     }
 
   }
@@ -2024,7 +2024,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.BurstMining.COMMITMENT_ADD;
+      return TransactionType.SignaMining.COMMITMENT_ADD;
     }
 
   }
@@ -2050,7 +2050,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.BurstMining.COMMITMENT_REMOVE;
+      return TransactionType.SignaMining.COMMITMENT_REMOVE;
     }
 
   }

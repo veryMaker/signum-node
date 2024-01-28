@@ -61,7 +61,7 @@ class ReservedBalanceCache {
       throw new SignumException.NotCurrentlyValidException("Insufficient funds");
     }
 
-    if(transaction.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE) {
+    if(transaction.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
       CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
       long totalAmountNQT = commitmentRemove.getAmountNQT();
 

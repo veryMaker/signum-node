@@ -19,7 +19,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
+import static brs.TransactionType.SignaMining.REWARD_RECIPIENT_ASSIGNMENT;
 import static brs.web.api.http.common.Parameters.RECIPIENT_PARAMETER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -66,7 +66,7 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
     when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
-    final Attachment.BurstMiningRewardRecipientAssignment attachment = (Attachment.BurstMiningRewardRecipientAssignment) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
+    final Attachment.SignaMiningRewardRecipientAssignment attachment = (Attachment.SignaMiningRewardRecipientAssignment) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
     assertNotNull(attachment);
 
     assertEquals(REWARD_RECIPIENT_ASSIGNMENT, attachment.getTransactionType());

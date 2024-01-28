@@ -97,7 +97,7 @@ public class GenerateDeeplinkQRCode extends HttpRequestHandler {
 
       resp.setContentType("image/jpeg");
 
-      final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message, immutable);
+      final BufferedImage qrImage = deeplinkQRCodeGenerator.generateRequestSignumDeepLinkQRCode(receiverId, amountNQT, feeSuggestionType, feeNQT, message, immutable);
       ImageIO.write(qrImage, "jpg", resp.getOutputStream());
       resp.getOutputStream().close();
     } catch (WriterException | IOException e) {

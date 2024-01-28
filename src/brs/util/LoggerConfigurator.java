@@ -37,8 +37,8 @@ public final class LoggerConfigurator {
   public static void init() {
     final String managerPackage = "java.util.logging.manager";
     String oldManager = System.getProperty(managerPackage);
-    System.setProperty(managerPackage, "brs.util.BurstLogManager");
-    if (!(LogManager.getLogManager() instanceof BurstLogManager)) {
+    System.setProperty(managerPackage, "brs.util.SignumLogManager");
+    if (!(LogManager.getLogManager() instanceof SignumLogManager)) {
       System.setProperty(managerPackage,
                          (oldManager != null ? oldManager : "java.util.logging.LogManager"));
     }
@@ -83,8 +83,8 @@ public final class LoggerConfigurator {
    * LoggerConfigurator shutdown
    */
   public static void shutdown() {
-    if (LogManager.getLogManager() instanceof BurstLogManager) {
-      ((BurstLogManager) LogManager.getLogManager()).burstShutdown();
+    if (LogManager.getLogManager() instanceof SignumLogManager) {
+      ((SignumLogManager) LogManager.getLogManager()).signumShutdown();
     }
   }
 }

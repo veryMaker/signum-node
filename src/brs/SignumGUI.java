@@ -78,7 +78,7 @@ public class SignumGUI extends JFrame {
     }
 
     public SignumGUI(String programName, String iconLocation, String version, String []args) {
-        System.setSecurityManager(new BurstGUISecurityManager());
+        System.setSecurityManager(new SignaGUISecurityManager());
         SignumGUI.args = args;
         this.programName = programName;
         this.version = version;
@@ -443,7 +443,7 @@ public class SignumGUI extends JFrame {
         }
     }
 
-    private class BurstGUISecurityManager extends SecurityManager {
+    private class SignaGUISecurityManager extends SecurityManager {
 
         @Override
         public void checkExit(int status) {
