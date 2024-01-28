@@ -26,7 +26,7 @@ public final class DGSListing extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     String name = Convert.emptyToNull(req.getParameter(NAME_PARAMETER));
     String description = Convert.nullToEmpty(req.getParameter(DESCRIPTION_PARAMETER));

@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Asset;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
 import brs.util.CollectionWithIndex;
@@ -33,7 +33,7 @@ public final class GetAssetsByName extends AbstractAssetsRetrieval {
 
     @Override
     protected
-    JsonElement processRequest(HttpServletRequest req) throws BurstException {
+    JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
         String name = req.getParameter(NAME_PARAMETER);
 

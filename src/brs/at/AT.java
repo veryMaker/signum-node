@@ -284,7 +284,7 @@ public class AT extends AtMachineState {
                       atTransaction.apply(accountService, transaction);
                       transactions.add(transaction);
                     }
-                } catch (BurstException.NotValidException e) {
+                } catch (SignumException.NotValidException e) {
                     throw new RuntimeException("Failed to construct AT payment transaction", e);
                 }
               }

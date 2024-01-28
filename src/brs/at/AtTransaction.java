@@ -19,7 +19,7 @@ import brs.Asset;
 import brs.Attachment;
 import brs.Block;
 import brs.Signum;
-import brs.BurstException.NotValidException;
+import brs.SignumException.NotValidException;
 import brs.Constants;
 import brs.Genesis;
 import brs.IndirectIncoming;

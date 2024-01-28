@@ -20,7 +20,7 @@ import brs.Asset;
 import brs.Attachment;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
@@ -42,7 +42,7 @@ public final class TransferAssetMulti extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     long recipient = ParameterParser.getRecipientId(req);
     Account account = parameterService.getSenderAccount(req);

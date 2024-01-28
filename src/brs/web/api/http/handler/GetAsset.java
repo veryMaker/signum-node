@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Asset;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
@@ -33,7 +33,7 @@ public final class GetAsset extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final Asset asset = parameterService.getAsset(req);
     long minimumQuantity = Convert.parseUnsignedLong(req.getParameter(QUANTITY_MININUM_QNT_PARAMETER));
 

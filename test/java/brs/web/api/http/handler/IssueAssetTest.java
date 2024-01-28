@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Attachment;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
@@ -51,7 +51,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final String nameParameter = stringWithLength(MIN_ASSET_NAME_LENGTH + 1);
     final String descriptionParameter = stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1);
     final int decimalsParameter = 4;
@@ -80,14 +80,14 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingName() throws BurstException {
+  public void processRequest_missingName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     assertEquals(MISSING_NAME, t.processRequest(req));
   }
 
   @Test
-  public void processRequest_incorrectAssetNameLength_smallerThanMin() throws BurstException {
+  public void processRequest_incorrectAssetNameLength_smallerThanMin() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH - 1))
     );
@@ -96,7 +96,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectAssetNameLength_largerThanMax() throws BurstException {
+  public void processRequest_incorrectAssetNameLength_largerThanMax() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MAX_ASSET_NAME_LENGTH + 1))
     );
@@ -105,7 +105,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectAssetName() throws BurstException {
+  public void processRequest_incorrectAssetName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1) + "[")
     );
@@ -114,7 +114,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectAssetDescription() throws BurstException {
+  public void processRequest_incorrectAssetDescription() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
         new MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH + 1))
@@ -124,7 +124,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDecimals_unParsable() throws BurstException {
+  public void processRequest_incorrectDecimals_unParsable() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
         new MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)),
@@ -135,7 +135,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDecimals_negativeNumber() throws BurstException {
+  public void processRequest_incorrectDecimals_negativeNumber() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
         new MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)),
@@ -146,7 +146,7 @@ public class IssueAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDecimals_moreThan8() throws BurstException {
+  public void processRequest_incorrectDecimals_moreThan8() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(NAME_PARAMETER, stringWithLength(MIN_ASSET_NAME_LENGTH + 1)),
         new MockParam(DESCRIPTION_PARAMETER, stringWithLength(MAX_ASSET_DESCRIPTION_LENGTH - 1)),

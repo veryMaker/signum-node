@@ -30,13 +30,13 @@ public class TransactionServiceImpl implements TransactionService {
   }
 
   @Override
-  public void validate(Transaction transaction) throws BurstException.ValidationException {
+  public void validate(Transaction transaction) throws SignumException.ValidationException {
     for (Appendix.AbstractAppendix appendage : transaction.getAppendages()) {
       appendage.validate(transaction);
     }
     long minimumFeeNQT = transaction.getType().minimumFeeNQT(blockchain.getHeight(), transaction);
     if (transaction.getFeeNQT() < minimumFeeNQT) {
-      throw new BurstException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
+      throw new SignumException.NotCurrentlyValidException(String.format("Transaction fee %d less than minimum fee %d at height %d",
           transaction.getFeeNQT(), minimumFeeNQT, blockchain.getHeight()));
     }
   }

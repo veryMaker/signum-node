@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Escrow;
 import brs.services.EscrowService;
 import brs.services.ParameterService;
@@ -32,7 +32,7 @@ public final class GetAccountEscrowTransactions extends ApiServlet.JsonRequestHa
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final Account account = parameterService.getAccount(req);
 
     Collection<Escrow> accountEscrows = escrowService.getEscrowTransactionsByParticipant(account.getId());

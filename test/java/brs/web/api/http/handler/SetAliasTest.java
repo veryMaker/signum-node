@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Attachment;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
@@ -59,7 +59,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final String aliasNameParameter = "aliasNameParameter";
     final String aliasUrl = "aliasUrl";
 
@@ -82,7 +82,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingAliasName() throws BurstException {
+  public void processRequest_missingAliasName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ALIAS_NAME_PARAMETER, null),
         new MockParam(ALIAS_URI_PARAMETER, "aliasUrl")
@@ -92,7 +92,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectAliasLength_nameOnlySpaces() throws BurstException {
+  public void processRequest_incorrectAliasLength_nameOnlySpaces() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ALIAS_NAME_PARAMETER, "  "),
         new MockParam(ALIAS_URI_PARAMETER, null)
@@ -103,7 +103,7 @@ public class SetAliasTest extends AbstractTransactionTest {
 
 
   @Test
-  public void processRequest_incorrectAliasLength_incorrectAliasName() throws BurstException {
+  public void processRequest_incorrectAliasLength_incorrectAliasName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ALIAS_NAME_PARAMETER, "[]"),
         new MockParam(ALIAS_URI_PARAMETER, null)
@@ -113,7 +113,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectUriLengthWhenOver1000Characters() throws BurstException {
+  public void processRequest_incorrectUriLengthWhenOver1000Characters() throws SignumException {
     final StringBuilder uriOver1000Characters = new StringBuilder();
 
     for (int i = 0; i < 1001; i++) {

@@ -4,7 +4,7 @@ import brs.Account;
 import brs.Asset;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -59,7 +59,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int firstIndex = 1;
     final int lastIndex = 2;
 

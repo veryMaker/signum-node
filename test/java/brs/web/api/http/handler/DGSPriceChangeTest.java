@@ -47,7 +47,7 @@ public class DGSPriceChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int priceNQTParameter = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -80,7 +80,7 @@ public class DGSPriceChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsDelistedUnknownGoods() throws BurstException {
+  public void processRequest_goodsDelistedUnknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(PRICE_NQT_PARAMETER, 123L)
     );
@@ -97,7 +97,7 @@ public class DGSPriceChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsWrongSellerIdUnknownGoods() throws BurstException {
+  public void processRequest_goodsWrongSellerIdUnknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(PRICE_NQT_PARAMETER, 123L)
     );

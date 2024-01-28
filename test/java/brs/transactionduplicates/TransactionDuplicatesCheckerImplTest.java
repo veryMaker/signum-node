@@ -6,7 +6,7 @@ import brs.Attachment.MessagingAliasSell;
 import brs.BlockchainImpl;
 import brs.Signum;
 import brs.Constants;
-import brs.BurstException.NotValidException;
+import brs.SignumException.NotValidException;
 import brs.Escrow.DecisionType;
 import brs.Transaction;
 import brs.TransactionType;

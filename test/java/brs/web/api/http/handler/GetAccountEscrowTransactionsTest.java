@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Escrow;
 import brs.Escrow.Decision;
 import brs.Escrow.DecisionType;
@@ -48,7 +48,7 @@ public class GetAccountEscrowTransactionsTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long accountId = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(

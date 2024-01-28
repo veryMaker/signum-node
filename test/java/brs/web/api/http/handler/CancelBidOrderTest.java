@@ -51,7 +51,7 @@ public class CancelBidOrderTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int orderId = 123;
     final long orderAccountId = 1;
     final long senderAccountId = orderAccountId;
@@ -81,12 +81,12 @@ public class CancelBidOrderTest extends AbstractTransactionTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void processRequest_orderParameterMissing() throws BurstException {
+  public void processRequest_orderParameterMissing() throws SignumException {
     t.processRequest(QuickMocker.httpServletRequest());
   }
 
   @Test
-  public void processRequest_orderDataMissingUnkownOrder() throws BurstException {
+  public void processRequest_orderDataMissingUnkownOrder() throws SignumException {
     final int orderId = 123;
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ORDER_PARAMETER, orderId)
@@ -98,7 +98,7 @@ public class CancelBidOrderTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_accountIdNotSameAsOrder() throws BurstException {
+  public void processRequest_accountIdNotSameAsOrder() throws SignumException {
     final int orderId = 123;
     final long orderAccountId = 1;
     final long senderAccountId = 2;

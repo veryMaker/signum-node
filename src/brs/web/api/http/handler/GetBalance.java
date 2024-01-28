@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.Parameters;
 import brs.services.ParameterService;
@@ -21,7 +21,7 @@ public final class GetBalance extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     return JSONData.accountBalance(parameterService.getAccount(req));
   }
 

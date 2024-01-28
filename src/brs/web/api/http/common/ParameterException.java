@@ -1,9 +1,9 @@
 package brs.web.api.http.common;
 
-import brs.BurstException;
+import brs.SignumException;
 import com.google.gson.JsonElement;
 
-public final class ParameterException extends BurstException {
+public final class ParameterException extends SignumException {
 
   private transient final JsonElement errorResponse;
 

@@ -1,6 +1,6 @@
 package brs.util;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
@@ -119,9 +119,9 @@ public final class Convert {
     return (sum == 0);
   }
 
-  public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws BurstException.NotValidException {
+  public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws SignumException.NotValidException {
     if (numBytes > 3 * maxLength) {
-      throw new BurstException.NotValidException("Max parameter length exceeded");
+      throw new SignumException.NotValidException("Max parameter length exceeded");
     }
     byte[] bytes = new byte[numBytes];
     buffer.get(bytes);

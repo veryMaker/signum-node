@@ -15,7 +15,7 @@ import brs.Account;
 import brs.Block;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import brs.Generator;
 import brs.services.AccountService;
@@ -40,7 +40,7 @@ public final class GetAccount extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getAccount(req);
 

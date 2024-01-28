@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.TransactionProcessor;
 import brs.common.QuickMocker;
@@ -53,7 +53,7 @@ public class BroadcastTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final String mockTransactionBytesParameter = "mockTransactionBytesParameter";
     final String mockTransactionJson = "mockTransactionJson";
 
@@ -80,7 +80,7 @@ public class BroadcastTransactionTest {
   }
 
   @Test
-  public void processRequest_validationException() throws BurstException {
+  public void processRequest_validationException() throws SignumException {
     final String mockTransactionBytesParameter = "mockTransactionBytesParameter";
     final String mockTransactionJson = "mockTransactionJson";
 
@@ -92,7 +92,7 @@ public class BroadcastTransactionTest {
 
     when(parameterServiceMock.parseTransaction(eq(mockTransactionBytesParameter), eq(mockTransactionJson))).thenReturn(mockTransaction);
 
-    Mockito.doThrow(BurstException.NotCurrentlyValidException.class).when(transactionServiceMock).validate(eq(mockTransaction));
+    Mockito.doThrow(SignumException.NotCurrentlyValidException.class).when(transactionServiceMock).validate(eq(mockTransaction));
 
     final JsonObject result = (JsonObject) t.processRequest(req);
 

@@ -53,7 +53,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_positiveAsEscrowSender() throws BurstException {
+  public void processRequest_positiveAsEscrowSender() throws SignumException {
     final long escrowId = 5;
     final long senderId = 6;
 
@@ -86,7 +86,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_positiveAsEscrowRecipient() throws BurstException {
+  public void processRequest_positiveAsEscrowRecipient() throws SignumException {
     final long escrowId = 5;
     final long senderId = 6;
 
@@ -119,7 +119,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_positiveAsEscrowSigner() throws BurstException {
+  public void processRequest_positiveAsEscrowSigner() throws SignumException {
     final long escrowId = 5;
     final long senderId = 6;
 
@@ -154,7 +154,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_invalidEscrowId() throws BurstException {
+  public void processRequest_invalidEscrowId() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ESCROW_PARAMETER, "NotANumber")
     );
@@ -165,7 +165,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_escrowNotFound() throws BurstException {
+  public void processRequest_escrowNotFound() throws SignumException {
     final long escrowId = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -180,7 +180,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_invalidDecisionType() throws BurstException {
+  public void processRequest_invalidDecisionType() throws SignumException {
     final long escrowId = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -198,7 +198,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_invalidSender() throws BurstException {
+  public void processRequest_invalidSender() throws SignumException {
     final long escrowId = 5;
     final long senderId = 6;
 
@@ -225,7 +225,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_senderCanOnlyRelease() throws BurstException {
+  public void processRequest_senderCanOnlyRelease() throws SignumException {
     final long escrowId = 5;
     final long senderId = 6;
 
@@ -249,7 +249,7 @@ public class EscrowSignTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_recipientCanOnlyRefund() throws BurstException {
+  public void processRequest_recipientCanOnlyRefund() throws SignumException {
     final long escrowId = 5;
     final long senderId = 6;
 

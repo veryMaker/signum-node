@@ -1,7 +1,7 @@
 package brs.unconfirmedtransactions;
 
 import brs.Signum;
-import brs.BurstException.ValidationException;
+import brs.SignumException.ValidationException;
 import brs.Constants;
 import brs.Transaction;
 import brs.db.TransactionDb;

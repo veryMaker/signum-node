@@ -51,7 +51,7 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final Long subscriptionIdParameter = 123L;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -82,7 +82,7 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingSubscriptionParameter() throws BurstException {
+  public void processRequest_missingSubscriptionParameter() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final JsonObject response = (JsonObject) t.processRequest(req);
@@ -92,7 +92,7 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_failedToParseSubscription() throws BurstException {
+  public void processRequest_failedToParseSubscription() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
       new MockParam(SUBSCRIPTION_PARAMETER, "notALong")
     );
@@ -104,7 +104,7 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_subscriptionNotFound() throws BurstException {
+  public void processRequest_subscriptionNotFound() throws SignumException {
     final long subscriptionId = 123L;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -120,7 +120,7 @@ public class SubscriptionCancelTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_userIsNotSenderOrRecipient() throws BurstException {
+  public void processRequest_userIsNotSenderOrRecipient() throws SignumException {
     final long subscriptionId = 123L;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(

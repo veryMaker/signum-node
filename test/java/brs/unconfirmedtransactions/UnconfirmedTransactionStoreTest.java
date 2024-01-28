@@ -2,8 +2,8 @@ package brs.unconfirmedtransactions;
 
 import brs.*;
 import brs.Attachment.MessagingAliasSell;
-import brs.BurstException.NotCurrentlyValidException;
-import brs.BurstException.ValidationException;
+import brs.SignumException.NotCurrentlyValidException;
+import brs.SignumException.ValidationException;
 import brs.Transaction.Builder;
 import brs.common.QuickMocker;
 import brs.common.TestConstants;

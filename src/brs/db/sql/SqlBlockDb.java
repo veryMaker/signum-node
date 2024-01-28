@@ -2,7 +2,7 @@ package brs.db.sql;
 
 import brs.Block;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.db.BlockDb;
 import brs.schema.tables.records.BlockRecord;
 import org.jooq.*;
@@ -25,7 +25,7 @@ public class SqlBlockDb implements BlockDb {
       try {
         BlockRecord r = ctx.selectFrom(BLOCK).where(BLOCK.ID.eq(blockId)).fetchAny();
         return r == null ? null : loadBlock(r);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Block already in database, id = " + blockId + ", does not pass validation!", e);
       }
     });
@@ -55,7 +55,7 @@ public class SqlBlockDb implements BlockDb {
           throw new RuntimeException("Block at height " + height + " not found in database!");
         }
         return block;
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException(e.toString(), e);
       }
     });
@@ -74,7 +74,7 @@ public class SqlBlockDb implements BlockDb {
         return loadBlock(query.fetchAny());
         // old statement
         // return loadBlock(ctx.selectFrom(BLOCK).orderBy(BLOCK.DB_ID.desc()).limit(1).fetchAny());
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Last block already in database does not pass validation!", e);
       }
     });
@@ -84,13 +84,13 @@ public class SqlBlockDb implements BlockDb {
     return Db.useDSLContext(ctx -> {
       try {
         return loadBlock(ctx.selectFrom(BLOCK).where(BLOCK.TIMESTAMP.lessOrEqual(timestamp)).orderBy(BLOCK.DB_ID.desc()).limit(1).fetchAny());
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Block already in database at timestamp " + timestamp + " does not pass validation!", e);
       }
     });
   }
 
-  public Block loadBlock(BlockRecord r) throws BurstException.ValidationException {
+  public Block loadBlock(BlockRecord r) throws SignumException.ValidationException {
     int version = r.getVersion();
     int timestamp = r.getTimestamp();
     long previousBlockId = Optional.ofNullable(r.getPreviousBlockId()).orElse(0L);

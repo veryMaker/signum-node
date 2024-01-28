@@ -2,7 +2,7 @@ package brs.services.impl;
 
 import brs.*;
 import brs.Alias.Offer;
-import brs.BurstException.NotValidException;
+import brs.SignumException.NotValidException;
 import brs.db.BurstKey;
 import brs.db.BurstKey.LongKeyFactory;
 import brs.db.TransactionDb;

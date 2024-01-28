@@ -51,7 +51,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long refundNQTParameter = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -90,7 +90,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectPurchase() throws BurstException {
+  public void processRequest_incorrectPurchase() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockSellerAccount = mock(Account.class);
@@ -106,7 +106,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_duplicateRefund() throws BurstException {
+  public void processRequest_duplicateRefund() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockSellerAccount = mock(Account.class);
@@ -123,7 +123,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsNotDelivered() throws BurstException {
+  public void processRequest_goodsNotDelivered() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockSellerAccount = mock(Account.class);
@@ -141,7 +141,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDgsRefundWrongFormat() throws BurstException {
+  public void processRequest_incorrectDgsRefundWrongFormat() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(REFUND_NQT_PARAMETER, "Bob")
     );
@@ -161,7 +161,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_negativeIncorrectDGSRefund() throws BurstException {
+  public void processRequest_negativeIncorrectDGSRefund() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(REFUND_NQT_PARAMETER, -5)
     );
@@ -181,7 +181,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_overMaxBalanceNQTIncorrectDGSRefund() throws BurstException {
+  public void processRequest_overMaxBalanceNQTIncorrectDGSRefund() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(REFUND_NQT_PARAMETER, Constants.MAX_BALANCE_NQT + 1)
     );

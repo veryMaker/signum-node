@@ -32,7 +32,7 @@ public final class MintAsset extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Asset asset = parameterService.getAsset(req);
     long quantityQNT = ParameterParser.getQuantityQNT(req);

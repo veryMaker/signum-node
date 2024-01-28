@@ -244,7 +244,7 @@ public class EscrowServiceImpl implements EscrowService {
     try {
       transaction = builder.build();
     }
-    catch(BurstException.NotValidException e) {
+    catch(SignumException.NotValidException e) {
       throw new RuntimeException(e.toString(), e);
     }
 

@@ -4,7 +4,7 @@ import brs.Account;
 import brs.Block;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -67,7 +67,7 @@ public class GetAccountBlocksTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int mockTimestamp = 1;
     final int mockFirstIndex = 2;
     final int mockLastIndex = 3;

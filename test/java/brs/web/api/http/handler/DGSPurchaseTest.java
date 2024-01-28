@@ -53,7 +53,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int goodsQuantity = 5;
     final long goodsPrice = 10L;
     final long deliveryDeadlineTimestamp = 100;
@@ -96,7 +96,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_unknownGoods() throws BurstException {
+  public void processRequest_unknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Goods mockGoods = mock(Goods.class);
@@ -108,7 +108,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectPurchaseQuantity() throws BurstException {
+  public void processRequest_incorrectPurchaseQuantity() throws SignumException {
     final int goodsQuantity = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -125,7 +125,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectPurchasePrice() throws BurstException {
+  public void processRequest_incorrectPurchasePrice() throws SignumException {
     final int goodsQuantity = 5;
     final long goodsPrice = 5L;
 
@@ -146,7 +146,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
 
 
   @Test
-  public void processRequest_missingDeliveryDeadlineTimestamp() throws BurstException {
+  public void processRequest_missingDeliveryDeadlineTimestamp() throws SignumException {
     final int goodsQuantity = 5;
     final long goodsPrice = 10L;
 
@@ -166,7 +166,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDeliveryDeadlineTimestamp_unParsable() throws BurstException {
+  public void processRequest_incorrectDeliveryDeadlineTimestamp_unParsable() throws SignumException {
     final int goodsQuantity = 5;
     final long goodsPrice = 10L;
 
@@ -187,7 +187,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDeliveryDeadlineTimestamp_beforeCurrentTime() throws BurstException {
+  public void processRequest_incorrectDeliveryDeadlineTimestamp_beforeCurrentTime() throws SignumException {
     final int goodsQuantity = 5;
     final long goodsPrice = 10L;
     final long deliveryDeadlineTimestamp = 100;

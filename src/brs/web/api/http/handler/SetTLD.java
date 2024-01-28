@@ -35,7 +35,7 @@ public final class SetTLD extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
 
     if (tldName == null) {

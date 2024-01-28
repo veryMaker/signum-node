@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Order.Ask;
 import brs.assetexchange.AssetExchange;
 import brs.common.QuickMocker;
@@ -33,7 +33,7 @@ public class GetAskOrderTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long orderId = 123L;
 
     final Ask mockOrder = mock(Ask.class);
@@ -49,7 +49,7 @@ public class GetAskOrderTest {
   }
 
   @Test
-  public void processRequest_unknownOrder() throws BurstException {
+  public void processRequest_unknownOrder() throws SignumException {
     final long orderId = 123L;
 
     when(mockAssetExchange.getAskOrder(eq(orderId))).thenReturn(null);

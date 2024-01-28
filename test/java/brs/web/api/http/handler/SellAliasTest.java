@@ -49,7 +49,7 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int priceParameter = 10;
     final int recipientId = 5;
 
@@ -81,14 +81,14 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingPrice() throws BurstException {
+  public void processRequest_missingPrice() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     assertEquals(MISSING_PRICE, t.processRequest(req));
   }
 
   @Test
-  public void processRequest_incorrectPrice_unParsable() throws BurstException {
+  public void processRequest_incorrectPrice_unParsable() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
       new MockParam(PRICE_NQT_PARAMETER, "unParsable")
     );
@@ -97,7 +97,7 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void processRequest_incorrectPrice_negative() throws BurstException {
+  public void processRequest_incorrectPrice_negative() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(PRICE_NQT_PARAMETER, -10)
     );
@@ -106,7 +106,7 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void processRequest_incorrectPrice_overMaxBalance() throws BurstException {
+  public void processRequest_incorrectPrice_overMaxBalance() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(PRICE_NQT_PARAMETER, MAX_BALANCE_NQT + 1)
     );
@@ -115,7 +115,7 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectRecipient_unparsable() throws BurstException {
+  public void processRequest_incorrectRecipient_unparsable() throws SignumException {
     final int price = 10;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -127,7 +127,7 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectRecipient_zero() throws BurstException {
+  public void processRequest_incorrectRecipient_zero() throws SignumException {
     final int price = 10;
     final int recipientId = 0;
 
@@ -140,7 +140,7 @@ public class SellAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectAliasOwner() throws BurstException {
+  public void processRequest_incorrectAliasOwner() throws SignumException {
     final int price = 10;
     final int recipientId = 5;
 

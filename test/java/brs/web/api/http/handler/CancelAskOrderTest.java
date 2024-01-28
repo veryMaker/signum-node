@@ -50,7 +50,7 @@ public class CancelAskOrderTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long orderId = 5;
     final long sellerId = 6;
 
@@ -81,7 +81,7 @@ public class CancelAskOrderTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_orderDataNotFound() throws BurstException {
+  public void processRequest_orderDataNotFound() throws SignumException {
     int orderId = 5;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -94,7 +94,7 @@ public class CancelAskOrderTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_orderOtherAccount() throws BurstException {
+  public void processRequest_orderOtherAccount() throws SignumException {
     final long orderId = 5;
     final long accountId = 6;
     final long otherAccountId = 7;

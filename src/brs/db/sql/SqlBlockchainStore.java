@@ -82,7 +82,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     return blockRecords.map(blockRecord -> {
       try {
         return blockDb.loadBlock(blockRecord);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException(e);
       }
     });
@@ -117,7 +117,7 @@ public class SqlBlockchainStore implements BlockchainStore {
         .fetch(result -> {
           try {
             return blockDb.loadBlock(result);
-          } catch (BurstException.ValidationException e) {
+          } catch (SignumException.ValidationException e) {
             throw new RuntimeException(e.toString(), e);
           }
         });
@@ -364,7 +364,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     return rs.map(r -> {
       try {
         return transactionDb.loadTransaction(r);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException(e);
       }
     });

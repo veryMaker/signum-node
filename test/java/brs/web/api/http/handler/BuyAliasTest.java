@@ -50,7 +50,7 @@ public class BuyAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     mockStatic(Signum.class);
     final HttpServletRequest req = QuickMocker.httpServletRequestDefaultKeys(new MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST));
 
@@ -80,7 +80,7 @@ public class BuyAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_aliasNotForSale() throws BurstException {
+  public void processRequest_aliasNotForSale() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(AMOUNT_NQT_PARAMETER, "3"));
     final Alias mockAlias = mock(Alias.class);
 

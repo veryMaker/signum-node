@@ -365,7 +365,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                   logger.info(e.toString() + " - autoflushing cache to get rid of it", e);
                   downloadCache.resetCache();
                   return;
-                } catch (RuntimeException | BurstException.ValidationException e) {
+                } catch (RuntimeException | SignumException.ValidationException e) {
                   logger.info("Failed to parse block: {}", e.getMessage());
                   if(logger.isDebugEnabled()) {
                     logger.debug("Failed to parse block trace: {}", Arrays.toString(e.getStackTrace()));
@@ -400,7 +400,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 processFork(peer, downloadCache.getForkList(), commonBlockId);
               }
 
-            } catch (BurstException.StopException e) {
+            } catch (SignumException.StopException e) {
               logger.info("Blockchain download stopped: {}", e.getMessage());
             } catch (InterruptedException ignored) {
               // shutting down
@@ -803,7 +803,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
   }
 
   @Override
-  public void processPeerBlock(JsonObject request, Peer peer) throws BurstException {
+  public void processPeerBlock(JsonObject request, Peer peer) throws SignumException {
     Block newBlock = Block.parseBlock(request, blockchain.getHeight());
      //* This process takes care of the blocks that is announced by peers We do not want to be fed forks.
     Block chainblock = downloadCache.getLastBlock();
@@ -892,7 +892,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           Genesis.getGenesisBlockSignature(), null, transactions, 0, byteATs, -1, Constants.INITIAL_BASE_TARGET);
       blockService.setPrevious(genesisBlock, null);
       addBlock(genesisBlock);
-    } catch (BurstException.ValidationException e) {
+    } catch (SignumException.ValidationException e) {
       logger.info(e.getMessage());
       throw new RuntimeException(e.toString(), e);
     }
@@ -1010,7 +1010,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
 
           try {
             transactionService.validate(transaction);
-          } catch (BurstException.ValidationException e) {
+          } catch (SignumException.ValidationException e) {
             throw new TransactionNotAcceptedException(e.getMessage(), transaction);
           }
 
@@ -1368,9 +1368,9 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 }
                 orderedBlockTransactions.add(transaction);
                 blockSize--;
-              } catch (BurstException.NotCurrentlyValidException e) {
+              } catch (SignumException.NotCurrentlyValidException e) {
                 transactionService.undoUnconfirmed(transaction);
-              } catch (BurstException.ValidationException e) {
+              } catch (SignumException.ValidationException e) {
                 unconfirmedTransactionStore.remove(transaction);
                 transactionService.undoUnconfirmed(transaction);
               }
@@ -1430,7 +1430,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             Signum.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH) - payloadSize, payloadHash, publicKey,
             generationSignature, null, previousBlockHash, new ArrayList<>(orderedBlockTransactions), nonce,
             byteATs, previousBlock.getHeight(), Constants.INITIAL_BASE_TARGET);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         // shouldn't happen because all transactions are already validated
         logger.info("Error generating block", e);
         return;

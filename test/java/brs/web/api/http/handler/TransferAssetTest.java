@@ -50,7 +50,7 @@ public class TransferAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long recipientParameter = 34L;
     final long assetIdParameter = 456L;
     final long quantityQNTParameter = 56L;
@@ -85,7 +85,7 @@ public class TransferAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_assetBalanceLowerThanQuantityNQTParameter() throws BurstException {
+  public void processRequest_assetBalanceLowerThanQuantityNQTParameter() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(RECIPIENT_PARAMETER, "123"),
         new MockParam(ASSET_PARAMETER, "456"),

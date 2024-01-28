@@ -1,6 +1,6 @@
 package brs.crypto;
 
-import brs.BurstException;
+import brs.SignumException;
 import signumj.entity.EncryptedMessage;
 
 import java.nio.ByteBuffer;
@@ -18,12 +18,12 @@ public class EncryptedData {
   }
 
   public static EncryptedData readEncryptedData(ByteBuffer buffer, int length, int maxLength)
-    throws BurstException.NotValidException {
+    throws SignumException.NotValidException {
     if (length == 0) {
       return EMPTY_DATA;
     }
     if (length > maxLength) {
-      throw new BurstException.NotValidException("Max encrypted data length exceeded: " + length);
+      throw new SignumException.NotValidException("Max encrypted data length exceeded: " + length);
     }
     byte[] noteBytes = new byte[length];
     buffer.get(noteBytes);

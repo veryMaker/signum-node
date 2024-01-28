@@ -45,7 +45,7 @@ public class APITransactionManagerImpl implements APITransactionManager {
   }
 
   @Override
-  public JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT, Attachment attachment, long minimumFeeNQT) throws BurstException {
+  public JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT, Attachment attachment, long minimumFeeNQT) throws SignumException {
     int blockchainHeight = blockchain.getHeight();
     String deadlineValue = req.getParameter(DEADLINE_PARAMETER);
     String referencedTransactionFullHash = Convert.emptyToNull(req.getParameter(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER));
@@ -187,9 +187,9 @@ public class APITransactionManagerImpl implements APITransactionManager {
       response.addProperty(UNSIGNED_TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.getUnsignedBytes()));
       response.add(TRANSACTION_JSON_RESPONSE, JSONData.unconfirmedTransaction(transaction));
 
-    } catch (BurstException.NotYetEnabledException e) {
+    } catch (SignumException.NotYetEnabledException e) {
       return FEATURE_NOT_AVAILABLE;
-    } catch (BurstException.ValidationException e) {
+    } catch (SignumException.ValidationException e) {
       response.addProperty(ERROR_CODE_RESPONSE, 4);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, e.getMessage());
     }

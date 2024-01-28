@@ -51,7 +51,7 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(RECIPIENT_PARAMETER, "123"));
     final Account mockSenderAccount = mock(Account.class);
     final Account mockRecipientAccount = mock(Account.class);
@@ -73,7 +73,7 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_recipientAccountDoesNotExist_errorCode8() throws BurstException {
+  public void processRequest_recipientAccountDoesNotExist_errorCode8() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(RECIPIENT_PARAMETER, "123"));
     final Account mockSenderAccount = mock(Account.class);
 
@@ -88,7 +88,7 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() throws BurstException {
+  public void processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(RECIPIENT_PARAMETER, "123"));
     final Account mockSenderAccount = mock(Account.class);
     final Account mockRecipientAccount = mock(Account.class);

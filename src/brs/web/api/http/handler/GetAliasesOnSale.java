@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Alias;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.AliasService;
 import brs.util.CollectionWithIndex;
 import brs.util.Convert;
@@ -31,7 +31,7 @@ public final class GetAliasesOnSale extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);
 

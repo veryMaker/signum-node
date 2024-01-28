@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.TransactionProcessor;
 import brs.fluxcapacitor.FluxValues;
@@ -41,7 +41,7 @@ public final class BroadcastTransaction extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     String transactionBytes = Convert.emptyToNull(req.getParameter(TRANSACTION_BYTES_PARAMETER));
     if(transactionBytes == null) {
@@ -75,7 +75,7 @@ public final class BroadcastTransaction extends ApiServlet.JsonRequestHandler {
       response.addProperty(NUMBER_PEERS_SENT_TO_RESPONSE, transactionProcessor.broadcast(transaction));
       response.addProperty(TRANSACTION_RESPONSE, transaction.getStringId());
       response.addProperty(FULL_HASH_RESPONSE, transaction.getFullHash());
-    } catch (BurstException.ValidationException | RuntimeException e) {
+    } catch (SignumException.ValidationException | RuntimeException e) {
       logger.log(Level.INFO, e.getMessage(), e);
       response.addProperty(ERROR_CODE_RESPONSE, 4);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect transaction: " + e.toString());

@@ -50,7 +50,7 @@ public class DGSFeedbackTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final long mockPurchaseId = 123L;
@@ -82,7 +82,7 @@ public class DGSFeedbackTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectPurchaseWhenOtherBuyerId() throws BurstException {
+  public void processRequest_incorrectPurchaseWhenOtherBuyerId() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Purchase mockPurchase = mock(Purchase.class);
@@ -98,7 +98,7 @@ public class DGSFeedbackTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsNotDeliveredWhenNoEncryptedGoods() throws BurstException {
+  public void processRequest_goodsNotDeliveredWhenNoEncryptedGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Purchase mockPurchase = mock(Purchase.class);

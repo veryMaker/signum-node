@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Account.RewardRecipientAssignment;
-import brs.BurstException;
+import brs.SignumException;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
@@ -40,7 +40,7 @@ public class GetAccountsWithRewardRecipientTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long targetAccountId = 4L;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(
@@ -68,7 +68,7 @@ public class GetAccountsWithRewardRecipientTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest_withRewardRecipientAssignmentKnown() throws BurstException {
+  public void processRequest_withRewardRecipientAssignmentKnown() throws SignumException {
     final long targetAccountId = 4L;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(

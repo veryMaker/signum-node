@@ -28,7 +28,7 @@ public final class CancelBidOrder extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     long orderId = ParameterParser.getOrderId(req);
     Account account = parameterService.getSenderAccount(req);
     Order.Bid orderData = assetExchange.getBidOrder(orderId);

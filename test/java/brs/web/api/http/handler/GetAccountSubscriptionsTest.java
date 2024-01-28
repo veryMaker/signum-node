@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Subscription;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -58,7 +58,7 @@ public class GetAccountSubscriptionsTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long userId = 123L;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(

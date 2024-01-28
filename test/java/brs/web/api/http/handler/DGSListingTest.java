@@ -46,7 +46,7 @@ public class DGSListingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final Account mockAccount = mock(Account.class);
 
     final String dgsName = "dgsName";
@@ -82,7 +82,7 @@ public class DGSListingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingName() throws BurstException {
+  public void processRequest_missingName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(PRICE_NQT_PARAMETER, 123),
         new MockParam(QUANTITY_PARAMETER, 1)
@@ -92,7 +92,7 @@ public class DGSListingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDGSListingName() throws BurstException {
+  public void processRequest_incorrectDGSListingName() throws SignumException {
     String tooLongName = "";
 
     for (int i = 0; i < 101; i++) {
@@ -109,7 +109,7 @@ public class DGSListingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDgsListingDescription() throws BurstException {
+  public void processRequest_incorrectDgsListingDescription() throws SignumException {
     String tooLongDescription = "";
 
     for (int i = 0; i < 1001; i++) {
@@ -127,7 +127,7 @@ public class DGSListingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectDgsListingTags() throws BurstException {
+  public void processRequest_incorrectDgsListingTags() throws SignumException {
     String tooLongTags = "";
 
     for (int i = 0; i < 101; i++) {

@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.DigitalGoodsStore;
 import brs.services.DGSGoodsStoreService;
 import brs.web.api.http.ApiServlet;
@@ -28,7 +28,7 @@ public final class GetDGSPendingPurchases extends ApiServlet.JsonRequestHandler 
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     long sellerId = ParameterParser.getSellerId(req);
 
     if (sellerId == 0) {

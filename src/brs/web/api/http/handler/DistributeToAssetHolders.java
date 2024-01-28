@@ -20,7 +20,7 @@ import brs.Asset;
 import brs.Attachment;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
 import brs.assetexchange.AssetExchange;
 import brs.fluxcapacitor.FluxValues;
@@ -48,7 +48,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getSenderAccount(req);
     Asset asset = parameterService.getAsset(req);

@@ -53,12 +53,12 @@ public class ParameterServiceImpl implements ParameterService {
   }
 
   @Override
-  public Account getAccount(HttpServletRequest req) throws BurstException {
+  public Account getAccount(HttpServletRequest req) throws SignumException {
     return getAccount(req, true);
   }
 
   @Override
-  public Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException {
+  public Account getAccount(HttpServletRequest req, boolean checkPresent) throws SignumException {
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
     if (accountId == null && !checkPresent) {
@@ -362,7 +362,7 @@ public class ParameterServiceImpl implements ParameterService {
       try {
         byte[] bytes = Convert.parseHexString(transactionBytes);
         return transactionProcessor.parseTransaction(bytes);
-      } catch (BurstException.ValidationException | RuntimeException e) {
+      } catch (SignumException.ValidationException | RuntimeException e) {
           logger.debug(e.getMessage(), e); // TODO remove?
         JsonObject response = new JsonObject();
         response.addProperty(ERROR_CODE_RESPONSE, 4);
@@ -373,7 +373,7 @@ public class ParameterServiceImpl implements ParameterService {
       try {
         JsonObject json = JSON.getAsJsonObject(JSON.parse(transactionJSON));
         return transactionProcessor.parseTransaction(json);
-      } catch (BurstException.ValidationException | RuntimeException e) {
+      } catch (SignumException.ValidationException | RuntimeException e) {
         logger.debug(e.getMessage(), e);
         JsonObject response = new JsonObject();
         response.addProperty(ERROR_CODE_RESPONSE, 4);

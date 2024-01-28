@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
@@ -44,7 +44,7 @@ public class GetAccountBlockIdsTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int timestamp = 1;
     final int firstIndex = 0;
     final int lastIndex = 1;

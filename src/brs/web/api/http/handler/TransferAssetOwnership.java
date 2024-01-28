@@ -32,7 +32,7 @@ public final class TransferAssetOwnership extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getSenderAccount(req);
     long recipientId = ParameterParser.getRecipientId(req);

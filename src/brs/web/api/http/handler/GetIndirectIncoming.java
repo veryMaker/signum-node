@@ -16,7 +16,7 @@ import com.google.gson.JsonElement;
 import brs.Account;
 import brs.Blockchain;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.IndirectIncoming;
 import brs.services.ParameterService;
 import brs.util.Convert;
@@ -34,7 +34,7 @@ public final class GetIndirectIncoming extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getAccount(req);
     String transactionIdString = Convert.emptyToNull(req.getParameter(TRANSACTION_PARAMETER));

@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Asset;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
 import brs.services.ParameterService;
@@ -35,7 +35,7 @@ public final class GetAssetsByIssuer extends AbstractAssetsRetrieval {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     Account account = parameterService.getAccount(req);
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex = ParameterParser.getLastIndex(req);

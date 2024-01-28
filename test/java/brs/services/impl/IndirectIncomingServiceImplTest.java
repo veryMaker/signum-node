@@ -38,7 +38,7 @@ public class IndirectIncomingServiceImplTest {
     }
 
     @Test
-    public void testIndirectIncomingServiceImplTestMultiOutTransaction() throws BurstException.NotValidException {
+    public void testIndirectIncomingServiceImplTestMultiOutTransaction() throws SignumException.NotValidException {
         addIndirectIncomingsRunnable.set(indirectIncomings -> {
             assertEquals(4, indirectIncomings.size());
             assertEquals(new HashSet<>(indirectIncomings).size(), indirectIncomings.size()); // Assert that there are no duplicates
@@ -57,7 +57,7 @@ public class IndirectIncomingServiceImplTest {
     }
 
     @Test
-    public void testIndirectIncomingServiceImplTestMultiOutSameTransaction() throws BurstException.NotValidException {
+    public void testIndirectIncomingServiceImplTestMultiOutSameTransaction() throws SignumException.NotValidException {
         addIndirectIncomingsRunnable.set(indirectIncomings -> {
             assertEquals(4, indirectIncomings.size());
             assertEquals(new HashSet<>(indirectIncomings).size(), indirectIncomings.size()); // Assert that there are no duplicates

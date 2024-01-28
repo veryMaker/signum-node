@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Asset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Trade;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
@@ -43,7 +43,7 @@ public class GetTradesTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest_withAssetId() throws BurstException {
+  public void processRequest_withAssetId() throws SignumException {
     final long assetId = 123L;
     final int firstIndex = 0;
     final int lastIndex = 1;
@@ -77,7 +77,7 @@ public class GetTradesTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest_withAccountId() throws BurstException {
+  public void processRequest_withAccountId() throws SignumException {
     final long accountId = 321L;
     final int firstIndex = 0;
     final int lastIndex = 1;
@@ -111,7 +111,7 @@ public class GetTradesTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest_withAssetIdAndAccountId() throws BurstException {
+  public void processRequest_withAssetIdAndAccountId() throws SignumException {
     final long assetId = 123L;
     final long accountId = 321L;
     final int firstIndex = 0;

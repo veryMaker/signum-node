@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Signum;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Subscription;
 import brs.Transaction;
 import brs.services.ParameterService;
@@ -31,7 +31,7 @@ public final class GetSubscriptionsToAccount extends ApiServlet.JsonRequestHandl
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final Account account = parameterService.getAccount(req);
 
     JsonObject response = new JsonObject();

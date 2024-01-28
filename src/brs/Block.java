@@ -60,10 +60,10 @@ public class Block {
       long totalFeeCashBackNQT, long totalFeeBurntNQT,
       int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature,
       byte[] blockSignature, byte[] previousBlockHash, List<Transaction> transactions,
-      long nonce, byte[] blockATs, int height, long baseTarget) throws BurstException.ValidationException {
+      long nonce, byte[] blockATs, int height, long baseTarget) throws SignumException.ValidationException {
 
     if (payloadLength > Signum.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH, height) || payloadLength < 0) {
-      throw new BurstException.NotValidException(
+      throw new SignumException.NotValidException(
           "attempted to create a block with payloadLength " + payloadLength + " height " + height + "previd " + previousBlockId);
     }
 
@@ -84,13 +84,13 @@ public class Block {
     if (transactions != null) {
       this.blockTransactions.set(Collections.unmodifiableList(transactions));
       if (blockTransactions.get().size() > (Signum.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS, height))) {
-        throw new BurstException.NotValidException(
+        throw new SignumException.NotValidException(
             "attempted to create a block with " + blockTransactions.get().size() + " transactions");
       }
       long previousId = 0;
       for (Transaction transaction : this.blockTransactions.get()) {
         if (transaction.getId() <= previousId && previousId != 0) {
-          throw new BurstException.NotValidException("Block transactions are not sorted!");
+          throw new SignumException.NotValidException("Block transactions are not sorted!");
         }
         previousId = transaction.getId();
       }
@@ -103,7 +103,7 @@ public class Block {
   public Block(int version, int timestamp, long previousBlockId, long totalAmountNQT, long totalFeeNQT,
       long totalFeeCashBackNQT, long totalFeeBurntNQT,
       int payloadLength, byte[] payloadHash, byte[] generatorPublicKey, byte[] generationSignature, byte[] blockSignature, byte[] previousBlockHash, BigInteger cumulativeDifficulty, long baseTarget,
-      long nextBlockId, int height, Long id, long nonce, byte[] blockATs) throws BurstException.ValidationException {
+      long nextBlockId, int height, Long id, long nonce, byte[] blockATs) throws SignumException.ValidationException {
 
     this(version, timestamp, previousBlockId, totalAmountNQT, totalFeeNQT, totalFeeCashBackNQT, totalFeeBurntNQT, payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature, previousBlockHash, null, nonce, blockATs, height, baseTarget);
 
@@ -317,7 +317,7 @@ public class Block {
     return json;
   }
 
-  static Block parseBlock(JsonObject blockData, int height) throws BurstException.ValidationException {
+  static Block parseBlock(JsonObject blockData, int height) throws SignumException.ValidationException {
     try {
       int version = JSON.getAsInt(blockData.get("version"));
       int timestamp = JSON.getAsInt(blockData.get("timestamp"));
@@ -340,7 +340,7 @@ public class Block {
       long baseTarget = Convert.parseUnsignedLong(JSON.getAsString(blockData.get("baseTarget")));
 
       if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, height) && baseTarget == 0L) {
-        throw new BurstException.NotValidException("Block received without a baseTarget");
+        throw new SignumException.NotValidException("Block received without a baseTarget");
       }
 
       SortedMap<Long, Transaction> blockTransactions = new TreeMap<>();
@@ -349,7 +349,7 @@ public class Block {
       for (JsonElement transactionData : transactionsData) {
         Transaction transaction = Transaction.parseTransaction(JSON.getAsJsonObject(transactionData), height);
         if (transaction.getSignature() != null && blockTransactions.put(transaction.getId(), transaction) != null) {
-          throw new BurstException.NotValidException("Block contains duplicate transactions: " + transaction.getStringId());
+          throw new SignumException.NotValidException("Block contains duplicate transactions: " + transaction.getStringId());
         }
       }
 
@@ -358,7 +358,7 @@ public class Block {
           totalFeeCashBackNQT, totalFeeBurntNQT,
           payloadLength, payloadHash, generatorPublicKey, generationSignature, blockSignature,
           previousBlockHash, new ArrayList<>(blockTransactions.values()), nonce, blockATs, height, baseTarget);
-    } catch (BurstException.ValidationException | RuntimeException e) {
+    } catch (SignumException.ValidationException | RuntimeException e) {
       if (logger.isDebugEnabled()) {
         logger.debug("Failed to parse block: {}", JSON.toJsonString(blockData));
       }

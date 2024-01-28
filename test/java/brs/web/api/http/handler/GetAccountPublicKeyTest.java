@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.common.QuickMocker;
 import brs.common.TestConstants;
 import brs.services.ParameterService;
@@ -33,7 +33,7 @@ public class GetAccountPublicKeyTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);
@@ -48,7 +48,7 @@ public class GetAccountPublicKeyTest {
   }
 
   @Test
-  public void processRequest_withoutPublicKey() throws BurstException {
+  public void processRequest_withoutPublicKey() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);

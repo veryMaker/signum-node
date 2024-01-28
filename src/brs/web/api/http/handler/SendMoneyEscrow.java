@@ -29,7 +29,7 @@ public final class SendMoneyEscrow extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     Account sender = parameterService.getSenderAccount(req);
     Long recipient = ParameterParser.getRecipientId(req);
     Long amountNQT = ParameterParser.getAmountNQT(req);

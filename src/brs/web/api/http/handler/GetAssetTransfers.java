@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Asset;
 import brs.AssetTransfer;
-import brs.BurstException;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.ParameterParser;
@@ -39,7 +39,7 @@ public final class GetAssetTransfers extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     String assetId = Convert.emptyToNull(req.getParameter(ASSET_PARAMETER));
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
 

@@ -45,7 +45,7 @@ public class DGSDelistingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);
@@ -71,7 +71,7 @@ public class DGSDelistingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsDelistedUnknownGoods() throws BurstException {
+  public void processRequest_goodsDelistedUnknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);
@@ -86,7 +86,7 @@ public class DGSDelistingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_otherSellerIdUnknownGoods() throws BurstException {
+  public void processRequest_otherSellerIdUnknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);
