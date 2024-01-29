@@ -57,21 +57,21 @@ public final class Signum {
   public static final String PROPERTIES_NAME = "node.properties";
 
   public static final Option CONF_FOLDER_OPTION = Option.builder("c")
-		  .longOpt("config")
-		  .argName("conf folder")
-		  .numberOfArgs(1)
-		  .desc("The configuration folder to use")
-		  .build();
+      .longOpt("config")
+      .argName("conf folder")
+      .numberOfArgs(1)
+      .desc("The configuration folder to use")
+      .build();
 
   public static final Options CLI_OPTIONS = new Options()
-		  .addOption(CONF_FOLDER_OPTION)
-		  .addOption(Option.builder("l")
-	        		.longOpt("headless")
-	        		.desc("Run in headless mode")
-	        		.build())
-		  .addOption(Option.builder("h")
-	        		.longOpt("help")
-	        		.build());
+      .addOption(CONF_FOLDER_OPTION)
+      .addOption(Option.builder("l")
+          .longOpt("headless")
+          .desc("Run in headless mode")
+          .build())
+      .addOption(Option.builder("h")
+          .longOpt("help")
+          .build());
 
   private static final Logger logger = LoggerFactory.getLogger(Signum.class);
 
@@ -102,7 +102,7 @@ public final class Signum {
     logger.info("Configurations from folder {}", confFolder);
     Properties defaultProperties = new Properties();
     try (InputStream is = new FileInputStream(new File(confFolder, DEFAULT_PROPERTIES_NAME))) {
-       defaultProperties.load(is);
+      defaultProperties.load(is);
     } catch (IOException e) {
       throw new RuntimeException("Error loading " + DEFAULT_PROPERTIES_NAME, e);
     }
@@ -139,7 +139,7 @@ public final class Signum {
   }
 
   public static SubscriptionService getSubscriptionService() {
-      return subscriptionService;
+    return subscriptionService;
   }
 
   public static AssetExchange getAssetExchange() {
@@ -154,22 +154,21 @@ public final class Signum {
     return dbs;
   }
 
-  public static void main(String []args) {
+  public static void main(String[] args) {
     Runtime.getRuntime().addShutdownHook(new Thread(Signum::shutdown));
     String confFolder = CONF_FOLDER;
     try {
       CommandLine cmd = new DefaultParser().parse(CLI_OPTIONS, args);
-      if(cmd.hasOption(CONF_FOLDER_OPTION.getOpt()))
-    	  confFolder = cmd.getOptionValue(CONF_FOLDER_OPTION.getOpt());
+      if (cmd.hasOption(CONF_FOLDER_OPTION.getOpt()))
+        confFolder = cmd.getOptionValue(CONF_FOLDER_OPTION.getOpt());
+    } catch (Exception e) {
+      logger.error("Exception parsing command line arguments", e);
     }
-    catch (Exception e) {
-    	logger.error("Exception parsing command line arguments", e);
-	}
     init(confFolder);
   }
 
   private static boolean validateVersionNotDev(PropertyService propertyService) {
-    if(VERSION.isPrelease() && propertyService.getString(Props.NETWORK_NAME).equals(Constants.SIGNUM_NETWORK_NAME)) {
+    if (VERSION.isPrelease() && propertyService.getString(Props.NETWORK_NAME).equals(Constants.SIGNUM_NETWORK_NAME)) {
       logger.error("THIS IS A DEVELOPMENT VERSION, PLEASE DO NOT USE THIS ON Signum MAINNET");
       return false;
     }
@@ -184,7 +183,6 @@ public final class Signum {
     loadWallet(loadProperties(confFolder));
   }
 
-
   private static void loadWallet(PropertyService propertyService) {
     LoggerConfigurator.init();
 
@@ -192,7 +190,7 @@ public final class Signum {
 
     String networkParametersClass = propertyService.getString(Props.NETWORK_PARAMETERS);
     NetworkParameters params = null;
-    if(networkParametersClass != null) {
+    if (networkParametersClass != null) {
       try {
         params = (NetworkParameters) Class.forName(networkParametersClass).getConstructor().newInstance();
         propertyService.setNetworkParameters(params);
@@ -202,8 +200,8 @@ public final class Signum {
       }
     }
 
-	if(!validateVersionNotDev(propertyService))
-		return;
+    if (!validateVersionNotDev(propertyService))
+      return;
 
     try {
       long startTime = System.currentTimeMillis();
@@ -225,10 +223,11 @@ public final class Signum {
       Db.init(propertyService, dbCacheManager);
       dbs = Db.getDbsByDatabaseType();
 
-      stores = new Stores(derivedTableManager, dbCacheManager, timeService, propertyService, dbs.getTransactionDb(), params);
+      stores = new Stores(derivedTableManager, dbCacheManager, timeService, propertyService, dbs.getTransactionDb(),
+          params);
 
       final TransactionDb transactionDb = dbs.getTransactionDb();
-      final BlockDb blockDb =  dbs.getBlockDb();
+      final BlockDb blockDb = dbs.getBlockDb();
       final BlockchainStore blockchainStore = stores.getBlockchainStore();
       blockchain = new BlockchainImpl(transactionDb, blockDb, blockchainStore, propertyService);
 
@@ -238,34 +237,45 @@ public final class Signum {
 
       EconomicClustering economicClustering = new EconomicClustering(blockchain);
 
-      final AccountService accountService = new AccountServiceImpl(stores.getAccountStore(), stores.getAssetTransferStore());
+      final AccountService accountService = new AccountServiceImpl(stores.getAccountStore(),
+          stores.getAssetTransferStore());
 
       final DownloadCacheImpl downloadCache = new DownloadCacheImpl(propertyService, fluxCapacitor, blockchain);
 
-      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING) ?
-          new GeneratorImpl.MockGenerator(propertyService, blockchain, accountService, timeService, fluxCapacitor) :
-            new GeneratorImpl(blockchain, downloadCache, accountService, timeService, fluxCapacitor);
+      final Generator generator = propertyService.getBoolean(Props.DEV_MOCK_MINING)
+          ? new GeneratorImpl.MockGenerator(propertyService, blockchain, accountService, timeService, fluxCapacitor)
+          : new GeneratorImpl(blockchain, downloadCache, accountService, timeService, fluxCapacitor);
 
       transactionService = new TransactionServiceImpl(accountService, blockchain);
 
-      transactionProcessor = new TransactionProcessorImpl(propertyService, economicClustering, blockchain, stores, timeService, dbs,
+      transactionProcessor = new TransactionProcessorImpl(propertyService, economicClustering, blockchain, stores,
+          timeService, dbs,
           accountService, transactionService, threadPool);
 
       final ATService atService = new ATServiceImpl(stores.getAtStore());
-      subscriptionService = new SubscriptionServiceImpl(stores.getSubscriptionStore(), transactionDb, blockchain, aliasService, accountService);
-      final DGSGoodsStoreService digitalGoodsStoreService = new DGSGoodsStoreServiceImpl(blockchain, stores.getDigitalGoodsStoreStore(), accountService);
-      final EscrowService escrowService = new EscrowServiceImpl(stores.getEscrowStore(), blockchain, aliasService, accountService);
+      subscriptionService = new SubscriptionServiceImpl(stores.getSubscriptionStore(), transactionDb, blockchain,
+          aliasService, accountService);
+      final DGSGoodsStoreService digitalGoodsStoreService = new DGSGoodsStoreServiceImpl(blockchain,
+          stores.getDigitalGoodsStoreStore(), accountService);
+      final EscrowService escrowService = new EscrowServiceImpl(stores.getEscrowStore(), blockchain, aliasService,
+          accountService);
 
-      assetExchange = new AssetExchangeImpl(accountService, stores.getTradeStore(), stores.getAccountStore(), stores.getAssetTransferStore(), stores.getAssetStore(), stores.getOrderStore());
+      assetExchange = new AssetExchangeImpl(accountService, stores.getTradeStore(), stores.getAccountStore(),
+          stores.getAssetTransferStore(), stores.getAssetStore(), stores.getOrderStore());
 
-      final IndirectIncomingService indirectIncomingService = new IndirectIncomingServiceImpl(stores.getIndirectIncomingStore(), propertyService);
+      final IndirectIncomingService indirectIncomingService = new IndirectIncomingServiceImpl(
+          stores.getIndirectIncomingStore(), propertyService);
 
-      TransactionType.init(blockchain, fluxCapacitor, accountService, digitalGoodsStoreService, aliasService, assetExchange, subscriptionService, escrowService);
+      TransactionType.init(blockchain, fluxCapacitor, accountService, digitalGoodsStoreService, aliasService,
+          assetExchange, subscriptionService, escrowService);
 
-      final BlockService blockService = new BlockServiceImpl(accountService, transactionService, blockchain, downloadCache, generator, params);
-      blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain, propertyService, subscriptionService,
+      final BlockService blockService = new BlockServiceImpl(accountService, transactionService, blockchain,
+          downloadCache, generator, params);
+      blockchainProcessor = new BlockchainProcessorImpl(threadPool, blockService, transactionProcessor, blockchain,
+          propertyService, subscriptionService,
           timeService, derivedTableManager,
-          blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService, downloadCache, generator, statisticsManager,
+          blockDb, transactionDb, economicClustering, blockchainStore, stores, escrowService, transactionService,
+          downloadCache, generator, statisticsManager,
           dbCacheManager, accountService, indirectIncomingService, aliasService);
 
       generator.generateForBlockchainProcessor(threadPool, blockchainProcessor);
@@ -275,52 +285,59 @@ public final class Signum {
       final ParameterService parameterService = new ParameterServiceImpl(accountService, aliasService, assetExchange,
           digitalGoodsStoreService, blockchain, blockchainProcessor, transactionProcessor, atService);
 
-      addBlockchainListeners(blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService, blockchain, dbs.getTransactionDb());
+      addBlockchainListeners(blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService, blockchain,
+          dbs.getTransactionDb());
 
-      final APITransactionManager apiTransactionManager = new APITransactionManagerImpl(parameterService, transactionProcessor, blockchain, accountService, transactionService);
+      final APITransactionManager apiTransactionManager = new APITransactionManagerImpl(parameterService,
+          transactionProcessor, blockchain, accountService, transactionService);
 
-      Peers.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool);
-      if(params != null) {
+      Peers.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService,
+          threadPool);
+      if (params != null) {
         params.initialize(parameterService, accountService, apiTransactionManager);
         TransactionType.setNetworkParameters(params);
       }
 
-      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor, stores.getUnconfirmedTransactionStore());
+      final FeeSuggestionCalculator feeSuggestionCalculator = new FeeSuggestionCalculator(blockchainProcessor,
+          stores.getUnconfirmedTransactionStore());
 
       webServer = new WebServerImpl(new WebServerContext(transactionProcessor,
-        blockchain,
-        blockchainProcessor,
-        parameterService,
-        accountService,
-        aliasService,
-        assetExchange,
-        escrowService,
-        digitalGoodsStoreService,
-        subscriptionService,
-        atService,
-        timeService,
-        economicClustering,
-        propertyService,
-        threadPool,
-        transactionService,
-        blockService,
-        generator,
-        apiTransactionManager,
-        feeSuggestionCalculator,
-        deepLinkQRCodeGenerator,
-        indirectIncomingService,
-        params));
+          blockchain,
+          blockchainProcessor,
+          parameterService,
+          accountService,
+          aliasService,
+          assetExchange,
+          escrowService,
+          digitalGoodsStoreService,
+          subscriptionService,
+          atService,
+          timeService,
+          economicClustering,
+          propertyService,
+          threadPool,
+          transactionService,
+          blockService,
+          generator,
+          apiTransactionManager,
+          feeSuggestionCalculator,
+          deepLinkQRCodeGenerator,
+          indirectIncomingService,
+          params));
       webServer.start();
 
-      if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED)){
+      if (propertyService.getBoolean(Props.BRS_DEBUG_TRACE_ENABLED)) {
         DebugTrace.init(propertyService, blockchainProcessor, accountService, assetExchange, digitalGoodsStoreService);
       }
 
-      int timeMultiplier = (propertyService.getBoolean(Props.DEV_OFFLINE)) ? Math.max(propertyService.getInt(Props.DEV_TIMEWARP), 1) : 1;
+      int timeMultiplier = (propertyService.getBoolean(Props.DEV_OFFLINE))
+          ? Math.max(propertyService.getInt(Props.DEV_TIMEWARP), 1)
+          : 1;
 
       threadPool.start(timeMultiplier);
       if (timeMultiplier > 1) {
-        timeService.setTime(new Time.FasterTime(Math.max(timeService.getEpochTime(), getBlockchain().getLastBlock().getTimestamp()), timeMultiplier));
+        timeService.setTime(new Time.FasterTime(
+            Math.max(timeService.getEpochTime(), getBlockchain().getLastBlock().getTimestamp()), timeMultiplier));
         logger.info("TIME WILL FLOW {} TIMES FASTER!", timeMultiplier);
       }
 
@@ -335,11 +352,14 @@ public final class Signum {
     (new Thread(Signum::commandHandler)).start();
   }
 
-  private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService, AssetExchange assetExchange, DGSGoodsStoreService goodsService, Blockchain blockchain,
+  private static void addBlockchainListeners(BlockchainProcessor blockchainProcessor, AccountService accountService,
+      AssetExchange assetExchange, DGSGoodsStoreService goodsService, Blockchain blockchain,
       TransactionDb transactionDb) {
 
-    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(accountService, transactionDb);
-    final DGSGoodsStoreServiceImpl.ExpiredPurchaseListener devNullListener = new DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(accountService, goodsService);
+    final AT.HandleATBlockTransactionsListener handleATBlockTransactionListener = new AT.HandleATBlockTransactionsListener(
+        accountService, transactionDb);
+    final DGSGoodsStoreServiceImpl.ExpiredPurchaseListener devNullListener = new DGSGoodsStoreServiceImpl.ExpiredPurchaseListener(
+        accountService, goodsService);
 
     blockchainProcessor.addListener(handleATBlockTransactionListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
     blockchainProcessor.addListener(devNullListener, BlockchainProcessor.Event.AFTER_BLOCK_APPLY);
@@ -353,12 +373,12 @@ public final class Signum {
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     try {
       String command;
-      while ( ( command = reader.readLine() ) != null){
+      while ((command = reader.readLine()) != null) {
         logger.debug("received command: >{}<", command);
-        if ( command.equals(".shutdown") ) {
+        if (command.equals(".shutdown")) {
           shutdown(false);
           System.exit(0);
-        } else if ( command.startsWith(".popoff ") ) {
+        } else if (command.startsWith(".popoff ")) {
           Pattern r = Pattern.compile("^\\.popoff (\\d+)$");
           Matcher m = r.matcher(command);
           if (m.find()) {
@@ -369,25 +389,25 @@ public final class Signum {
           }
         }
       }
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       // ignore
     }
   }
 
   public static void shutdown(boolean ignoreDBShutdown) {
-    if(!shuttingdown.get()){
+    if (!shuttingdown.get()) {
       logger.info("Shutting down...");
       logger.info("Do not force exit or kill the node process.");
     }
 
-    if (webServer != null){
+    if (webServer != null) {
       webServer.shutdown();
     }
     if (threadPool != null) {
       Peers.shutdown(threadPool);
       threadPool.shutdown();
     }
-    if(! ignoreDBShutdown && !shuttingdown.get()) {
+    if (!ignoreDBShutdown && !shuttingdown.get()) {
       shuttingdown.set(true);
       Db.shutdown();
     }
@@ -405,6 +425,8 @@ public final class Signum {
     return propertyService;
   }
 
-  public static FluxCapacitor getFluxCapacitor() { return fluxCapacitor; }
+  public static FluxCapacitor getFluxCapacitor() {
+    return fluxCapacitor;
+  }
 
 }
