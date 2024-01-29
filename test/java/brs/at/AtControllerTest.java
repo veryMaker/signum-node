@@ -1,7 +1,7 @@
 package brs.at;
 
 import brs.Account;
-import brs.Burst;
+import brs.Signum;
 import brs.util.Convert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Burst.class, Account.class})
+@PrepareForTest({Signum.class, Account.class})
 public class AtControllerTest {
     @Before
     public void setUp() {

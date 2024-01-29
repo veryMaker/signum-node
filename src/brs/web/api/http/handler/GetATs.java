@@ -2,8 +2,8 @@ package brs.web.api.http.handler;
 
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.Transaction;
 import brs.at.AT;
 import brs.at.AtApiHelper;
@@ -38,7 +38,7 @@ public final class GetATs extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     int firstIndex = ParameterParser.getFirstIndex(req);
     int lastIndex  = ParameterParser.getLastIndex(req);
@@ -59,7 +59,7 @@ public final class GetATs extends ApiServlet.JsonRequestHandler {
       }
     }
 
-    Blockchain blockchain = Burst.getBlockchain();
+    Blockchain blockchain = Signum.getBlockchain();
     CollectionWithIndex<Long> atIds = atService.getATsIssuedBy(null, codeHashId, firstIndex, lastIndex);
     JsonArray ats = new JsonArray();
     for(long atId : atIds) {

@@ -12,11 +12,11 @@ import brs.Account;
 import brs.Alias;
 import brs.Alias.Offer;
 import brs.Attachment;
-import brs.Burst;
+import brs.Signum;
 import brs.Subscription;
 import brs.Transaction;
 import brs.TransactionType;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.sql.Db;
 import brs.db.store.AliasStore;
@@ -31,9 +31,9 @@ public class AliasServiceImpl implements AliasService {
 
   private final AliasStore aliasStore;
   private final VersionedEntityTable<Alias> aliasTable;
-  private final BurstKey.LongKeyFactory<Alias> aliasDbKeyFactory;
+  private final SignumKey.LongKeyFactory<Alias> aliasDbKeyFactory;
   private final VersionedEntityTable<Offer> offerTable;
-  private final BurstKey.LongKeyFactory<Offer> offerDbKeyFactory;
+  private final SignumKey.LongKeyFactory<Offer> offerDbKeyFactory;
 
   private static final String MAIN_TLD = "signum";
   private static final String[] DEFAULT_TLDS = {
@@ -50,7 +50,7 @@ public class AliasServiceImpl implements AliasService {
 
   public void addDefaultTLDs() {
     try {
-      Burst.getStores().beginTransaction();
+      Signum.getStores().beginTransaction();
 
       // TODO: should be removed prior to the next release
 //      try {
@@ -80,10 +80,10 @@ public class AliasServiceImpl implements AliasService {
         Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(tldName, 0);
         addTLD(id, null, attachment);
       }
-      Burst.getStores().commitTransaction();
+      Signum.getStores().commitTransaction();
     }
     finally {
-      Burst.getStores().endTransaction();
+      Signum.getStores().endTransaction();
     }
   }
 
@@ -142,19 +142,19 @@ public class AliasServiceImpl implements AliasService {
   }
 
   private void createSubscription(Alias alias, int timestamp, boolean updateSubscription){
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
+    if(!Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       return;
     }
 
-    SubscriptionService subscriptionService = Burst.getSubscriptionService();
-    int frequency = Burst.getPropertyService().getInt(Props.ALIAS_RENEWAL_FREQUENCY);
-    long fee = Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT) * TransactionType.BASELINE_ALIAS_RENEWAL_FACTOR;
+    SubscriptionService subscriptionService = Signum.getSubscriptionService();
+    int frequency = Signum.getPropertyService().getInt(Props.ALIAS_RENEWAL_FREQUENCY);
+    long fee = Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT) * TransactionType.BASELINE_ALIAS_RENEWAL_FACTOR;
     Subscription subscription = subscriptionService.getSubscription(alias.getId());
     if(subscription != null && updateSubscription && subscription.getSenderId() != alias.getAccountId()) {
       subscription.setSenderId(alias.getAccountId());
       ArrayList<Subscription> subscriptions = new ArrayList<>();
       subscriptions.add(subscription);
-      Burst.getStores().getSubscriptionStore().saveSubscriptions(subscriptions);
+      Signum.getStores().getSubscriptionStore().saveSubscriptions(subscriptions);
     }
     if(subscription == null) {
       subscriptionService.addSubscription(Account.getAccount(alias.getAccountId()), alias.getId(), alias.getId(), fee, timestamp, frequency);
@@ -165,7 +165,7 @@ public class AliasServiceImpl implements AliasService {
   public void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment) {
     Alias alias = getAlias(attachment.getAliasName(), attachment.getTLD());
     if (alias == null) {
-      BurstKey aliasDBId = aliasDbKeyFactory.newKey(transaction.getId());
+      SignumKey aliasDBId = aliasDbKeyFactory.newKey(transaction.getId());
       alias = new Alias(transaction.getId(), aliasDBId, transaction, attachment);
     } else {
       alias.setAccountId(transaction.getSenderId());
@@ -179,7 +179,7 @@ public class AliasServiceImpl implements AliasService {
 
   @Override
   public void addTLD(long id, Transaction transaction, Attachment.MessagingTLDAssignment attachment) {
-    BurstKey aliasDBId = aliasDbKeyFactory.newKey(id);
+    SignumKey aliasDBId = aliasDbKeyFactory.newKey(id);
     Alias alias = new Alias(id, aliasDBId, transaction, attachment);
     aliasTable.insert(alias);
   }
@@ -192,7 +192,7 @@ public class AliasServiceImpl implements AliasService {
     if (priceNQT > 0) {
       Offer offer = getOffer(alias);
       if (offer == null) {
-        BurstKey dbKey = offerDbKeyFactory.newKey(alias.getId());
+        SignumKey dbKey = offerDbKeyFactory.newKey(alias.getId());
         offerTable.insert(new Offer(dbKey, alias.getId(), priceNQT, buyerId));
       } else {
         offer.setPriceNQT(priceNQT);

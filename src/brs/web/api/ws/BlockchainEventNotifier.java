@@ -63,7 +63,7 @@ public class BlockchainEventNotifier {
 
     notifyExecutor.submit(() -> {
       ConnectedEventData data = new ConnectedEventData();
-      data.version = Burst.VERSION.toString();
+      data.version = Signum.VERSION.toString();
       data.networkName = context.getPropertyService().getString(Props.NETWORK_NAME);
       data.globalHeight = context.getBlockchainProcessor().getLastBlockchainFeederHeight();
       data.localHeight = context.getBlockchain().getHeight();

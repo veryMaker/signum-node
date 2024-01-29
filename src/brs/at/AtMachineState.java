@@ -7,7 +7,7 @@
 
 package brs.at;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.Account.AccountAsset;
 import brs.crypto.Crypto;
@@ -300,7 +300,7 @@ public class AtMachineState {
         }
       }
 
-      return Burst.getStores().getAtStore().getMapValue(atId, key1, key2);
+      return Signum.getStores().getAtStore().getMapValue(atId, key1, key2);
     }
 
     protected void clearLists() {
@@ -395,7 +395,7 @@ public class AtMachineState {
       Long balance = gBalanceAsset.get(assetId);
       if(balance == null) {
         balance = 0L;
-        AccountAsset asset = Burst.getStores().getAccountStore().getAccountAsset(AtApiHelper.getLong(getId()), assetId);
+        AccountAsset asset = Signum.getStores().getAccountStore().getAccountAsset(AtApiHelper.getLong(getId()), assetId);
         if(asset != null) {
           balance = asset.getQuantityQNT();
         }
@@ -481,7 +481,7 @@ public class AtMachineState {
 
     private byte[] getTransactionBytes() {
         int txLength = creator.length + 8;
-        if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, height)) {
+        if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_ATS, height)) {
           txLength += 8;
         }
         ByteBuffer b = ByteBuffer.allocate(txLength * transactions.size());
@@ -492,7 +492,7 @@ public class AtMachineState {
             else
               b.put(tx.getRecipientId());
             b.putLong(tx.getAmount());
-            if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, height)) {
+            if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_ATS, height)) {
               b.putLong(tx.getAssetId());
             }
         }
@@ -628,7 +628,7 @@ public class AtMachineState {
             ByteBuffer bytes = ByteBuffer.allocate(getSize());
             bytes.order(ByteOrder.LITTLE_ENDIAN);
 
-            if (Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2)) {
+            if (Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2)) {
                 flags[0] = (byte) ((running ? 1 : 0)
                         | (stopped ? 1 : 0) << 1
                         | (finished ? 1 : 0) << 2

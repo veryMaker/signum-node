@@ -3,8 +3,8 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.Constants;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -43,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @SuppressStaticInitializationFor("brs.Block")
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class GetAccountBlocksTest extends AbstractUnitTest {
 
   private GetAccountBlocks t;
@@ -58,16 +58,16 @@ public class GetAccountBlocksTest extends AbstractUnitTest {
     parameterServiceMock = mock(ParameterService.class);
     blockServiceMock = mock(BlockService.class);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     PropertyService propertyService = mock(PropertyService.class);
-    when(Burst.getPropertyService()).thenReturn(propertyService);
-    doReturn((int)Constants.ONE_BURST).when(propertyService).getInt(eq(Props.ONE_COIN_NQT));
+    when(Signum.getPropertyService()).thenReturn(propertyService);
+    doReturn((int)Constants.ONE_SIGNA).when(propertyService).getInt(eq(Props.ONE_COIN_NQT));
 
     t = new GetAccountBlocks(blockchainMock, parameterServiceMock, blockServiceMock);
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int mockTimestamp = 1;
     final int mockFirstIndex = 2;
     final int mockLastIndex = 3;

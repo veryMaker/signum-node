@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Trade;
 import brs.assetexchange.AssetExchange;
 import brs.web.api.http.common.LegacyDocTag;
@@ -30,7 +30,7 @@ public final class GetAllTrades extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final int timestamp = ParameterParser.getTimestamp(req);
     final int firstIndex = ParameterParser.getFirstIndex(req);
     final int lastIndex = ParameterParser.getLastIndex(req);

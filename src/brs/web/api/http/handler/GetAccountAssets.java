@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Account.AccountAsset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
@@ -32,7 +32,7 @@ public final class GetAccountAssets extends ApiServlet.JsonRequestHandler {
 
     @Override
     protected
-    JsonElement processRequest(HttpServletRequest req) throws BurstException {
+    JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
         Account account = parameterService.getAccount(req);
 

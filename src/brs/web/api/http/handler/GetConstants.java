@@ -8,7 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.Genesis;
 import brs.TransactionType;
@@ -31,19 +31,19 @@ public final class GetConstants extends ApiServlet.JsonRequestHandler {
     protected
     JsonElement processRequest(HttpServletRequest req) {
         JsonObject response = new JsonObject();
-        response.addProperty("networkName", Burst.getPropertyService().getString(Props.NETWORK_NAME));
-        response.addProperty("genesisBlockId", Burst.getPropertyService().getString(Props.GENESIS_BLOCK_ID));
+        response.addProperty("networkName", Signum.getPropertyService().getString(Props.NETWORK_NAME));
+        response.addProperty("genesisBlockId", Signum.getPropertyService().getString(Props.GENESIS_BLOCK_ID));
         response.addProperty("genesisAccountId", Convert.toUnsignedLong(Genesis.CREATOR_ID));
-        response.addProperty("maxBlockPayloadLength", (Burst.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
+        response.addProperty("maxBlockPayloadLength", (Signum.getFluxCapacitor().getValue(FluxValues.MAX_PAYLOAD_LENGTH)));
         response.addProperty("maxArbitraryMessageLength", Constants.MAX_ARBITRARY_MESSAGE_LENGTH);
         response.addProperty("ordinaryTransactionLength", Constants.ORDINARY_TRANSACTION_BYTES);
         response.addProperty("addressPrefix", SignumUtils.getAddressPrefix());
         response.addProperty("valueSuffix", SignumUtils.getValueSuffix());
-        response.addProperty("blockTime", Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
-        response.addProperty("decimalPlaces", Burst.getPropertyService().getInt(Props.DECIMAL_PLACES));
-        response.addProperty("feeQuantNQT", Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT));
-        response.addProperty("cashBackId", Burst.getPropertyService().getString(Props.CASH_BACK_ID));
-        response.addProperty("cashBackFactor", Burst.getPropertyService().getInt(Props.CASH_BACK_FACTOR));
+        response.addProperty("blockTime", Signum.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME));
+        response.addProperty("decimalPlaces", Signum.getPropertyService().getInt(Props.DECIMAL_PLACES));
+        response.addProperty("feeQuantNQT", Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT));
+        response.addProperty("cashBackId", Signum.getPropertyService().getString(Props.CASH_BACK_ID));
+        response.addProperty("cashBackFactor", Signum.getPropertyService().getInt(Props.CASH_BACK_FACTOR));
 
         JsonArray transactionTypes = new JsonArray();
         TransactionType.getTransactionTypes()
@@ -55,7 +55,7 @@ public final class GetConstants extends ApiServlet.JsonRequestHandler {
                     transactionSubtypes.addAll(value.entrySet().stream()
                             .map(entry -> {
                                 JsonObject transactionSubtype = new JsonObject();
-                                Fee fee = entry.getValue().getBaselineFee(Burst.getBlockchain().getHeight());
+                                Fee fee = entry.getValue().getBaselineFee(Signum.getBlockchain().getHeight());
                                 transactionSubtype.addProperty("value", entry.getKey());
                                 transactionSubtype.addProperty("description", entry.getValue().getDescription());
                                 transactionSubtype.addProperty("minimumFeeConstantNQT", fee.getConstantFee());

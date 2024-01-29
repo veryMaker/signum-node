@@ -59,14 +59,14 @@ public final class GetState extends ApiServlet.JsonRequestHandler {
 
     JsonObject response = new JsonObject();
 
-    response.addProperty("application", Burst.getPropertyService().getString(Props.APPLICATION));
-    response.addProperty("version", Burst.getPropertyService().getString(Props.VERSION));
+    response.addProperty("application", Signum.getPropertyService().getString(Props.APPLICATION));
+    response.addProperty("version", Signum.getPropertyService().getString(Props.VERSION));
     response.addProperty(TIME_RESPONSE, timeService.getEpochTime());
     response.addProperty("lastBlock", blockchain.getLastBlock().getStringId());
     response.addProperty(CUMULATIVE_DIFFICULTY_RESPONSE, blockchain.getLastBlock().getCumulativeDifficulty().toString());
     long totalMined = blockchain.getTotalMined();
-    long totalBurnt = Burst.getStores().getAccountStore().getAccountBalanceTable().get(
-            Burst.getStores().getAccountStore().getAccountKeyFactory().newKey(0L)).getBalanceNQT();
+    long totalBurnt = Signum.getStores().getAccountStore().getAccountBalanceTable().get(
+            Signum.getStores().getAccountStore().getAccountKeyFactory().newKey(0L)).getBalanceNQT();
     response.addProperty("totalMinedNQT", totalMined);
     response.addProperty("totalBurntNQT", totalBurnt);
     response.addProperty("circulatingSupplyNQT", totalMined - totalBurnt);
@@ -107,10 +107,10 @@ public final class GetState extends ApiServlet.JsonRequestHandler {
 
     response.addProperty("numberOfPeers", Peers.getAllPeers().size());
     response.addProperty("numberOfUnlockedAccounts", generator.getAllGenerators().size());
-    Peer lastBlockchainFeeder = Burst.getBlockchainProcessor().getLastBlockchainFeeder();
+    Peer lastBlockchainFeeder = Signum.getBlockchainProcessor().getLastBlockchainFeeder();
     response.addProperty("lastBlockchainFeeder", lastBlockchainFeeder == null ? null : lastBlockchainFeeder.getAnnouncedAddress());
-    response.addProperty("lastBlockchainFeederHeight", Burst.getBlockchainProcessor().getLastBlockchainFeederHeight());
-    response.addProperty("isScanning", Burst.getBlockchainProcessor().isScanning());
+    response.addProperty("lastBlockchainFeederHeight", Signum.getBlockchainProcessor().getLastBlockchainFeederHeight());
+    response.addProperty("isScanning", Signum.getBlockchainProcessor().isScanning());
     response.addProperty("availableProcessors", Runtime.getRuntime().availableProcessors());
     response.addProperty("maxMemory", Runtime.getRuntime().maxMemory());
     response.addProperty("totalMemory", Runtime.getRuntime().totalMemory());

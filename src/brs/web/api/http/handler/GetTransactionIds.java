@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.ParameterService;
 import brs.util.Convert;
 
@@ -30,7 +30,7 @@ public final class GetTransactionIds extends ApiServlet.JsonRequestHandler {
   }
 
   @Override
-  public JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  public JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Long senderId = null, recipientId = null;
     String senderParameter = Convert.emptyToNull(req.getParameter(SENDER_PARAMETER));

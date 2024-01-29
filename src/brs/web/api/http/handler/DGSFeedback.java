@@ -28,7 +28,7 @@ public final class DGSFeedback extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     DigitalGoodsStore.Purchase purchase = parameterService.getPurchase(req);
     Account buyerAccount = parameterService.getSenderAccount(req);
 

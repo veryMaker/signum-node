@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class DGSDelistingTest extends AbstractTransactionTest {
 
   private DGSDelisting t;
@@ -45,7 +45,7 @@ public class DGSDelistingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);
@@ -58,9 +58,9 @@ public class DGSDelistingTest extends AbstractTransactionTest {
     when(mockParameterService.getSenderAccount(eq(req))).thenReturn(mockAccount);
     when(mockParameterService.getGoods(eq(req))).thenReturn(mockGoods);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.DigitalGoodsDelisting attachment = (Attachment.DigitalGoodsDelisting) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
@@ -71,7 +71,7 @@ public class DGSDelistingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsDelistedUnknownGoods() throws BurstException {
+  public void processRequest_goodsDelistedUnknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);
@@ -86,7 +86,7 @@ public class DGSDelistingTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_otherSellerIdUnknownGoods() throws BurstException {
+  public void processRequest_otherSellerIdUnknownGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockAccount = mock(Account.class);

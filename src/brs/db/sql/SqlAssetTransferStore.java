@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.AssetTransfer;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.store.AssetTransferStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AssetTransferRecord;
@@ -15,10 +15,10 @@ import static brs.schema.Tables.ASSET_TRANSFER;
 
 public class SqlAssetTransferStore implements AssetTransferStore {
 
-  private static final BurstKey.LinkKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LinkKeyFactory<AssetTransfer>("asset_transfer.id", "asset_transfer.asset_id") {
+  private static final SignumKey.LinkKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LinkKeyFactory<AssetTransfer>("asset_transfer.id", "asset_transfer.asset_id") {
 
       @Override
-      public BurstKey newKey(AssetTransfer assetTransfer) {
+      public SignumKey newKey(AssetTransfer assetTransfer) {
         return assetTransfer.getDbKey();
       }
     };
@@ -59,7 +59,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
   }
 
   @Override
-  public BurstKey.LinkKeyFactory<AssetTransfer> getTransferDbKeyFactory() {
+  public SignumKey.LinkKeyFactory<AssetTransfer> getTransferDbKeyFactory() {
     return transferDbKeyFactory;
   }
   @Override

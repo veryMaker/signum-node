@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.Burst;
+import brs.Signum;
 import brs.util.Convert;
 import brs.web.api.http.ApiServlet;
 import brs.web.api.http.common.LegacyDocTag;
@@ -44,7 +44,7 @@ public final class GetATMapValue extends ApiServlet.JsonRequestHandler {
     long k1 = Convert.parseUnsignedLong(key1);
     long k2 = Convert.parseUnsignedLong(key2);
 
-    String value = Convert.toUnsignedLong(Burst.getStores().getAtStore().getMapValue(atId, k1, k2));
+    String value = Convert.toUnsignedLong(Signum.getStores().getAtStore().getMapValue(atId, k1, k2));
 
     JsonObject response = new JsonObject();
     response.addProperty(VALUE_RESPONSE, value);

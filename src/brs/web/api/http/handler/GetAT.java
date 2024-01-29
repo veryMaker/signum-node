@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Attachment;
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.at.AT;
 import brs.at.AtApiHelper;
@@ -32,7 +32,7 @@ public final class GetAT extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     boolean includeDetails = !("false".equalsIgnoreCase(req.getParameter(INCLUDE_DETAILS_PARAMETER)));
 
     AT at = parameterService.getAT(req);

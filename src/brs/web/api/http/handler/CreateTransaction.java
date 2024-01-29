@@ -2,8 +2,8 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Attachment;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.fluxcapacitor.FluxValues;
 import brs.web.api.http.ApiServlet;
 import brs.web.api.http.common.APITransactionManager;
@@ -44,16 +44,16 @@ public abstract class CreateTransaction extends ApiServlet.JsonRequestHandler {
   }
 
   public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Attachment attachment)
-    throws BurstException {
+    throws SignumException {
     return createTransaction(req, senderAccount, null, 0, attachment);
   }
 
   public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT)
-    throws BurstException {
+    throws SignumException {
     return createTransaction(req, senderAccount, recipientId, amountNQT, Attachment.ORDINARY_PAYMENT);
   }
 
-  public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT, Attachment attachment) throws BurstException {
+  public final JsonElement createTransaction(HttpServletRequest req, Account senderAccount, Long recipientId, long amountNQT, Attachment attachment) throws SignumException {
     return apiTransactionManager.createTransaction(req, senderAccount, recipientId, amountNQT, attachment, minimumFeeNQT());
   }
 
@@ -62,7 +62,7 @@ public abstract class CreateTransaction extends ApiServlet.JsonRequestHandler {
   }
 
   private long minimumFeeNQT() {
-    return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
+    return Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
   }
 
 }

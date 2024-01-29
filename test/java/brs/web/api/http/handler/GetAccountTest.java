@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Account.AccountAsset;
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Generator;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -46,7 +46,7 @@ public class GetAccountTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long mockAccountId = 123L;
     final String mockAccountName = "accountName";
     final String mockAccountDescription = "accountDescription";

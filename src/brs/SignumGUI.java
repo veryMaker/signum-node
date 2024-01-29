@@ -51,7 +51,7 @@ import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
 @SuppressWarnings("serial")
-public class BurstGUI extends JFrame {
+public class SignumGUI extends JFrame {
     private static final String FAILED_TO_START_MESSAGE = "Signum caught exception while starting";
     private static final String UNEXPECTED_EXIT_MESSAGE = "Signum Quit unexpectedly! Exit code ";
 
@@ -59,7 +59,7 @@ public class BurstGUI extends JFrame {
 
     private static final int OUTPUT_MAX_LINES = 500;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BurstGUI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SignumGUI.class);
     private static String []args;
 
     private boolean userClosed = false;
@@ -74,12 +74,12 @@ public class BurstGUI extends JFrame {
     Color iconColor = Color.BLACK;
 
     public static void main(String []args) {
-        new BurstGUI("Signum Node", Props.ICON_LOCATION.getDefaultValue(), Burst.VERSION.toString(), args);
+        new SignumGUI("Signum Node", Props.ICON_LOCATION.getDefaultValue(), Signum.VERSION.toString(), args);
     }
 
-    public BurstGUI(String programName, String iconLocation, String version, String []args) {
-        System.setSecurityManager(new BurstGUISecurityManager());
-        BurstGUI.args = args;
+    public SignumGUI(String programName, String iconLocation, String version, String []args) {
+        System.setSecurityManager(new SignaGUISecurityManager());
+        SignumGUI.args = args;
         this.programName = programName;
         this.version = version;
         setTitle(programName + " " + version);
@@ -169,7 +169,7 @@ public class BurstGUI extends JFrame {
         	@Override
         	public void windowClosing(WindowEvent e) {
         		if(trayIcon == null) {
-        			if (JOptionPane.showConfirmDialog(BurstGUI.this,
+        			if (JOptionPane.showConfirmDialog(SignumGUI.this,
         					"This will stop the node. Are you sure?", "Exit and stop node",
         					JOptionPane.YES_NO_OPTION,
         					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
@@ -186,7 +186,7 @@ public class BurstGUI extends JFrame {
         showWindow();
         new Timer(5000, e -> {
         	try {
-        		Blockchain blockChain = Burst.getBlockchain();
+        		Blockchain blockChain = Signum.getBlockchain();
         		if(blockChain != null) {
         			Block block = blockChain.getLastBlock();
         			if(block != null) {
@@ -195,7 +195,7 @@ public class BurstGUI extends JFrame {
         						" Timestamp: " + DATE_FORMAT.format(blockDate));
 
         				Date now = new Date();
-        			    long blockTime = Burst.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME);
+        			    long blockTime = Signum.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME);
 
         				int missingBlocks = (int) ((now.getTime() - blockDate.getTime())/(blockTime * 1000));
         				int prog = block.getHeight()*100/(block.getHeight() + missingBlocks);
@@ -217,7 +217,7 @@ public class BurstGUI extends JFrame {
         userClosed = true;
 
         new Thread(() -> {
-          Burst.shutdown(false);
+          Signum.shutdown(false);
 
           if (trayIcon != null && SystemTray.isSupported()) {
               SystemTray.getSystemTray().remove(trayIcon);
@@ -268,7 +268,7 @@ public class BurstGUI extends JFrame {
         }
     	toolBar.add(editConfButton);
     	toolBar.add(openApiButton);
-    	if(Burst.getPropertyService().getBoolean(Props.EXPERIMENTAL)) {
+    	if(Signum.getPropertyService().getBoolean(Props.EXPERIMENTAL)) {
           toolBar.add(popOff10Button);
           toolBar.add(popOff100Button);
 //          toolBar.add(popOffMaxButton);
@@ -286,13 +286,13 @@ public class BurstGUI extends JFrame {
     	getContentPane().validate();
 
     	try {
-        String newIconLocation = Burst.getPropertyService().getString(Props.ICON_LOCATION);
+        String newIconLocation = Signum.getPropertyService().getString(Props.ICON_LOCATION);
         if(!newIconLocation.equals(iconLocation)){
           // update the icon
           iconLocation = newIconLocation;
           setIconImage(ImageIO.read(getClass().getResourceAsStream(iconLocation)));
         }
-    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(BurstGUI.class.getResource(iconLocation)), "Signum Node", popupMenu);
+    		TrayIcon newTrayIcon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(SignumGUI.class.getResource(iconLocation)), "Signum Node", popupMenu);
     		newTrayIcon.setImage(newTrayIcon.getImage().getScaledInstance(newTrayIcon.getSize().width, -1, Image.SCALE_SMOOTH));
     		if(phoenixIndex.isFile() && phoenixIndex.exists()) {
     		  newTrayIcon.addActionListener(e -> openWebUi("/phoenix"));
@@ -316,21 +316,21 @@ public class BurstGUI extends JFrame {
 
     private void popOff(int blocks) {
     	LOGGER.info("Pop off requested, this can take a while...");
-    	int height = blocks > 0 ? Burst.getBlockchain().getLastBlock().getHeight() - blocks : Burst.getBlockchainProcessor().getMinRollbackHeight();
-    	new Thread(() -> Burst.getBlockchainProcessor().popOffTo(height)).start();
+    	int height = blocks > 0 ? Signum.getBlockchain().getLastBlock().getHeight() - blocks : Signum.getBlockchainProcessor().getMinRollbackHeight();
+    	new Thread(() -> Signum.getBlockchainProcessor().popOffTo(height)).start();
     }
 
     private void editConf() {
-    	File file = new File(Burst.CONF_FOLDER, Burst.PROPERTIES_NAME);
+    	File file = new File(Signum.CONF_FOLDER, Signum.PROPERTIES_NAME);
     	if(!file.exists()) {
-        	file = new File(Burst.CONF_FOLDER, Burst.DEFAULT_PROPERTIES_NAME);
+        	file = new File(Signum.CONF_FOLDER, Signum.DEFAULT_PROPERTIES_NAME);
         	if(!file.exists()) {
-        		file = new File(Burst.DEFAULT_PROPERTIES_NAME);
+        		file = new File(Signum.DEFAULT_PROPERTIES_NAME);
         	}
     	}
 
     	if(!file.exists()) {
-    		JOptionPane.showMessageDialog(this, "Could not find conf file: " + Burst.DEFAULT_PROPERTIES_NAME, "File not found", JOptionPane.ERROR_MESSAGE);
+    		JOptionPane.showMessageDialog(this, "Could not find conf file: " + Signum.DEFAULT_PROPERTIES_NAME, "File not found", JOptionPane.ERROR_MESSAGE);
     		return;
     	}
     	try {
@@ -342,7 +342,7 @@ public class BurstGUI extends JFrame {
 
     private void openWebUi(String path) {
         try {
-            PropertyService propertyService = Burst.getPropertyService();
+            PropertyService propertyService = Signum.getPropertyService();
             int port = propertyService.getInt(Props.API_PORT);
             String httpPrefix = propertyService.getBoolean(Props.API_SSL) ? "https://" : "http://";
             String address = httpPrefix + "localhost:" + port + path;
@@ -360,12 +360,12 @@ public class BurstGUI extends JFrame {
 
     private void runBrs() {
         try {
-            Burst.main(args);
+            Signum.main(args);
             try {
             	SwingUtilities.invokeLater(() -> showTrayIcon());
 
                 updateTitle();
-                if (Burst.getBlockchain() == null)
+                if (Signum.getBlockchain() == null)
                 	onBrsStopped();
             } catch (Exception t) {
                 LOGGER.error("Could not determine if running in testnet mode", t);
@@ -379,7 +379,7 @@ public class BurstGUI extends JFrame {
     }
 
     private void updateTitle() {
-        String networkName = Burst.getPropertyService().getString(Props.NETWORK_NAME);
+        String networkName = Signum.getPropertyService().getString(Props.NETWORK_NAME);
         SwingUtilities.invokeLater(() -> setTitle(
             this.programName + " [" + networkName + "] " + this.version)
             );
@@ -443,7 +443,7 @@ public class BurstGUI extends JFrame {
         }
     }
 
-    private class BurstGUISecurityManager extends SecurityManager {
+    private class SignaGUISecurityManager extends SecurityManager {
 
         @Override
         public void checkExit(int status) {

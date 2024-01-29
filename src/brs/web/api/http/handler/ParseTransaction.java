@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.services.ParameterService;
 import brs.services.TransactionService;
@@ -34,7 +34,7 @@ public final class ParseTransaction extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     String transactionBytes = Convert.emptyToNull(req.getParameter(TRANSACTION_BYTES_PARAMETER));
     String transactionJSON = Convert.emptyToNull(req.getParameter(TRANSACTION_JSON_PARAMETER));
@@ -42,7 +42,7 @@ public final class ParseTransaction extends ApiServlet.JsonRequestHandler {
     JsonObject response = JSONData.unconfirmedTransaction(transaction);
     try {
       transactionService.validate(transaction);
-    } catch (BurstException.ValidationException|RuntimeException e) {
+    } catch (SignumException.ValidationException|RuntimeException e) {
       logger.debug(e.getMessage(), e);
       response.addProperty(VALIDATE_RESPONSE, false);
       response.addProperty(ERROR_CODE_RESPONSE, 4);

@@ -7,8 +7,8 @@ import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Trade;
 import brs.Transaction;
 import brs.common.AbstractUnitTest;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetStore;
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
   public void getAsset() {
     final long assetId = 123l;
     final Asset mockAsset = mock(Asset.class);
-    final BurstKey assetKeyMock = mock(BurstKey.class);
+    final SignumKey assetKeyMock = mock(SignumKey.class);
 
     when(assetDbKeyFactoryMock.newKey(eq(assetId))).thenReturn(assetKeyMock);
     when(assetTableMock.get(eq(assetKeyMock))).thenReturn(mockAsset);
@@ -134,7 +134,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
 
   @Test
   public void addAsset() {
-    final BurstKey assetKey = mock(BurstKey.class);
+    final SignumKey assetKey = mock(SignumKey.class);
 
     long transactionId = 123L;
 

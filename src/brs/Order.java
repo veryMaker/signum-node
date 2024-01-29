@@ -2,7 +2,7 @@ package brs;
 
 import java.util.Collection;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.util.Convert;
 
 public abstract class Order {
@@ -69,14 +69,14 @@ public abstract class Order {
 
   public static class Ask extends Order {
 
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
 
-    public Ask(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsAskOrderPlacement attachment) {
+    public Ask(SignumKey dbKey, Transaction transaction, Attachment.ColoredCoinsAskOrderPlacement attachment) {
       super(transaction, attachment);
       this.dbKey = dbKey;
     }
 
-    protected Ask(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
+    protected Ask(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, SignumKey dbKey) {
       super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT);
       this.dbKey = dbKey;
     }
@@ -85,14 +85,14 @@ public abstract class Order {
 
   public static class Bid extends Order {
 
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
 
-    public Bid(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsBidOrderPlacement attachment) {
+    public Bid(SignumKey dbKey, Transaction transaction, Attachment.ColoredCoinsBidOrderPlacement attachment) {
       super(transaction, attachment);
       this.dbKey = dbKey;
     }
 
-    protected Bid(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
+    protected Bid(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, SignumKey dbKey) {
       super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT);
       this.dbKey = dbKey;
     }

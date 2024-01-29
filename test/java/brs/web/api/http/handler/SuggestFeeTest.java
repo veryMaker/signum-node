@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.common.QuickMocker;
 import brs.feesuggestions.FeeSuggestion;
 import brs.feesuggestions.FeeSuggestionCalculator;
@@ -31,7 +31,7 @@ public class SuggestFeeTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final long cheap = 1 * FEE_QUANT_SIP3;

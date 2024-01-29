@@ -1,6 +1,6 @@
 package chain;
 
-import brs.Burst;
+import brs.Signum;
 import signumj.Constants;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
@@ -31,7 +31,7 @@ public class ChainUtils {
         
         // a mock node with memory DB
         String[] args = {"-l", "-c", "conf/junit"};
-        Burst.main(args);
+        Signum.main(args);
 
         crypto = SignumCrypto.getInstance();
         nodeService = new HttpNodeService(Constants.HTTP_NODE_LOCAL_TESTNET, "mock-node-testing");

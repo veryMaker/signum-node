@@ -3,8 +3,8 @@ package brs.services.impl;
 import brs.*;
 import brs.Escrow.Decision;
 import brs.Escrow.DecisionType;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.sql.DbKey.LinkKeyFactory;
 import brs.db.store.EscrowStore;
@@ -60,7 +60,7 @@ public class EscrowServiceImpl implements EscrowService {
 
   @Override
   public boolean isEnabled() {
-    if(blockchain.getLastBlock().getHeight() >= Constants.BURST_ESCROW_START_BLOCK) {
+    if(blockchain.getLastBlock().getHeight() >= Constants.SIGNUM_ESCROW_START_BLOCK) {
       return true;
     }
 
@@ -81,17 +81,17 @@ public class EscrowServiceImpl implements EscrowService {
 
   @Override
   public void addEscrowTransaction(Account sender, Account recipient, Long id, Long amountNQT, int requiredSigners, Collection<Long> signers, int deadline, DecisionType deadlineAction) {
-    final BurstKey dbKey = escrowDbKeyFactory.newKey(id);
+    final SignumKey dbKey = escrowDbKeyFactory.newKey(id);
     Escrow newEscrowTransaction = new Escrow(dbKey, sender, recipient, id, amountNQT, requiredSigners, deadline, deadlineAction);
     escrowTable.insert(newEscrowTransaction);
-    BurstKey senderDbKey = decisionDbKeyFactory.newKey(id, sender.getId());
+    SignumKey senderDbKey = decisionDbKeyFactory.newKey(id, sender.getId());
     Decision senderDecision = new Decision(senderDbKey, id, sender.getId(), DecisionType.UNDECIDED);
     decisionTable.insert(senderDecision);
-    BurstKey recipientDbKey = decisionDbKeyFactory.newKey(id, recipient.getId());
+    SignumKey recipientDbKey = decisionDbKeyFactory.newKey(id, recipient.getId());
     Decision recipientDecision = new Decision(recipientDbKey, id, recipient.getId(), DecisionType.UNDECIDED);
     decisionTable.insert(recipientDecision);
     for(Long signer : signers) {
-      BurstKey signerDbKey = decisionDbKeyFactory.newKey(id, signer);
+      SignumKey signerDbKey = decisionDbKeyFactory.newKey(id, signer);
       Decision decision = new Decision(signerDbKey, id, signer, DecisionType.UNDECIDED);
       decisionTable.insert(decision);
     }
@@ -133,7 +133,7 @@ public class EscrowServiceImpl implements EscrowService {
     int countRefund = 0;
     int countSplit = 0;
 
-    for (Decision decision : Burst.getStores().getEscrowStore().getDecisions(escrow.getId())) {
+    for (Decision decision : Signum.getStores().getEscrowStore().getDecisions(escrow.getId())) {
       if(decision.getAccountId().equals(escrow.getSenderId()) ||
           decision.getAccountId().equals(escrow.getRecipientId())) {
         continue;
@@ -193,7 +193,7 @@ public class EscrowServiceImpl implements EscrowService {
         }
       }
       if (!resultTransactions.isEmpty()) {
-        Burst.getDbs().getTransactionDb().saveTransactions( resultTransactions);
+        Signum.getDbs().getTransactionDb().saveTransactions( resultTransactions);
       }
       updatedEscrowIds.clear();
     }
@@ -244,11 +244,11 @@ public class EscrowServiceImpl implements EscrowService {
     try {
       transaction = builder.build();
     }
-    catch(BurstException.NotValidException e) {
+    catch(SignumException.NotValidException e) {
       throw new RuntimeException(e.toString(), e);
     }
 
-    if(!Burst.getDbs().getTransactionDb().hasTransaction(transaction.getId())) {
+    if(!Signum.getDbs().getTransactionDb().hasTransaction(transaction.getId())) {
       resultTransactions.add(transaction);
     }
   }

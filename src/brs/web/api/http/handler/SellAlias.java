@@ -26,7 +26,7 @@ public final class SellAlias extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     Alias alias = parameterService.getAlias(req);
     Account owner = parameterService.getSenderAccount(req);
 

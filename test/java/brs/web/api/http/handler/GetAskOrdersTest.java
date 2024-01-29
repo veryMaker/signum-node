@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Order;
 import brs.Order.Ask;
 import brs.assetexchange.AssetExchange;
@@ -45,7 +45,7 @@ public class GetAskOrdersTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long assetIndex = 5;
     final int firstIndex = 1;
     final int lastIndex = 3;

@@ -2,7 +2,7 @@ package brs;
 
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.util.Convert;
 
@@ -17,7 +17,7 @@ public class Account {
   private static final Logger logger = Logger.getLogger(Account.class.getSimpleName());
 
   public final long id;
-  public final BurstKey nxtKey;
+  public final SignumKey nxtKey;
   private final int creationHeight;
   private byte[] publicKey;
   private int keyHeight;
@@ -28,7 +28,7 @@ public class Account {
 
   public static class Balance {
     public final long id;
-    public final BurstKey nxtKey;
+    public final SignumKey nxtKey;
 
     protected long balanceNQT;
     protected long unconfirmedBalanceNQT;
@@ -36,7 +36,7 @@ public class Account {
 
     public Balance(long id) {
       this.id = id;
-      this.nxtKey = accountBurstKeyFactory().newKey(this.id);
+      this.nxtKey = accountSignumKeyFactory().newKey(this.id);
     }
 
     public void setForgedBalanceNQT(long forgedBalanceNQT) {
@@ -106,24 +106,24 @@ public class Account {
   public static class AccountAsset {
     public final long accountId;
     public final long assetId;
-    public final BurstKey burstKey;
+    public final SignumKey signumKey;
     private long quantityQNT;
     private long unconfirmedQuantityQNT;
     private boolean isTreasury;
 
-    protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, BurstKey burstKey) {
+    protected AccountAsset(long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT, SignumKey signumKey) {
       this.accountId = accountId;
       this.assetId = assetId;
       this.quantityQNT = quantityQNT;
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
-      this.burstKey = burstKey;
+      this.signumKey = signumKey;
       this.isTreasury = false;
     }
 
-    public AccountAsset(BurstKey burstKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
+    public AccountAsset(SignumKey signumKey, long accountId, long assetId, long quantityQNT, long unconfirmedQuantityQNT) {
       this.accountId = accountId;
       this.assetId = assetId;
-      this.burstKey = burstKey;
+      this.signumKey = signumKey;
       this.quantityQNT = quantityQNT;
       this.unconfirmedQuantityQNT = unconfirmedQuantityQNT;
       this.isTreasury = false;
@@ -184,14 +184,14 @@ public class Account {
     private Long prevRecipientId;
     private Long recipientId;
     private int fromHeight;
-    public final BurstKey burstKey;
+    public final SignumKey signumKey;
 
-    public RewardRecipientAssignment(Long accountId, Long prevRecipientId, Long recipientId, int fromHeight, BurstKey burstKey) {
+    public RewardRecipientAssignment(Long accountId, Long prevRecipientId, Long recipientId, int fromHeight, SignumKey signumKey) {
       this.accountId = accountId;
       this.prevRecipientId = prevRecipientId;
       this.recipientId = recipientId;
       this.fromHeight = fromHeight;
-      this.burstKey = burstKey;
+      this.signumKey = signumKey;
     }
 
     public long getAccountId() {
@@ -224,32 +224,32 @@ public class Account {
 
   }
 
-  private static BurstKey.LongKeyFactory<Account> accountBurstKeyFactory() {
-    return Burst.getStores().getAccountStore().getAccountKeyFactory();
+  private static SignumKey.LongKeyFactory<Account> accountSignumKeyFactory() {
+    return Signum.getStores().getAccountStore().getAccountKeyFactory();
   }
 
-  private static BurstKey.LongKeyFactory<Account.Balance> accountBalanceBurstKeyFactory() {
-    return Burst.getStores().getAccountStore().getAccountBalanceKeyFactory();
+  private static SignumKey.LongKeyFactory<Account.Balance> accountBalanceSignumKeyFactory() {
+    return Signum.getStores().getAccountStore().getAccountBalanceKeyFactory();
   }
 
   private static VersionedBatchEntityTable<Account> accountTable() {
-    return Burst.getStores().getAccountStore().getAccountTable();
+    return Signum.getStores().getAccountStore().getAccountTable();
   }
 
   private static VersionedBatchEntityTable<Account.Balance> accountBalanceTable() {
-    return Burst.getStores().getAccountStore().getAccountBalanceTable();
+    return Signum.getStores().getAccountStore().getAccountBalanceTable();
   }
 
   public static Account getAccount(long id) {
-    return id == 0 ? null : accountTable().get(accountBurstKeyFactory().newKey(id));
+    return id == 0 ? null : accountTable().get(accountSignumKeyFactory().newKey(id));
   }
 
   public static Account.Balance getAccountBalance(long id) {
-    return id == 0 ? null : accountBalanceTable().get(accountBalanceBurstKeyFactory().newKey(id));
+    return id == 0 ? null : accountBalanceTable().get(accountBalanceSignumKeyFactory().newKey(id));
   }
 
   public static Account.AccountAsset getAccountAssetBalance(long id, long assetId) {
-    return Burst.getStores().getAccountStore().getAccountAsset(id, assetId);
+    return Signum.getStores().getAccountStore().getAccountAsset(id, assetId);
   }
 
   public static long getId(byte[] publicKey) {
@@ -271,16 +271,16 @@ public class Account {
       logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id);
     }
     this.id = id;
-    this.nxtKey = accountBurstKeyFactory().newKey(this.id);
-    this.creationHeight = Burst.getBlockchain().getHeight();
+    this.nxtKey = accountSignumKeyFactory().newKey(this.id);
+    this.creationHeight = Signum.getBlockchain().getHeight();
   }
 
-  protected Account(long id, BurstKey burstKey, int creationHeight) {
+  protected Account(long id, SignumKey signumKey, int creationHeight) {
     if (id != Crypto.rsDecode(Crypto.rsEncode(id))) {
       logger.log(Level.INFO, "CRITICAL ERROR: Reed-Solomon encoding fails for {0}", id);
     }
     this.id = id;
-    this.nxtKey = burstKey;
+    this.nxtKey = signumKey;
     this.creationHeight = creationHeight;
   }
 
@@ -353,7 +353,7 @@ public class Account {
   // or
   // this.publicKey is already set to an array equal to key
   public boolean setOrVerify(byte[] key, int height) {
-    return Burst.getStores().getAccountStore().setOrVerify(this, key, height);
+    return Signum.getStores().getAccountStore().setOrVerify(this, key, height);
   }
 
   public void apply(byte[] key, int height) {

@@ -35,7 +35,7 @@ public final class SetAlias extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));
     String aliasURI = Convert.nullToEmpty(req.getParameter(ALIAS_URI_PARAMETER));
     String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
@@ -50,7 +50,7 @@ public final class SetAlias extends CreateTransaction {
       return INCORRECT_ALIAS_LENGTH;
     }
 
-    if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
+    if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       if (!TextUtils.isInAlphabetOrUnderline(aliasName)) {
         return INCORRECT_ALIAS_NAME;
       }

@@ -32,8 +32,8 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   private final Logger logger = LoggerFactory.getLogger(SqlBlockchainStore.class);
 
-  private final TransactionDb transactionDb = Burst.getDbs().getTransactionDb();
-  private final BlockDb blockDb = Burst.getDbs().getBlockDb();
+  private final TransactionDb transactionDb = Signum.getDbs().getTransactionDb();
+  private final BlockDb blockDb = Signum.getDbs().getBlockDb();
 
   public SqlBlockchainStore() {
   }
@@ -41,7 +41,7 @@ public class SqlBlockchainStore implements BlockchainStore {
   @Override
   public Collection<Block> getBlocks(int from, int to) {
     return Db.useDSLContext(ctx -> {
-      int blockchainHeight = Burst.getBlockchain().getHeight();
+      int blockchainHeight = Signum.getBlockchain().getHeight();
       return
         getBlocks(ctx.selectFrom(BLOCK)
           .where(BLOCK.HEIGHT.between(blockchainHeight - Math.max(to, 0)).and(blockchainHeight - Math.max(from, 0)))
@@ -82,7 +82,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     return blockRecords.map(blockRecord -> {
       try {
         return blockDb.loadBlock(blockRecord);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException(e);
       }
     });
@@ -117,7 +117,7 @@ public class SqlBlockchainStore implements BlockchainStore {
         .fetch(result -> {
           try {
             return blockDb.loadBlock(result);
-          } catch (BurstException.ValidationException e) {
+          } catch (SignumException.ValidationException e) {
             throw new RuntimeException(e.toString(), e);
           }
         });
@@ -198,9 +198,9 @@ public class SqlBlockchainStore implements BlockchainStore {
   }
 
   private static int getHeightForNumberOfConfirmations(int numberOfConfirmations) {
-    int height = numberOfConfirmations > 0 ? Burst.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
+    int height = numberOfConfirmations > 0 ? Signum.getBlockchain().getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
     if (height < 0) {
-      throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Burst.getBlockchain().getHeight());
+      throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations + " exceeds current blockchain height " + Signum.getBlockchain().getHeight());
     }
     return height;
   }
@@ -334,7 +334,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       ArrayList<Condition> conditions = new ArrayList<>();
 
       // must be confirmed already
-      int height = Burst.getBlockchain().getHeight() - numberOfConfirmations;
+      int height = Signum.getBlockchain().getHeight() - numberOfConfirmations;
       conditions.add(TRANSACTION.HEIGHT.le(height));
       if (type >= 0) {
         conditions.add(TRANSACTION.TYPE.eq(type));
@@ -364,7 +364,7 @@ public class SqlBlockchainStore implements BlockchainStore {
     return rs.map(r -> {
       try {
         return transactionDb.loadTransaction(r);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException(e);
       }
     });
@@ -393,20 +393,20 @@ public class SqlBlockchainStore implements BlockchainStore {
 
   @Override
   public long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction) {
-    int commitmentWait = Burst.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
+    int commitmentWait = Signum.getFluxCapacitor().getValue(FluxValues.COMMITMENT_WAIT, height);
     int commitmentHeight = Math.min(height - commitmentWait, endHeight);
 
     Collection<byte[]> commitmmentAddBytes = Db.useDSLContext(ctx -> {
-      SelectConditionStep<Record1<byte[]>> select = ctx.select(TRANSACTION.ATTACHMENT_BYTES).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
-        .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_ADD))
+      SelectConditionStep<Record1<byte[]>> select = ctx.select(TRANSACTION.ATTACHMENT_BYTES).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_SIGNA_MINING.getType()))
+        .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_SIGNA_MINING_COMMITMENT_ADD))
         .and(TRANSACTION.HEIGHT.le(commitmentHeight));
       if (accountId != 0L)
         select = select.and(TRANSACTION.SENDER_ID.equal(accountId));
       return select.fetch().getValues(TRANSACTION.ATTACHMENT_BYTES);
     });
     Collection<byte[]> commitmmentRemoveBytes = Db.useDSLContext(ctx -> {
-      SelectConditionStep<Record1<byte[]>> select = ctx.select(TRANSACTION.ATTACHMENT_BYTES).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_BURST_MINING.getType()))
-        .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_BURST_MINING_COMMITMENT_REMOVE))
+      SelectConditionStep<Record1<byte[]>> select = ctx.select(TRANSACTION.ATTACHMENT_BYTES).from(TRANSACTION).where(TRANSACTION.TYPE.eq(TransactionType.TYPE_SIGNA_MINING.getType()))
+        .and(TRANSACTION.SUBTYPE.eq(TransactionType.SUBTYPE_SIGNA_MINING_COMMITMENT_REMOVE))
         .and(TRANSACTION.HEIGHT.le(endHeight));
       if (accountId != 0L)
         select = select.and(TRANSACTION.SENDER_ID.equal(accountId));
@@ -420,7 +420,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       try {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        CommitmentAdd txAttachment = (CommitmentAdd) TransactionType.BurstMining.COMMITMENT_ADD.parseAttachment(buffer, (byte) 1);
+        CommitmentAdd txAttachment = (CommitmentAdd) TransactionType.SignaMining.COMMITMENT_ADD.parseAttachment(buffer, (byte) 1);
         amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
       } catch (Exception e) {
         logger.error(e.getMessage());
@@ -430,7 +430,7 @@ public class SqlBlockchainStore implements BlockchainStore {
       try {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        CommitmentRemove txAttachment = (CommitmentRemove) TransactionType.BurstMining.COMMITMENT_REMOVE.parseAttachment(buffer, (byte) 1);
+        CommitmentRemove txAttachment = (CommitmentRemove) TransactionType.SignaMining.COMMITMENT_REMOVE.parseAttachment(buffer, (byte) 1);
         amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
       } catch (Exception e) {
         logger.error(e.getMessage());

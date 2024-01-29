@@ -1,6 +1,6 @@
 package brs.db;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.schema.tables.records.TransactionRecord;
 
@@ -15,7 +15,7 @@ public interface TransactionDb extends Table {
 
   boolean hasTransactionByFullHash(String fullHash); // TODO add byte[] method
 
-  Transaction loadTransaction(TransactionRecord transactionRecord) throws BurstException.ValidationException;
+  Transaction loadTransaction(TransactionRecord transactionRecord) throws SignumException.ValidationException;
 
   List<Transaction> findBlockTransactions(long blockId, boolean onlySigned);
 

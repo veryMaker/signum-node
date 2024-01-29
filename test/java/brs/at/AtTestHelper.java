@@ -2,10 +2,10 @@ package brs.at;
 
 import brs.Account;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.common.QuickMocker;
 import brs.common.TestConstants;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
@@ -55,10 +55,10 @@ public class AtTestHelper {
         ATStore mockAtStore = mock(ATStore.class);
         FluxCapacitor mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor();
         //noinspection unchecked
-        BurstKey.LongKeyFactory<AT> atLongKeyFactory = mock(BurstKey.LongKeyFactory.class);
+        SignumKey.LongKeyFactory<AT> atLongKeyFactory = mock(SignumKey.LongKeyFactory.class);
         //noinspection unchecked
-        BurstKey.LongKeyFactory<AT.ATState> atStateLongKeyFactory = mock(BurstKey.LongKeyFactory.class);
-        mockStatic(Burst.class);
+        SignumKey.LongKeyFactory<AT.ATState> atStateLongKeyFactory = mock(SignumKey.LongKeyFactory.class);
+        mockStatic(Signum.class);
         Blockchain mockBlockchain = mock(Blockchain.class);
         PropertyService mockPropertyService = mock(PropertyService.class);
         //noinspection unchecked
@@ -69,7 +69,7 @@ public class AtTestHelper {
         VersionedEntityTable<AT.ATState> mockAtStateTable = mock(VersionedEntityTable.class);
         AccountStore mockAccountStore = mock(AccountStore.class);
         //noinspection unchecked
-        BurstKey.LongKeyFactory<Account> mockAccountKeyFactory = mock(BurstKey.LongKeyFactory.class);
+        SignumKey.LongKeyFactory<Account> mockAccountKeyFactory = mock(SignumKey.LongKeyFactory.class);
         Account mockAccount = mock(Account.class);
         Account.Balance mockAccountBalance = mock(Account.Balance.class);
         mockStatic(Account.class);
@@ -82,8 +82,8 @@ public class AtTestHelper {
             }
             return null;
         }).when(mockAtTable).insert(ArgumentMatchers.any());
-        when(mockAccount.getBalanceNQT()).thenReturn(TestConstants.TEN_BURST);
-        when(mockAccountBalance.getBalanceNQT()).thenReturn(TestConstants.TEN_BURST);
+        when(mockAccount.getBalanceNQT()).thenReturn(TestConstants.TEN_SIGNA);
+        when(mockAccountBalance.getBalanceNQT()).thenReturn(TestConstants.TEN_SIGNA);
         when(mockAccountStore.getAccountTable()).thenReturn(mockAccountTable);
         when(mockAccountStore.setOrVerify(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
                 .thenReturn(true);
@@ -120,14 +120,14 @@ public class AtTestHelper {
         when(mockAtStore.getAtStateTable()).thenReturn(mockAtStateTable);
         when(mockPropertyService.getBoolean(ArgumentMatchers.eq(Props.ENABLE_AT_DEBUG_LOG))).thenReturn(true);
         when(mockAtStore.getAtTable()).thenReturn(mockAtTable);
-        when(Burst.getPropertyService()).thenReturn(mockPropertyService);
-        when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+        when(Signum.getPropertyService()).thenReturn(mockPropertyService);
+        when(Signum.getBlockchain()).thenReturn(mockBlockchain);
         when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
         when(mockAtStore.getAtDbKeyFactory()).thenReturn(atLongKeyFactory);
         when(mockAtStore.getAtStateDbKeyFactory()).thenReturn(atStateLongKeyFactory);
         when(mockStores.getAtStore()).thenReturn(mockAtStore);
-        when(Burst.getStores()).thenReturn(mockStores);
-        when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+        when(Signum.getStores()).thenReturn(mockStores);
+        when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
     }
 
     static void clearAddedAts() {
@@ -154,7 +154,7 @@ public class AtTestHelper {
         short dpages = 1;
         short cspages = 1;
         short uspages = 1;
-        long minActivationAmount = TestConstants.TEN_BURST;
+        long minActivationAmount = TestConstants.TEN_SIGNA;
         byte[] data = new byte[0];
         int creationLength = 4; // version + reserved
         creationLength += 8; // pages

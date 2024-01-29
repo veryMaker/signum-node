@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Trade;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.TradeStore;
 import brs.schema.tables.records.TradeRecord;
@@ -18,7 +18,7 @@ public class SqlTradeStore implements TradeStore {
   private final DbKey.LinkKeyFactory<Trade> tradeDbKeyFactory = new DbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
 
       @Override
-      public BurstKey newKey(Trade trade) {
+      public SignumKey newKey(Trade trade) {
         return trade.dbKey;
       }
 

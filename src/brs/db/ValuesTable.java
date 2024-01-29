@@ -3,7 +3,7 @@ package brs.db;
 import java.util.List;
 
 public interface ValuesTable<T, V> extends DerivedTable {
-  List<V> get(BurstKey dbKey);
+  List<V> get(SignumKey dbKey);
 
   void insert(T t, List<V> values);
 

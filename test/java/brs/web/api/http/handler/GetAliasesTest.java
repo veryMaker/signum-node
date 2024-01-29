@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Alias;
 import brs.Alias.Offer;
-import brs.BurstException;
+import brs.SignumException;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
 import brs.services.AliasService;
@@ -41,7 +41,7 @@ public class GetAliasesTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long accountId = 123L;
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 

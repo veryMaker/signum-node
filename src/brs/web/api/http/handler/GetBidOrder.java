@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.web.api.http.ApiServlet;
@@ -26,7 +26,7 @@ public final class GetBidOrder extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     long orderId = ParameterParser.getOrderId(req);
     Order.Bid bidOrder = assetExchange.getBidOrder(orderId);
 

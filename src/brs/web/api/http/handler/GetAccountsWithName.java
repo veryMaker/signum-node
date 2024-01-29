@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.AccountService;
 import brs.util.Convert;
 import brs.web.api.http.ApiServlet;
@@ -27,7 +27,7 @@ public class GetAccountsWithName extends ApiServlet.JsonRequestHandler {
 
     @Override
     protected
-    JsonElement processRequest(HttpServletRequest request) throws BurstException {
+    JsonElement processRequest(HttpServletRequest request) throws SignumException {
         Collection<Account> accounts = accountService.getAccountsWithName(request.getParameter(NAME_PARAMETER));
         JsonArray accountIds = new JsonArray();
 

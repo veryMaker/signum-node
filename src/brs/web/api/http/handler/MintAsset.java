@@ -32,7 +32,7 @@ public final class MintAsset extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Asset asset = parameterService.getAsset(req);
     long quantityQNT = ParameterParser.getQuantityQNT(req);
@@ -41,14 +41,14 @@ public final class MintAsset extends CreateTransaction {
     if(asset.getMintable() == false) {
       return JSONResponses.incorrect("this asset is not mintable");
     }
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+    if(!Signum.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
       return JSONResponses.incorrect("minting assets is not enabled yet");
     }
     if(asset.getAccountId() != account.getId()) {
       return JSONResponses.incorrect("only the current asset owner can mint new coins");
     }
 
-    boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
+    boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX);
     long circulatingSupply = assetExchange.getAssetCirculatingSupply(asset, false, unconfirmed);
     long newSupply = circulatingSupply + quantityQNT;
     if (newSupply > Constants.MAX_ASSET_QUANTITY_QNT) {

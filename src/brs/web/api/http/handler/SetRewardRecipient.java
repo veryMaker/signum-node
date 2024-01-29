@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Attachment;
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.AccountService;
 import brs.services.ParameterService;
 import brs.web.api.http.common.APITransactionManager;
@@ -33,7 +33,7 @@ public final class SetRewardRecipient extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final Account account = parameterService.getSenderAccount(req);
     Long recipient = ParameterParser.getRecipientId(req);
     Account recipientAccount = accountService.getAccount(recipient);
@@ -43,7 +43,7 @@ public final class SetRewardRecipient extends CreateTransaction {
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "recipient account does not have public key");
       return response;
     }
-    Attachment attachment = new Attachment.BurstMiningRewardRecipientAssignment(blockchain.getHeight());
+    Attachment attachment = new Attachment.SignaMiningRewardRecipientAssignment(blockchain.getHeight());
     return createTransaction(req, account, recipient, 0, attachment);
   }
 

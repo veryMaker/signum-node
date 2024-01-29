@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Block;
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.ParameterParser;
 import brs.web.api.http.common.Parameters;
@@ -35,7 +35,7 @@ public final class GetAccountBlocks extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getAccount(req);
     int timestamp = ParameterParser.getTimestamp(req);

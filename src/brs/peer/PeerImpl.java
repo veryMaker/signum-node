@@ -135,16 +135,16 @@ final class PeerImpl implements Peer {
   }
 
   public boolean isAtLeastMyVersion() {
-    return isHigherOrEqualVersionThan(Burst.VERSION);
+    return isHigherOrEqualVersionThan(Signum.VERSION);
   }
   
   void setVersion(String version) {
     this.version.set(Version.EMPTY);
     isOldVersion.set(false);
-    if (Burst.getPropertyService().getString(Props.APPLICATION).equals(getApplication()) && version != null) {
+    if (Signum.getPropertyService().getString(Props.APPLICATION).equals(getApplication()) && version != null) {
       try {
         this.version.set(Version.parse(version));
-        isOldVersion.set(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION).isGreaterThan(this.version.get()));
+        isOldVersion.set(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION).isGreaterThan(this.version.get()));
       } catch (IllegalArgumentException e) {
         isOldVersion.set(true);
       }
@@ -232,7 +232,7 @@ final class PeerImpl implements Peer {
 
   @Override
   public void blacklist(Exception cause, String description) {
-    if (cause instanceof BurstException.NotCurrentlyValidException || cause instanceof BlockchainProcessor.BlockOutOfOrderException
+    if (cause instanceof SignumException.NotCurrentlyValidException || cause instanceof BlockchainProcessor.BlockOutOfOrderException
         || cause instanceof SQLException || cause.getCause() instanceof SQLException) {
       // don't blacklist peers just because a feature is not yet enabled, or because of database timeouts
       // prevents erroneous blacklisting during loading of blockchain from scratch
@@ -319,7 +319,7 @@ final class PeerImpl implements Peer {
       buf.append(address);
       if (port.get() <= 0) {
         buf.append(':');
-        buf.append(Burst.getPropertyService().getInt(Props.P2P_PORT));
+        buf.append(Signum.getPropertyService().getInt(Props.P2P_PORT));
       }
       buf.append("/burst");
       URL url = new URL(buf.toString());
@@ -335,7 +335,7 @@ final class PeerImpl implements Peer {
       connection.setDoOutput(true);
       connection.setConnectTimeout(Peers.connectTimeout);
       connection.setReadTimeout(Peers.readTimeout);
-      connection.addRequestProperty("User-Agent", "BRS/" + Burst.VERSION.toString());
+      connection.addRequestProperty("User-Agent", "BRS/" + Signum.VERSION.toString());
       connection.setRequestProperty("Accept-Encoding", "gzip");
       connection.setRequestProperty("Connection", "close");
 
@@ -439,7 +439,7 @@ final class PeerImpl implements Peer {
       String newAnnouncedAddress = Convert.emptyToNull(JSON.getAsString(response.get("announcedAddress")));
       int port = this.port.get();
       if(port < 0)
-        port = Burst.getPropertyService().getInt(Props.P2P_PORT);
+        port = Signum.getPropertyService().getInt(Props.P2P_PORT);
       if (newAnnouncedAddress != null && ! newAnnouncedAddress.equals(announcedAddress.get())
           && !newAnnouncedAddress.equals(announcedAddress.get() + ":" + port)) {
         // force verification of changed announced address

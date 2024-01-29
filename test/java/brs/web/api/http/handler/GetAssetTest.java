@@ -2,8 +2,8 @@ package brs.web.api.http.handler;
 
 import brs.Asset;
 import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class GetAssetTest extends AbstractUnitTest {
 
   private ParameterService parameterServiceMock;
@@ -45,17 +45,17 @@ public class GetAssetTest extends AbstractUnitTest {
     mockAccountService = mock(AccountService.class);
     FluxCapacitor mockFluxCapacitor = QuickMocker.latestValueFluxCapacitor();
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     Blockchain mockBlockchain = mock(Blockchain.class);
-    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(Signum.getBlockchain()).thenReturn(mockBlockchain);
     when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new GetAsset(parameterServiceMock, mockAssetExchange, mockAccountService);
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long assetId = 4;
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(

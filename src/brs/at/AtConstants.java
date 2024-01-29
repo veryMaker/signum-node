@@ -1,6 +1,6 @@
 package brs.at;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.fluxcapacitor.FluxValues;
 
@@ -99,7 +99,7 @@ public class AtConstants {
     }
 
     public short atVersion(int blockHeight) {
-        return Burst.getFluxCapacitor().getValue(FluxValues.AT_VERSION, blockHeight);
+        return Signum.getFluxCapacitor().getValue(FluxValues.AT_VERSION, blockHeight);
     }
 
     public long stepFee(short version) {
@@ -107,7 +107,7 @@ public class AtConstants {
     }
 
     public long maxSteps(int height) {
-        if(Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, height)) {
+        if(Signum.getFluxCapacitor().getValue(FluxValues.SIGNUM, height)) {
             return 1_000_000L;
         }
         return MAX_STEPS.get(atVersion(height));

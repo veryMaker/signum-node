@@ -34,7 +34,7 @@ public class GeneratorImpl implements Generator {
 
   private final Listeners<GeneratorState, Event> listeners = new Listeners<>();
   private final ConcurrentMap<Long, GeneratorStateImpl> generators = new ConcurrentHashMap<>();
-  private final SignumCrypto burstCrypto = SignumCrypto.getInstance();
+  private final SignumCrypto signumCrypto = SignumCrypto.getInstance();
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
   private final TimeService timeService;
@@ -120,12 +120,12 @@ public class GeneratorImpl implements Generator {
 
   @Override
   public byte[] calculateGenerationSignature(byte[] lastGenSig, long lastGenId) {
-    return burstCrypto.calculateGenerationSignature(lastGenSig, lastGenId);
+    return signumCrypto.calculateGenerationSignature(lastGenSig, lastGenId);
   }
 
   @Override
   public int calculateScoop(byte[] genSig, long height) {
-    return burstCrypto.calculateScoop(genSig, height);
+    return signumCrypto.calculateScoop(genSig, height);
   }
 
   private int getPocVersion(int blockHeight) {
@@ -134,12 +134,12 @@ public class GeneratorImpl implements Generator {
 
   @Override
   public BigInteger calculateHit(long accountId, long nonce, byte[] genSig, int scoop, int blockHeight) {
-    return burstCrypto.calculateHit(accountId, nonce, genSig, scoop, getPocVersion(blockHeight));
+    return signumCrypto.calculateHit(accountId, nonce, genSig, scoop, getPocVersion(blockHeight));
   }
 
   @Override
   public BigInteger calculateHit(byte[] genSig, byte[] scoopData) {
-    return burstCrypto.calculateHit(genSig, scoopData);
+    return signumCrypto.calculateHit(genSig, scoopData);
   }
 
   @Override
@@ -319,11 +319,11 @@ public class GeneratorImpl implements Generator {
       }
       for(Transaction tx : blockIt.getTransactions()) {
         if(tx.getSenderId() == generatorId) {
-          if(blockIt.getHeight() <= height - commitmentWait && tx.getType() == TransactionType.BurstMining.COMMITMENT_ADD) {
+          if(blockIt.getHeight() <= height - commitmentWait && tx.getType() == TransactionType.SignaMining.COMMITMENT_ADD) {
             CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
             committedAmountOnCache += txAttachment.getAmountNQT();
           }
-          if(tx.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE) {
+          if(tx.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
             CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
             committedAmountOnCache -= txAttachment.getAmountNQT();
           }

@@ -6,8 +6,8 @@ import brs.Attachment.ColoredCoinsOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
 import brs.Order.OrderJournal;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.OrderStore;
 import brs.services.AccountService;
@@ -87,7 +87,7 @@ class OrderServiceImpl {
   }
 
   public CollectionWithIndex<OrderJournal> getTradeJournal(final long accountId, final long assetId, int from, int to) {
-    Collection<Transaction> transactions = Burst.getBlockchain().getTransactions(accountId,
+    Collection<Transaction> transactions = Signum.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT,
         TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT, from, to);
     
@@ -105,7 +105,7 @@ class OrderServiceImpl {
     }
     
     // check the cancellations
-    transactions = Burst.getBlockchain().getTransactions(accountId,
+    transactions = Signum.getBlockchain().getTransactions(accountId,
         TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION,
         TransactionType.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION, -1, -1);
     for(Transaction transaction : transactions) {
@@ -131,25 +131,25 @@ class OrderServiceImpl {
   }
 
   public void addAskOrder(Transaction transaction, Attachment.ColoredCoinsAskOrderPlacement attachment) {
-    BurstKey dbKey = askOrderDbKeyFactory.newKey(transaction.getId());
+    SignumKey dbKey = askOrderDbKeyFactory.newKey(transaction.getId());
     Ask order = new Ask(dbKey, transaction, attachment);
     askOrderTable.insert(order);
     matchOrders(attachment.getAssetId());
   }
 
   public void addBidOrder(Transaction transaction, Attachment.ColoredCoinsBidOrderPlacement attachment) {
-    BurstKey dbKey = bidOrderDbKeyFactory.newKey(transaction.getId());
+    SignumKey dbKey = bidOrderDbKeyFactory.newKey(transaction.getId());
     Bid order = new Bid(dbKey, transaction, attachment);
     bidOrderTable.insert(order);
     matchOrders(attachment.getAssetId());
   }
 
   private Ask getNextAskOrder(long assetId) {
-    return Burst.getStores().getOrderStore().getNextOrder(assetId);
+    return Signum.getStores().getOrderStore().getNextOrder(assetId);
   }
 
   private Bid getNextBidOrder(long assetId) {
-    return Burst.getStores().getOrderStore().getNextBid(assetId);
+    return Signum.getStores().getOrderStore().getNextBid(assetId);
   }
 
   private void matchOrders(long assetId) {
@@ -165,7 +165,7 @@ class OrderServiceImpl {
       }
 
 
-      Trade trade = tradeService.addTrade(assetId, Burst.getBlockchain().getLastBlock(), askOrder, bidOrder);
+      Trade trade = tradeService.addTrade(assetId, Signum.getBlockchain().getLastBlock(), askOrder, bidOrder);
 
       askOrderUpdateQuantityQNT(askOrder, Convert.safeSubtract(askOrder.getQuantityQNT(), trade.getQuantityQNT()));
       Account askAccount = accountService.getAccount(askOrder.getAccountId());

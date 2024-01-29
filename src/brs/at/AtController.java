@@ -1,7 +1,7 @@
 package brs.at;
 
 import brs.Account;
-import brs.Burst;
+import brs.Signum;
 import brs.crypto.Crypto;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
@@ -22,7 +22,7 @@ public abstract class AtController {
 
     private static final Logger logger = LoggerFactory.getLogger(AtController.class);
 
-    private static final Logger debugLogger = Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG) ? logger : NOPLogger.NOP_LOGGER;
+    private static final Logger debugLogger = Signum.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG) ? logger : NOPLogger.NOP_LOGGER;
 
     private static int runSteps(AtMachineState state) {
         state.getMachineState().running = true;
@@ -31,7 +31,7 @@ public abstract class AtController {
         state.getMachineState().dead = false;
         state.getMachineState().steps = 0;
 
-        AtMachineProcessor processor = new AtMachineProcessor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
+        AtMachineProcessor processor = new AtMachineProcessor(state, Signum.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
 
         state.setFreeze(false);
 
@@ -93,7 +93,7 @@ public abstract class AtController {
     //       intended to be used in production
     private static void listCode(AtMachineState state, boolean disassembly, boolean determineJumps) {
 
-        AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Burst.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
+        AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Signum.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
 
         int opc = state.getMachineState().pc;
         int osteps = state.getMachineState().steps;
@@ -256,7 +256,7 @@ public abstract class AtController {
                     at.setpBalance(at.getgBalance());
 
                     long amount = makeTransactions(at, blockHeight, generatorId);
-                    if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                    if (!Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
                         totalAmount = amount;
                     } else {
                         totalAmount += amount;
@@ -334,7 +334,7 @@ public abstract class AtController {
                 }
                 at.setpBalance(at.getgBalance());
 
-                if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                if (!Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
                     totalAmount = makeTransactions(at, blockHeight, generatorId);
                 } else {
                     totalAmount += makeTransactions(at, blockHeight, generatorId);
@@ -423,7 +423,7 @@ public abstract class AtController {
     //platform based
     private static long makeTransactions(AT at, int blockHeight, long generatorId) throws AtException {
         long totalAmount = 0;
-        if (!Burst.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, at.getHeight())) {
+        if (!Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, at.getHeight())) {
             for (AtTransaction tx : at.getTransactions()) {
                 if (AT.findPendingTransaction(tx.getRecipientId(), blockHeight, generatorId)) {
                     throw new AtException("Conflicting transaction found");

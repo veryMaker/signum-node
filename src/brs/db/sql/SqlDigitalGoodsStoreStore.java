@@ -1,9 +1,9 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.DigitalGoodsStore;
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.VersionedValuesTable;
 import brs.db.store.DerivedTableManager;
@@ -24,15 +24,15 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   private static final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> feedbackDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         @Override
-        public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
+        public SignumKey newKey(DigitalGoodsStore.Purchase purchase) {
           return purchase.dbKey;
         }
       };
 
-  private final BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> purchaseDbKeyFactory
+  private final SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> purchaseDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         @Override
-        public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
+        public SignumKey newKey(DigitalGoodsStore.Purchase purchase) {
           return purchase.dbKey;
         }
       };
@@ -45,16 +45,16 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   private final DbKey.LongKeyFactory<DigitalGoodsStore.Purchase> publicFeedbackDbKeyFactory
     = new DbKey.LongKeyFactory<DigitalGoodsStore.Purchase>(PURCHASE.ID) {
         @Override
-        public BurstKey newKey(DigitalGoodsStore.Purchase purchase) {
+        public SignumKey newKey(DigitalGoodsStore.Purchase purchase) {
           return purchase.dbKey;
         }
       };
 
   private final VersionedValuesTable<DigitalGoodsStore.Purchase, String> publicFeedbackTable;
 
-  private final BurstKey.LongKeyFactory<DigitalGoodsStore.Goods> goodsDbKeyFactory = new DbKey.LongKeyFactory<DigitalGoodsStore.Goods>(GOODS.ID) {
+  private final SignumKey.LongKeyFactory<DigitalGoodsStore.Goods> goodsDbKeyFactory = new DbKey.LongKeyFactory<DigitalGoodsStore.Goods>(GOODS.ID) {
       @Override
-      public BurstKey newKey(DigitalGoodsStore.Goods goods) {
+      public SignumKey newKey(DigitalGoodsStore.Goods goods) {
         return goods.dbKey;
       }
     };
@@ -107,7 +107,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
         ).values(
             purchase.getId(),
             data, nonce,
-            brs.Burst.getBlockchain().getHeight(), true
+            brs.Signum.getBlockchain().getHeight(), true
         ).execute();
       }
     };
@@ -124,7 +124,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       protected void save(DSLContext ctx, DigitalGoodsStore.Purchase purchase, String publicFeedback) {
         ctx.mergeInto(PURCHASE_PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
                 .key(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT)
-                .values(purchase.getId(), publicFeedback, Burst.getBlockchain().getHeight(), true)
+                .values(purchase.getId(), publicFeedback, Signum.getBlockchain().getHeight(), true)
                 .execute();
       }
     };
@@ -165,12 +165,12 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getFeedbackDbKeyFactory() {
+  public SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getFeedbackDbKeyFactory() {
     return feedbackDbKeyFactory;
   }
 
   @Override
-  public BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPurchaseDbKeyFactory() {
+  public SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPurchaseDbKeyFactory() {
     return purchaseDbKeyFactory;
   }
 
@@ -194,7 +194,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<DigitalGoodsStore.Goods> getGoodsDbKeyFactory() {
+  public SignumKey.LongKeyFactory<DigitalGoodsStore.Goods> getGoodsDbKeyFactory() {
     return goodsDbKeyFactory;
   }
 
@@ -206,7 +206,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
   private void saveGoods(DSLContext ctx, DigitalGoodsStore.Goods goods) {
     ctx.mergeInto(GOODS, GOODS.ID, GOODS.SELLER_ID, GOODS.NAME, GOODS.DESCRIPTION, GOODS.TAGS, GOODS.TIMESTAMP, GOODS.QUANTITY, GOODS.PRICE, GOODS.DELISTED, GOODS.HEIGHT, GOODS.LATEST)
             .key(GOODS.ID, GOODS.HEIGHT)
-            .values(goods.getId(), goods.getSellerId(), goods.getName(), goods.getDescription(), goods.getTags(), goods.getTimestamp(), goods.getQuantity(), goods.getPriceNQT(), goods.isDelisted(), Burst.getBlockchain().getHeight(), true)
+            .values(goods.getId(), goods.getSellerId(), goods.getName(), goods.getDescription(), goods.getTags(), goods.getTimestamp(), goods.getQuantity(), goods.getPriceNQT(), goods.isDelisted(), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 
@@ -231,7 +231,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
     }
     ctx.mergeInto(PURCHASE, PURCHASE.ID, PURCHASE.BUYER_ID, PURCHASE.GOODS_ID, PURCHASE.SELLER_ID, PURCHASE.QUANTITY, PURCHASE.PRICE, PURCHASE.DEADLINE, PURCHASE.NOTE, PURCHASE.NONCE, PURCHASE.TIMESTAMP, PURCHASE.PENDING, PURCHASE.GOODS, PURCHASE.GOODS_NONCE, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE, PURCHASE.HAS_FEEDBACK_NOTES, PURCHASE.HAS_PUBLIC_FEEDBACKS, PURCHASE.DISCOUNT, PURCHASE.REFUND, PURCHASE.HEIGHT, PURCHASE.LATEST)
             .key(PURCHASE.ID, PURCHASE.HEIGHT)
-            .values(purchase.getId(), purchase.getBuyerId(), purchase.getGoodsId(), purchase.getSellerId(), purchase.getQuantity(), purchase.getPriceNQT(), purchase.getDeliveryDeadlineTimestamp(), note, nonce, purchase.getTimestamp(), purchase.isPending(), goods, goodsNonce, refundNote, refundNonce, purchase.getFeedbackNotes() != null && !purchase.getFeedbackNotes().isEmpty(), !purchase.getPublicFeedback().isEmpty(), purchase.getDiscountNQT(), purchase.getRefundNQT(), Burst.getBlockchain().getHeight(), true)
+            .values(purchase.getId(), purchase.getBuyerId(), purchase.getGoodsId(), purchase.getSellerId(), purchase.getQuantity(), purchase.getPriceNQT(), purchase.getDeliveryDeadlineTimestamp(), note, nonce, purchase.getTimestamp(), purchase.isPending(), goods, goodsNonce, refundNote, refundNonce, purchase.getFeedbackNotes() != null && !purchase.getFeedbackNotes().isEmpty(), !purchase.getPublicFeedback().isEmpty(), purchase.getDiscountNQT(), purchase.getRefundNQT(), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 

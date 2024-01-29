@@ -1,6 +1,6 @@
 package brs.db.sql;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.ValuesTable;
 import brs.db.store.DerivedTableManager;
 import org.jooq.DSLContext;
@@ -33,7 +33,7 @@ public abstract class ValuesSqlTable<T,V> extends DerivedSqlTable implements Val
 
   @SuppressWarnings("unchecked")
   @Override
-  public final List<V> get(BurstKey nxtKey) {
+  public final List<V> get(SignumKey nxtKey) {
     return Db.useDSLContext(ctx -> {
       DbKey dbKey = (DbKey) nxtKey;
       List<V> values;

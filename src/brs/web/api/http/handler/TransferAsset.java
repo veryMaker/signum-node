@@ -32,7 +32,7 @@ public final class TransferAsset extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     long recipient = ParameterParser.getRecipientId(req);
 
@@ -56,7 +56,7 @@ public final class TransferAsset extends CreateTransaction {
       if (amountNQT < 0 || amountNQT >= Constants.MAX_BALANCE_NQT) {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
-      else if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+      else if (!Signum.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
     }

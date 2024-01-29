@@ -41,7 +41,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    public final void validate(Transaction transaction) throws BurstException.ValidationException {
+    public final void validate(Transaction transaction) throws SignumException.ValidationException {
       getTransactionType().validateAttachment(transaction);
     }
 
@@ -110,7 +110,7 @@ public interface Attachment extends Appendix {
 
     private final ArrayList<ArrayList<Long>> recipients = new ArrayList<>();
 
-    PaymentMultiOutCreation(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    PaymentMultiOutCreation(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
 
       int numberOfRecipients = Byte.toUnsignedInt(buffer.get());
@@ -121,21 +121,21 @@ public interface Attachment extends Appendix {
         long amountNQT = buffer.getLong();
 
         if (recipientOf.containsKey(recipientId))
-          throw new BurstException.NotValidException("Duplicate recipient on multi out transaction");
+          throw new SignumException.NotValidException("Duplicate recipient on multi out transaction");
 
         if (amountNQT <= 0)
-          throw new BurstException.NotValidException("Insufficient amountNQT on multi out transaction");
+          throw new SignumException.NotValidException("Insufficient amountNQT on multi out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(new ArrayList<>(Arrays.asList(recipientId, amountNQT)));
       }
       if (recipients.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size() <= 1) {
-        throw new BurstException.NotValidException(
+        throw new SignumException.NotValidException(
             "Invalid number of recipients listed on multi out transaction");
       }
     }
 
-    PaymentMultiOutCreation(JsonObject attachmentData) throws BurstException.NotValidException {
+    PaymentMultiOutCreation(JsonObject attachmentData) throws SignumException.NotValidException {
       super(attachmentData);
 
       JsonArray receipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER));
@@ -147,20 +147,20 @@ public interface Attachment extends Appendix {
         long recipientId = new BigInteger(JSON.getAsString(recipient.get(0))).longValue();
         long amountNQT = JSON.getAsLong(recipient.get(1));
         if (recipientOf.containsKey(recipientId))
-          throw new BurstException.NotValidException("Duplicate recipient on multi out transaction");
+          throw new SignumException.NotValidException("Duplicate recipient on multi out transaction");
 
         if (amountNQT  <=0)
-          throw new BurstException.NotValidException("Insufficient amountNQT on multi out transaction");
+          throw new SignumException.NotValidException("Insufficient amountNQT on multi out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(new ArrayList<>(Arrays.asList(recipientId, amountNQT)));
       }
       if (receipientsJson.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || receipientsJson.size() <= 1) {
-        throw new BurstException.NotValidException("Invalid number of recipients listed on multi out transaction");
+        throw new SignumException.NotValidException("Invalid number of recipients listed on multi out transaction");
       }
     }
 
-    public PaymentMultiOutCreation(Collection<Entry<String, Long>> recipients, int blockchainHeight) throws BurstException.NotValidException {
+    public PaymentMultiOutCreation(Collection<Entry<String, Long>> recipients, int blockchainHeight) throws SignumException.NotValidException {
       super(blockchainHeight);
 
       HashMap<Long,Boolean> recipientOf = new HashMap<>();
@@ -168,16 +168,16 @@ public interface Attachment extends Appendix {
         long recipientId = (new BigInteger(recipient.getKey())).longValue();
         long amountNQT   = recipient.getValue();
         if (recipientOf.containsKey(recipientId))
-          throw new BurstException.NotValidException("Duplicate recipient on multi out transaction");
+          throw new SignumException.NotValidException("Duplicate recipient on multi out transaction");
 
         if (amountNQT <= 0)
-          throw new BurstException.NotValidException("Insufficient amountNQT on multi out transaction");
+          throw new SignumException.NotValidException("Insufficient amountNQT on multi out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(new ArrayList<>(Arrays.asList(recipientId, amountNQT)));
       }
       if (recipients.size() > Constants.MAX_MULTI_OUT_RECIPIENTS || recipients.size() <= 1) {
-        throw new BurstException.NotValidException("Invalid number of recipients listed on multi out transaction");
+        throw new SignumException.NotValidException("Invalid number of recipients listed on multi out transaction");
       }
     }
 
@@ -235,7 +235,7 @@ public interface Attachment extends Appendix {
 
     private final ArrayList<Long> recipients = new ArrayList<>();
 
-    PaymentMultiSameOutCreation(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    PaymentMultiSameOutCreation(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
 
       int numberOfRecipients = Byte.toUnsignedInt(buffer.get());
@@ -245,18 +245,18 @@ public interface Attachment extends Appendix {
         long recipientId = buffer.getLong();
 
         if (recipientOf.containsKey(recipientId))
-          throw new BurstException.NotValidException("Duplicate recipient on multi same out transaction");
+          throw new SignumException.NotValidException("Duplicate recipient on multi same out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(recipientId);
       }
       if (recipients.size() > Constants.MAX_MULTI_SAME_OUT_RECIPIENTS || recipients.size() <= 1) {
-        throw new BurstException.NotValidException(
+        throw new SignumException.NotValidException(
             "Invalid number of recipients listed on multi same out transaction");
       }
     }
 
-    PaymentMultiSameOutCreation(JsonObject attachmentData) throws BurstException.NotValidException {
+    PaymentMultiSameOutCreation(JsonObject attachmentData) throws SignumException.NotValidException {
       super(attachmentData);
 
       JsonArray recipientsJson = JSON.getAsJsonArray(attachmentData.get(RECIPIENTS_PARAMETER));
@@ -265,30 +265,30 @@ public interface Attachment extends Appendix {
       for (JsonElement recipient : recipientsJson) {
         long recipientId = new BigInteger(JSON.getAsString(recipient)).longValue();
         if (recipientOf.containsKey(recipientId))
-          throw new BurstException.NotValidException("Duplicate recipient on multi same out transaction");
+          throw new SignumException.NotValidException("Duplicate recipient on multi same out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(recipientId);
       }
       if (recipientsJson.size() > Constants.MAX_MULTI_SAME_OUT_RECIPIENTS || recipientsJson.size() <= 1) {
-        throw new BurstException.NotValidException(
+        throw new SignumException.NotValidException(
             "Invalid number of recipients listed on multi same out transaction");
       }
     }
 
-    public PaymentMultiSameOutCreation(Collection<Long> recipients, int blockchainHeight) throws BurstException.NotValidException {
+    public PaymentMultiSameOutCreation(Collection<Long> recipients, int blockchainHeight) throws SignumException.NotValidException {
       super(blockchainHeight);
 
       HashMap<Long,Boolean> recipientOf = new HashMap<>();
       for(Long recipientId : recipients ) {
         if (recipientOf.containsKey(recipientId))
-          throw new BurstException.NotValidException("Duplicate recipient on multi same out transaction");
+          throw new SignumException.NotValidException("Duplicate recipient on multi same out transaction");
 
         recipientOf.put(recipientId, true);
         this.recipients.add(recipientId);
       }
       if (recipients.size() > Constants.MAX_MULTI_SAME_OUT_RECIPIENTS || recipients.size() <= 1) {
-        throw new BurstException.NotValidException(
+        throw new SignumException.NotValidException(
             "Invalid number of recipients listed on multi same out transaction");
       }
     }
@@ -363,7 +363,7 @@ public interface Attachment extends Appendix {
     private final String aliasURI;
     private long tld;
 
-    MessagingAliasAssignment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    MessagingAliasAssignment(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       aliasName = Convert.readString(buffer, buffer.get(), Constants.MAX_ALIAS_LENGTH).trim();
       aliasURI = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ALIAS_URI_LENGTH).trim();
@@ -382,8 +382,8 @@ public interface Attachment extends Appendix {
     }
 
     public MessagingAliasAssignment(String aliasName, String aliasURI, long tld, int blockchainHeight) {
-      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
-            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      super((byte)((Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
 
       this.aliasName = aliasName.trim();
       this.aliasURI = aliasURI.trim();
@@ -445,7 +445,7 @@ public interface Attachment extends Appendix {
 
     private final String tldName;
 
-    MessagingTLDAssignment(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    MessagingTLDAssignment(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       tldName = Convert.readString(buffer, buffer.get(), Constants.MAX_TLD_LENGTH).trim();
     }
@@ -498,7 +498,7 @@ public interface Attachment extends Appendix {
     private long aliasId;
     private final long priceNQT;
 
-    MessagingAliasSell(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    MessagingAliasSell(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       if(getVersion() > 1) {
         this.aliasId = buffer.getLong();
@@ -527,8 +527,8 @@ public interface Attachment extends Appendix {
     }
 
     public MessagingAliasSell(long aliasId, String aliasName, long priceNQT, int blockchainHeight) {
-      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
-            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      super((byte)((Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
       this.aliasId = aliasId;
       this.aliasName = aliasName;
       this.priceNQT = priceNQT;
@@ -587,7 +587,7 @@ public interface Attachment extends Appendix {
     private String aliasName;
     private long aliasId;
 
-    MessagingAliasBuy(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    MessagingAliasBuy(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       if(getVersion() > 1) {
         aliasId = buffer.getLong();
@@ -606,8 +606,8 @@ public interface Attachment extends Appendix {
     }
 
     public MessagingAliasBuy(long aliasId, String aliasName, int blockchainHeight) {
-      super((byte)((Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
-            Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
+      super((byte)((Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES, blockchainHeight) ? 2 :
+            Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0)));
 
       this.aliasId = aliasId;
       this.aliasName = aliasName;
@@ -659,7 +659,7 @@ public interface Attachment extends Appendix {
     private final String name;
     private final String description;
 
-    MessagingAccountInfo(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    MessagingAccountInfo(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.name = Convert.readString(buffer, buffer.get(), Constants.MAX_ACCOUNT_NAME_LENGTH);
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ACCOUNT_DESCRIPTION_LENGTH);
@@ -726,7 +726,7 @@ public interface Attachment extends Appendix {
     private final byte decimals;
     private final boolean mintable;
 
-    ColoredCoinsAssetIssuance(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    ColoredCoinsAssetIssuance(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.name = Convert.readString(buffer, buffer.get(), Constants.MAX_ASSET_NAME_LENGTH);
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_ASSET_DESCRIPTION_LENGTH);
@@ -751,7 +751,7 @@ public interface Attachment extends Appendix {
 
     public ColoredCoinsAssetIssuance(String name, String description, long quantityQNT, byte decimals, int blockchainHeight, boolean mintable) {
       super((byte)(mintable ? 2 :
-        Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0));
+        Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight) ? 1 : 0));
       this.name = name;
       this.description = Convert.nullToEmpty(description);
       this.quantityQNT = quantityQNT;
@@ -827,7 +827,7 @@ public interface Attachment extends Appendix {
     private final long quantityQNT;
     private final String comment;
 
-    ColoredCoinsAssetTransfer(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    ColoredCoinsAssetTransfer(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.assetId = buffer.getLong();
       this.quantityQNT = buffer.getLong();
@@ -902,12 +902,12 @@ public interface Attachment extends Appendix {
     private final ArrayList<Long> assetIds;
     private final ArrayList<Long> quantitiesQNT;
 
-    ColoredCoinsAssetMultiTransfer(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    ColoredCoinsAssetMultiTransfer(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
 
       int numberOfAssets = Byte.toUnsignedInt(buffer.get());
       if (numberOfAssets > Constants.MAX_MULTI_ASSET_IDS) {
-        throw new BurstException.NotValidException("Invalid number of assets to transfer");
+        throw new SignumException.NotValidException("Invalid number of assets to transfer");
       }
       assetIds = new ArrayList<>(numberOfAssets);
       quantitiesQNT = new ArrayList<>(numberOfAssets);
@@ -917,17 +917,17 @@ public interface Attachment extends Appendix {
         long quantity = buffer.getLong();
 
         if(assetIds.contains(assetId)){
-          throw new BurstException.NotValidException("No repeated assets in a multi transfer");
+          throw new SignumException.NotValidException("No repeated assets in a multi transfer");
         }
         if (quantity <= 0){
-          throw new BurstException.NotValidException("Insufficient quantityQNT on asset multi transfer");
+          throw new SignumException.NotValidException("Insufficient quantityQNT on asset multi transfer");
         }
         assetIds.add(assetId);
         quantitiesQNT.add(quantity);
       }
     }
 
-    ColoredCoinsAssetMultiTransfer(JsonObject attachmentData) throws BurstException.NotValidException {
+    ColoredCoinsAssetMultiTransfer(JsonObject attachmentData) throws SignumException.NotValidException {
       super(attachmentData);
 
       assetIds = new ArrayList<>();
@@ -937,7 +937,7 @@ public interface Attachment extends Appendix {
       for(JsonElement assetIdJson : assetIdsJsonArray){
         long assetId = Convert.parseUnsignedLong(assetIdJson.getAsString());
         if(assetIds.contains(assetId)){
-          throw new BurstException.NotValidException("No repeated assets in a multi transfer");
+          throw new SignumException.NotValidException("No repeated assets in a multi transfer");
         }
         assetIds.add(assetId);
       }
@@ -945,13 +945,13 @@ public interface Attachment extends Appendix {
       for(JsonElement quantityJson : quantitiesJsonArray){
         long quantity = JSON.getAsLong(quantityJson);
         if (quantity <= 0){
-          throw new BurstException.NotValidException("Insufficient quantityQNT on asset multi transfer");
+          throw new SignumException.NotValidException("Insufficient quantityQNT on asset multi transfer");
         }
         quantitiesQNT.add(quantity);
       }
 
       if(assetIds.size() == 0 || assetIds.size() != quantitiesQNT.size() || assetIds.size() > Constants.MAX_MULTI_ASSET_IDS){
-        throw new BurstException.NotValidException("Invalid asset/quantity for multi asset transfer");
+        throw new SignumException.NotValidException("Invalid asset/quantity for multi asset transfer");
       }
     }
 
@@ -1027,7 +1027,7 @@ public interface Attachment extends Appendix {
     private final long assetId;
     private final long quantityQNT;
 
-    ColoredCoinsAssetMint(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    ColoredCoinsAssetMint(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.assetId = buffer.getLong();
       this.quantityQNT = buffer.getLong();
@@ -1089,7 +1089,7 @@ public interface Attachment extends Appendix {
     private final long assetIdToDistribute;
     private final long quantityQNT;
 
-    ColoredCoinsAssetDistributeToHolders(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    ColoredCoinsAssetDistributeToHolders(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.assetId = buffer.getLong();
       this.minimumAssetQuantityQNT = buffer.getLong();
@@ -1375,7 +1375,7 @@ public interface Attachment extends Appendix {
     private final int quantity;
     private final long priceNQT;
 
-    DigitalGoodsListing(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    DigitalGoodsListing(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.name = Convert.readString(buffer, buffer.getShort(), Constants.MAX_DGS_LISTING_NAME_LENGTH);
       this.description = Convert.readString(buffer, buffer.getShort(), Constants.MAX_DGS_LISTING_DESCRIPTION_LENGTH);
@@ -1693,7 +1693,7 @@ public interface Attachment extends Appendix {
     private final long discountNQT;
     private final boolean goodsIsText;
 
-    DigitalGoodsDelivery(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    DigitalGoodsDelivery(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.purchaseId = buffer.getLong();
       int length = buffer.getInt();
@@ -1921,17 +1921,17 @@ public interface Attachment extends Appendix {
 
   }
 
-  final class BurstMiningRewardRecipientAssignment extends AbstractAttachment {
+  final class SignaMiningRewardRecipientAssignment extends AbstractAttachment {
 
-    BurstMiningRewardRecipientAssignment(ByteBuffer buffer, byte transactionVersion) {
+    SignaMiningRewardRecipientAssignment(ByteBuffer buffer, byte transactionVersion) {
       super(buffer, transactionVersion);
     }
 
-    BurstMiningRewardRecipientAssignment(JsonObject attachmentData) {
+    SignaMiningRewardRecipientAssignment(JsonObject attachmentData) {
       super(attachmentData);
     }
 
-    public BurstMiningRewardRecipientAssignment(int blockchainHeight) {
+    public SignaMiningRewardRecipientAssignment(int blockchainHeight) {
       super(blockchainHeight);
     }
 
@@ -1957,7 +1957,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
+      return TransactionType.SignaMining.REWARD_RECIPIENT_ASSIGNMENT;
     }
 
   }
@@ -2024,7 +2024,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.BurstMining.COMMITMENT_ADD;
+      return TransactionType.SignaMining.COMMITMENT_ADD;
     }
 
   }
@@ -2050,7 +2050,7 @@ public interface Attachment extends Appendix {
 
     @Override
     public TransactionType getTransactionType() {
-      return TransactionType.BurstMining.COMMITMENT_REMOVE;
+      return TransactionType.SignaMining.COMMITMENT_REMOVE;
     }
 
   }
@@ -2064,7 +2064,7 @@ public interface Attachment extends Appendix {
     private final int deadline;
     private final Escrow.DecisionType deadlineAction;
 
-    AdvancedPaymentEscrowCreation(ByteBuffer buffer, byte transactionVersion) throws BurstException.NotValidException {
+    AdvancedPaymentEscrowCreation(ByteBuffer buffer, byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
       this.amountNQT = buffer.getLong();
       this.deadline = buffer.getInt();
@@ -2072,16 +2072,16 @@ public interface Attachment extends Appendix {
       this.requiredSigners = buffer.get();
       byte totalSigners = buffer.get();
       if(totalSigners > 10 || totalSigners <= 0) {
-        throw new BurstException.NotValidException("Invalid number of signers listed on create escrow transaction");
+        throw new SignumException.NotValidException("Invalid number of signers listed on create escrow transaction");
       }
       for(int i = 0; i < totalSigners; i++) {
         if(!this.signers.add(buffer.getLong())) {
-          throw new BurstException.NotValidException("Duplicate signer on escrow creation");
+          throw new SignumException.NotValidException("Duplicate signer on escrow creation");
         }
       }
     }
 
-    AdvancedPaymentEscrowCreation(JsonObject attachmentData) throws BurstException.NotValidException {
+    AdvancedPaymentEscrowCreation(JsonObject attachmentData) throws SignumException.NotValidException {
       super(attachmentData);
       this.amountNQT = Convert.parseUnsignedLong(JSON.getAsString(attachmentData.get(AMOUNT_NQT_PARAMETER)));
       this.deadline = JSON.getAsInt(attachmentData.get(DEADLINE_PARAMETER));
@@ -2089,30 +2089,30 @@ public interface Attachment extends Appendix {
       this.requiredSigners = JSON.getAsByte(attachmentData.get(REQUIRED_SIGNERS_PARAMETER));
       int totalSigners = (JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER))).size();
       if(totalSigners > 10 || totalSigners <= 0) {
-        throw new BurstException.NotValidException("Invalid number of signers listed on create escrow transaction");
+        throw new SignumException.NotValidException("Invalid number of signers listed on create escrow transaction");
       }
       JsonArray signersJson = JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER));
       for (JsonElement aSignersJson : signersJson) {
         this.signers.add(Convert.parseUnsignedLong(JSON.getAsString(aSignersJson)));
       }
       if(this.signers.size() != (JSON.getAsJsonArray(attachmentData.get(SIGNERS_PARAMETER))).size()) {
-        throw new BurstException.NotValidException("Duplicate signer on escrow creation");
+        throw new SignumException.NotValidException("Duplicate signer on escrow creation");
       }
     }
 
     public AdvancedPaymentEscrowCreation(Long amountNQT, int deadline, Escrow.DecisionType deadlineAction,
-                                         int requiredSigners, Collection<Long> signers, int blockchainHeight) throws BurstException.NotValidException {
+                                         int requiredSigners, Collection<Long> signers, int blockchainHeight) throws SignumException.NotValidException {
       super(blockchainHeight);
       this.amountNQT = amountNQT;
       this.deadline = deadline;
       this.deadlineAction = deadlineAction;
       this.requiredSigners = (byte)requiredSigners;
       if(signers.size() > 10 || signers.isEmpty()) {
-        throw new BurstException.NotValidException("Invalid number of signers listed on create escrow transaction");
+        throw new SignumException.NotValidException("Invalid number of signers listed on create escrow transaction");
       }
       this.signers.addAll(signers);
       if(this.signers.size() != signers.size()) {
-        throw new BurstException.NotValidException("Duplicate signer on escrow creation");
+        throw new SignumException.NotValidException("Duplicate signer on escrow creation");
       }
     }
 
@@ -2432,7 +2432,7 @@ public interface Attachment extends Appendix {
     private final byte[] creationBytes;
 
     AutomatedTransactionsCreation(ByteBuffer buffer,
-                                  byte transactionVersion) throws BurstException.NotValidException {
+                                  byte transactionVersion) throws SignumException.NotValidException {
       super(buffer, transactionVersion);
 
       this.name = Convert.readString( buffer , buffer.get() , Constants.MAX_AUTOMATED_TRANSACTION_NAME_LENGTH );

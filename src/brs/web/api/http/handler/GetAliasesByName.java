@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Alias;
 import brs.Alias.Offer;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.AliasService;
 import brs.util.CollectionWithIndex;
 import brs.util.Convert;
@@ -34,7 +34,7 @@ public final class GetAliasesByName extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final int timestamp = ParameterParser.getTimestamp(req);
 
     String aliasName = Convert.emptyToNull(req.getParameter(ALIAS_NAME_PARAMETER));

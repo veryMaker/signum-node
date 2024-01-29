@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Asset;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.assetexchange.AssetExchange;
 import brs.common.AbstractUnitTest;
 import brs.common.QuickMocker;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class GetAllAssetsTest extends AbstractUnitTest {
 
   private GetAllAssets t;
@@ -45,9 +45,9 @@ public class GetAllAssetsTest extends AbstractUnitTest {
     assetExchange = mock(AssetExchange.class);
     accountService = mock(AccountService.class);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     Blockchain mockBlockchain = mock(Blockchain.class);
-    when(Burst.getBlockchain()).thenReturn(mockBlockchain);
+    when(Signum.getBlockchain()).thenReturn(mockBlockchain);
     when(mockBlockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
 
     t = new GetAllAssets(assetExchange, accountService);

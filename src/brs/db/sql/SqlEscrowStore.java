@@ -1,9 +1,9 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Escrow;
 import brs.Transaction;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.EscrowStore;
@@ -18,9 +18,9 @@ import static brs.schema.Tables.ESCROW;
 import static brs.schema.Tables.ESCROW_DECISION;
 
 public class SqlEscrowStore implements EscrowStore {
-  private final BurstKey.LongKeyFactory<Escrow> escrowDbKeyFactory = new DbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
+  private final SignumKey.LongKeyFactory<Escrow> escrowDbKeyFactory = new DbKey.LongKeyFactory<Escrow>(ESCROW.ID) {
       @Override
-      public BurstKey newKey(Escrow escrow) {
+      public SignumKey newKey(Escrow escrow) {
         return escrow.dbKey;
       }
     };
@@ -29,7 +29,7 @@ public class SqlEscrowStore implements EscrowStore {
   private final DbKey.LinkKeyFactory<Escrow.Decision> decisionDbKeyFactory =
       new DbKey.LinkKeyFactory<Escrow.Decision>("escrow_id", "account_id") {
         @Override
-        public BurstKey newKey(Escrow.Decision decision) {
+        public SignumKey newKey(Escrow.Decision decision) {
           return decision.dbKey;
         }
       };
@@ -66,12 +66,12 @@ public class SqlEscrowStore implements EscrowStore {
   private void saveDecision(DSLContext ctx, Escrow.Decision decision) {
     ctx.mergeInto(ESCROW_DECISION, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
             .key(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
-            .values(decision.escrowId, decision.accountId, (int) Escrow.decisionToByte(decision.getDecision()), Burst.getBlockchain().getHeight(), true)
+            .values(decision.escrowId, decision.accountId, (int) Escrow.decisionToByte(decision.getDecision()), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Escrow> getEscrowDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Escrow> getEscrowDbKeyFactory() {
     return escrowDbKeyFactory;
   }
 
@@ -110,7 +110,7 @@ public class SqlEscrowStore implements EscrowStore {
   private void saveEscrow(DSLContext ctx, Escrow escrow) {
     ctx.mergeInto(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
             .key(ESCROW.ID, ESCROW.HEIGHT)
-            .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountNQT, escrow.requiredSigners, escrow.deadline, (int) Escrow.decisionToByte(escrow.deadlineAction), Burst.getBlockchain().getHeight(), true)
+            .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountNQT, escrow.requiredSigners, escrow.deadline, (int) Escrow.decisionToByte(escrow.deadlineAction), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 

@@ -32,7 +32,7 @@ public final class DGSPurchase extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     DigitalGoodsStore.Goods goods = parameterService.getGoods(req);
     if (goods.isDelisted()) {

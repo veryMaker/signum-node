@@ -44,10 +44,10 @@ public final class EconomicClustering {
 
   public boolean verifyFork(Transaction transaction) {
     try {
-      if (!Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE)) {
+      if (!Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE)) {
         return true;
       }
-      if (transaction.getReferencedTransactionFullHash() != null && !Burst.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
+      if (transaction.getReferencedTransactionFullHash() != null && !Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
         // TODO: remove this conditional above in the future, do the EC check regardless of a full hash reference
         return true;
       }

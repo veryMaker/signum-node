@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Block;
 import brs.Blockchain;
-import brs.Burst;
+import brs.Signum;
 import brs.Generator;
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.ResultFields;
@@ -33,7 +33,7 @@ public final class GetMiningInfo extends ApiServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) {
     JsonObject response = new JsonObject();
 
-    response.addProperty(ResultFields.HEIGHT_RESPONSE, Long.toString((long)Burst.getBlockchain().getHeight() + 1));
+    response.addProperty(ResultFields.HEIGHT_RESPONSE, Long.toString((long)Signum.getBlockchain().getHeight() + 1));
 
     Block lastBlock = blockchain.getLastBlock();
     byte[] newGenSig = generator.calculateGenerationSignature(lastBlock.getGenerationSignature(), lastBlock.getGeneratorId());
@@ -42,7 +42,7 @@ public final class GetMiningInfo extends ApiServlet.JsonRequestHandler {
     response.addProperty(ResultFields.BASE_TARGET_RESPONSE, Long.toString(lastBlock.getCapacityBaseTarget()));
     response.addProperty(ResultFields.AVERAGE_COMMITMENT_NQT_RESPONSE, Long.toString(lastBlock.getAverageCommitment()));
     response.addProperty(ResultFields.LAST_BLOCK_REWARD_RESPONSE, Long.toString(blockService.getBlockReward(lastBlock)
-        / Burst.getPropertyService().getInt(Props.ONE_COIN_NQT)));
+        / Signum.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     response.addProperty(ResultFields.LAST_BLOCK_REWARD_NQT_RESPONSE, Long.toString(blockService.getBlockReward(lastBlock)));
     response.addProperty(ResultFields.TIMESTAMP_RESPONSE, Long.toString((long)lastBlock.getTimestamp()));
 

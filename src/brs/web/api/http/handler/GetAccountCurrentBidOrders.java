@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Order;
 import brs.assetexchange.AssetExchange;
 import brs.services.ParameterService;
@@ -34,7 +34,7 @@ public final class GetAccountCurrentBidOrders extends ApiServlet.JsonRequestHand
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     long accountId = parameterService.getAccount(req).getId();
     long assetId = 0;

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class DGSDeliveryTest extends AbstractTransactionTest {
 
   private DGSDelivery t;
@@ -52,7 +52,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long discountNQTParameter = 1;
     final String goodsToEncryptParameter = "beef";
 
@@ -78,9 +78,9 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
     when(parameterServiceMock.getPurchase(eq(req))).thenReturn(mockPurchase);
     when(accountServiceMock.getAccount(eq(mockPurchase.getBuyerId()))).thenReturn(mockBuyerAccount);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.DigitalGoodsDelivery attachment = (Attachment.DigitalGoodsDelivery) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
@@ -91,7 +91,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_sellerAccountIdDifferentFromAccountSellerIdIsIncorrectPurchase() throws BurstException {
+  public void processRequest_sellerAccountIdDifferentFromAccountSellerIdIsIncorrectPurchase() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockSellerAccount = mock(Account.class);
@@ -107,7 +107,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_purchaseNotPendingIsAlreadyDelivered() throws BurstException {
+  public void processRequest_purchaseNotPendingIsAlreadyDelivered() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Account mockSellerAccount = mock(Account.class);
@@ -125,7 +125,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_dgsDiscountNotAValidNumberIsIncorrectDGSDiscount() throws BurstException {
+  public void processRequest_dgsDiscountNotAValidNumberIsIncorrectDGSDiscount() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DISCOUNT_NQT_PARAMETER, "Bob")
     );
@@ -145,7 +145,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_dgsDiscountNegativeIsIncorrectDGSDiscount() throws BurstException {
+  public void processRequest_dgsDiscountNegativeIsIncorrectDGSDiscount() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DISCOUNT_NQT_PARAMETER, "-1")
     );
@@ -165,7 +165,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_dgsDiscountOverMaxBalanceNQTIsIncorrectDGSDiscount() throws BurstException {
+  public void processRequest_dgsDiscountOverMaxBalanceNQTIsIncorrectDGSDiscount() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DISCOUNT_NQT_PARAMETER, "" + (MAX_BALANCE_NQT + 1))
     );
@@ -185,7 +185,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_dgsDiscountNegativeIsNotSafeMultiply() throws BurstException {
+  public void processRequest_dgsDiscountNegativeIsNotSafeMultiply() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DISCOUNT_NQT_PARAMETER, "99999999999")
     );
@@ -207,7 +207,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_goodsToEncryptIsEmptyIsIncorrectDGSGoods() throws BurstException {
+  public void processRequest_goodsToEncryptIsEmptyIsIncorrectDGSGoods() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DISCOUNT_NQT_PARAMETER, "9"),
         new MockParam(GOODS_TO_ENCRYPT_PARAMETER, ""),

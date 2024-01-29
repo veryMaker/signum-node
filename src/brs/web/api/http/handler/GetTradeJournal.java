@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Account;
 import brs.Asset;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Order;
 import brs.Trade;
 import brs.TransactionType;
@@ -37,7 +37,7 @@ public final class GetTradeJournal extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     final Account account = parameterService.getAccount(req);
 
