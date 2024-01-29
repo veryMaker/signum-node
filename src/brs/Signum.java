@@ -15,8 +15,6 @@ import brs.deeplink.DeeplinkQRCodeGenerator;
 import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
-import brs.web.api.http.common.APITransactionManager;
-import brs.web.api.http.common.APITransactionManagerImpl;
 import brs.peer.Peers;
 import brs.props.PropertyService;
 import brs.props.PropertyServiceImpl;
@@ -28,24 +26,24 @@ import brs.util.DownloadCacheImpl;
 import brs.util.LoggerConfigurator;
 import brs.util.ThreadPool;
 import brs.util.Time;
+import brs.web.api.http.common.APITransactionManager;
+import brs.web.api.http.common.APITransactionManagerImpl;
 import brs.web.server.WebServer;
 import brs.web.server.WebServerContext;
 import brs.web.server.WebServerImpl;
-import signum.net.NetworkParameters;
-import signumj.util.SignumUtils;
-
+import java.io.*;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import signum.net.NetworkParameters;
+import signumj.util.SignumUtils;
 
 public final class Signum {
 
