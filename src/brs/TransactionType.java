@@ -938,9 +938,9 @@ public abstract class TransactionType {
         if (offer == null) {
           throw new SignumException.NotCurrentlyValidException("Alias is not for sale: " + aliasName);
         }
-        if (transaction.getAmountNQT() < offer.getPriceNQT()) {
+        if (transaction.getAmountNQT() < offer.getPriceNqt()) {
           String msg = "Price is too low for: " + aliasName + " ("
-                  + transaction.getAmountNQT() + " < " + offer.getPriceNQT() + ")";
+                  + transaction.getAmountNQT() + " < " + offer.getPriceNqt() + ")";
           throw new SignumException.NotCurrentlyValidException(msg);
         }
         if (offer.getBuyerId() != 0 && offer.getBuyerId() != transaction.getSenderId()) {

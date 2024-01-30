@@ -31,7 +31,7 @@ public final class JSONData {
     json.addProperty(TIMESTAMP_RESPONSE, alias.getTimestamp());
     json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
     if(tld != null) {
-      json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
+      json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasUri());
       json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld.getId()));
       json.addProperty(TLD_NAME_RESPONSE, tld.getAliasName());
     }
@@ -40,7 +40,7 @@ public final class JSONData {
     }
 
     if (offer != null) {
-      json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNQT()));
+      json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNqt()));
       if (offer.getBuyerId() != 0) {
         json.addProperty(BUYER_RESPONSE, Convert.toUnsignedLong(offer.getBuyerId()));
       }

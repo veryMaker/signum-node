@@ -139,7 +139,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
     assertEquals(transaction.getSenderId(), savedAlias.getAccountId());
     assertEquals(transaction.getBlockTimestamp(), savedAlias.getTimestamp());
-    assertEquals(attachment.getAliasURI(), savedAlias.getAliasURI());
+    assertEquals(attachment.getAliasURI(), savedAlias.getAliasUri());
   }
 
   @Test
@@ -161,7 +161,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
     verify(mockAlias).setAccountId(eq(transaction.getSenderId()));
     verify(mockAlias).setTimestamp(eq(transaction.getBlockTimestamp()));
-    verify(mockAlias).setAliasURI(eq(attachment.getAliasURI()));
+    verify(mockAlias).setAliasUri(eq(attachment.getAliasURI()));
 
     verify(aliasTableMock).insert(eq(mockAlias));
   }
@@ -198,7 +198,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
     final Offer savedOffer = mockOfferCaptor.getValue();
     assertEquals(newOwnerId, savedOffer.getBuyerId());
-    assertEquals(priceNQT, savedOffer.getPriceNQT());
+    assertEquals(priceNQT, savedOffer.getPriceNqt());
   }
 
   @Test
@@ -229,7 +229,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
     t.sellAlias(transaction, attachment);
 
-    verify(mockOffer).setPriceNQT(eq(priceNQT));
+    verify(mockOffer).setPriceNqt(eq(priceNQT));
     verify(mockOffer).setBuyerId(eq(newOwnerId));
 
     verify(offerTableMock).insert(eq(mockOffer));

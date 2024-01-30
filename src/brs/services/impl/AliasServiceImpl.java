@@ -169,7 +169,7 @@ public class AliasServiceImpl implements AliasService {
       alias = new Alias(transaction.getId(), aliasDBId, transaction, attachment);
     } else {
       alias.setAccountId(transaction.getSenderId());
-      alias.setAliasURI(attachment.getAliasURI());
+      alias.setAliasUri(attachment.getAliasURI());
       alias.setTimestamp(transaction.getBlockTimestamp());
     }
     aliasTable.insert(alias);
@@ -195,7 +195,7 @@ public class AliasServiceImpl implements AliasService {
         SignumKey dbKey = offerDbKeyFactory.newKey(alias.getId());
         offerTable.insert(new Offer(dbKey, alias.getId(), priceNQT, buyerId));
       } else {
-        offer.setPriceNQT(priceNQT);
+        offer.setPriceNqt(priceNQT);
         offer.setBuyerId(buyerId);
         offerTable.insert(offer);
       }
@@ -213,7 +213,7 @@ public class AliasServiceImpl implements AliasService {
     final Offer offer = getOffer(alias);
     offerTable.delete(offer);
 
-    if(alias.getTLD() != null) {
+    if(alias.getTld() != null) {
       // only create the subscription if this is not a TLD (that has a null TLD)
       createSubscription(alias, timestamp, updateSubscription);
     }

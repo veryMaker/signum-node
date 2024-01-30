@@ -96,7 +96,7 @@ public class SqlAliasStore implements AliasStore {
   private void saveOffer(Alias.Offer offer) {
     Db.useDSLContext(ctx -> {
       ctx.insertInto(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
-              .values(offer.getId(), offer.getPriceNQT(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Signum.getBlockchain().getHeight())
+              .values(offer.getId(), offer.getPriceNqt(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Signum.getBlockchain().getHeight())
               .execute();
     });
   }
@@ -127,9 +127,9 @@ public class SqlAliasStore implements AliasStore {
       set(ALIAS.ID, alias.getId()).
       set(ALIAS.ACCOUNT_ID, alias.getAccountId()).
       set(ALIAS.ALIAS_NAME, alias.getAliasName()).
-      set(ALIAS.TLD, alias.getTLD()).
+      set(ALIAS.TLD, alias.getTld()).
       set(ALIAS.ALIAS_NAME_LOWER, alias.getAliasName().toLowerCase(Locale.ENGLISH)).
-      set(ALIAS.ALIAS_URI, alias.getAliasURI()).
+      set(ALIAS.ALIAS_URI, alias.getAliasUri()).
       set(ALIAS.TIMESTAMP, alias.getTimestamp()).
       set(ALIAS.HEIGHT, Signum.getBlockchain().getHeight()).execute();
   }
