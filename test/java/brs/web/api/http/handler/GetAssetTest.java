@@ -84,7 +84,7 @@ public class GetAssetTest extends AbstractUnitTest {
     assertEquals(asset.getName(), JSON.getAsString(result.get(NAME_RESPONSE)));
     assertEquals(asset.getDescription(), JSON.getAsString(result.get(DESCRIPTION_RESPONSE)));
     assertEquals(asset.getDecimals(), JSON.getAsInt(result.get(DECIMALS_RESPONSE)));
-    assertEquals("" + asset.getQuantityQNT(), JSON.getAsString(result.get(QUANTITY_QNT_RESPONSE)));
+    assertEquals("" + asset.getQuantityQnt(), JSON.getAsString(result.get(QUANTITY_QNT_RESPONSE)));
     assertEquals("" + asset.getId(), JSON.getAsString(result.get(ASSET_RESPONSE)));
     assertEquals(tradeCount, JSON.getAsInt(result.get(NUMBER_OF_TRADES_RESPONSE)));
     assertEquals(transferCount, JSON.getAsInt(result.get(NUMBER_OF_TRANSFERS_RESPONSE)));

@@ -158,7 +158,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
     assertEquals(transaction.getSenderId(), savedAsset.getAccountId());
     assertEquals(attachment.getName(), savedAsset.getName());
     assertEquals(attachment.getDescription(), savedAsset.getDescription());
-    assertEquals(attachment.getQuantityQNT(), savedAsset.getQuantityQNT());
+    assertEquals(attachment.getQuantityQNT(), savedAsset.getQuantityQnt());
     assertEquals(attachment.getDecimals(), savedAsset.getDecimals());
   }
 }

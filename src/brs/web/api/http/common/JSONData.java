@@ -77,7 +77,7 @@ public final class JSONData {
     json.addProperty(DESCRIPTION_RESPONSE, asset.getDescription());
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
     json.addProperty(MINTABLE_RESPONSE, asset.getMintable());
-    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQNT()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQnt()));
     if(quantityBurnt >= 0) {
       json.addProperty(QUANTITY_BURNT_QNT_RESPONSE, String.valueOf(quantityBurnt));
     }

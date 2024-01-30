@@ -1769,7 +1769,7 @@ public abstract class TransactionType {
           throw new SignumException.NotValidException("Invalid asset order placement: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         Asset asset = assetExchange.getAsset(attachment.getAssetId());
-        if (attachment.getQuantityQNT() <= 0 || (asset != null && !asset.getMintable() && attachment.getQuantityQNT() > asset.getQuantityQNT())) {
+        if (attachment.getQuantityQNT() <= 0 || (asset != null && !asset.getMintable() && attachment.getQuantityQNT() > asset.getQuantityQnt())) {
           throw new SignumException.NotValidException("Invalid asset order placement asset or quantity: " + JSON.toJsonString(attachment.getJsonObject()));
         }
         if (asset == null) {

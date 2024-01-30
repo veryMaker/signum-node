@@ -49,7 +49,7 @@ public class SqlAssetStore implements AssetStore {
       set(ASSET.ACCOUNT_ID, asset.getAccountId()).
       set(ASSET.NAME, asset.getName()).
       set(ASSET.DESCRIPTION, asset.getDescription()).
-      set(ASSET.QUANTITY, asset.getQuantityQNT()).
+      set(ASSET.QUANTITY, asset.getQuantityQnt()).
       set(ASSET.DECIMALS, asset.getDecimals()).
       set(ASSET.MINTABLE, asset.getMintable()).
       set(ASSET.HEIGHT, Signum.getBlockchain().getHeight()).execute();
