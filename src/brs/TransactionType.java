@@ -249,9 +249,9 @@ public abstract class TransactionType {
   public final boolean applyUnconfirmed(Transaction transaction, Account senderAccount) {
     long totalAmountNQT = calculateTransactionAmountNQT(transaction);
     if (logger.isTraceEnabled()) {
-      logger.trace("applyUnconfirmed: {} < totalamount: {} = false", senderAccount.getUnconfirmedBalanceNQT(), totalAmountNQT);
+      logger.trace("applyUnconfirmed: {} < totalamount: {} = false", senderAccount.getUnconfirmedBalanceNqt(), totalAmountNQT);
     }
-    if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
+    if (senderAccount.getUnconfirmedBalanceNqt() < totalAmountNQT) {
       return false;
     }
     accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
@@ -1595,7 +1595,7 @@ public abstract class TransactionType {
           if(Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) && holder.getAccountId() == senderAccount.getId()){
             continue;
           }
-          circulatingQuantityQNT += holder.getUnconfirmedQuantityQNT();
+          circulatingQuantityQNT += holder.getUnconfirmedQuantityQnt();
         }
         if(circulatingQuantityQNT <= 0L) {
           accountService.addToUnconfirmedAssetBalanceQNT(senderAccount, assetToDistribute, attachment.getQuantityQNT());
@@ -1694,7 +1694,7 @@ public abstract class TransactionType {
             continue;
           }
           long holderQuantity = Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) ?
-            holder.getQuantityQNT() : holder.getUnconfirmedQuantityQNT();
+            holder.getQuantityQnt() : holder.getUnconfirmedQuantityQnt();
           circulatingQuantityQNT += holderQuantity;
         }
         BigInteger circulatingQuantity = BigInteger.valueOf(circulatingQuantityQNT);
@@ -1714,7 +1714,7 @@ public abstract class TransactionType {
           if(Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, transaction.getHeight()) && holder.getAccountId() == transaction.getSenderId()){
             continue;
           }
-          long holderQuantity = unconfirmed ? holder.getUnconfirmedQuantityQNT() : holder.getQuantityQNT();
+          long holderQuantity = unconfirmed ? holder.getUnconfirmedQuantityQnt() : holder.getQuantityQnt();
 
           // add to the holders
           long quantity = 0L;
@@ -1861,7 +1861,7 @@ public abstract class TransactionType {
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType BID_ORDER_PLACEMENT");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
-        if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
+        if (senderAccount.getUnconfirmedBalanceNqt() >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
@@ -2277,7 +2277,7 @@ public abstract class TransactionType {
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType PURCHASE");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
-        if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT) {
+        if (senderAccount.getUnconfirmedBalanceNqt() >= totalAmountNQT) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
@@ -2482,7 +2482,7 @@ public abstract class TransactionType {
       protected boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType REFUND");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
-        if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT) {
+        if (senderAccount.getUnconfirmedBalanceNqt() >= totalAmountNQT) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
@@ -2737,7 +2737,7 @@ public abstract class TransactionType {
         if(totalAmountNQT < 0L)
           return false;
 
-        if (senderAccount.getUnconfirmedBalanceNQT() >= totalAmountNQT ) {
+        if (senderAccount.getUnconfirmedBalanceNqt() >= totalAmountNQT ) {
           accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);
           return true;
         }
@@ -2903,7 +2903,7 @@ public abstract class TransactionType {
       protected final boolean applyAttachmentUnconfirmed(Transaction transaction, Account senderAccount) {
         logger.trace("TransactionType ESCROW_CREATION");
         Long totalAmountNQT = calculateAttachmentTotalAmountNQT(transaction);
-        if (senderAccount.getUnconfirmedBalanceNQT() < totalAmountNQT) {
+        if (senderAccount.getUnconfirmedBalanceNqt() < totalAmountNQT) {
           return false;
         }
         accountService.addToUnconfirmedBalanceNQT(senderAccount, -totalAmountNQT);

@@ -489,11 +489,11 @@ public class AtApiPlatformImpl extends AtApiImpl {
 
         if(assetId == 0L){
           Account.Balance balance = Account.getAccountBalance(accountId);
-          return balance == null ? 0L : balance.getBalanceNQT();
+          return balance == null ? 0L : balance.getBalanceNqt();
         }
         AccountAsset assetBalance = Account.getAccountAssetBalance(accountId, assetId);
 
-        return assetBalance == null ? 0 : assetBalance.getQuantityQNT();
+        return assetBalance == null ? 0 : assetBalance.getQuantityQnt();
     }
 
     @Override

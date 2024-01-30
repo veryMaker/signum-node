@@ -66,7 +66,7 @@ public final class GetState extends ApiServlet.JsonRequestHandler {
     response.addProperty(CUMULATIVE_DIFFICULTY_RESPONSE, blockchain.getLastBlock().getCumulativeDifficulty().toString());
     long totalMined = blockchain.getTotalMined();
     long totalBurnt = Signum.getStores().getAccountStore().getAccountBalanceTable().get(
-            Signum.getStores().getAccountStore().getAccountKeyFactory().newKey(0L)).getBalanceNQT();
+            Signum.getStores().getAccountStore().getAccountKeyFactory().newKey(0L)).getBalanceNqt();
     response.addProperty("totalMinedNQT", totalMined);
     response.addProperty("totalBurntNQT", totalBurnt);
     response.addProperty("circulatingSupplyNQT", totalMined - totalBurnt);

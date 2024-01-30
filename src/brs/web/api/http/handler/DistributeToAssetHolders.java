@@ -103,7 +103,7 @@ public final class DistributeToAssetHolders extends CreateTransaction {
     CollectionWithIndex<AccountAsset> holders = assetExchange.getAssetAccounts(asset, false, minimumQuantity, unconfirmed, -1, -1);
     long circulatingSupply = 0;
     for(AccountAsset holder : holders) {
-      circulatingSupply += holder.getQuantityQNT();
+      circulatingSupply += holder.getQuantityQnt();
     }
     if(circulatingSupply == 0L) {
       return JSONResponses.incorrect(QUANTITY_MININUM_QNT_PARAMETER);

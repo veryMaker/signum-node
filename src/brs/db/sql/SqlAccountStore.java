@@ -96,7 +96,7 @@ public class SqlAccountStore implements AccountStore {
       protected void save(DSLContext ctx, Account.AccountAsset accountAsset) {
         ctx.mergeInto(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
           .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
-          .values(accountAsset.accountId, accountAsset.assetId, accountAsset.getQuantityQNT(), accountAsset.getUnconfirmedQuantityQNT(), Signum.getBlockchain().getHeight(), true)
+          .values(accountAsset.accountId, accountAsset.assetId, accountAsset.getQuantityQnt(), accountAsset.getUnconfirmedQuantityQnt(), Signum.getBlockchain().getHeight(), true)
           .execute();
       }
 
@@ -150,7 +150,7 @@ public class SqlAccountStore implements AccountStore {
                 ACCOUNT_BALANCE, ACCOUNT_BALANCE.ID, ACCOUNT_BALANCE.HEIGHT,
                 ACCOUNT_BALANCE.BALANCE, ACCOUNT_BALANCE.UNCONFIRMED_BALANCE, ACCOUNT_BALANCE.FORGED_BALANCE, ACCOUNT.LATEST)
               .values(account.getId(), height,
-                account.getBalanceNQT(), account.getUnconfirmedBalanceNQT(), account.getForgedBalanceNQT(), true)
+                account.getBalanceNqt(), account.getUnconfirmedBalanceNqt(), account.getForgedBalanceNqt(), true)
           );
         }
         ctx.batch(accountQueries).execute();
@@ -393,9 +393,9 @@ public class SqlAccountStore implements AccountStore {
   class SqlAccountBalance extends Account.Balance {
     SqlAccountBalance(Record record) {
       super(record.get(ACCOUNT_BALANCE.ID));
-      this.balanceNQT = record.get(ACCOUNT_BALANCE.BALANCE);
-      this.unconfirmedBalanceNQT = record.get(ACCOUNT_BALANCE.UNCONFIRMED_BALANCE);
-      this.forgedBalanceNQT = record.get(ACCOUNT_BALANCE.FORGED_BALANCE);
+      this.balanceNqt = record.get(ACCOUNT_BALANCE.BALANCE);
+      this.unconfirmedBalanceNqt = record.get(ACCOUNT_BALANCE.UNCONFIRMED_BALANCE);
+      this.forgedBalanceNqt = record.get(ACCOUNT_BALANCE.FORGED_BALANCE);
     }
   }
 

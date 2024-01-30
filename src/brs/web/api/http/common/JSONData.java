@@ -57,10 +57,10 @@ public final class JSONData {
       json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE,  "0");
     }
     else {
-      json.addProperty(BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
-      json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, String.valueOf(account.getUnconfirmedBalanceNQT()));
-      json.addProperty(FORGED_BALANCE_NQT_RESPONSE, String.valueOf(account.getForgedBalanceNQT()));
-      json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
+      json.addProperty(BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNqt()));
+      json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, String.valueOf(account.getUnconfirmedBalanceNqt()));
+      json.addProperty(FORGED_BALANCE_NQT_RESPONSE, String.valueOf(account.getForgedBalanceNqt()));
+      json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNqt()));
     }
     return json;
   }
@@ -103,8 +103,8 @@ public final class JSONData {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, accountAsset.getAccountId());
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
-    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
-    json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQnt()));
+    json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQnt()));
     json.addProperty(IS_TREASURY_RESPONSE, accountAsset.isTreasury());
     return json;
   }

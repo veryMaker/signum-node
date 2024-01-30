@@ -184,8 +184,8 @@ public final class DebugTrace {
     Map<String,String> map = new HashMap<>();
     map.put("account", Convert.toUnsignedLong(accountId));
     Account.Balance account = Account.getAccountBalance(accountId);
-    map.put("balance", String.valueOf(account != null ? account.getBalanceNQT() : 0));
-    map.put("unconfirmed balance", String.valueOf(account != null ? account.getUnconfirmedBalanceNQT() : 0));
+    map.put("balance", String.valueOf(account != null ? account.getBalanceNqt() : 0));
+    map.put("unconfirmed balance", String.valueOf(account != null ? account.getUnconfirmedBalanceNqt() : 0));
     map.put("timestamp", String.valueOf(Signum.getBlockchain().getLastBlock().getTimestamp()));
     map.put("height", String.valueOf(Signum.getBlockchain().getHeight()));
     map.put("event", unconfirmed ? "unconfirmed balance" : "balance");
@@ -248,9 +248,9 @@ public final class DebugTrace {
     map.put("account", Convert.toUnsignedLong(accountId));
     map.put("asset", Convert.toUnsignedLong(accountAsset.getAssetId()));
     if (unconfirmed) {
-      map.put("unconfirmed asset balance", String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
+      map.put("unconfirmed asset balance", String.valueOf(accountAsset.getUnconfirmedQuantityQnt()));
     } else {
-      map.put("asset balance", String.valueOf(accountAsset.getQuantityQNT()));
+      map.put("asset balance", String.valueOf(accountAsset.getQuantityQnt()));
     }
     map.put("timestamp", String.valueOf(Signum.getBlockchain().getLastBlock().getTimestamp()));
     map.put("height", String.valueOf(Signum.getBlockchain().getHeight()));
