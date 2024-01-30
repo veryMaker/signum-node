@@ -365,7 +365,7 @@ public final class JSONData {
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetTransfer.getAssetId()));
     putAccount(json, SENDER_RESPONSE, assetTransfer.getSenderId());
     putAccount(json, RECIPIENT_RESPONSE, assetTransfer.getRecipientId());
-    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(assetTransfer.getQuantityQNT()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(assetTransfer.getQuantityQnt()));
     json.addProperty(HEIGHT_RESPONSE, assetTransfer.getHeight());
     json.addProperty(TIMESTAMP_RESPONSE, assetTransfer.getTimestamp());
     if (asset != null) {

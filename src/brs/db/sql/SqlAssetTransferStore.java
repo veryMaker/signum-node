@@ -47,7 +47,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
         ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT
       ).values(
         assetTransfer.getId(), assetTransfer.getAssetId(), assetTransfer.getSenderId(), assetTransfer.getRecipientId(),
-        assetTransfer.getQuantityQNT(), assetTransfer.getTimestamp(), assetTransfer.getHeight()
+        assetTransfer.getQuantityQnt(), assetTransfer.getTimestamp(), assetTransfer.getHeight()
       ).execute();
     });
   }
