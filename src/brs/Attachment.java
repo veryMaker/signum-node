@@ -68,7 +68,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected final void putMyJSON(JsonObject json) {
+    protected final void putMyJson(JsonObject json) {
     }
 
     @Override
@@ -198,7 +198,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       final JsonArray recipientsJSON = new JsonArray();
 
       this.recipients.stream()
@@ -310,7 +310,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       JsonArray recipients = new JsonArray();
       this.recipients.forEach(a -> recipients.add(Convert.toUnsignedLong(a)));
       attachment.add(RECIPIENTS_RESPONSE, recipients);
@@ -415,7 +415,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ALIAS_RESPONSE, aliasName);
       attachment.addProperty(URI_RESPONSE, aliasURI);
       if(getVersion() > 1) {
@@ -478,7 +478,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(TLD_RESPONSE, tldName);
     }
 
@@ -563,7 +563,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ALIAS_RESPONSE, getVersion() > 1 ? Convert.toUnsignedLong(aliasId) : aliasName);
       attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
     }
@@ -641,7 +641,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ALIAS_RESPONSE, getVersion() > 1 ? Convert.toUnsignedLong(aliasId) : aliasName);
     }
 
@@ -698,7 +698,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(NAME_RESPONSE, name);
       attachment.addProperty(DESCRIPTION_RESPONSE, description);
     }
@@ -786,7 +786,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(NAME_RESPONSE, name);
       attachment.addProperty(DESCRIPTION_RESPONSE, description);
       attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
@@ -870,7 +870,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
       attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
       if (getVersion() == 0) {
@@ -981,7 +981,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       JsonArray assetIdsJson = new JsonArray();
       JsonArray quantitiesJson = new JsonArray();
       for(Long assetId : assetIds){
@@ -1062,7 +1062,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
       attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
     }
@@ -1132,7 +1132,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
       attachment.addProperty(QUANTITY_MININUM_QNT_PARAMETER, minimumAssetQuantityQNT);
       attachment.addProperty(ASSET_TO_DISTRIBUTE_PARAMETER, Convert.toUnsignedLong(assetIdToDistribute));
@@ -1203,7 +1203,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetId));
       attachment.addProperty(QUANTITY_QNT_RESPONSE, quantityQNT);
       attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
@@ -1305,7 +1305,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ORDER_RESPONSE, Convert.toUnsignedLong(orderId));
     }
 
@@ -1429,7 +1429,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(NAME_RESPONSE, name);
       attachment.addProperty(DESCRIPTION_RESPONSE, description);
       attachment.addProperty(TAGS_RESPONSE, tags);
@@ -1489,7 +1489,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
     }
 
@@ -1542,7 +1542,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
       attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
     }
@@ -1598,7 +1598,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
       attachment.addProperty(DELTA_QUANTITY_RESPONSE, deltaQuantity);
     }
@@ -1664,7 +1664,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(GOODS_RESPONSE, Convert.toUnsignedLong(goodsId));
       attachment.addProperty(QUANTITY_RESPONSE, quantity);
       attachment.addProperty(PRICE_NQT_RESPONSE, priceNQT);
@@ -1742,7 +1742,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
       attachment.addProperty(GOODS_DATA_RESPONSE, Convert.toHexString(goods.getData()));
       attachment.addProperty(GOODS_NONCE_RESPONSE, Convert.toHexString(goods.getNonce()));
@@ -1802,7 +1802,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
     }
 
@@ -1855,7 +1855,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(PURCHASE_RESPONSE, Convert.toUnsignedLong(purchaseId));
       attachment.addProperty(REFUND_NQT_RESPONSE, refundNQT);
     }
@@ -1906,7 +1906,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(PERIOD_RESPONSE, period);
     }
 
@@ -1951,7 +1951,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       // Reward recipient does not have additional data.
     }
 
@@ -1997,7 +1997,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(AMOUNT_NQT_RESPONSE, amountNQT);
     }
 
@@ -2140,7 +2140,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(AMOUNT_NQT_RESPONSE, Convert.toUnsignedLong(this.amountNQT));
       attachment.addProperty(DEADLINE_RESPONSE, this.deadline);
       attachment.addProperty(DEADLINE_ACTION_RESPONSE, Escrow.decisionToString(this.deadlineAction));
@@ -2211,7 +2211,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId));
       attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision));
     }
@@ -2267,7 +2267,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(ESCROW_ID_RESPONSE, Convert.toUnsignedLong(this.escrowId));
       attachment.addProperty(DECISION_RESPONSE, Escrow.decisionToString(this.decision));
     }
@@ -2314,7 +2314,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(FREQUENCY_RESPONSE, this.frequency);
     }
 
@@ -2362,7 +2362,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId));
     }
 
@@ -2410,7 +2410,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(SUBSCRIPTION_ID_RESPONSE, Convert.toUnsignedLong(this.subscriptionId));
     }
 
@@ -2545,7 +2545,7 @@ public interface Attachment extends Appendix {
     }
 
     @Override
-    protected void putMyJSON(JsonObject attachment) {
+    protected void putMyJson(JsonObject attachment) {
       attachment.addProperty(NAME_RESPONSE, name);
       attachment.addProperty(DESCRIPTION_RESPONSE, description);
       attachment.addProperty(CREATION_BYTES_RESPONSE, Convert.toHexString( creationBytes ) );
