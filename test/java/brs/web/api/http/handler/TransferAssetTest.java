@@ -81,7 +81,7 @@ public class TransferAssetTest extends AbstractTransactionTest {
 
     assertEquals(ASSET_TRANSFER, attachment.getTransactionType());
     assertEquals(assetIdParameter, attachment.getAssetId());
-    assertEquals(quantityQNTParameter, attachment.getQuantityQNT());
+    assertEquals(quantityQNTParameter, attachment.getQuantityQnt());
   }
 
   @Test

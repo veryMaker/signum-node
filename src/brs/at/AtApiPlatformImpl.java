@@ -137,14 +137,14 @@ public class AtApiPlatformImpl extends AtApiImpl {
             if(tx.getAttachment() instanceof Attachment.ColoredCoinsAssetTransfer) {
               Attachment.ColoredCoinsAssetTransfer assetTransfer = (ColoredCoinsAssetTransfer) tx.getAttachment();
               if(assetTransfer.getAssetId() == assetId) {
-                return assetTransfer.getQuantityQNT();
+                return assetTransfer.getQuantityQnt();
               }
             }
             else if(tx.getAttachment() instanceof Attachment.ColoredCoinsAssetMultiTransfer) {
               Attachment.ColoredCoinsAssetMultiTransfer assetTransfer = (Attachment.ColoredCoinsAssetMultiTransfer) tx.getAttachment();
               for(int i = 0; i < assetTransfer.getAssetIds().size(); i++){
                 if(assetTransfer.getAssetIds().get(i) == assetId) {
-                  return assetTransfer.getQuantitiesQNT().get(i);
+                  return assetTransfer.getQuantitiesQnt().get(i);
                 }
               }
             }

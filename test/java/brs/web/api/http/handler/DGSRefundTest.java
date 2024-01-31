@@ -85,7 +85,7 @@ public class DGSRefundTest extends AbstractTransactionTest {
     assertNotNull(attachment);
 
     assertEquals(REFUND, attachment.getTransactionType());
-    assertEquals(refundNQTParameter, attachment.getRefundNQT());
+    assertEquals(refundNQTParameter, attachment.getRefundNqt());
     assertEquals(mockPurchaseId, attachment.getPurchaseId());
   }
 

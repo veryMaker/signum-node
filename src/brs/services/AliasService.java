@@ -34,7 +34,7 @@ public interface AliasService {
 
   void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment);
 
-  void addTLD(long id, Transaction transaction, Attachment.MessagingTLDAssignment attachment);
+  void addTLD(long id, Transaction transaction, Attachment.MessagingTldAssignment attachment);
   
   void addDefaultTLDs();
 

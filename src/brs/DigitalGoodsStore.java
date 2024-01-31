@@ -59,7 +59,7 @@ public final class DigitalGoodsStore {
       this.description = attachment.getDescription();
       this.tags = attachment.getTags();
       this.quantity = attachment.getQuantity();
-      this.priceNQT = attachment.getPriceNQT();
+      this.priceNQT = attachment.getPriceNqt();
       this.delisted = false;
       this.timestamp = transaction.getTimestamp();
     }
@@ -169,7 +169,7 @@ public final class DigitalGoodsStore {
       this.goodsId = attachment.getGoodsId();
       this.sellerId = sellerId;
       this.quantity = attachment.getQuantity();
-      this.priceNQT = attachment.getPriceNQT();
+      this.priceNQT = attachment.getPriceNqt();
       this.deadline = attachment.getDeliveryDeadlineTimestamp();
       this.note = transaction.getEncryptedMessage() == null ? null : transaction.getEncryptedMessage().getEncryptedData();
       this.timestamp = transaction.getTimestamp();

@@ -63,7 +63,7 @@ class ReservedBalanceCache {
 
     if(transaction.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
       CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
-      long totalAmountNQT = commitmentRemove.getAmountNQT();
+      long totalAmountNQT = commitmentRemove.getAmountNqt();
 
       Blockchain blockchain = Signum.getBlockchain();
       int nBlocksMined = blockchain.getBlocksCount(senderAccount.getId(), blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());

@@ -77,7 +77,7 @@ public class DGSListingTest extends AbstractTransactionTest {
     assertEquals(dgsName, attachment.getName());
     assertEquals(dgsDescription, attachment.getDescription());
     assertEquals(tags, attachment.getTags());
-    assertEquals(priceNqt, attachment.getPriceNQT());
+    assertEquals(priceNqt, attachment.getPriceNqt());
     assertEquals(quantity, attachment.getQuantity());
   }
 

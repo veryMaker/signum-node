@@ -86,6 +86,6 @@ public final class SendMoneyMulti extends CreateTransaction {
 
     Attachment.PaymentMultiOutCreation attachment = new Attachment.PaymentMultiOutCreation(recipients, blockchain.getHeight());
 
-    return createTransaction(req, sender, null, attachment.getAmountNQT(), attachment);
+    return createTransaction(req, sender, null, attachment.getAmountNqt(), attachment);
   }
 }

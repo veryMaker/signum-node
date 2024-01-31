@@ -76,7 +76,7 @@ public class DGSPriceChangeTest extends AbstractTransactionTest {
 
     assertEquals(PRICE_CHANGE, attachment.getTransactionType());
     assertEquals(mockGoodsId, attachment.getGoodsId());
-    assertEquals(priceNQTParameter, attachment.getPriceNQT());
+    assertEquals(priceNQTParameter, attachment.getPriceNqt());
   }
 
   @Test

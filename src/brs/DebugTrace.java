@@ -268,13 +268,13 @@ public final class DebugTrace {
       boolean isAsk = orderPlacement instanceof Attachment.ColoredCoinsAskOrderPlacement;
       map.put("asset", Convert.toUnsignedLong(orderPlacement.getAssetId()));
       map.put("order", transaction.getStringId());
-      map.put("order price", String.valueOf(orderPlacement.getPriceNQT()));
-      long quantity = orderPlacement.getQuantityQNT();
+      map.put("order price", String.valueOf(orderPlacement.getPriceNqt()));
+      long quantity = orderPlacement.getQuantityQnt();
       if (isAsk) {
         quantity = - quantity;
       }
       map.put("order quantity", String.valueOf(quantity));
-      BigInteger orderCost = BigInteger.valueOf(orderPlacement.getPriceNQT()).multiply(BigInteger.valueOf(orderPlacement.getQuantityQNT()));
+      BigInteger orderCost = BigInteger.valueOf(orderPlacement.getPriceNqt()).multiply(BigInteger.valueOf(orderPlacement.getQuantityQnt()));
       if (! isAsk) {
         orderCost = orderCost.negate();
       }
@@ -288,13 +288,13 @@ public final class DebugTrace {
       }
       Attachment.ColoredCoinsAssetIssuance assetIssuance = (Attachment.ColoredCoinsAssetIssuance)attachment;
       map.put("asset", transaction.getStringId());
-      map.put("asset quantity", String.valueOf(assetIssuance.getQuantityQNT()));
+      map.put("asset quantity", String.valueOf(assetIssuance.getQuantityQnt()));
       map.put("event", "asset issuance");
     }
     else if (attachment instanceof Attachment.ColoredCoinsAssetTransfer) {
       Attachment.ColoredCoinsAssetTransfer assetTransfer = (Attachment.ColoredCoinsAssetTransfer)attachment;
       map.put("asset", Convert.toUnsignedLong(assetTransfer.getAssetId()));
-      long quantity = assetTransfer.getQuantityQNT();
+      long quantity = assetTransfer.getQuantityQnt();
       if (! isRecipient) {
         quantity = - quantity;
       }
@@ -322,7 +322,7 @@ public final class DebugTrace {
       }
       map.put("event", "delivery");
       map.put("purchase", Convert.toUnsignedLong(delivery.getPurchaseId()));
-      long discount = delivery.getDiscountNQT();
+      long discount = delivery.getDiscountNqt();
       map.put("purchase price", String.valueOf(purchase.getPriceNQT()));
       map.put("purchase quantity", String.valueOf(purchase.getQuantity()));
       long cost = Convert.safeMultiply(purchase.getPriceNQT(), purchase.getQuantity());
@@ -342,7 +342,7 @@ public final class DebugTrace {
       }
       map.put("event", "refund");
       map.put("purchase", Convert.toUnsignedLong(refund.getPurchaseId()));
-      long refundNQT = refund.getRefundNQT();
+      long refundNQT = refund.getRefundNqt();
       if (! isRecipient) {
         refundNQT = - refundNQT;
       }

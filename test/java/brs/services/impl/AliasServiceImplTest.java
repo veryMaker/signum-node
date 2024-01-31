@@ -126,7 +126,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     when(transaction.getBlockTimestamp()).thenReturn(34);
 
     final MessagingAliasAssignment attachment = mock(MessagingAliasAssignment.class);
-    when(attachment.getAliasURI()).thenReturn("aliasURI");
+    when(attachment.getAliasUri()).thenReturn("aliasURI");
 
     t.addOrUpdateAlias(transaction, attachment);
 
@@ -139,7 +139,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
     assertEquals(transaction.getSenderId(), savedAlias.getAccountId());
     assertEquals(transaction.getBlockTimestamp(), savedAlias.getTimestamp());
-    assertEquals(attachment.getAliasURI(), savedAlias.getAliasUri());
+    assertEquals(attachment.getAliasUri(), savedAlias.getAliasUri());
   }
 
   @Test
@@ -155,13 +155,13 @@ public class AliasServiceImplTest extends AbstractUnitTest {
 
     final MessagingAliasAssignment attachment = mock(MessagingAliasAssignment.class);
     when(attachment.getAliasName()).thenReturn(aliasName);
-    when(attachment.getAliasURI()).thenReturn("aliasURI");
+    when(attachment.getAliasUri()).thenReturn("aliasURI");
 
     t.addOrUpdateAlias(transaction, attachment);
 
     verify(mockAlias).setAccountId(eq(transaction.getSenderId()));
     verify(mockAlias).setTimestamp(eq(transaction.getBlockTimestamp()));
-    verify(mockAlias).setAliasUri(eq(attachment.getAliasURI()));
+    verify(mockAlias).setAliasUri(eq(attachment.getAliasUri()));
 
     verify(aliasTableMock).insert(eq(mockAlias));
   }
@@ -186,7 +186,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Transaction transaction = mock(Transaction.class);
     final MessagingAliasSell attachment = mock(MessagingAliasSell.class);
     when(attachment.getAliasName()).thenReturn(aliasName);
-    when(attachment.getPriceNQT()).thenReturn(priceNQT);
+    when(attachment.getPriceNqt()).thenReturn(priceNQT);
     when(transaction.getBlockTimestamp()).thenReturn(timestamp);
     when(transaction.getRecipientId()).thenReturn(newOwnerId);
 
@@ -223,7 +223,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Transaction transaction = mock(Transaction.class);
     final MessagingAliasSell attachment = mock(MessagingAliasSell.class);
     when(attachment.getAliasName()).thenReturn(aliasName);
-    when(attachment.getPriceNQT()).thenReturn(priceNQT);
+    when(attachment.getPriceNqt()).thenReturn(priceNQT);
     when(transaction.getBlockTimestamp()).thenReturn(timestamp);
     when(transaction.getRecipientId()).thenReturn(newOwnerId);
 
@@ -257,7 +257,7 @@ public class AliasServiceImplTest extends AbstractUnitTest {
     final Transaction transaction = mock(Transaction.class);
     final MessagingAliasSell attachment = mock(MessagingAliasSell.class);
     when(attachment.getAliasName()).thenReturn(aliasName);
-    when(attachment.getPriceNQT()).thenReturn(priceNQT);
+    when(attachment.getPriceNqt()).thenReturn(priceNQT);
     when(transaction.getBlockTimestamp()).thenReturn(timestamp);
     when(transaction.getRecipientId()).thenReturn(newOwnerId);
 

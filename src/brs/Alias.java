@@ -58,8 +58,8 @@ public class Alias {
                 aliasId,
                 transaction.getSenderId(),
                 attachment.getAliasName(),
-                attachment.getTLD(),
-                attachment.getAliasURI(),
+                attachment.getTld(),
+                attachment.getAliasUri(),
                 transaction.getBlockTimestamp());
     }
 
@@ -67,11 +67,11 @@ public class Alias {
             long aliasId,
             SignumKey dbKey,
             Transaction transaction,
-            Attachment.MessagingTLDAssignment attachment) {
+            Attachment.MessagingTldAssignment attachment) {
         this(dbKey,
                 aliasId,
                 transaction == null ? 0L : transaction.getSenderId(),
-                attachment.getTLDName(),
+                attachment.getTldName(),
                 null, "",
                 transaction == null ? 0 : transaction.getBlockTimestamp());
     }

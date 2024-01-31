@@ -66,7 +66,7 @@ public final class SetTLD extends CreateTransaction {
     }
 
     Account account = parameterService.getSenderAccount(req);
-    Attachment attachment = new Attachment.MessagingTLDAssignment(tldName, blockchain.getHeight());
+    Attachment attachment = new Attachment.MessagingTldAssignment(tldName, blockchain.getHeight());
     return createTransaction(req, account, recipient, amountNQT, attachment);
   }
 

@@ -47,7 +47,7 @@ public class Asset {
         this.issuerId = accountId;
         this.name = attachment.getName();
         this.description = attachment.getDescription();
-        this.quantityQnt = attachment.getQuantityQNT();
+        this.quantityQnt = attachment.getQuantityQnt();
         this.decimals = attachment.getDecimals();
         this.mintable = attachment.getMintable();
     }

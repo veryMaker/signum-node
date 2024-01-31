@@ -87,7 +87,7 @@ public class DGSDeliveryTest extends AbstractTransactionTest {
     assertNotNull(attachment);
 
     assertEquals(DELIVERY, attachment.getTransactionType());
-    assertEquals(discountNQTParameter, attachment.getDiscountNQT());
+    assertEquals(discountNQTParameter, attachment.getDiscountNqt());
   }
 
   @Test
