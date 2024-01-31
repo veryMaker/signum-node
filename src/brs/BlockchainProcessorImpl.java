@@ -1022,8 +1022,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           slotIdx += 1;
         }
 
-        if (calculatedTotalAmount > block.getTotalAmountNQT()
-            || calculatedTotalFee > block.getTotalFeeNQT()) {
+        if (calculatedTotalAmount > block.getTotalAmountNqt()
+            || calculatedTotalFee > block.getTotalFeeNqt()) {
           throw new BlockNotAcceptedException("Total amount or fee don't match transaction totals for block " + block.getHeight());
         }
 
@@ -1040,8 +1040,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
           throw new BlockNotAcceptedException("Payload hash doesn't match for block " + block.getHeight());
         }
 
-        long remainingAmount = Convert.safeSubtract(block.getTotalAmountNQT(), calculatedTotalAmount);
-        long remainingFee = Convert.safeSubtract(block.getTotalFeeNQT(), calculatedTotalFee);
+        long remainingAmount = Convert.safeSubtract(block.getTotalAmountNqt(), calculatedTotalAmount);
+        long remainingFee = Convert.safeSubtract(block.getTotalFeeNqt(), calculatedTotalFee);
 
         blockService.setPrevious(block, previousLastBlock);
         blockListeners.notify(block, Event.BEFORE_BLOCK_ACCEPT);
@@ -1101,7 +1101,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     AtBlock atBlock;
     AT.clearPending(block.getHeight(), block.getGeneratorId());
     try {
-      atBlock = AtController.validateATs(block.getBlockATs(), blockchain.getHeight(),block.getGeneratorId());
+      atBlock = AtController.validateATs(block.getBlockAts(), blockchain.getHeight(),block.getGeneratorId());
     } catch (AtException e) {
       throw new BlockNotAcceptedException("ats are not matching at block height " + blockchain.getHeight() + " (" + e + ")");
     }

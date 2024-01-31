@@ -230,7 +230,7 @@ public final class DebugTrace {
   }
 
   private Map<String,String> getValues(long accountId, Block block) {
-    long fee = block.getTotalFeeNQT();
+    long fee = block.getTotalFeeNqt();
     if (fee == 0) {
       return Collections.emptyMap();
     }

@@ -211,18 +211,18 @@ public class BlockServiceImpl implements BlockService {
       }
     }
     if (!Signum.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
-      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + blockReward);
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNqt() + blockReward);
+      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNqt() + blockReward);
     } else {
       Account rewardAccount = getRewardAccount(block);
 
-      long rewardFeesNQT = block.getTotalFeeNQT();
+      long rewardFeesNQT = block.getTotalFeeNqt();
       if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES)) {
-        rewardFeesNQT -= block.getTotalFeeCashBackNQT();
-        rewardFeesNQT -= block.getTotalFeeBurntNQT();
+        rewardFeesNQT -= block.getTotalFeeCashBackNqt();
+        rewardFeesNQT -= block.getTotalFeeBurntNqt();
 
         Account nullAccount = accountService.getOrAddAccount(0L);
-        accountService.addToBalanceAndUnconfirmedBalanceNQT(nullAccount, block.getTotalFeeBurntNQT());
+        accountService.addToBalanceAndUnconfirmedBalanceNQT(nullAccount, block.getTotalFeeBurntNqt());
       }
       accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);
       accountService.addToForgedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);

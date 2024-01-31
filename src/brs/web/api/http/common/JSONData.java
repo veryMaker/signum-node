@@ -148,10 +148,10 @@ public final class JSONData {
     json.addProperty(SCOOP_NUM_RESPONSE, scoopNum);
     json.addProperty(TIMESTAMP_RESPONSE, block.getTimestamp());
     json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, allBlockTransactions.size());
-    json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
-    json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
-    json.addProperty(TOTAL_FEE_CASH_BACK_NQT_RESPONSE, String.valueOf(block.getTotalFeeCashBackNQT()));
-    json.addProperty(TOTAL_FEE_BURNT_NQT_RESPONSE, String.valueOf(block.getTotalFeeBurntNQT()));
+    json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNqt()));
+    json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNqt()));
+    json.addProperty(TOTAL_FEE_CASH_BACK_NQT_RESPONSE, String.valueOf(block.getTotalFeeCashBackNqt()));
+    json.addProperty(TOTAL_FEE_BURNT_NQT_RESPONSE, String.valueOf(block.getTotalFeeBurntNqt()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
     json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Signum.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
