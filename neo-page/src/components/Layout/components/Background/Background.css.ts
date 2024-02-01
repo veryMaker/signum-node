@@ -9,7 +9,6 @@ export const defaultBG = style({
   background: `linear-gradient(rgba(0%,0%,0%,80%), rgba(0%,0%,0%,80%) ), url("/images/bg.webp")`,
   backgroundSize: "cover",
   backgroundPosition: "center",
-  // "",
 });
 
 export const illuminatorContainer = style({
