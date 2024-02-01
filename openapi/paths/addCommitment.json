@@ -1,10 +1,8 @@
 {
   "post": {
     "summary": "Add Commitment",
-    "description": "Adds commitment to improve mining power. The commitment will be blocked, but never leave your account.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://signum.community/signum-mining/#commitment).<br/>See also [removeCommitment](#get-/api-requestType-removeCommitment) ",
-    "tags": [
-      "account", "mining"
-    ],
+    "description": "Adds commitment to improve mining power. The commitment will be blocked, but never leave your account.<br/>Read more about mining on the [official Signum Site](https://signum.network/mining) and on the [community wiki](https://wiki.signum.network/signum-mining/#commitment).<br/>See also [removeCommitment](#get-/api-requestType-removeCommitment) ",
+    "tags": ["account", "mining"],
     "parameters": [
       {
         "$ref": "../parameters/transaction/amountNQT.json"
@@ -29,7 +27,7 @@
       "200": {
         "$ref": "../responses/transaction.json"
       },
-      "500" : {
+      "500": {
         "$ref": "../responses/error.json"
       }
     }

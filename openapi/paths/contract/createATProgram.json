@@ -1,10 +1,8 @@
 {
   "post": {
     "summary": "Publish Smart Contract",
-    "description": "Publishes/Deploys a Smart Contract.<br/>Read more about smart contracts on the [official Signum Site](https://signum.network/smartcontracts) and on the [community wiki](https://signum.community/signum-smart-contracts/).<br/>See also [SmartC](https://github.com/deleterium/SmartC/tree/stable/docs) and [SmartJ](https://github.com/signum-network/signum-smartj) ",
-    "tags": [
-      "contract"
-    ],
+    "description": "Publishes/Deploys a Smart Contract.<br/>Read more about smart contracts on the [official Signum Site](https://signum.network/smartcontracts) and on the [community wiki](https://wiki.signum.network/signum-smart-contracts/).<br/>See also [SmartC](https://github.com/deleterium/SmartC/tree/stable/docs) and [SmartJ](https://github.com/signum-network/signum-smartj) ",
+    "tags": ["contract"],
     "parameters": [
       {
         "name": "name",
