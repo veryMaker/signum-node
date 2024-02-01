@@ -2,7 +2,7 @@ package brs.db.store;
 
 import brs.Escrow;
 import brs.Transaction;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.sql.DbKey;
 
@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface EscrowStore {
 
-  BurstKey.LongKeyFactory<Escrow> getEscrowDbKeyFactory();
+  SignumKey.LongKeyFactory<Escrow> getEscrowDbKeyFactory();
 
   VersionedEntityTable<Escrow> getEscrowTable();
 

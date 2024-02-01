@@ -1,14 +1,14 @@
 package brs.db.store;
 
 import brs.Alias;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 
 import java.util.Collection;
 
 public interface AliasStore {
-  BurstKey.LongKeyFactory<Alias> getAliasDbKeyFactory();
-  BurstKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory();
+  SignumKey.LongKeyFactory<Alias> getAliasDbKeyFactory();
+  SignumKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory();
 
   VersionedEntityTable<Alias> getAliasTable();
 

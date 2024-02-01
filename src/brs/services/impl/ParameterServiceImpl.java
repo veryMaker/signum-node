@@ -5,8 +5,8 @@ import brs.assetexchange.AssetExchange;
 import brs.at.AT;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.http.ParameterException;
-import brs.http.common.Parameters;
+import brs.web.api.http.common.ParameterException;
+import brs.web.api.http.common.Parameters;
 import brs.services.*;
 import brs.util.Convert;
 import brs.util.JSON;
@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static brs.http.JSONResponses.*;
-import static brs.http.common.Parameters.*;
-import static brs.http.common.ResultFields.ERROR_CODE_RESPONSE;
-import static brs.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
+import static brs.web.api.http.common.JSONResponses.*;
+import static brs.web.api.http.common.Parameters.*;
+import static brs.web.api.http.common.ResultFields.ERROR_CODE_RESPONSE;
+import static brs.web.api.http.common.ResultFields.ERROR_DESCRIPTION_RESPONSE;
 
 public class ParameterServiceImpl implements ParameterService {
 
@@ -53,12 +53,12 @@ public class ParameterServiceImpl implements ParameterService {
   }
 
   @Override
-  public Account getAccount(HttpServletRequest req) throws BurstException {
+  public Account getAccount(HttpServletRequest req) throws SignumException {
     return getAccount(req, true);
   }
-  
+
   @Override
-  public Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException {
+  public Account getAccount(HttpServletRequest req, boolean checkPresent) throws SignumException {
     String accountId = Convert.emptyToNull(req.getParameter(ACCOUNT_PARAMETER));
     String heightValue = Convert.emptyToNull(req.getParameter(HEIGHT_PARAMETER));
     if (accountId == null && !checkPresent) {
@@ -77,12 +77,12 @@ public class ParameterServiceImpl implements ParameterService {
         throw new ParameterException(INCORRECT_HEIGHT);
       }
     }
-    
+
     try {
       SignumAddress accountAddress = Convert.parseAddress(accountId);
       Account account = height >= 0 ? accountService.getAccount(accountAddress.getSignedLongId(), height)
           : accountService.getAccount(accountAddress.getSignedLongId());
-      
+
       if(account == null && accountAddress.getPublicKey() == null) {
         throw new ParameterException(UNKNOWN_ACCOUNT);
       }
@@ -93,11 +93,21 @@ public class ParameterServiceImpl implements ParameterService {
       if(account.getPublicKey() == null && accountAddress.getPublicKey() != null) {
         account.setPublicKey(accountAddress.getPublicKey());
       }
-      
+
       if(accountAddress.getPublicKey() != null && account.getPublicKey() != null && !Arrays.equals(account.getPublicKey(), accountAddress.getPublicKey())) {
         throw new ParameterException(INCORRECT_ACCOUNT);
       }
-      
+
+      if(Account.checkIsAT(account)) {
+        AT at = atService.getAT(account.getId());
+        if(at == null) {
+          throw new ParameterException(UNKNOWN_AT);
+        }
+        account.setDescription(at.getDescription());
+        account.setName(at.getName());
+        account.setIsAt(true);
+      }
+
       return account;
     } catch (RuntimeException e) {
       throw new ParameterException(INCORRECT_ACCOUNT);
@@ -352,7 +362,7 @@ public class ParameterServiceImpl implements ParameterService {
       try {
         byte[] bytes = Convert.parseHexString(transactionBytes);
         return transactionProcessor.parseTransaction(bytes);
-      } catch (BurstException.ValidationException | RuntimeException e) {
+      } catch (SignumException.ValidationException | RuntimeException e) {
           logger.debug(e.getMessage(), e); // TODO remove?
         JsonObject response = new JsonObject();
         response.addProperty(ERROR_CODE_RESPONSE, 4);
@@ -363,7 +373,7 @@ public class ParameterServiceImpl implements ParameterService {
       try {
         JsonObject json = JSON.getAsJsonObject(JSON.parse(transactionJSON));
         return transactionProcessor.parseTransaction(json);
-      } catch (BurstException.ValidationException | RuntimeException e) {
+      } catch (SignumException.ValidationException | RuntimeException e) {
         logger.debug(e.getMessage(), e);
         JsonObject response = new JsonObject();
         response.addProperty(ERROR_CODE_RESPONSE, 4);
@@ -407,12 +417,17 @@ public class ParameterServiceImpl implements ParameterService {
   public boolean getIncludeIndirect(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(INCLUDE_INDIRECT_PARAMETER));
   }
-  
+
   @Override
   public boolean getAmountCommitted(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(GET_COMMITTED_AMOUNT_PARAMETER));
   }
-  
+
+  @Override
+  public boolean getBidirectional(HttpServletRequest req) {
+    return Boolean.parseBoolean(req.getParameter(BIDIRECTIONAL_PARAMETER));
+  }
+
   @Override
   public boolean getEstimateCommitment(HttpServletRequest req) {
     return Boolean.parseBoolean(req.getParameter(ESTIMATE_COMMITMENT_PARAMETER));

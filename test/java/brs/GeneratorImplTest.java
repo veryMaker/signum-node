@@ -25,7 +25,7 @@ public class GeneratorImplTest {
 
     private static final byte[] exampleGenSig = Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
     private static final long exampleBaseTarget = 70312;
-    private static final long exampleAverageCommitment = Constants.ONE_BURST * 10;
+    private static final long exampleAverageCommitment = Constants.ONE_SIGNA * 10;
     private static final int exampleHeight = 500000;
 
     @Before

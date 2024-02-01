@@ -1,12 +1,11 @@
 package brs.db.sql;
 
 import brs.Alias;
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.Signum;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
-import brs.schema.tables.records.AssetRecord;
 import brs.util.Convert;
 
 import org.jooq.Condition;
@@ -14,10 +13,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Result;
-import org.jooq.SelectQuery;
 import org.jooq.SortField;
-import org.jooq.impl.DSL;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,13 +21,12 @@ import java.util.Locale;
 
 import static brs.schema.Tables.ALIAS;
 import static brs.schema.Tables.ALIAS_OFFER;
-import static brs.schema.Tables.ASSET;
 
 public class SqlAliasStore implements AliasStore {
 
   private static final DbKey.LongKeyFactory<Alias.Offer> offerDbKeyFactory = new DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
       @Override
-      public BurstKey newKey(Alias.Offer offer) {
+      public SignumKey newKey(Alias.Offer offer) {
         return offer.dbKey;
       }
     };
@@ -70,20 +65,20 @@ public class SqlAliasStore implements AliasStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory() {
     return offerDbKeyFactory;
   }
 
-  private static final BurstKey.LongKeyFactory<Alias> aliasDbKeyFactory = new DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
+  private static final SignumKey.LongKeyFactory<Alias> aliasDbKeyFactory = new DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
 
       @Override
-      public BurstKey newKey(Alias alias) {
+      public SignumKey newKey(Alias alias) {
         return alias.dbKey;
       }
     };
 
   @Override
-  public BurstKey.LongKeyFactory<Alias> getAliasDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Alias> getAliasDbKeyFactory() {
     return aliasDbKeyFactory;
   }
 
@@ -101,7 +96,7 @@ public class SqlAliasStore implements AliasStore {
   private void saveOffer(Alias.Offer offer) {
     Db.useDSLContext(ctx -> {
       ctx.insertInto(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
-              .values(offer.getId(), offer.getPriceNQT(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Burst.getBlockchain().getHeight())
+              .values(offer.getId(), offer.getPriceNQT(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Signum.getBlockchain().getHeight())
               .execute();
     });
   }
@@ -136,7 +131,7 @@ public class SqlAliasStore implements AliasStore {
       set(ALIAS.ALIAS_NAME_LOWER, alias.getAliasName().toLowerCase(Locale.ENGLISH)).
       set(ALIAS.ALIAS_URI, alias.getAliasURI()).
       set(ALIAS.TIMESTAMP, alias.getTimestamp()).
-      set(ALIAS.HEIGHT, Burst.getBlockchain().getHeight()).execute();
+      set(ALIAS.HEIGHT, Signum.getBlockchain().getHeight()).execute();
   }
 
   private final VersionedEntityTable<Alias> aliasTable;

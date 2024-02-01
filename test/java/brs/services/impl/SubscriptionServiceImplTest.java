@@ -3,8 +3,8 @@ package brs.services.impl;
 import brs.Blockchain;
 import brs.Subscription;
 import brs.common.AbstractUnitTest;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.db.store.SubscriptionStore;
@@ -49,7 +49,7 @@ public class SubscriptionServiceImplTest extends AbstractUnitTest {
   public void getSubscription() {
     final long subscriptionId = 123L;
 
-    final BurstKey mockSubscriptionKey = mock(BurstKey.class);
+    final SignumKey mockSubscriptionKey = mock(SignumKey.class);
 
     final Subscription mockSubscription = mock(Subscription.class);
 

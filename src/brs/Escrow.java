@@ -1,6 +1,6 @@
 package brs;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 
 import java.util.Collection;
 
@@ -77,10 +77,10 @@ public class Escrow {
 
     public final Long escrowId;
     public final Long accountId;
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
     private DecisionType decisionType;
 
-    public Decision(BurstKey dbKey, Long escrowId, Long accountId, DecisionType decisionType) {
+    public Decision(SignumKey dbKey, Long escrowId, Long accountId, DecisionType decisionType) {
       this.dbKey = dbKey;
       this.escrowId = escrowId;
       this.accountId = accountId;
@@ -108,13 +108,13 @@ public class Escrow {
   public final Long senderId;
   public final Long recipientId;
   public final Long id;
-  public final BurstKey dbKey;
+  public final SignumKey dbKey;
   public final Long amountNQT;
   public final int requiredSigners;
   public final int deadline;
   public final DecisionType deadlineAction;
 
-  public Escrow(BurstKey dbKey, Account sender,
+  public Escrow(SignumKey dbKey, Account sender,
       Account recipient,
       Long id,
       Long amountNQT,
@@ -131,7 +131,7 @@ public class Escrow {
     this.deadlineAction = deadlineAction;
   }
 
-  protected Escrow(Long id, Long senderId, Long recipientId, BurstKey dbKey, Long amountNQT,
+  protected Escrow(Long id, Long senderId, Long recipientId, SignumKey dbKey, Long amountNQT,
       int requiredSigners, int deadline, DecisionType deadlineAction) {
     this.senderId = senderId;
     this.recipientId = recipientId;
@@ -164,7 +164,7 @@ public class Escrow {
   }
 
   public Collection<Decision> getDecisions() {
-    return Burst.getStores().getEscrowStore().getDecisions(id);
+    return Signum.getStores().getEscrowStore().getDecisions(id);
   }
 
   public int getDeadline() {

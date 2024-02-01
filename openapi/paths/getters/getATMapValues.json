@@ -28,6 +28,12 @@
         },
         "in": "query",
         "description": "The value to be searched for"
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
       }
     ],
     "responses": {

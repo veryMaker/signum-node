@@ -7,27 +7,27 @@ public final class Constants {
 
   public static final String SIGNUM_NETWORK_NAME = "Signum";
 
-  public static final int BURST_DIFF_ADJUST_CHANGE_BLOCK = 2700;
+  public static final int SIGNUM_DIFF_ADJUST_CHANGE_BLOCK = 2700;
 
-  public static final long BURST_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME = 4;
+  public static final long SIGNA_REWARD_RECIPIENT_ASSIGNMENT_WAIT_TIME = 4;
 
   // not sure when these were enabled, but they each do an alias lookup every block if greater than the current height
-  public static final long BURST_ESCROW_START_BLOCK = 0;
-  public static final long BURST_SUBSCRIPTION_START_BLOCK = 0;
-  public static final int BURST_SUBSCRIPTION_MIN_FREQ = 3600;
-  public static final int BURST_SUBSCRIPTION_MAX_FREQ = 31536000;
+  public static final long SIGNUM_ESCROW_START_BLOCK = 0;
+  public static final long SIGNUM_SUBSCRIPTION_START_BLOCK = 0;
+  public static final int SIGNUM_SUBSCRIPTION_MIN_FREQ = 3600;
+  public static final int SIGNUM_SUBSCRIPTION_MAX_FREQ = 31536000;
 
   public static final int BLOCK_HEADER_LENGTH = 232;
 
-  public static final long MAX_BALANCE_BURST = 2158812800L;
+  public static final long MAX_BALANCE_SIGNA = 2158812800L;
 
   public static final long FEE_QUANT_SIP3 = 735_000;
   public static final long FEE_QUANT_SIP34 = 1_000_000;
-  public static final long ONE_BURST = 100000000;
-  public static final long INITIAL_COMMITMENT = 1000 * ONE_BURST;
+  public static final long ONE_SIGNA = 100000000;
+  public static final long INITIAL_COMMITMENT = 1000 * ONE_SIGNA;
   public static final int COMMITMENT_WAIT = 60;
 
-  public static final long MAX_BALANCE_NQT = MAX_BALANCE_BURST * ONE_BURST;
+  public static final long MAX_BALANCE_NQT = MAX_BALANCE_SIGNA * ONE_SIGNA;
   public static final long INITIAL_BASE_TARGET = 18325193796L;
   public static final int CAPACITY_ESTIMATION_BLOCKS_MAX = 10800 * 3;
   public static final int CAPACITY_ESTIMATION_BLOCKS = 360;
@@ -53,7 +53,7 @@ public final class Constants {
   public static final int MAX_ACCOUNT_DESCRIPTION_LENGTH = 1000;
 
   public static final long MAX_ASSET_QUANTITY_QNT = 1000000000L * 100000000L;
-  public static final long ASSET_ISSUANCE_FEE_NQT = 1000 * ONE_BURST;
+  public static final long ASSET_ISSUANCE_FEE_NQT = 1000 * ONE_SIGNA;
   public static final int MIN_ASSET_NAME_LENGTH = 3;
   public static final int MAX_ASSET_NAME_LENGTH = 10;
   public static final int MAX_ASSET_DESCRIPTION_LENGTH = 1000;
@@ -77,7 +77,7 @@ public final class Constants {
 
   public static final String HTTP = "http://";
 
-  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = 100 * ONE_BURST;
+  static final long UNCONFIRMED_POOL_DEPOSIT_NQT = 100 * ONE_SIGNA;
 
   // TODO burstkit4j integration
   public static final long EPOCH_BEGINNING;
@@ -110,6 +110,8 @@ public final class Constants {
   public static final String PROTOCOL = "protocol";
 
   public static final int BLOCK_PROCESS_THREAD_DELAY = 500; // Milliseconds
+
+  public static final byte[] AT_PUBLIC_KEY_BYTES = new byte[32];;
 
   private Constants() {
   } // never

@@ -4,6 +4,7 @@
 name: Build Signum Node
 
 on:
+  pull_request:
   push:
     branches:
       - '**'
@@ -14,10 +15,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up JDK 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 11
+          distribution: 'zulu'
+          java-version: '11'
       - name: Build with Gradle and run all tests
         run: ./gradlew test

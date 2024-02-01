@@ -24,7 +24,7 @@ public interface BlockchainProcessor extends Observable<Block, BlockchainProcess
 
   int getMinRollbackHeight();
 
-  void processPeerBlock(JsonObject request, Peer peer) throws BurstException;
+  void processPeerBlock(JsonObject request, Peer peer) throws SignumException;
 
   void fullReset();
 
@@ -33,7 +33,7 @@ public interface BlockchainProcessor extends Observable<Block, BlockchainProcess
 
   List<Block> popOffTo(int height);
 
-  class BlockNotAcceptedException extends BurstException {
+  class BlockNotAcceptedException extends SignumException {
 
     BlockNotAcceptedException(String message) {
       super(message);

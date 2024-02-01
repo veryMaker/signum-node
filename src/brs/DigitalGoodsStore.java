@@ -1,7 +1,7 @@
 package brs;
 
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.VersionedValuesTable;
 
@@ -18,16 +18,16 @@ public final class DigitalGoodsStore {
 
   public static class Goods {
 
-    private static BurstKey.LongKeyFactory<Goods> goodsDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getGoodsDbKeyFactory();
+    private static SignumKey.LongKeyFactory<Goods> goodsDbKeyFactory() {
+      return Signum.getStores().getDigitalGoodsStoreStore().getGoodsDbKeyFactory();
     }
 
     private static VersionedEntityTable<Goods> goodsTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getGoodsTable();
+      return Signum.getStores().getDigitalGoodsStoreStore().getGoodsTable();
     }
 
     private final long id;
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
     private final long sellerId;
     private final String name;
     private final String description;
@@ -37,7 +37,7 @@ public final class DigitalGoodsStore {
     private long priceNQT;
     private boolean delisted;
 
-    protected Goods(long id, BurstKey dbKey, long sellerId, String name, String description, String tags, int timestamp,
+    protected Goods(long id, SignumKey dbKey, long sellerId, String name, String description, String tags, int timestamp,
                     int quantity, long priceNQT, boolean delisted) {
       this.id = id;
       this.dbKey = dbKey;
@@ -51,7 +51,7 @@ public final class DigitalGoodsStore {
       this.delisted = delisted;
     }
 
-    public Goods(BurstKey dbKey, Transaction transaction, Attachment.DigitalGoodsListing attachment) {
+    public Goods(SignumKey dbKey, Transaction transaction, Attachment.DigitalGoodsListing attachment) {
       this.dbKey = dbKey;
       this.id = transaction.getId();
       this.sellerId = transaction.getSenderId();
@@ -121,28 +121,28 @@ public final class DigitalGoodsStore {
 
   public static class Purchase {
 
-    private static BurstKey.LongKeyFactory<Purchase> purchaseDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPurchaseDbKeyFactory();
+    private static SignumKey.LongKeyFactory<Purchase> purchaseDbKeyFactory() {
+      return Signum.getStores().getDigitalGoodsStoreStore().getPurchaseDbKeyFactory();
     }
 
-    private static BurstKey.LongKeyFactory<Purchase> feedbackDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackDbKeyFactory();
+    private static SignumKey.LongKeyFactory<Purchase> feedbackDbKeyFactory() {
+      return Signum.getStores().getDigitalGoodsStoreStore().getFeedbackDbKeyFactory();
     }
 
     private static VersionedValuesTable<Purchase, EncryptedData> feedbackTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getFeedbackTable();
+      return Signum.getStores().getDigitalGoodsStoreStore().getFeedbackTable();
     }
 
-    private static BurstKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackDbKeyFactory();
+    private static SignumKey.LongKeyFactory<Purchase> publicFeedbackDbKeyFactory() {
+      return Signum.getStores().getDigitalGoodsStoreStore().getPublicFeedbackDbKeyFactory();
     }
 
     private static VersionedValuesTable<Purchase, String> publicFeedbackTable() {
-      return Burst.getStores().getDigitalGoodsStoreStore().getPublicFeedbackTable();
+      return Signum.getStores().getDigitalGoodsStoreStore().getPublicFeedbackTable();
     }
 
     private final long id;
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
     private final long buyerId;
     private final long goodsId;
     private final long sellerId;
@@ -176,7 +176,7 @@ public final class DigitalGoodsStore {
       this.isPending = true;
     }
 
-    protected Purchase(long id, BurstKey dbKey, long buyerId, long goodsId, long sellerId, int quantity,
+    protected Purchase(long id, SignumKey dbKey, long buyerId, long goodsId, long sellerId, int quantity,
                        long priceNQT, int deadline, EncryptedData note, int timestamp, boolean isPending,
                        EncryptedData encryptedGoods,EncryptedData refundNote,
                        boolean hasFeedbackNotes, boolean hasPublicFeedbacks,

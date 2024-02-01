@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
 import brs.Asset;
-import brs.Burst;
+import brs.Signum;
 import brs.TransactionType;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.Props;
@@ -59,13 +59,13 @@ class AtMachineProcessor {
 
                 long minHolding = AtApiHelper.getLong(machineData.getB1());
                 long assetId = AtApiHelper.getLong(machineData.getB2());
-                Asset asset = Burst.getAssetExchange().getAsset(assetId);
-                int maxIndirects = Burst.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
+                Asset asset = Signum.getAssetExchange().getAsset(assetId);
+                int maxIndirects = Signum.getPropertyService().getInt(Props.MAX_INDIRECTS_PER_BLOCK);
                 int holdersCount = 0;
 
                 if(asset != null) {
-                  boolean unconfirmed = !Burst.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, height);
-                  holdersCount = Burst.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
+                  boolean unconfirmed = !Signum.getFluxCapacitor().getValue(FluxValues.DISTRIBUTION_FIX, height);
+                  holdersCount = Signum.getAssetExchange().getAssetAccountsCount(asset, minHolding, true, unconfirmed);
                   if(indirectsCount + holdersCount <= maxIndirects){
                     // distribution actually takes place only if we are not over the limit
                     steps += holdersCount;
@@ -441,7 +441,7 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_SET_IDX) {
-          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
+          if (Signum.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
             rc = get3Addrs();
             if (rc == 0 || disassemble) {
                 rc = 13;
@@ -453,7 +453,7 @@ class AtMachineProcessor {
                 } else {
                       int addr = (int) ( machineData.getApData().getLong(fun.addr2 * 8)
                                          + machineData.getApData().getLong(fun.addr3 * 8) );
-                      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                      if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
                         rc = -1;
                       }
                       else {
@@ -595,7 +595,7 @@ class AtMachineProcessor {
                 }
             }
         } else if (op == OpCode.E_OP_CODE_IDX_DAT) {
-          if (Burst.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
+          if (Signum.getFluxCapacitor().getValue(FluxValues.SIGNUM, machineData.getCreationBlockHeight())) {
             rc = get3Addrs();
             if (rc == 0 || disassemble) {
                 rc=13;
@@ -607,7 +607,7 @@ class AtMachineProcessor {
                 } else {
                       int addr = (int) (machineData.getApData().getLong(fun.addr1 * 8)
                                         + machineData.getApData().getLong(fun.addr2 * 8));
-                      if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
+                      if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight()) && !validAddr(addr, false)) {
                         rc = -1;
                       }
                       else {
@@ -923,7 +923,7 @@ class AtMachineProcessor {
             } else {
                 machineData.getMachineState().pc += rc;
                 machineData.getMachineState().stopped = true;
-                if (Burst.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight())) {
+                if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_ATS, machineData.getCreationBlockHeight())) {
                   machineData.setWaitForNumberOfBlocks(0);
                 }
                 else {

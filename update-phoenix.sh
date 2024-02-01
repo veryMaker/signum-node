@@ -8,7 +8,7 @@ PHOENIX_DIR=./html/ui/phoenix/
 if [[ ! -e $PHOENIX_DIR ]]; then
   echo "Cannot find $PHOENIX_DIR"
   echo "🚫 Please run this script in your signum-node root dir (aside signum-node executable)"
-  exit -1
+  exit 1
 fi
 
 # prepare tmp folder

@@ -1,7 +1,7 @@
 package brs.db.sql;
 
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.Signum;
+import brs.db.SignumKey;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.Dbs;
 import brs.props.PropertyService;
@@ -11,23 +11,21 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.ResultQuery;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.JDBCUtils;
-import org.mariadb.jdbc.MariaDbDataSource;
-import org.mariadb.jdbc.UrlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,8 +36,8 @@ public final class Db {
   private static HikariDataSource cp;
   private static SQLDialect dialect;
   private static final ThreadLocal<Connection> localConnection = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionCaches = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionBatches = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<SignumKey, Object>>> transactionCaches = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<SignumKey, Object>>> transactionBatches = new ThreadLocal<>();
 
   private static DBCacheManagerImpl dbCacheManager;
 
@@ -61,6 +59,7 @@ public final class Db {
     try {
       HikariConfig config = new HikariConfig();
       config.setJdbcUrl(dbUrl);
+      config.setAutoCommit(true);
       if (dbUsername != null)
         config.setUsername(dbUsername);
       if (dbPassword != null)
@@ -69,8 +68,8 @@ public final class Db {
       config.setMaximumPoolSize(propertyService.getInt(Props.DB_CONNECTIONS));
 
       FluentConfiguration flywayBuilder = Flyway.configure()
-              .dataSource(dbUrl, dbUsername, dbPassword)
-              .baselineOnMigrate(true);
+        .dataSource(dbUrl, dbUsername, dbPassword)
+        .baselineOnMigrate(true);
       String locationDialect = null;
       String location = "classpath:/brs/db/sql/migration";
 
@@ -78,7 +77,6 @@ public final class Db {
         case MYSQL:
         case MARIADB:
           locationDialect = "classpath:/db/migration_mariadb";
-          config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "512");
           config.addDataSourceProperty("prepStmtCacheSqlLimit", "4096");
@@ -92,29 +90,11 @@ public final class Db {
           config.addDataSourceProperty("maintainTimeStats", "false");
           config.addDataSourceProperty("useUnbufferedIO", "false");
           config.addDataSourceProperty("useReadAheadInput", "false");
-          MariaDbDataSource flywayDataSource = new MariaDbDataSource(dbUrl) {
-            @Override
-            protected synchronized void initialize() throws SQLException {
-              super.initialize();
-              Properties props = new Properties();
-              props.setProperty("user", dbUsername);
-              props.setProperty("password", dbPassword);
-              props.setProperty("useMysqlMetadata", "true");
-              try {
-                Field f = MariaDbDataSource.class.getDeclaredField("urlParser");
-                f.setAccessible(true);
-                f.set(this, UrlParser.parse(dbUrl, props));
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
-            }
-          };
-          flywayBuilder.dataSource(flywayDataSource); // TODO Remove this hack once a stable version of Flyway has this bug fixed
           config.setConnectionInitSql("SET NAMES utf8mb4;");
           break;
         case H2:
           Class.forName("org.h2.Driver");
-          locationDialect = "classpath:/db/migration_h2";
+          locationDialect = "classpath:/db/migration_h2_v2";
           config.setAutoCommit(true);
           config.addDataSourceProperty("cachePrepStmts", "true");
           config.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -122,6 +102,10 @@ public final class Db {
           config.addDataSourceProperty("DATABASE_TO_UPPER", "false");
           config.addDataSourceProperty("CASE_INSENSITIVE_IDENTIFIERS", "true");
           break;
+        case POSTGRES:
+          Class.forName("org.postgresql.Driver");
+          locationDialect = "classpath:/db/migration_postgres";
+          // check https://jdbc.postgresql.org/documentation/use/ for more options
         default:
           break;
       }
@@ -150,7 +134,7 @@ public final class Db {
   } // never
 
   public static Dbs getDbsByDatabaseType() {
-    logger.info("Using SQL Backend with Dialect {}", dialect.getName());
+    logger.info("Using SQL Backend with Dialect {} - Version {}", dialect.getName(), getDatabaseVersion());
     return new SqlDbs();
   }
 
@@ -167,29 +151,27 @@ public final class Db {
   }
 
   public static void shutdown() {
-    if (cp == null || cp.isClosed() ) {
+    if (cp == null || cp.isClosed()) {
       return;
     }
     if (dialect == SQLDialect.H2) {
-      try{
+      try {
         Connection con = cp.getConnection();
         Statement stmt = con.createStatement();
         // COMPACT is not giving good result.
-        if(Burst.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+        if (Signum.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
           logger.info("H2 defragmentation started, this can take a while");
           stmt.execute("SHUTDOWN DEFRAG");
         } else {
           stmt.execute("SHUTDOWN");
         }
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         logger.info(e.toString(), e);
-      }
-      finally {
+      } finally {
         logger.info("Database shutdown completed.");
       }
     }
-    if (cp != null && !cp.isClosed() ) {
+    if (cp != null && !cp.isClosed()) {
       cp.close();
     }
   }
@@ -197,23 +179,20 @@ public final class Db {
   public static void backup(String filename) {
     if (dialect == SQLDialect.H2) {
       logger.info("Database backup to {} started, it might take a while.", filename);
-      try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
+      try (Connection con = cp.getConnection(); Statement stmt = con.createStatement()) {
         stmt.execute("BACKUP TO '" + filename + "'");
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         logger.info(e.toString(), e);
-      }
-      finally {
+      } finally {
         logger.info("Database backup completed, file {}.", filename);
       }
-    }
-    else {
+    } else {
       logger.error("Backup not yet implemented for {}", dialect.toString());
     }
   }
 
   private static Connection getPooledConnection() throws SQLException {
-      return cp.getConnection();
+    return cp.getConnection();
   }
 
   public static Connection getConnection() throws SQLException {
@@ -237,33 +216,33 @@ public final class Db {
   }
 
   private static DSLContext getDSLContext() {
-    Connection con    = localConnection.get();
+    Connection con = localConnection.get();
     Settings settings = new Settings();
+
     settings.setRenderSchema(Boolean.FALSE);
 
     if (con == null) {
       return DSL.using(cp, dialect, settings);
-    }
-    else {
+    } else {
       settings.setStatementType(StatementType.STATIC_STATEMENT);
       return DSL.using(con, dialect, settings);
     }
   }
 
-  static <V> Map<BurstKey, V> getCache(String tableName) {
+  static <V> Map<SignumKey, V> getCache(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
     //noinspection unchecked
-    return (Map<BurstKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    return (Map<SignumKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
-  static <V> Map<BurstKey, V> getBatch(String tableName) {
+  static <V> Map<SignumKey, V> getBatch(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
     //noinspection unchecked
-    return (Map<BurstKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    return (Map<SignumKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
   public static boolean isInTransaction() {
@@ -283,8 +262,7 @@ public final class Db {
       transactionBatches.set(new HashMap<>());
 
       return con;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e.toString(), e);
     }
   }
@@ -297,7 +275,7 @@ public final class Db {
     try {
       con.commit();
     } catch (SQLException e) {
-        throw new RuntimeException(e.toString(), e);
+      throw new RuntimeException(e.toString(), e);
     }
   }
 
@@ -308,8 +286,7 @@ public final class Db {
     }
     try {
       con.rollback();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e.toString(), e);
     }
     transactionCaches.get().clear();
@@ -345,5 +322,28 @@ public final class Db {
         logger.debug("Failed to optimize table {}", tableName, e);
       }
     });
+  }
+
+  private static String getDatabaseVersion() {
+    DSLContext ctx = getDSLContext();
+    ResultQuery queryVersion;
+    String version = "N/A";
+    try {
+      if (ctx.dialect() == SQLDialect.H2) {
+        queryVersion = ctx.resultQuery("SELECT H2VERSION()");
+      } else {
+        queryVersion = ctx.resultQuery("SELECT VERSION()");
+      }
+      Record record = queryVersion.fetchOne();
+      if (record != null) {
+        version = record.get(0, String.class);
+        if (ctx.dialect() == SQLDialect.POSTGRES) {
+          version += " (EXPERIMENTAL)";
+        }
+      }
+    } catch (Exception e) {
+      logger.warn("Failed to fetch version");
+    }
+    return version;
   }
 }

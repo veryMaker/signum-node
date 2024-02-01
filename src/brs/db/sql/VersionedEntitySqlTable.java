@@ -1,10 +1,11 @@
 package brs.db.sql;
 
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.Signum;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
     
   private static final Logger logger = LoggerFactory.getLogger(VersionedEntitySqlTable.class);
 
-  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, BurstKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
+  VersionedEntitySqlTable(String table, TableImpl<?> tableClass, SignumKey.Factory<T> dbKeyFactory, DerivedTableManager derivedTableManager) {
     super(table, tableClass, dbKeyFactory, true, derivedTableManager);
   }
 
@@ -134,7 +135,7 @@ public abstract class VersionedEntitySqlTable<T> extends EntitySqlTable<T> imple
         SelectQuery<Record> countQuery = ctx.selectQuery();
         countQuery.addFrom(tableClass);
         countQuery.addConditions(dbKey.getPKConditions(tableClass));
-        countQuery.addConditions(heightField.lt(Burst.getBlockchain().getHeight()));
+        countQuery.addConditions(heightField.lt(Signum.getBlockchain().getHeight()));
         if (ctx.fetchCount(countQuery) > 0) {
           UpdateQuery updateQuery = ctx.updateQuery(tableClass);
           updateQuery.addValue(

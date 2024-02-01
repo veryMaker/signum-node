@@ -19,7 +19,7 @@ public class AtApiHelper {
     private AtApiHelper() {
     }
 
-    private static final SignumCrypto burstCrypto = SignumCrypto.getInstance();
+    private static final SignumCrypto signumCrypto = SignumCrypto.getInstance();
 
     public static int longToHeight(long x) {
         return (int) (x >> 32);
@@ -29,11 +29,11 @@ public class AtApiHelper {
         if (bytes.length > 8) {
             throw new BufferOverflowException();
         }
-        return burstCrypto.bytesToLongLE(bytes);
+        return signumCrypto.bytesToLongLE(bytes);
     }
 
     public static byte[] getByteArray(long l) {
-        return burstCrypto.longToBytesLE(l);
+        return signumCrypto.longToBytesLE(l);
     }
 
     public static int longToNumOfTx(long x) {

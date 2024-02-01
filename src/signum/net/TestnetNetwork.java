@@ -56,6 +56,7 @@ public class TestnetNetwork extends NetworkParametersBase {
 
     setProperty(Props.P2P_PORT, "7123");
     setProperty(Props.API_PORT, "6876");
+    setProperty(Props.API_WEBSOCKET_PORT, "6877");
 
     setProperty(Props.P2P_REBROADCAST_TO, " ");
     setProperty(Props.P2P_BOOTSTRAP_PEERS, "europe3.testnet.signum.network");
@@ -64,7 +65,7 @@ public class TestnetNetwork extends NetworkParametersBase {
     setProperty(Props.P2P_USE_PEERS_DB, "false");
     setProperty(Props.P2P_SAVE_PEERS, "false");
 
-    setProperty(Props.DB_URL, "jdbc:h2:file:./db/signum-testnet;DB_CLOSE_ON_EXIT=FALSE");
+    setProperty(Props.DB_URL, "jdbc:h2:file:./db/signum-testnet-v2;DB_CLOSE_ON_EXIT=FALSE");
 
   }
 }

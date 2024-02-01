@@ -1,21 +1,23 @@
 package brs.db.sql;
 
 import brs.Attachment;
-import brs.Burst;
+import brs.Signum;
 import brs.Transaction;
 import brs.at.AT;
 import brs.at.AT.AtMapEntry;
 import brs.at.AtApiHelper;
 import brs.at.AtConstants;
 import brs.at.AtMachineState;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.ATStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AtRecord;
 import brs.schema.tables.records.AtStateRecord;
 
+import brs.util.CollectionWithIndex;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
@@ -27,17 +29,17 @@ import static brs.schema.Tables.*;
 
 public class SqlATStore implements ATStore {
 
-  private final BurstKey.LongKeyFactory<brs.at.AT> atDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
+  private final SignumKey.LongKeyFactory<brs.at.AT> atDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT>(AT.ID) {
       @Override
-      public BurstKey newKey(brs.at.AT at) {
+      public SignumKey newKey(brs.at.AT at) {
         return at.dbKey;
       }
     };
   private final VersionedEntityTable<brs.at.AT> atTable;
 
-  private final BurstKey.LongKeyFactory<brs.at.AT.ATState> atStateDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT.ATState>(AT_STATE.AT_ID) {
+  private final SignumKey.LongKeyFactory<brs.at.AT.ATState> atStateDbKeyFactory = new DbKey.LongKeyFactory<brs.at.AT.ATState>(AT_STATE.AT_ID) {
       @Override
-      public BurstKey newKey(brs.at.AT.ATState atState) {
+      public SignumKey newKey(brs.at.AT.ATState atState) {
         return atState.dbKey;
       }
     };
@@ -47,7 +49,7 @@ public class SqlATStore implements ATStore {
 
   private final DbKey.LinkKey3Factory<brs.at.AT.AtMapEntry> atMapKeyFactory = new DbKey.LinkKey3Factory<brs.at.AT.AtMapEntry>("at_id", "key1", "key2"){
     @Override
-    public BurstKey newKey(brs.at.AT.AtMapEntry atDb) {
+    public SignumKey newKey(brs.at.AT.AtMapEntry atDb) {
       return newKey(atDb.getAtId(), atDb.getKey1(), atDb.getKey2());
     }
   };
@@ -121,13 +123,13 @@ public class SqlATStore implements ATStore {
     ctx.insertInto( // .mergeInto(
       AT_STATE, AT_STATE.AT_ID, AT_STATE.STATE, AT_STATE.PREV_HEIGHT, AT_STATE.NEXT_HEIGHT, AT_STATE.SLEEP_BETWEEN, AT_STATE.PREV_BALANCE, AT_STATE.FREEZE_WHEN_SAME_BALANCE, AT_STATE.MIN_ACTIVATE_AMOUNT, AT_STATE.HEIGHT, AT_STATE.LATEST)
             //.key(AT_STATE.AT_ID, AT_STATE.HEIGHT)
-            .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Burst.getBlockchain().getHeight(), true)
+            .values(atState.getATId(), brs.at.AT.compressState(atState.getState()), atState.getPrevHeight(), atState.getNextHeight(), atState.getSleepBetween(), atState.getPrevBalance(), atState.getFreezeWhenSameBalance(), atState.getMinActivationAmount(), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 
   private void saveATMapEntry(DSLContext ctx, brs.at.AT.AtMapEntry atEntry) {
     ctx.insertInto(AT_MAP, AT_MAP.AT_ID, AT_MAP.KEY1, AT_MAP.KEY2, AT_MAP.VALUE, AT_STATE.HEIGHT, AT_STATE.LATEST)
-            .values(atEntry.getAtId(), atEntry.getKey1(), atEntry.getKey2(), atEntry.getValue(), Burst.getBlockchain().getHeight(), true)
+            .values(atEntry.getAtId(), atEntry.getKey1(), atEntry.getKey2(), atEntry.getValue(), Signum.getBlockchain().getHeight(), true)
             .execute();
   }
 
@@ -142,7 +144,7 @@ public class SqlATStore implements ATStore {
       AtApiHelper.getLong(at.getId()), AtApiHelper.getLong(at.getCreator()), at.getName(), at.getDescription(),
       at.getVersion(), at.getcSize(), at.getdSize(), at.getcUserStackBytes(),
       at.getcCallStackBytes(), at.getCreationBlockHeight(),
-      brs.at.AT.compressState(at.getApCodeBytes()), Burst.getBlockchain().getHeight(), at.getApCodeHashId()
+      brs.at.AT.compressState(at.getApCodeBytes()), Signum.getBlockchain().getHeight(), at.getApCodeHashId()
     ).execute();
   }
 
@@ -166,11 +168,11 @@ public class SqlATStore implements ATStore {
       ).and(
               ACCOUNT_BALANCE.LATEST.isTrue()
       ).and(
-              AT_STATE.NEXT_HEIGHT.lessOrEqual(Burst.getBlockchain().getHeight() + 1)
+              AT_STATE.NEXT_HEIGHT.lessOrEqual(Signum.getBlockchain().getHeight() + 1)
       ).and(
         ACCOUNT_BALANCE.BALANCE.greaterOrEqual(
-                atConstants.stepFee(atConstants.atVersion(Burst.getBlockchain().getHeight()))
-                              * atConstants.apiStepMultiplier(atConstants.atVersion(Burst.getBlockchain().getHeight()))
+                atConstants.stepFee(atConstants.atVersion(Signum.getBlockchain().getHeight()))
+                              * atConstants.apiStepMultiplier(atConstants.atVersion(Signum.getBlockchain().getHeight()))
               )
       ).and(
               AT_STATE.FREEZE_WHEN_SAME_BALANCE.isFalse().or(
@@ -210,7 +212,7 @@ public class SqlATStore implements ATStore {
       return createAT(at, atState, height);
     });
   }
-  
+
   @Override
   public AtMapEntry getMapValueEntry(long atId, long key1, long key2) {
     return this.atMapTable.get(this.atMapKeyFactory.newKey(atId, key1, key2));
@@ -225,7 +227,7 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public Collection<brs.at.AT.AtMapEntry> getMapValues(long atId, long key1, Long value) {
+  public CollectionWithIndex<AtMapEntry> getMapValues(long atId, long key1, Long value, int from, int to) {
     Result<Record> result = Db.useDSLContext(ctx -> {
       SelectConditionStep<Record> request = ctx.select(AT_MAP.fields()).from(AT_MAP).where(AT_MAP.LATEST.isTrue()).and(AT_MAP.AT_ID.eq(atId))
           .and(AT_MAP.KEY1.eq(key1));
@@ -233,7 +235,7 @@ public class SqlATStore implements ATStore {
         request = request.and(AT_MAP.VALUE.eq(value));
       }
       SelectQuery<Record> query = request.orderBy(AT_MAP.HEIGHT.desc()).getQuery();
-
+      DbUtils.applyLimits(query, from, to);
       return query.fetch();
     });
 
@@ -242,7 +244,7 @@ public class SqlATStore implements ATStore {
       list.add(new brs.at.AT.AtMapEntry(atId, key1, r.get(AT_MAP.KEY2), r.get(AT_MAP.VALUE)));
     }
 
-    return list;
+    return new CollectionWithIndex<AtMapEntry>(list, from, to) ;
   }
 
   private brs.at.AT createAT(AtRecord at, AtStateRecord atState, int height) {
@@ -251,8 +253,8 @@ public class SqlATStore implements ATStore {
     int codeSize = at.getCsize();
     if(code == null) {
       // Check the creation transaction for the reference code
-      Transaction atCreationTransaction = Burst.getBlockchain().getTransaction(at.getId());
-      Transaction transaction = Burst.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
+      Transaction atCreationTransaction = Signum.getBlockchain().getTransaction(at.getId());
+      Transaction transaction = Signum.getBlockchain().getTransactionByFullHash(atCreationTransaction.getReferencedTransactionFullHash());
       if(transaction!=null && transaction.getAttachment() instanceof Attachment.AutomatedTransactionsCreation) {
         Attachment.AutomatedTransactionsCreation atCreationAttachment = (Attachment.AutomatedTransactionsCreation)transaction.getAttachment();
         AtMachineState atCreation = new AtMachineState(null, null, atCreationAttachment.getCreationBytes(), 0);
@@ -295,7 +297,7 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<brs.at.AT> getAtDbKeyFactory() {
+  public SignumKey.LongKeyFactory<brs.at.AT> getAtDbKeyFactory() {
     return atDbKeyFactory;
   }
 
@@ -310,7 +312,7 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<brs.at.AT.ATState> getAtStateDbKeyFactory() {
+  public SignumKey.LongKeyFactory<brs.at.AT.ATState> getAtStateDbKeyFactory() {
     return atStateDbKeyFactory;
   }
 
@@ -320,14 +322,14 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minAmount) {
+  public Long findTransaction(int startHeight, int endHeight, Long atID, int numOfTx, long minActivationAmount) {
     return Db.useDSLContext(ctx -> {
       SelectQuery<Record1<Long>> query = ctx.select(TRANSACTION.ID).from(TRANSACTION).where(
         TRANSACTION.HEIGHT.between(startHeight, endHeight - 1)
       ).and(
         TRANSACTION.RECIPIENT_ID.eq(atID)
       ).and(
-        TRANSACTION.AMOUNT.greaterOrEqual(minAmount)
+        TRANSACTION.AMOUNT.greaterOrEqual(minActivationAmount)
       ).orderBy(
         TRANSACTION.HEIGHT, TRANSACTION.ID
       ).getQuery();
@@ -338,14 +340,14 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
-  public int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount) {
+  public int findTransactionHeight(Long transactionId, int height, Long atID, long minActivationAmount) {
     return Db.useDSLContext(ctx -> {
       try {
         Iterator<Record1<Long>> fetch = ctx.select(TRANSACTION.ID)
                 .from(TRANSACTION)
                 .where(TRANSACTION.HEIGHT.eq(height))
                 .and(TRANSACTION.RECIPIENT_ID.eq(atID))
-                .and(TRANSACTION.AMOUNT.greaterOrEqual(minAmount))
+                .and(TRANSACTION.AMOUNT.greaterOrEqual(minActivationAmount))
                 .orderBy(TRANSACTION.HEIGHT, TRANSACTION.ID)
                 .fetch()
                 .iterator();
