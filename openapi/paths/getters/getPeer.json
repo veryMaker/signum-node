@@ -2,9 +2,7 @@
   "get": {
     "summary": "Get Node/Peer Info",
     "description": "Get information about a specific Peer. See also [Get Known Peers/Nodes](#get-/api-requestType-getPeers)",
-    "tags": [
-      "network"
-    ],
+    "tags": ["network"],
     "parameters": [
       {
         "name": "peer",
@@ -41,7 +39,7 @@
                   "type": "string"
                 },
                 "platform": {
-                  "description": "The platform name. Can be any name, but must be a receiver address for the [Signum Network Reward Program](https://signum.community/signum-snr-awards/)",
+                  "description": "The platform name. Can be any name, but must be a receiver address for the [Signum Network Reward Program](https://wiki.signum.network/signum-snr-awards/)",
                   "type": "string"
                 },
                 "version": {
@@ -51,14 +49,14 @@
                 "state": {
                   "description": "The state of the node,<br/><ul><li>0 - Not Connected</li><li>1 - Connected</li><li>2 - Disconnected</li></ul>",
                   "type": "integer",
-                  "enum": [0,1,2]
+                  "enum": [0, 1, 2]
                 },
                 "announcedAddress": {
                   "description": "The announce address of this node, if public",
                   "type": "string"
                 },
                 "shareAddress": {
-                  "description": "Indicator if the address is shared publicly. This is relevant for the [Signum Network Reward Program](https://signum.community/signum-snr-awards/)",
+                  "description": "Indicator if the address is shared publicly. This is relevant for the [Signum Network Reward Program](https://wiki.signum.network/signum-snr-awards/)",
                   "type": "boolean"
                 },
                 "downloadedVolume": {
