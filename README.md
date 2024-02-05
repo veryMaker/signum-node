@@ -6,6 +6,10 @@
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 2014.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## Network Features
 
 - Proof of Commitment - ASIC proof / Energy efficient and sustainable mining

@@ -22,6 +22,10 @@ target
 *.zip
 *.jar
 
+#ignore everything in here by default, but settings.json is already committed
+#and so will remain tracked
+**/.vscode
+
 /.gradle/
 /build/
 /bin/
