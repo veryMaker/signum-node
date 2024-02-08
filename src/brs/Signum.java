@@ -16,6 +16,7 @@ import brs.feesuggestions.FeeSuggestionCalculator;
 import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
 import brs.peer.Peers;
+import brs.props.CaselessProperties;
 import brs.props.PropertyService;
 import brs.props.PropertyServiceImpl;
 import brs.props.Props;
@@ -126,14 +127,14 @@ public final class Signum {
         logger.info("Initializing Signum Node version {}", VERSION);
 
         logger.info("Configurations from folder {}", confFolder);
-        Properties defaultProperties = new Properties();
+        CaselessProperties defaultProperties = new CaselessProperties();
         try (InputStream is = new FileInputStream(new File(confFolder, DEFAULT_PROPERTIES_NAME))) {
             defaultProperties.load(is);
         } catch (IOException e) {
             throw new RuntimeException("Error loading " + DEFAULT_PROPERTIES_NAME, e);
         }
 
-        Properties properties = new Properties(defaultProperties);
+        CaselessProperties properties = new CaselessProperties(defaultProperties);
         try (InputStream is = new FileInputStream(new File(confFolder, PROPERTIES_NAME))) {
             if (is != null) { // parse if brs.properties was loaded
                 properties.load(is);
@@ -210,7 +211,7 @@ public final class Signum {
         return true;
     }
 
-    public static void init(Properties customProperties) {
+    public static void init(CaselessProperties customProperties) {
         loadWallet(new PropertyServiceImpl(customProperties));
     }
 
