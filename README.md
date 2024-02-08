@@ -286,10 +286,12 @@ To get more details about how to work with database changes look at [more detail
 # Developers
 
 Main Developer: [jjos2372](https://github.com/jjos2372). Donation address: [S-JJQS-MMA4-GHB4-4ZNZU](https://explorer.signum.network/?action=account&account=3278233074628313816)
+
 Frequent Contributors: 
 - [ohager](https://github.com/ohager). Donation address: [S-9K9L-4CB5-88Y5-F5G4Z](https://explorer.signum.network/?action=account&account=16107620026796983538)
-- [frankTheTank72](https://github.com/frankTheTank72).
-- [damccull](https://github.com/damccull).
+- [damccull](https://github.com/damccull). Donation address: [S-GXBA-7JP9-NR7S-DCQ4V](https://explorer.signum.network/address/13657951110994294056)
+- [ipr0310](https://github.com/ipr0310). Donation address: [S-36WQ-GYQN-D856-9DUJH](https://explorer.signum.network/address/8629824288351884182)
+- [frankTheTank72](https://github.com/frankTheTank72)
 
 For more information, see [Credits](doc/Credits.md)
 
