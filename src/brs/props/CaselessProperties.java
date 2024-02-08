@@ -5,10 +5,10 @@ import java.util.Properties;
 /**
  * Overrides {@link java.util.Properties} to make all the keys lowercase,
  * thus making the config file keys case-insensitve.
- * Courtesy Jim Yingst https://coderanch.com/t/277128/java/Properties-ignoring-case
+ * Courtesy Jim Yingst
+ * https://coderanch.com/t/277128/java/Properties-ignoring-case
  */
 public class CaselessProperties extends Properties {
-
     public CaselessProperties() {
         super();
     }
