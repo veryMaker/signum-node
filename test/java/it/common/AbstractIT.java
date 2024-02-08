@@ -6,6 +6,7 @@ import brs.Signum;
 import brs.common.TestInfrastructure;
 import brs.peer.Peers;
 import brs.peer.ProcessBlock;
+import brs.props.CaselessProperties;
 import brs.props.Props;
 import com.google.gson.JsonObject;
 import java.util.Properties;
@@ -45,8 +46,8 @@ public abstract class AbstractIT {
         Signum.shutdown(true);
     }
 
-    private Properties testProperties() {
-        final Properties props = new Properties();
+    private CaselessProperties testProperties() {
+        final CaselessProperties props = new CaselessProperties();
 
         props.setProperty(Props.DEV_OFFLINE.getName(), "true");
         props.setProperty(Props.NETWORK_NAME.getName(), "Unit tests");
