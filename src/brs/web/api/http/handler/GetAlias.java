@@ -30,7 +30,7 @@ public final class GetAlias extends ApiServlet.JsonRequestHandler {
   JsonElement processRequest(HttpServletRequest req) throws ParameterException {
     final Alias alias = parameterService.getAlias(req);
     final Offer offer = aliasService.getOffer(alias);
-    final Alias tld = aliasService.getTLD(alias.getTLD());
+    final Alias tld = aliasService.getTLD(alias.getTld());
 
     return JSONData.alias(alias, tld, offer, 0);
   }

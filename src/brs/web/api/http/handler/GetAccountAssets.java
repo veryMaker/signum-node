@@ -48,11 +48,11 @@ public final class GetAccountAssets extends ApiServlet.JsonRequestHandler {
         for (Account.AccountAsset accountAsset : assets) {
             JsonObject assetBalance = new JsonObject();
             assetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
-            assetBalance.addProperty(BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
+            assetBalance.addProperty(BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQnt()));
             assetBalances.add(assetBalance);
             JsonObject unconfirmedAssetBalance = new JsonObject();
             unconfirmedAssetBalance.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
-            unconfirmedAssetBalance.addProperty(UNCONFIRMED_BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
+            unconfirmedAssetBalance.addProperty(UNCONFIRMED_BALANCE_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQnt()));
             unconfirmedAssetBalances.add(unconfirmedAssetBalance);
         }
 

@@ -90,7 +90,7 @@ public class DGSPurchaseTest extends AbstractTransactionTest {
 
     assertEquals(PURCHASE, attachment.getTransactionType());
     assertEquals(goodsQuantity, attachment.getQuantity());
-    assertEquals(goodsPrice, attachment.getPriceNQT());
+    assertEquals(goodsPrice, attachment.getPriceNqt());
     assertEquals(deliveryDeadlineTimestamp, attachment.getDeliveryDeadlineTimestamp());
     assertEquals(mockGoodsId, attachment.getGoodsId());
   }

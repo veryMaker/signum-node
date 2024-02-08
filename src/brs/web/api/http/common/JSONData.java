@@ -31,7 +31,7 @@ public final class JSONData {
     json.addProperty(TIMESTAMP_RESPONSE, alias.getTimestamp());
     json.addProperty(ALIAS_RESPONSE, Convert.toUnsignedLong(alias.getId()));
     if(tld != null) {
-      json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasURI());
+      json.addProperty(ALIAS_URI_RESPONSE, alias.getAliasUri());
       json.addProperty(TLD_RESPONSE, Convert.toUnsignedLong(tld.getId()));
       json.addProperty(TLD_NAME_RESPONSE, tld.getAliasName());
     }
@@ -40,7 +40,7 @@ public final class JSONData {
     }
 
     if (offer != null) {
-      json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNQT()));
+      json.addProperty(PRICE_NQT_RESPONSE, String.valueOf(offer.getPriceNqt()));
       if (offer.getBuyerId() != 0) {
         json.addProperty(BUYER_RESPONSE, Convert.toUnsignedLong(offer.getBuyerId()));
       }
@@ -57,10 +57,10 @@ public final class JSONData {
       json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE,  "0");
     }
     else {
-      json.addProperty(BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
-      json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, String.valueOf(account.getUnconfirmedBalanceNQT()));
-      json.addProperty(FORGED_BALANCE_NQT_RESPONSE, String.valueOf(account.getForgedBalanceNQT()));
-      json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNQT()));
+      json.addProperty(BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNqt()));
+      json.addProperty(UNCONFIRMED_BALANCE_NQT_RESPONSE, String.valueOf(account.getUnconfirmedBalanceNqt()));
+      json.addProperty(FORGED_BALANCE_NQT_RESPONSE, String.valueOf(account.getForgedBalanceNqt()));
+      json.addProperty(GUARANTEED_BALANCE_NQT_RESPONSE, String.valueOf(account.getBalanceNqt()));
     }
     return json;
   }
@@ -77,7 +77,7 @@ public final class JSONData {
     json.addProperty(DESCRIPTION_RESPONSE, asset.getDescription());
     json.addProperty(DECIMALS_RESPONSE, asset.getDecimals());
     json.addProperty(MINTABLE_RESPONSE, asset.getMintable());
-    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQNT()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(asset.getQuantityQnt()));
     if(quantityBurnt >= 0) {
       json.addProperty(QUANTITY_BURNT_QNT_RESPONSE, String.valueOf(quantityBurnt));
     }
@@ -103,8 +103,8 @@ public final class JSONData {
     JsonObject json = new JsonObject();
     putAccount(json, ACCOUNT_RESPONSE, accountAsset.getAccountId());
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(accountAsset.getAssetId()));
-    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQNT()));
-    json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQNT()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getQuantityQnt()));
+    json.addProperty(UNCONFIRMED_QUANTITY_QNT_RESPONSE, String.valueOf(accountAsset.getUnconfirmedQuantityQnt()));
     json.addProperty(IS_TREASURY_RESPONSE, accountAsset.isTreasury());
     return json;
   }
@@ -148,10 +148,10 @@ public final class JSONData {
     json.addProperty(SCOOP_NUM_RESPONSE, scoopNum);
     json.addProperty(TIMESTAMP_RESPONSE, block.getTimestamp());
     json.addProperty(NUMBER_OF_TRANSACTIONS_RESPONSE, allBlockTransactions.size());
-    json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNQT()));
-    json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNQT()));
-    json.addProperty(TOTAL_FEE_CASH_BACK_NQT_RESPONSE, String.valueOf(block.getTotalFeeCashBackNQT()));
-    json.addProperty(TOTAL_FEE_BURNT_NQT_RESPONSE, String.valueOf(block.getTotalFeeBurntNQT()));
+    json.addProperty(TOTAL_AMOUNT_NQT_RESPONSE, String.valueOf(block.getTotalAmountNqt()));
+    json.addProperty(TOTAL_FEE_NQT_RESPONSE, String.valueOf(block.getTotalFeeNqt()));
+    json.addProperty(TOTAL_FEE_CASH_BACK_NQT_RESPONSE, String.valueOf(block.getTotalFeeCashBackNqt()));
+    json.addProperty(TOTAL_FEE_BURNT_NQT_RESPONSE, String.valueOf(block.getTotalFeeBurntNqt()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
     json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Signum.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
@@ -365,7 +365,7 @@ public final class JSONData {
     json.addProperty(ASSET_RESPONSE, Convert.toUnsignedLong(assetTransfer.getAssetId()));
     putAccount(json, SENDER_RESPONSE, assetTransfer.getSenderId());
     putAccount(json, RECIPIENT_RESPONSE, assetTransfer.getRecipientId());
-    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(assetTransfer.getQuantityQNT()));
+    json.addProperty(QUANTITY_QNT_RESPONSE, String.valueOf(assetTransfer.getQuantityQnt()));
     json.addProperty(HEIGHT_RESPONSE, assetTransfer.getHeight());
     json.addProperty(TIMESTAMP_RESPONSE, assetTransfer.getTimestamp());
     if (asset != null) {

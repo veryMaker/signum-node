@@ -128,13 +128,13 @@ public class SqlBlockDb implements BlockDb {
         BLOCK.NONCE, BLOCK.ATS)
       .values(block.getId(), block.getVersion(), block.getTimestamp(),
         block.getPreviousBlockId() == 0 ? null : block.getPreviousBlockId(),
-        block.getTotalAmountNQT(), block.getTotalFeeNQT(),
-        block.getTotalFeeCashBackNQT(), block.getTotalFeeBurntNQT(),
+        block.getTotalAmountNqt(), block.getTotalFeeNqt(),
+        block.getTotalFeeCashBackNqt(), block.getTotalFeeBurntNqt(),
         block.getPayloadLength(),
         block.getGeneratorPublicKey(), block.getPreviousBlockHash(),
         block.getCumulativeDifficulty().toByteArray(), block.getBaseTarget(), block.getHeight(),
         block.getGenerationSignature(), block.getBlockSignature(), block.getPayloadHash(),
-        block.getGeneratorId(), block.getNonce(), block.getBlockATs())
+        block.getGeneratorId(), block.getNonce(), block.getBlockAts())
       .execute();
 
     Signum.getDbs().getTransactionDb().saveTransactions(block.getTransactions());

@@ -41,7 +41,7 @@ public class GetAliasTest {
     when(mockAlias.getAliasName()).thenReturn("mockAliasName");
 
     final Offer mockOffer = mock(Offer.class);
-    when(mockOffer.getPriceNQT()).thenReturn(123L);
+    when(mockOffer.getPriceNqt()).thenReturn(123L);
     when(mockOffer.getBuyerId()).thenReturn(345L);
 
     final HttpServletRequest req = QuickMocker.httpServletRequest();
@@ -52,7 +52,7 @@ public class GetAliasTest {
     final JsonObject result = (JsonObject) t.processRequest(req);
     assertNotNull(result);
     assertEquals(mockAlias.getAliasName(), JSON.getAsString(result.get(ALIAS_NAME_RESPONSE)));
-    assertEquals("" + mockOffer.getPriceNQT(), JSON.getAsString(result.get(PRICE_NQT_RESPONSE)));
+    assertEquals("" + mockOffer.getPriceNqt(), JSON.getAsString(result.get(PRICE_NQT_RESPONSE)));
     assertEquals("" + mockOffer.getBuyerId(), JSON.getAsString(result.get(BUYER_RESPONSE)));
   }
 

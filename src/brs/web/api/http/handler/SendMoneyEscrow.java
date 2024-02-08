@@ -85,7 +85,7 @@ public final class SendMoneyEscrow extends CreateTransaction {
 
     long totalAmountNQT = Convert.safeAdd(amountNQT, signers.size() * Constants.ONE_SIGNA);
     Account.Balance senderBalance = Account.getAccountBalance(sender.getId());
-    if(senderBalance.getBalanceNQT() < totalAmountNQT) {
+    if(senderBalance.getBalanceNqt() < totalAmountNQT) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 6);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Insufficient funds");

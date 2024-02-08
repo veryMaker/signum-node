@@ -77,7 +77,7 @@ public class SellAliasTest extends AbstractTransactionTest {
     assertNotNull(attachment);
 
     assertEquals(ALIAS_SELL, attachment.getTransactionType());
-    assertEquals(priceParameter, attachment.getPriceNQT());
+    assertEquals(priceParameter, attachment.getPriceNqt());
   }
 
   @Test

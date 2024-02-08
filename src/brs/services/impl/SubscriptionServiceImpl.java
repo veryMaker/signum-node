@@ -76,7 +76,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     final Alias subscriptionEnabled = aliasService.getAlias("featuresubscription", 0L);
-    return subscriptionEnabled != null && subscriptionEnabled.getAliasURI().equals("enabled");
+    return subscriptionEnabled != null && subscriptionEnabled.getAliasUri().equals("enabled");
   }
 
   @Override
@@ -179,7 +179,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       Alias alias = aliasService.getAlias(subscription.getRecipientId());
       if(alias != null) {
-        Alias tld = aliasService.getTLD(alias.getTLD());
+        Alias tld = aliasService.getTLD(alias.getTld());
         return accountService.getOrAddAccount(tld.getAccountId());
       }
     }
@@ -191,7 +191,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
     Account.Balance senderBalance = sender == null ? null : Account.getAccountBalance(sender.getId());
-    if (sender == null || senderBalance.getUnconfirmedBalanceNQT() < totalAmountNQT) {
+    if (sender == null || senderBalance.getUnconfirmedBalanceNqt() < totalAmountNQT) {
       return false;
     }
 

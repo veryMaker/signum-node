@@ -82,8 +82,8 @@ public class AtTestHelper {
             }
             return null;
         }).when(mockAtTable).insert(ArgumentMatchers.any());
-        when(mockAccount.getBalanceNQT()).thenReturn(TestConstants.TEN_SIGNA);
-        when(mockAccountBalance.getBalanceNQT()).thenReturn(TestConstants.TEN_SIGNA);
+        when(mockAccount.getBalanceNqt()).thenReturn(TestConstants.TEN_SIGNA);
+        when(mockAccountBalance.getBalanceNqt()).thenReturn(TestConstants.TEN_SIGNA);
         when(mockAccountStore.getAccountTable()).thenReturn(mockAccountTable);
         when(mockAccountStore.setOrVerify(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
                 .thenReturn(true);

@@ -78,7 +78,7 @@ public class SetAliasTest extends AbstractTransactionTest {
 
     assertEquals(ALIAS_ASSIGNMENT, attachment.getTransactionType());
     assertEquals(aliasNameParameter, attachment.getAliasName());
-    assertEquals(aliasUrl, attachment.getAliasURI());
+    assertEquals(aliasUrl, attachment.getAliasUri());
   }
 
   @Test

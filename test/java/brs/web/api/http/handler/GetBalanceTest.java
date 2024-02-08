@@ -34,9 +34,9 @@ public class GetBalanceTest {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
     Account mockAccount = mock(Account.class);
 
-    when(mockAccount.getBalanceNQT()).thenReturn(1L);
-    when(mockAccount.getUnconfirmedBalanceNQT()).thenReturn(2L);
-    when(mockAccount.getForgedBalanceNQT()).thenReturn(3L);
+    when(mockAccount.getBalanceNqt()).thenReturn(1L);
+    when(mockAccount.getUnconfirmedBalanceNqt()).thenReturn(2L);
+    when(mockAccount.getForgedBalanceNqt()).thenReturn(3L);
 
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockAccount);
 

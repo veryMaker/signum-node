@@ -447,7 +447,7 @@ public abstract class AtController {
         Account.Balance atAccount = Account.getAccountBalance(id);
 
         if (atAccount != null) {
-            return atAccount.getBalanceNQT();
+            return atAccount.getBalanceNqt();
         }
 
         return 0;

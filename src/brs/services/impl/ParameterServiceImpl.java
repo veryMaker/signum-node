@@ -98,7 +98,7 @@ public class ParameterServiceImpl implements ParameterService {
         throw new ParameterException(INCORRECT_ACCOUNT);
       }
 
-      if(Account.checkIsAT(account)) {
+      if(Account.checkIsAutomatedTransaction(account)) {
         AT at = atService.getAT(account.getId());
         if(at == null) {
           throw new ParameterException(UNKNOWN_AT);

@@ -66,7 +66,7 @@ public class AliasServiceImpl implements AliasService {
 //      // TODO: end of DB patch, to be removed
 
       if(aliasStore.getTLD(MAIN_TLD) ==  null) {
-        Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(MAIN_TLD, 0);
+        Attachment.MessagingTldAssignment attachment = new Attachment.MessagingTldAssignment(MAIN_TLD, 0);
         addTLD(0L, null, attachment);
       }
       for(String tldName : DEFAULT_TLDS) {
@@ -77,7 +77,7 @@ public class AliasServiceImpl implements AliasService {
 
         SignumCrypto crypto = SignumCrypto.getInstance();
         long id = crypto.hashToId(crypto.getSha256().digest(tldName.getBytes(StandardCharsets.UTF_8))).getSignedLongId();
-        Attachment.MessagingTLDAssignment attachment = new Attachment.MessagingTLDAssignment(tldName, 0);
+        Attachment.MessagingTldAssignment attachment = new Attachment.MessagingTldAssignment(tldName, 0);
         addTLD(id, null, attachment);
       }
       Signum.getStores().commitTransaction();
@@ -163,13 +163,13 @@ public class AliasServiceImpl implements AliasService {
 
   @Override
   public void addOrUpdateAlias(Transaction transaction, Attachment.MessagingAliasAssignment attachment) {
-    Alias alias = getAlias(attachment.getAliasName(), attachment.getTLD());
+    Alias alias = getAlias(attachment.getAliasName(), attachment.getTld());
     if (alias == null) {
       SignumKey aliasDBId = aliasDbKeyFactory.newKey(transaction.getId());
       alias = new Alias(transaction.getId(), aliasDBId, transaction, attachment);
     } else {
       alias.setAccountId(transaction.getSenderId());
-      alias.setAliasURI(attachment.getAliasURI());
+      alias.setAliasUri(attachment.getAliasUri());
       alias.setTimestamp(transaction.getBlockTimestamp());
     }
     aliasTable.insert(alias);
@@ -178,7 +178,7 @@ public class AliasServiceImpl implements AliasService {
   }
 
   @Override
-  public void addTLD(long id, Transaction transaction, Attachment.MessagingTLDAssignment attachment) {
+  public void addTLD(long id, Transaction transaction, Attachment.MessagingTldAssignment attachment) {
     SignumKey aliasDBId = aliasDbKeyFactory.newKey(id);
     Alias alias = new Alias(id, aliasDBId, transaction, attachment);
     aliasTable.insert(alias);
@@ -186,7 +186,7 @@ public class AliasServiceImpl implements AliasService {
 
   @Override
   public void sellAlias(Transaction transaction, Attachment.MessagingAliasSell attachment) {
-    final long priceNQT = attachment.getPriceNQT();
+    final long priceNQT = attachment.getPriceNqt();
     final long buyerId = transaction.getRecipientId();
     Alias alias = attachment.getVersion() > 1 ? getAlias(attachment.getAliasId()) : getAlias(attachment.getAliasName(), 0L);
     if (priceNQT > 0) {
@@ -195,7 +195,7 @@ public class AliasServiceImpl implements AliasService {
         SignumKey dbKey = offerDbKeyFactory.newKey(alias.getId());
         offerTable.insert(new Offer(dbKey, alias.getId(), priceNQT, buyerId));
       } else {
-        offer.setPriceNQT(priceNQT);
+        offer.setPriceNqt(priceNQT);
         offer.setBuyerId(buyerId);
         offerTable.insert(offer);
       }
@@ -213,7 +213,7 @@ public class AliasServiceImpl implements AliasService {
     final Offer offer = getOffer(alias);
     offerTable.delete(offer);
 
-    if(alias.getTLD() != null) {
+    if(alias.getTld() != null) {
       // only create the subscription if this is not a TLD (that has a null TLD)
       createSubscription(alias, timestamp, updateSubscription);
     }

@@ -77,7 +77,7 @@ public final class SendMoneyMulti extends CreateTransaction {
     }
 
     Account.Balance senderBalance = Account.getAccountBalance(sender.getId());
-    if(senderBalance.getBalanceNQT() < totalAmountNQT) {
+    if(senderBalance.getBalanceNqt() < totalAmountNQT) {
       JsonObject response = new JsonObject();
       response.addProperty(ERROR_CODE_RESPONSE, 6);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Insufficient funds");
@@ -86,6 +86,6 @@ public final class SendMoneyMulti extends CreateTransaction {
 
     Attachment.PaymentMultiOutCreation attachment = new Attachment.PaymentMultiOutCreation(recipients, blockchain.getHeight());
 
-    return createTransaction(req, sender, null, attachment.getAmountNQT(), attachment);
+    return createTransaction(req, sender, null, attachment.getAmountNqt(), attachment);
   }
 }

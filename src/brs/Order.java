@@ -19,8 +19,8 @@ public abstract class Order {
     this.id = transaction.getId();
     this.accountId = transaction.getSenderId();
     this.assetId = attachment.getAssetId();
-    this.quantityQNT = attachment.getQuantityQNT();
-    this.priceNQT = attachment.getPriceNQT();
+    this.quantityQNT = attachment.getQuantityQnt();
+    this.priceNQT = attachment.getPriceNqt();
     this.creationHeight = transaction.getHeight();
   }
 

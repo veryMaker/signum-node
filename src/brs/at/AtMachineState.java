@@ -397,7 +397,7 @@ public class AtMachineState {
         balance = 0L;
         AccountAsset asset = Signum.getStores().getAccountStore().getAccountAsset(AtApiHelper.getLong(getId()), assetId);
         if(asset != null) {
-          balance = asset.getQuantityQNT();
+          balance = asset.getQuantityQnt();
         }
         gBalanceAsset.put(assetId, balance);
       }

@@ -77,7 +77,7 @@ public class UnconfirmedTransactionStoreTest {
     final SignumKey mockAccountKey = mock(SignumKey.class);
     when(accountSignumKeyFactoryMock.newKey(eq(123L))).thenReturn(mockAccountKey);
     when(accountTableMock.get(eq(mockAccountKey))).thenReturn(mockAccount);
-    when(mockAccount.getUnconfirmedBalanceNQT()).thenReturn(Constants.MAX_BALANCE_NQT);
+    when(mockAccount.getUnconfirmedBalanceNqt()).thenReturn(Constants.MAX_BALANCE_NQT);
 
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
 

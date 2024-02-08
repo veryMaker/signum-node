@@ -50,7 +50,7 @@ public final class GetAliasesOnSale extends ApiServlet.JsonRequestHandler {
     CollectionWithIndex<Alias.Offer> aliasOffers = aliasService.getAliasOffers(account, buyer, firstIndex, lastIndex);
     for(Alias.Offer offer : aliasOffers) {
       Alias alias = aliasService.getAlias(offer.getId());
-      Alias tld = aliasService.getTLD(alias.getTLD());
+      Alias tld = aliasService.getTLD(alias.getTld());
       aliasesJson.add(JSONData.alias(alias, tld, offer, 0));
     }
 

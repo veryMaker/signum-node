@@ -45,7 +45,7 @@ public final class AddCommitment extends CreateTransaction {
     }
 
     try {
-      if (Convert.safeAdd(amountNQT, feeNQT) > account.getUnconfirmedBalanceNQT()) {
+      if (Convert.safeAdd(amountNQT, feeNQT) > account.getUnconfirmedBalanceNqt()) {
         return NOT_ENOUGH_FUNDS;
       }
     } catch (ArithmeticException e) {

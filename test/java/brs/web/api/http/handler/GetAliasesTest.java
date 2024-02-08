@@ -52,7 +52,7 @@ public class GetAliasesTest extends AbstractUnitTest {
     when(mockAlias.getId()).thenReturn(567L);
 
     final Offer mockOffer = mock(Offer.class);
-    when(mockOffer.getPriceNQT()).thenReturn(234L);
+    when(mockOffer.getPriceNqt()).thenReturn(234L);
 
     final CollectionWithIndex<Alias> mockAliasIterator = new CollectionWithIndex<Alias>(mockCollection(mockAlias), 0, 1);
 
@@ -71,7 +71,7 @@ public class GetAliasesTest extends AbstractUnitTest {
     final JsonObject result = (JsonObject) resultList.get(0);
     assertNotNull(result);
     assertEquals("" +mockAlias.getId(), JSON.getAsString(result.get(ALIAS_RESPONSE)));
-    assertEquals("" + mockOffer.getPriceNQT(), JSON.getAsString(result.get(PRICE_NQT_RESPONSE)));
+    assertEquals("" + mockOffer.getPriceNqt(), JSON.getAsString(result.get(PRICE_NQT_RESPONSE)));
   }
 
 }

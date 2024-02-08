@@ -81,7 +81,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
     when(mockAsset.getName()).thenReturn("name");
     when(mockAsset.getDescription()).thenReturn("description");
     when(mockAsset.getDecimals()).thenReturn((byte) 1);
-    when(mockAsset.getQuantityQNT()).thenReturn(2L);
+    when(mockAsset.getQuantityQnt()).thenReturn(2L);
 
     final Collection<Asset> mockAssetIterator = mockCollection(mockAsset);
 
@@ -103,7 +103,7 @@ public class GetAssetsByIssuerTest extends AbstractUnitTest {
     assertEquals(mockAsset.getName(), JSON.getAsString(assetResult.get(NAME_RESPONSE)));
     assertEquals(mockAsset.getDescription(), JSON.getAsString(assetResult.get(DESCRIPTION_RESPONSE)));
     assertEquals(mockAsset.getDecimals(), JSON.getAsByte(assetResult.get(DECIMALS_RESPONSE)));
-    assertEquals("" + mockAsset.getQuantityQNT(), JSON.getAsString(assetResult.get(QUANTITY_QNT_RESPONSE)));
+    assertEquals("" + mockAsset.getQuantityQnt(), JSON.getAsString(assetResult.get(QUANTITY_QNT_RESPONSE)));
     assertEquals("" + mockAsset.getId(), JSON.getAsString(assetResult.get(ASSET_RESPONSE)));
   }
 

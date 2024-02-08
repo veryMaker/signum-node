@@ -65,7 +65,7 @@ public class EscrowServiceImpl implements EscrowService {
     }
 
     Alias escrowEnabled = aliasService.getAlias("featureescrow", 0L);
-    return escrowEnabled != null && escrowEnabled.getAliasURI().equals("enabled");
+    return escrowEnabled != null && escrowEnabled.getAliasUri().equals("enabled");
   }
 
   @Override

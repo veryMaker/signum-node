@@ -53,7 +53,7 @@ public final class GetSubscription extends ApiServlet.JsonRequestHandler {
       return response;
     }
     Alias alias = aliasService.getAlias(subscription.getRecipientId());
-    Alias tld = alias == null ? null : aliasService.getTLD(alias.getTLD());
+    Alias tld = alias == null ? null : aliasService.getTLD(alias.getTld());
 
     Transaction transaction = Signum.getBlockchain().getTransaction(subscriptionId);
 

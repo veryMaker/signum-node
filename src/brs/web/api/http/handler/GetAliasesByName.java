@@ -56,7 +56,7 @@ public final class GetAliasesByName extends ApiServlet.JsonRequestHandler {
         continue;
       }
       final Offer offer = aliasService.getOffer(alias);
-      final Alias tld = aliasService.getTLD(alias.getTLD());
+      final Alias tld = aliasService.getTLD(alias.getTld());
       aliases.add(JSONData.alias(alias, tld, offer, 0));
     }
 

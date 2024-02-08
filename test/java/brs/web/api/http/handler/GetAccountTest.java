@@ -67,8 +67,8 @@ public class GetAccountTest extends AbstractUnitTest {
 
     final AccountAsset mockAccountAsset = mock(AccountAsset.class);
     when(mockAccountAsset.getAssetId()).thenReturn(mockAssetId);
-    when(mockAccountAsset.getUnconfirmedQuantityQNT()).thenReturn(mockUnconfirmedQuantityNQT);
-    when(mockAccountAsset.getQuantityQNT()).thenReturn(balanceNQT);
+    when(mockAccountAsset.getUnconfirmedQuantityQnt()).thenReturn(mockUnconfirmedQuantityNQT);
+    when(mockAccountAsset.getQuantityQnt()).thenReturn(balanceNQT);
     Collection<AccountAsset> mockAssetOverview = mockCollection(mockAccountAsset);
     when(accountServiceMock.getAssets(eq(mockAccountId), eq(0), eq(-1))).thenReturn(new CollectionWithIndex<Account.AccountAsset>(mockAssetOverview, -1));
 

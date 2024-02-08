@@ -53,17 +53,17 @@ class ReservedBalanceCache {
       throw new SignumException.NotCurrentlyValidException("Account unknown");
     }
 
-    if ( amountNQT > senderAccount.getUnconfirmedBalanceNQT() ) {
+    if ( amountNQT > senderAccount.getUnconfirmedBalanceNqt() ) {
       if (LOGGER.isInfoEnabled()) {
         LOGGER.info("Transaction {} for {}: account {} balance too low. Total required {} > {} balance",
-                Convert.toUnsignedLong(transaction.getId()), thisTransactionAmountNQT, Convert.toUnsignedLong(transaction.getSenderId()), amountNQT, senderAccount.getUnconfirmedBalanceNQT());
+                Convert.toUnsignedLong(transaction.getId()), thisTransactionAmountNQT, Convert.toUnsignedLong(transaction.getSenderId()), amountNQT, senderAccount.getUnconfirmedBalanceNqt());
       }
       throw new SignumException.NotCurrentlyValidException("Insufficient funds");
     }
 
     if(transaction.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
       CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
-      long totalAmountNQT = commitmentRemove.getAmountNQT();
+      long totalAmountNQT = commitmentRemove.getAmountNqt();
 
       Blockchain blockchain = Signum.getBlockchain();
       int nBlocksMined = blockchain.getBlocksCount(senderAccount.getId(), blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());

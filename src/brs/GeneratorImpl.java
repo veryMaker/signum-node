@@ -321,11 +321,11 @@ public class GeneratorImpl implements Generator {
         if(tx.getSenderId() == generatorId) {
           if(blockIt.getHeight() <= height - commitmentWait && tx.getType() == TransactionType.SignaMining.COMMITMENT_ADD) {
             CommitmentAdd txAttachment = (CommitmentAdd) tx.getAttachment();
-            committedAmountOnCache += txAttachment.getAmountNQT();
+            committedAmountOnCache += txAttachment.getAmountNqt();
           }
           if(tx.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
             CommitmentRemove txAttachment = (CommitmentRemove) tx.getAttachment();
-            committedAmountOnCache -= txAttachment.getAmountNQT();
+            committedAmountOnCache -= txAttachment.getAmountNqt();
           }
         }
       }

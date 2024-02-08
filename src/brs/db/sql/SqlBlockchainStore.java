@@ -421,7 +421,7 @@ public class SqlBlockchainStore implements BlockchainStore {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         CommitmentAdd txAttachment = (CommitmentAdd) TransactionType.SignaMining.COMMITMENT_ADD.parseAttachment(buffer, (byte) 1);
-        amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNQT()));
+        amountCommitted = amountCommitted.add(BigInteger.valueOf(txAttachment.getAmountNqt()));
       } catch (Exception e) {
         logger.error(e.getMessage());
       }
@@ -431,7 +431,7 @@ public class SqlBlockchainStore implements BlockchainStore {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         CommitmentRemove txAttachment = (CommitmentRemove) TransactionType.SignaMining.COMMITMENT_REMOVE.parseAttachment(buffer, (byte) 1);
-        amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNQT()));
+        amountCommitted = amountCommitted.subtract(BigInteger.valueOf(txAttachment.getAmountNqt()));
       } catch (Exception e) {
         logger.error(e.getMessage());
       }

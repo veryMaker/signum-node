@@ -142,7 +142,7 @@ public class AtTransaction {
         accountService.addToAssetAndUnconfirmedAssetBalanceQNT(recipientAccount, getAssetId(), quantity);
 
         ColoredCoinsAssetTransfer assetTransferAttachment = (ColoredCoinsAssetTransfer) attachment;
-        Signum.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQNT());
+        Signum.getAssetExchange().addAssetTransfer(transaction, assetTransferAttachment.getAssetId(), assetTransferAttachment.getQuantityQnt());
 
         // we also have coins to send besides the asset
         if(getAmount() > 0L && Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_5, transaction.getHeight())) {
