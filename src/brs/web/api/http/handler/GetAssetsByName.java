@@ -1,8 +1,8 @@
 package brs.web.api.http.handler;
 
 import brs.Asset;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.assetexchange.AssetExchange;
 import brs.services.AccountService;
 import brs.util.CollectionWithIndex;
@@ -11,7 +11,6 @@ import brs.util.TextUtils;
 
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.ParameterParser;
-import brs.web.api.http.handler.AbstractAssetsRetrieval;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -34,7 +33,7 @@ public final class GetAssetsByName extends AbstractAssetsRetrieval {
 
     @Override
     protected
-    JsonElement processRequest(HttpServletRequest req) throws BurstException {
+    JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
         String name = req.getParameter(NAME_PARAMETER);
 
@@ -47,7 +46,7 @@ public final class GetAssetsByName extends AbstractAssetsRetrieval {
           return INCORRECT_ASSET_NAME;
         }
 
-        int heightEnd = Burst.getBlockchain().getHeight();
+        int heightEnd = Signum.getBlockchain().getHeight();
         // default is one day window
         int heightStart = heightEnd - 360;
 

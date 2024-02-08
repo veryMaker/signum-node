@@ -236,7 +236,7 @@ public final class ApiServlet extends HttpServlet {
         response = processRequest(req);
       } catch (ParameterException e) {
         response = e.getErrorResponse();
-      } catch (BurstException | RuntimeException e) {
+      } catch (SignumException | RuntimeException e) {
         logger.debug("Error processing API request", e);
         response = ERROR_INCORRECT_REQUEST;
       }
@@ -252,7 +252,7 @@ public final class ApiServlet extends HttpServlet {
       writeJsonToResponse(resp, response);
     }
 
-    protected abstract JsonElement processRequest(HttpServletRequest request) throws BurstException;
+    protected abstract JsonElement processRequest(HttpServletRequest request) throws SignumException;
 
   }
 

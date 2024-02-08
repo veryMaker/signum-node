@@ -35,7 +35,7 @@ public final class SetTLD extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     String tldName = Convert.emptyToNull(req.getParameter(TLD_PARAMETER));
 
     if (tldName == null) {
@@ -61,7 +61,7 @@ public final class SetTLD extends CreateTransaction {
 
     long recipient = 0L;
     long amountNQT = ParameterParser.getAmountNQT(req);
-    if(amountNQT < TransactionType.BASELINE_TLD_ASSIGNMENT_FACTOR * Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, blockchain.getLastBlock().getHeight())) {
+    if(amountNQT < TransactionType.BASELINE_TLD_ASSIGNMENT_FACTOR * Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, blockchain.getLastBlock().getHeight())) {
       return incorrect(AMOUNT_NQT_PARAMETER);
     }
 

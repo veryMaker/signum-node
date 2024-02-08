@@ -2,7 +2,7 @@ package brs.feesuggestions;
 
 import brs.Block;
 import brs.BlockchainProcessor;
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.BlockchainProcessor.Event;
 import brs.common.AbstractUnitTest;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
 
   private FeeSuggestionCalculator t;
@@ -42,13 +42,13 @@ public class FeeSuggestionCalculatorTest extends AbstractUnitTest {
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     blockchainProcessorMock = mock(BlockchainProcessor.class);
     unconfirmedTransactionStoreMock = mock(UnconfirmedTransactionStore.class);
 
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT), anyInt());
     doReturn(Constants.FEE_QUANT_SIP3).when(mockFluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 

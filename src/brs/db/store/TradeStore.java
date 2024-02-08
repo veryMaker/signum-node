@@ -1,7 +1,7 @@
 package brs.db.store;
 
 import brs.Trade;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.sql.EntitySqlTable;
 
 import java.util.Collection;
@@ -29,7 +29,7 @@ public interface TradeStore {
 
   int getTradeCount(long assetId);
 
-  BurstKey.LinkKeyFactory<Trade> getTradeDbKeyFactory();
+  SignumKey.LinkKeyFactory<Trade> getTradeDbKeyFactory();
 
   EntitySqlTable<Trade> getTradeTable();
 }

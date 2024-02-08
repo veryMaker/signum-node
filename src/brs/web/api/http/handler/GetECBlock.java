@@ -2,7 +2,7 @@ package brs.web.api.http.handler;
 
 import brs.Block;
 import brs.Blockchain;
-import brs.BurstException;
+import brs.SignumException;
 import brs.EconomicClustering;
 import brs.services.TimeService;
 import brs.web.api.http.ApiServlet;
@@ -32,7 +32,7 @@ public final class GetECBlock extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     int timestamp = ParameterParser.getTimestamp(req);
     if (timestamp == 0) {
       timestamp = timeService.getEpochTime();

@@ -1,13 +1,14 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Subscription;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
 
 import org.jooq.*;
+import org.jooq.Record;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,9 +18,9 @@ import static brs.schema.Tables.SUBSCRIPTION;
 
 public class SqlSubscriptionStore implements SubscriptionStore {
 
-  private final BurstKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
+  private final SignumKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
       @Override
-      public BurstKey newKey(Subscription subscription) {
+      public SignumKey newKey(Subscription subscription) {
         return subscription.dbKey;
       }
     };
@@ -57,7 +58,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Subscription> getSubscriptionDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Subscription> getSubscriptionDbKeyFactory() {
     return subscriptionDbKeyFactory;
   }
 
@@ -88,7 +89,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
 
   private Query insertSubscription(DSLContext ctx, Subscription subscription) {
     return ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true);
+            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Signum.getBlockchain().getHeight(), true);
   }
 
   private class SqlSubscription extends Subscription {
@@ -126,7 +127,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
         for (Subscription subscription : subscriptions) {
           insertBatch.bind(
             subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency,
-            subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true
+            subscription.getTimeNext(), Signum.getBlockchain().getHeight(), true
           );
         }
         insertBatch.execute();

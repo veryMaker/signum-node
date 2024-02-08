@@ -1,6 +1,6 @@
 package brs.web.api.http.common;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Constants;
 import brs.crypto.EncryptedData;
 import brs.fluxcapacitor.FluxValues;
@@ -136,7 +136,7 @@ public final class ParameterParser {
   public static long getRecipientId(HttpServletRequest req) throws ParameterException {
     String recipientValue = Convert.emptyToNull(req.getParameter(RECIPIENT_PARAMETER));
     if (recipientValue == null ||  Parameters.isZero(recipientValue)) {
-      if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)){
+      if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)){
         return 0L;
       }
       throw new ParameterException(MISSING_RECIPIENT);

@@ -8,7 +8,7 @@ package brs.at;
 
 
 import brs.*;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
@@ -32,7 +32,7 @@ public class AT extends AtMachineState {
     private static final LinkedHashMap<Long, LinkedHashMap<Long, Long>> pendingFeesMap = new LinkedHashMap<>();
     private static final LinkedHashMap<Long, List<AtTransaction>> pendingTransactionsMap = new LinkedHashMap<>();
     private static final LinkedHashMap<Long, List<AtMapEntry>> pendingEntryUpdatesMap = new LinkedHashMap<>();
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
     private final String name;
     private final String description;
     private final int nextHeight;
@@ -42,7 +42,7 @@ public class AT extends AtMachineState {
         this.name = name;
         this.description = description;
         dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
-        this.nextHeight = Burst.getBlockchain().getHeight();
+        this.nextHeight = Signum.getBlockchain().getHeight();
     }
 
     public AT(byte[] atId, byte[] creator, String name, String description, short version,
@@ -118,20 +118,20 @@ public class AT extends AtMachineState {
         return false;
     }
 
-    private static BurstKey.LongKeyFactory<AT> atDbKeyFactory() {
-        return Burst.getStores().getAtStore().getAtDbKeyFactory();
+    private static SignumKey.LongKeyFactory<AT> atDbKeyFactory() {
+        return Signum.getStores().getAtStore().getAtDbKeyFactory();
     }
 
     private static VersionedEntityTable<AT> atTable() {
-        return Burst.getStores().getAtStore().getAtTable();
+        return Signum.getStores().getAtStore().getAtTable();
     }
 
-    private static BurstKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
-        return Burst.getStores().getAtStore().getAtStateDbKeyFactory();
+    private static SignumKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
+        return Signum.getStores().getAtStore().getAtStateDbKeyFactory();
     }
 
     private static VersionedEntityTable<ATState> atStateTable() {
-        return Burst.getStores().getAtStore().getAtStateTable();
+        return Signum.getStores().getAtStore().getAtStateTable();
     }
 
     public static AT getAT(byte[] id) {
@@ -139,7 +139,7 @@ public class AT extends AtMachineState {
     }
 
     public static AT getAT(Long id) {
-        return Burst.getStores().getAtStore().getAT(id, -1);
+        return Signum.getStores().getAtStore().getAT(id, -1);
     }
 
     public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes, int height, long atCodeHashId) {
@@ -173,7 +173,7 @@ public class AT extends AtMachineState {
     }
 
     public static List<Long> getOrderedATs() {
-        return Burst.getStores().getAtStore().getOrderedATs();
+        return Signum.getStores().getAtStore().getOrderedATs();
     }
 
     public static byte[] compressState(byte[] stateBytes) {
@@ -213,7 +213,7 @@ public class AT extends AtMachineState {
     }
 
     public void saveState() {
-        int prevHeight = Burst.getBlockchain().getHeight();
+        int prevHeight = Signum.getBlockchain().getHeight();
         int newNextHeight = prevHeight + getWaitForNumberOfBlocks();
         ATState state = new ATState(AtApiHelper.getLong(this.getId()),
             getState(), newNextHeight, getSleepBetween(),
@@ -227,9 +227,9 @@ public class AT extends AtMachineState {
       long hash = blockHeight+generatorId;
       List<AtMapEntry> updates = pendingEntryUpdatesMap.get(hash);
       if(updates != null) {
-        VersionedEntityTable<AtMapEntry> table = Burst.getStores().getAtStore().getAtMapTable();
+        VersionedEntityTable<AtMapEntry> table = Signum.getStores().getAtStore().getAtMapTable();
         for(AtMapEntry e : updates) {
-          AtMapEntry cacheEntry = Burst.getStores().getAtStore().getMapValueEntry(e.getAtId(), e.getKey1(), e.getKey2());
+          AtMapEntry cacheEntry = Signum.getStores().getAtStore().getMapValueEntry(e.getAtId(), e.getKey1(), e.getKey2());
           if(cacheEntry != null) {
             cacheEntry.setValue(e.getValue());
             e = cacheEntry;
@@ -284,7 +284,7 @@ public class AT extends AtMachineState {
                       atTransaction.apply(accountService, transaction);
                       transactions.add(transaction);
                     }
-                } catch (BurstException.NotValidException e) {
+                } catch (SignumException.NotValidException e) {
                     throw new RuntimeException("Failed to construct AT payment transaction", e);
                 }
               }
@@ -300,7 +300,7 @@ public class AT extends AtMachineState {
 
     public static class ATState {
 
-        public final BurstKey dbKey;
+        public final SignumKey dbKey;
         private final long atId;
         private byte[] state;
         private int prevHeight;

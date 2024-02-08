@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.crypto.EncryptedData;
 import brs.services.AccountService;
 import brs.services.ParameterService;
@@ -29,7 +29,7 @@ public final class EncryptTo extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     long recipientId = ParameterParser.getRecipientId(req);
     Account recipientAccount = accountService.getAccount(recipientId);

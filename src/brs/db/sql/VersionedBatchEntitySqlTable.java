@@ -1,11 +1,12 @@
 package brs.db.sql;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.DerivedTableManager;
 import org.ehcache.Cache;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.TableImpl;
 
 import java.util.*;
@@ -45,7 +46,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
   }
 
   @Override
-  public T get(BurstKey dbKey) {
+  public T get(SignumKey dbKey) {
     if (getCache().containsKey(dbKey)) {
       return getCache().get(dbKey);
     }
@@ -62,7 +63,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
   @Override
   public void insert(T t) {
     assertNotInTransaction();
-    BurstKey key = dbKeyFactory.newKey(t);
+    SignumKey key = dbKeyFactory.newKey(t);
     getBatch().put(key, t);
     getCache().put(key, t);
   }
@@ -70,7 +71,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
   @Override
   public void finish() {
     assertNotInTransaction();
-    Set<BurstKey> keySet = getBatch().keySet();
+    Set<SignumKey> keySet = getBatch().keySet();
     if (keySet.isEmpty()) {
       return;
     }
@@ -84,7 +85,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
       updateQuery.addConditions(latestField.isTrue());
 
       BatchBindStep updateBatch = ctx.batch(updateQuery);
-      for (BurstKey dbKey : keySet) {
+      for (SignumKey dbKey : keySet) {
         List<Object> bindArgs = new ArrayList<>();
         bindArgs.add(false);
         for (long pkValue : dbKey.getPKValues()) {
@@ -100,7 +101,7 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
   }
 
   @Override
-  public T get(BurstKey dbKey, int height) {
+  public T get(SignumKey dbKey, int height) {
     assertInTransaction();
     return super.get(dbKey, height);
   }
@@ -196,12 +197,12 @@ public abstract class VersionedBatchEntitySqlTable<T> extends VersionedEntitySql
   }
 
   @Override
-  public Map<BurstKey, T> getBatch() {
+  public Map<SignumKey, T> getBatch() {
     return Db.getBatch(table);
   }
 
   @Override
-  public Cache<BurstKey, T> getCache() {
+  public Cache<SignumKey, T> getCache() {
     return dbCacheManager.getCache(table, tClass);
   }
 

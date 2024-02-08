@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.ParameterService;
 import brs.web.api.http.ApiServlet;
 import brs.web.api.http.common.JSONData;
@@ -22,7 +22,7 @@ public final class GetDGSGood extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     return JSONData.goods(parameterService.getGoods(req));
   }
 

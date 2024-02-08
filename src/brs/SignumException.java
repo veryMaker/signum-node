@@ -1,24 +1,24 @@
 package brs;
 
-public abstract class BurstException extends Exception {
+public abstract class SignumException extends Exception {
 
-  protected BurstException() {
+  protected SignumException() {
     super();
   }
 
-  BurstException(String message) {
+  SignumException(String message) {
     super(message);
   }
 
-  BurstException(String message, Throwable cause) {
+  SignumException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  protected BurstException(Throwable cause) {
+  protected SignumException(Throwable cause) {
     super(cause);
   }
 
-  public abstract static class ValidationException extends BurstException {
+  public abstract static class ValidationException extends SignumException {
 
     private ValidationException(String message) {
       super(message);

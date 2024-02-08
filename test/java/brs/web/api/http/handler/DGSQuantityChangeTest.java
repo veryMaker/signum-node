@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class DGSQuantityChangeTest extends AbstractTransactionTest {
 
   private DGSQuantityChange t;
@@ -46,7 +46,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final int deltaQualityParameter = 5;
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DELTA_QUANTITY_PARAMETER, deltaQualityParameter)
@@ -64,9 +64,9 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
     when(mockParameterService.getSenderAccount(eq(req))).thenReturn(mockSenderAccount);
     when(mockParameterService.getGoods(eq(req))).thenReturn(mockGoods);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.DigitalGoodsQuantityChange attachment = (Attachment.DigitalGoodsQuantityChange) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
@@ -78,7 +78,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_unknownGoodsBecauseDelisted() throws BurstException {
+  public void processRequest_unknownGoodsBecauseDelisted() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Goods mockGoods = mock(Goods.class);
@@ -93,7 +93,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_unknownGoodsBecauseWrongSellerId() throws BurstException {
+  public void processRequest_unknownGoodsBecauseWrongSellerId() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final Goods mockGoods = mock(Goods.class);
@@ -110,7 +110,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingDeltaQuantity() throws BurstException {
+  public void processRequest_missingDeltaQuantity() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DELTA_QUANTITY_PARAMETER, null)
     );
@@ -129,7 +129,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_deltaQuantityWrongFormat() throws BurstException {
+  public void processRequest_deltaQuantityWrongFormat() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DELTA_QUANTITY_PARAMETER, "Bob")
     );
@@ -148,7 +148,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_deltaQuantityOverMaxIncorrectDeltaQuantity() throws BurstException {
+  public void processRequest_deltaQuantityOverMaxIncorrectDeltaQuantity() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DELTA_QUANTITY_PARAMETER, Integer.MIN_VALUE)
     );
@@ -167,7 +167,7 @@ public class DGSQuantityChangeTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_deltaQuantityLowerThanNegativeMaxIncorrectDeltaQuantity() throws BurstException {
+  public void processRequest_deltaQuantityLowerThanNegativeMaxIncorrectDeltaQuantity() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(DELTA_QUANTITY_PARAMETER, Integer.MAX_VALUE)
     );

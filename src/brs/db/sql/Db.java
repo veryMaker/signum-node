@@ -1,7 +1,7 @@
 package brs.db.sql;
 
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.Signum;
+import brs.db.SignumKey;
 import brs.db.cache.DBCacheManagerImpl;
 import brs.db.store.Dbs;
 import brs.props.PropertyService;
@@ -18,18 +18,14 @@ import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.JDBCUtils;
-import org.mariadb.jdbc.MariaDbDataSource;
-import org.mariadb.jdbc.UrlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -40,8 +36,8 @@ public final class Db {
   private static HikariDataSource cp;
   private static SQLDialect dialect;
   private static final ThreadLocal<Connection> localConnection = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionCaches = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionBatches = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<SignumKey, Object>>> transactionCaches = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<SignumKey, Object>>> transactionBatches = new ThreadLocal<>();
 
   private static DBCacheManagerImpl dbCacheManager;
 
@@ -163,7 +159,7 @@ public final class Db {
         Connection con = cp.getConnection();
         Statement stmt = con.createStatement();
         // COMPACT is not giving good result.
-        if (Burst.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
+        if (Signum.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
           logger.info("H2 defragmentation started, this can take a while");
           stmt.execute("SHUTDOWN DEFRAG");
         } else {
@@ -233,20 +229,20 @@ public final class Db {
     }
   }
 
-  static <V> Map<BurstKey, V> getCache(String tableName) {
+  static <V> Map<SignumKey, V> getCache(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
     //noinspection unchecked
-    return (Map<BurstKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    return (Map<SignumKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
-  static <V> Map<BurstKey, V> getBatch(String tableName) {
+  static <V> Map<SignumKey, V> getBatch(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
     //noinspection unchecked
-    return (Map<BurstKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    return (Map<SignumKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
   public static boolean isInTransaction() {

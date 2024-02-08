@@ -2,8 +2,8 @@ package brs.assetexchange;
 
 import brs.Order.Ask;
 import brs.Order.Bid;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.OrderStore;
 import brs.services.AccountService;
@@ -51,7 +51,7 @@ public class OrderServiceImplTest {
 
   @Test
   public void getAskOrder() {
-    final BurstKey mockAskKey = mock(BurstKey.class);
+    final SignumKey mockAskKey = mock(SignumKey.class);
     final Ask mockAsk = mock(Ask.class);
 
     final long askKey = 123l;
@@ -64,7 +64,7 @@ public class OrderServiceImplTest {
 
   @Test
   public void getBidOrder() {
-    final BurstKey mockBidKey = mock(BurstKey.class);
+    final SignumKey mockBidKey = mock(SignumKey.class);
     final Bid mockBid = mock(Bid.class);
 
     final long bidKey = 123l;

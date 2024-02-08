@@ -31,7 +31,7 @@ public class ServerConnectorHttpBuilderImpl implements ServerConnectorBuilder {
     // stopTimeout
     // acceptQueueSize
     connector.setReuseAddress(true);
-
+    logger.info("HTTP API server enabled for {}:{}", connector.getHost(), connector.getPort());
     return connector;
   }
 

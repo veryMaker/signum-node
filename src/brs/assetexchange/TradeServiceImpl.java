@@ -4,8 +4,8 @@ import brs.Block;
 import brs.Order;
 import brs.Trade;
 import brs.Trade.Event;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LinkKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LinkKeyFactory;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.TradeStore;
 import brs.util.Listener;
@@ -86,7 +86,7 @@ class TradeServiceImpl {
   }
 
   public Trade addTrade(long assetId, Block block, Order.Ask askOrder, Order.Bid bidOrder) {
-    BurstKey dbKey = tradeDbKeyFactory.newKey(askOrder.getId(), bidOrder.getId());
+    SignumKey dbKey = tradeDbKeyFactory.newKey(askOrder.getId(), bidOrder.getId());
     Trade trade = new Trade(dbKey, assetId, block, askOrder, bidOrder);
     tradeTable.insert(trade);
     listeners.notify(trade, Event.TRADE);

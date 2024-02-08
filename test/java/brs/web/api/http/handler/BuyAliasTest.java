@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Burst.class})
+@PrepareForTest({Signum.class})
 public class BuyAliasTest extends AbstractTransactionTest {
 
   private BuyAlias t;
@@ -50,9 +50,9 @@ public class BuyAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
-    mockStatic(Burst.class);
-    final HttpServletRequest req = QuickMocker.httpServletRequestDefaultKeys(new MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_BURST));
+  public void processRequest() throws SignumException {
+    mockStatic(Signum.class);
+    final HttpServletRequest req = QuickMocker.httpServletRequestDefaultKeys(new MockParam(AMOUNT_NQT_PARAMETER, "" + Constants.ONE_SIGNA));
 
     final Offer mockOfferOnAlias = mock(Offer.class);
 
@@ -67,9 +67,9 @@ public class BuyAliasTest extends AbstractTransactionTest {
 
     when(parameterServiceMock.getAlias(eq(req))).thenReturn(mockAlias);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.MessagingAliasBuy attachment = (Attachment.MessagingAliasBuy) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
@@ -80,7 +80,7 @@ public class BuyAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_aliasNotForSale() throws BurstException {
+  public void processRequest_aliasNotForSale() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(AMOUNT_NQT_PARAMETER, "3"));
     final Alias mockAlias = mock(Alias.class);
 

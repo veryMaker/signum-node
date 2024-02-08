@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.at.AT;
 import brs.at.AtConstants;
 import brs.at.AtMachineState;
@@ -48,7 +48,7 @@ public class GetAccountATsTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     final long mockAccountId = 123L;

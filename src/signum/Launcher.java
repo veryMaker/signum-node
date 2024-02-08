@@ -7,7 +7,7 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import brs.Burst;
+import brs.Signum;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
@@ -18,11 +18,11 @@ public class Launcher {
     boolean canRunGui = true;
 
     try {
-      CommandLine cmd = new DefaultParser().parse(Burst.CLI_OPTIONS, args);
+      CommandLine cmd = new DefaultParser().parse(Signum.CLI_OPTIONS, args);
       if (cmd.hasOption("h")) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("java -jar signum-node.jar", "Signum Node version " + Burst.VERSION,
-          Burst.CLI_OPTIONS,
+        formatter.printHelp("java -jar signum-node.jar", "Signum Node version " + Signum.VERSION,
+          Signum.CLI_OPTIONS,
           "Check for updates at https://github.com/signum-network/signum-node", true);
         return;
       }
@@ -41,15 +41,15 @@ public class Launcher {
 
     if (canRunGui) {
       try {
-        Class.forName("brs.BurstGUI")
+        Class.forName("brs.SignumGUI")
           .getDeclaredMethod("main", String[].class)
           .invoke(null, (Object) args);
       } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-        logger.warn("Your build does not seem to include the BurstGUI extension or it cannot be run. Running as headless...");
-        Burst.main(args);
+        logger.warn("Your build does not seem to include the SignumGUI extension or it cannot be run. Running as headless...");
+        Signum.main(args);
       }
     } else {
-      Burst.main(args);
+      Signum.main(args);
     }
   }
 }

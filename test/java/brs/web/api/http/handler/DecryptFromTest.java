@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.crypto.EncryptedData;
@@ -37,7 +37,7 @@ public class DecryptFromTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(SECRET_PHRASE_PARAMETER, TEST_SECRET_PHRASE),
         new MockParam(DECRYPTED_MESSAGE_IS_TEXT_PARAMETER, "true"),
@@ -58,7 +58,7 @@ public class DecryptFromTest {
   }
 
   @Test
-  public void processRequest_accountWithoutPublicKeyIsIncorrectAccount() throws BurstException {
+  public void processRequest_accountWithoutPublicKeyIsIncorrectAccount() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
 
     when(mockParameterService.getAccount(req)).thenReturn(mock(Account.class));

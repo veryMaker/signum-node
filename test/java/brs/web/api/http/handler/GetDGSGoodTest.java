@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.DigitalGoodsStore;
 import brs.common.QuickMocker;
 import brs.services.ParameterService;
@@ -34,7 +34,7 @@ public class GetDGSGoodTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final DigitalGoodsStore.Goods mockGoods = mock(DigitalGoodsStore.Goods.class);
     when(mockGoods.getId()).thenReturn(1L);
     when(mockGoods.getName()).thenReturn("name");

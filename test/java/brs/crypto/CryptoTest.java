@@ -85,19 +85,19 @@ public class CryptoTest {
 
     @Test
     public void testCryptoRsEncode() {
-        SignumCrypto burstCrypto = SignumCrypto.getInstance();
-        assertEquals("23YP-M8H9-FA5W-5CX9B", Crypto.rsEncode(burstCrypto.getAddressFromPassphrase("").getSignedLongId()));
-        assertEquals("BTKQ-5ST6-6HAL-HKVYW", Crypto.rsEncode(burstCrypto.getAddressFromPassphrase("Testing").getSignedLongId()));
-        assertEquals("4KFW-N4LS-7UVW-8AUZJ", Crypto.rsEncode(burstCrypto.getAddressFromPassphrase("Burstcoin!").getSignedLongId()));
-        assertEquals("T7XD-7M3X-MB9F-38DU8", Crypto.rsEncode(burstCrypto.getAddressFromPassphrase("Burst Apps Team").getSignedLongId()));
+        SignumCrypto signumCrypto = SignumCrypto.getInstance();
+        assertEquals("23YP-M8H9-FA5W-5CX9B", Crypto.rsEncode(signumCrypto.getAddressFromPassphrase("").getSignedLongId()));
+        assertEquals("BTKQ-5ST6-6HAL-HKVYW", Crypto.rsEncode(signumCrypto.getAddressFromPassphrase("Testing").getSignedLongId()));
+        assertEquals("4KFW-N4LS-7UVW-8AUZJ", Crypto.rsEncode(signumCrypto.getAddressFromPassphrase("Burstcoin!").getSignedLongId()));
+        assertEquals("T7XD-7M3X-MB9F-38DU8", Crypto.rsEncode(signumCrypto.getAddressFromPassphrase("Burst Apps Team").getSignedLongId()));
     }
 
     @Test
     public void testCryptoRsDecode() {
-        SignumCrypto burstCrypto = SignumCrypto.getInstance();
-        assertEquals(burstCrypto.getAddressFromPassphrase("").getSignedLongId(), Crypto.rsDecode("23YP-M8H9-FA5W-5CX9B"));
-        assertEquals(burstCrypto.getAddressFromPassphrase("Testing").getSignedLongId(), Crypto.rsDecode("BTKQ-5ST6-6HAL-HKVYW"));
-        assertEquals(burstCrypto.getAddressFromPassphrase("Burstcoin!").getSignedLongId(), Crypto.rsDecode("4KFW-N4LS-7UVW-8AUZJ"));
-        assertEquals(burstCrypto.getAddressFromPassphrase("Burst Apps Team").getSignedLongId(), Crypto.rsDecode("T7XD-7M3X-MB9F-38DU8"));
+        SignumCrypto signumCrypto = SignumCrypto.getInstance();
+        assertEquals(signumCrypto.getAddressFromPassphrase("").getSignedLongId(), Crypto.rsDecode("23YP-M8H9-FA5W-5CX9B"));
+        assertEquals(signumCrypto.getAddressFromPassphrase("Testing").getSignedLongId(), Crypto.rsDecode("BTKQ-5ST6-6HAL-HKVYW"));
+        assertEquals(signumCrypto.getAddressFromPassphrase("Burstcoin!").getSignedLongId(), Crypto.rsDecode("4KFW-N4LS-7UVW-8AUZJ"));
+        assertEquals(signumCrypto.getAddressFromPassphrase("Burst Apps Team").getSignedLongId(), Crypto.rsDecode("T7XD-7M3X-MB9F-38DU8"));
     }
 }

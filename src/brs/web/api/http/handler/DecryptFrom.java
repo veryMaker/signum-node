@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.crypto.EncryptedData;
 import brs.web.api.http.common.LegacyDocTag;
 import brs.web.api.http.common.ParameterParser;
@@ -34,7 +34,7 @@ public final class DecryptFrom extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     Account account = parameterService.getAccount(req);
     if (account.getPublicKey() == null) {
       return INCORRECT_ACCOUNT;

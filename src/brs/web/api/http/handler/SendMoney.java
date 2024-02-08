@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.ParameterService;
 import brs.web.api.http.common.APITransactionManager;
 import brs.web.api.http.common.LegacyDocTag;
@@ -24,7 +24,7 @@ public final class SendMoney extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     long recipient = ParameterParser.getRecipientId(req);
     long amountNQT = ParameterParser.getAmountNQT(req);
     Account account = parameterService.getSenderAccount(req);

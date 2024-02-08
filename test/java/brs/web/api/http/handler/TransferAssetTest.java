@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class TransferAssetTest extends AbstractTransactionTest {
 
   private TransferAsset t;
@@ -50,7 +50,7 @@ public class TransferAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final long recipientParameter = 34L;
     final long assetIdParameter = 456L;
     final long quantityQNTParameter = 56L;
@@ -71,9 +71,9 @@ public class TransferAssetTest extends AbstractTransactionTest {
 
     when(parameterServiceMock.getSenderAccount(eq(req))).thenReturn(mockSenderAccount);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.ColoredCoinsAssetTransfer attachment = (Attachment.ColoredCoinsAssetTransfer) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
@@ -85,7 +85,7 @@ public class TransferAssetTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_assetBalanceLowerThanQuantityNQTParameter() throws BurstException {
+  public void processRequest_assetBalanceLowerThanQuantityNQTParameter() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(RECIPIENT_PARAMETER, "123"),
         new MockParam(ASSET_PARAMETER, "456"),
@@ -102,9 +102,9 @@ public class TransferAssetTest extends AbstractTransactionTest {
 
     when(accountServiceMock.getUnconfirmedAssetBalanceQNT(eq(mockSenderAccount), anyLong())).thenReturn(2L);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(false).when(fluxCapacitor).getValue(eq(FluxValues.SMART_TOKEN));
 
     assertEquals(NOT_ENOUGH_ASSETS, t.processRequest(req));

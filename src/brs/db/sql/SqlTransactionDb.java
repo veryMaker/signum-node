@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.Appendix;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.db.TransactionDb;
@@ -26,7 +26,7 @@ public class SqlTransactionDb implements TransactionDb {
       try {
         TransactionRecord transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne();
         return loadTransaction(transactionRecord);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Transaction already in database, id = " + transactionId + ", does not pass validation!", e);
       }
     });
@@ -38,7 +38,7 @@ public class SqlTransactionDb implements TransactionDb {
       try {
         TransactionRecord transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.parseHexString(fullHash))).fetchOne();
         return loadTransaction(transactionRecord);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Transaction already in database, full_hash = " + fullHash + ", does not pass validation!", e);
       }
     });
@@ -59,7 +59,7 @@ public class SqlTransactionDb implements TransactionDb {
   }
 
   @Override
-  public Transaction loadTransaction(TransactionRecord tr) throws BurstException.ValidationException {
+  public Transaction loadTransaction(TransactionRecord tr) throws SignumException.ValidationException {
     if (tr == null) {
       return null;
     }
@@ -119,7 +119,7 @@ public class SqlTransactionDb implements TransactionDb {
       return select.fetch(record -> {
                 try {
                   return loadTransaction(record);
-                } catch (BurstException.ValidationException e) {
+                } catch (SignumException.ValidationException e) {
                   e.printStackTrace();
                   throw new RuntimeException("Invalid transaction :" + e.getMessage(), e);
                 }

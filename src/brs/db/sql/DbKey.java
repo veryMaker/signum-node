@@ -1,15 +1,16 @@
 package brs.db.sql;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.util.StringUtils;
 import org.jooq.*;
+import org.jooq.Record;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public interface DbKey extends BurstKey {
+public interface DbKey extends SignumKey {
 
-  abstract class Factory<T> implements BurstKey.Factory<T> {
+  abstract class Factory<T> implements SignumKey.Factory<T> {
 
     private final String pkClause;
     private final String[] pkColumns;
@@ -48,7 +49,7 @@ public interface DbKey extends BurstKey {
 
   long[] getPKValues();
 
-  abstract class LongKeyFactory<T> extends Factory<T> implements BurstKey.LongKeyFactory<T> {
+  abstract class LongKeyFactory<T> extends Factory<T> implements SignumKey.LongKeyFactory<T> {
 
     private final Field<Long> idColumn;
 
@@ -60,12 +61,12 @@ public interface DbKey extends BurstKey {
     }
 
     @Override
-    public BurstKey newKey(Record record) {
+    public SignumKey newKey(Record record) {
       Long result = record.get(idColumn);
       return new LongKey(result, idColumn.getName());
     }
 
-    public BurstKey newKey(long id) {
+    public SignumKey newKey(long id) {
       return new LongKey(id, idColumn.getName());
     }
 
@@ -79,7 +80,7 @@ public interface DbKey extends BurstKey {
     }
   }
 
-  abstract class LinkKeyFactory<T> extends Factory<T> implements BurstKey.LinkKeyFactory<T> {
+  abstract class LinkKeyFactory<T> extends Factory<T> implements SignumKey.LinkKeyFactory<T> {
 
     private final String idColumnA;
     private final String idColumnB;
@@ -116,7 +117,7 @@ public interface DbKey extends BurstKey {
     }
   }
 
-  abstract class LinkKey3Factory<T> extends Factory<T> implements BurstKey.LinkKey3Factory<T> {
+  abstract class LinkKey3Factory<T> extends Factory<T> implements SignumKey.LinkKey3Factory<T> {
 
     private final String idColumnA;
     private final String idColumnB;

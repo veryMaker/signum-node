@@ -2,9 +2,9 @@ package brs.services.impl;
 
 import brs.*;
 import brs.Alias.Offer;
-import brs.BurstException.NotValidException;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.SignumException.NotValidException;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.db.store.SubscriptionStore;
@@ -63,7 +63,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   @Override
   public void addSubscription(Account sender, long recipientId, Long id, Long amountNQT, int startTimestamp, int frequency) {
-    final BurstKey dbKey = subscriptionDbKeyFactory.newKey(id);
+    final SignumKey dbKey = subscriptionDbKeyFactory.newKey(id);
     final Subscription subscription = new Subscription(sender.getId(), recipientId, id, amountNQT, frequency, startTimestamp + frequency, dbKey);
 
     subscriptionTable.insert(subscription);
@@ -71,7 +71,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
   @Override
   public boolean isEnabled() {
-    if (blockchain.getLastBlock().getHeight() >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
+    if (blockchain.getLastBlock().getHeight() >= Constants.SIGNUM_SUBSCRIPTION_START_BLOCK) {
       return true;
     }
 
@@ -99,9 +99,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private long getFee(int height) {
-	if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
-	  return Burst.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
-    return Constants.ONE_BURST;
+	if (Signum.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
+	  return Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
+    return Constants.ONE_SIGNA;
   }
 
   @Override
@@ -113,9 +113,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         if(alias != null && alias.getId() == subscription.getId()) {
           Offer offer = aliasService.getOffer(alias);
           if(offer != null) {
-            Burst.getStores().getAliasStore().getOfferTable().delete(offer);
+            Signum.getStores().getAliasStore().getOfferTable().delete(offer);
           }
-          Burst.getStores().getAliasStore().getAliasTable().delete(alias);
+          Signum.getStores().getAliasStore().getAliasTable().delete(alias);
         }
       }
       subscriptionTable.delete(subscription);
@@ -176,7 +176,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private Account getRecipient(Subscription subscription) {
-    if(Burst.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
+    if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
       Alias alias = aliasService.getAlias(subscription.getRecipientId());
       if(alias != null) {
         Alias tld = aliasService.getTLD(alias.getTLD());

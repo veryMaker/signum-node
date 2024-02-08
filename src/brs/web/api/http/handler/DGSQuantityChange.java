@@ -27,7 +27,7 @@ public final class DGSQuantityChange extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getSenderAccount(req);
     DigitalGoodsStore.Goods goods = parameterService.getGoods(req);

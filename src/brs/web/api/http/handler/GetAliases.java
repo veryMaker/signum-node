@@ -3,7 +3,7 @@ package brs.web.api.http.handler;
 import brs.Account;
 import brs.Alias;
 import brs.Alias.Offer;
-import brs.BurstException;
+import brs.SignumException;
 import brs.services.AliasService;
 import brs.services.ParameterService;
 import brs.util.CollectionWithIndex;
@@ -38,7 +38,7 @@ public final class GetAliases extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
     final int timestamp = ParameterParser.getTimestamp(req);
     Account account = parameterService.getAccount(req, false);
 

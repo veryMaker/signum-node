@@ -1,4 +1,4 @@
-[History of Signum](https://signum.community/signum-development/)
+[History of Signum](https://wiki.signum.network/signum-development/)
 
 ```
 2020-04-06 v3.0.0
@@ -70,7 +70,7 @@
 - Default to submit nonce whitelist off
 - Revert removal of rejection of surplus parameters
 - Add option to bind V2 API to specific interface
-- MariaDB Settings tweaks 
+- MariaDB Settings tweaks
 - Various bug fixes and improvements
 
 2019-07-01 v2.4.0

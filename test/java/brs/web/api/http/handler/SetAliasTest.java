@@ -2,8 +2,8 @@ package brs.web.api.http.handler;
 
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.Constants;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class SetAliasTest extends AbstractTransactionTest {
 
   private SetAlias t;
@@ -45,7 +45,7 @@ public class SetAliasTest extends AbstractTransactionTest {
 
   @Before
   public void setUp() {
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
 
     parameterServiceMock = mock(ParameterService.class);
     blockchainMock = mock(Blockchain.class);
@@ -53,13 +53,13 @@ public class SetAliasTest extends AbstractTransactionTest {
     apiTransactionManagerMock = mock(APITransactionManager.class);
 
     FluxCapacitor mockFluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.PRE_POC2, FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(mockFluxCapacitor);
 
     t = new SetAlias(parameterServiceMock, blockchainMock, aliasServiceMock, apiTransactionManagerMock);
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final String aliasNameParameter = "aliasNameParameter";
     final String aliasUrl = "aliasUrl";
 
@@ -68,9 +68,9 @@ public class SetAliasTest extends AbstractTransactionTest {
         new MockParam(ALIAS_URI_PARAMETER, aliasUrl)
     );
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
     final Attachment.MessagingAliasAssignment attachment = (Attachment.MessagingAliasAssignment) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
@@ -82,7 +82,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_missingAliasName() throws BurstException {
+  public void processRequest_missingAliasName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ALIAS_NAME_PARAMETER, null),
         new MockParam(ALIAS_URI_PARAMETER, "aliasUrl")
@@ -92,7 +92,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectAliasLength_nameOnlySpaces() throws BurstException {
+  public void processRequest_incorrectAliasLength_nameOnlySpaces() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ALIAS_NAME_PARAMETER, "  "),
         new MockParam(ALIAS_URI_PARAMETER, null)
@@ -103,7 +103,7 @@ public class SetAliasTest extends AbstractTransactionTest {
 
 
   @Test
-  public void processRequest_incorrectAliasLength_incorrectAliasName() throws BurstException {
+  public void processRequest_incorrectAliasLength_incorrectAliasName() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(
         new MockParam(ALIAS_NAME_PARAMETER, "[]"),
         new MockParam(ALIAS_URI_PARAMETER, null)
@@ -113,7 +113,7 @@ public class SetAliasTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest_incorrectUriLengthWhenOver1000Characters() throws BurstException {
+  public void processRequest_incorrectUriLengthWhenOver1000Characters() throws SignumException {
     final StringBuilder uriOver1000Characters = new StringBuilder();
 
     for (int i = 0; i < 1001; i++) {

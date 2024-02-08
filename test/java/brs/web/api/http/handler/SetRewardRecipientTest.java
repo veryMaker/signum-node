@@ -19,7 +19,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static brs.TransactionType.BurstMining.REWARD_RECIPIENT_ASSIGNMENT;
+import static brs.TransactionType.SignaMining.REWARD_RECIPIENT_ASSIGNMENT;
 import static brs.web.api.http.common.Parameters.RECIPIENT_PARAMETER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Burst.class)
+@PrepareForTest(Signum.class)
 public class SetRewardRecipientTest extends AbstractTransactionTest {
 
   private SetRewardRecipient t;
@@ -51,7 +51,7 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
   }
 
   @Test
-  public void processRequest() throws BurstException {
+  public void processRequest() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(RECIPIENT_PARAMETER, "123"));
     final Account mockSenderAccount = mock(Account.class);
     final Account mockRecipientAccount = mock(Account.class);
@@ -61,34 +61,34 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockSenderAccount);
     when(accountServiceMock.getAccount(eq(123L))).thenReturn(mockRecipientAccount);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(Constants.FEE_QUANT_SIP3).when(fluxCapacitor).getValue(eq(FluxValues.FEE_QUANT));
 
-    final Attachment.BurstMiningRewardRecipientAssignment attachment = (Attachment.BurstMiningRewardRecipientAssignment) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
+    final Attachment.SignaMiningRewardRecipientAssignment attachment = (Attachment.SignaMiningRewardRecipientAssignment) attachmentCreatedTransaction(() -> t.processRequest(req), apiTransactionManagerMock);
     assertNotNull(attachment);
 
     assertEquals(REWARD_RECIPIENT_ASSIGNMENT, attachment.getTransactionType());
   }
 
   @Test
-  public void processRequest_recipientAccountDoesNotExist_errorCode8() throws BurstException {
+  public void processRequest_recipientAccountDoesNotExist_errorCode8() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(RECIPIENT_PARAMETER, "123"));
     final Account mockSenderAccount = mock(Account.class);
 
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockSenderAccount);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(false).when(fluxCapacitor).getValue(eq(FluxValues.SMART_TOKEN));
 
     assertEquals(8, JSONTestHelper.errorCode(t.processRequest(req)));
   }
 
   @Test
-  public void processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() throws BurstException {
+  public void processRequest_recipientAccountDoesNotHavePublicKey_errorCode8() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(RECIPIENT_PARAMETER, "123"));
     final Account mockSenderAccount = mock(Account.class);
     final Account mockRecipientAccount = mock(Account.class);
@@ -96,9 +96,9 @@ public class SetRewardRecipientTest extends AbstractTransactionTest {
     when(parameterServiceMock.getAccount(eq(req))).thenReturn(mockSenderAccount);
     when(accountServiceMock.getAccount(eq(123L))).thenReturn(mockRecipientAccount);
 
-    mockStatic(Burst.class);
+    mockStatic(Signum.class);
     final FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.DIGITAL_GOODS_STORE);
-    when(Burst.getFluxCapacitor()).thenReturn(fluxCapacitor);
+    when(Signum.getFluxCapacitor()).thenReturn(fluxCapacitor);
     doReturn(false).when(fluxCapacitor).getValue(eq(FluxValues.SMART_TOKEN));
 
     assertEquals(8, JSONTestHelper.errorCode(t.processRequest(req)));

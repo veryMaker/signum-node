@@ -23,7 +23,7 @@ public class DeeplinkQRCodeGeneratorTest {
 
     @Test
     public void testDeeplinkQrCodeGenerator() throws WriterException {
-        BufferedImage image = deeplinkQRCodeGenerator.generateRequestBurstDeepLinkQRCode(TestConstants.TEST_ACCOUNT_NUMERIC_ID, TestConstants.TEN_BURST, FeeSuggestionType.STANDARD, 0L, "Test!", true);
+        BufferedImage image = deeplinkQRCodeGenerator.generateRequestSignumDeepLinkQRCode(TestConstants.TEST_ACCOUNT_NUMERIC_ID, TestConstants.TEN_SIGNA, FeeSuggestionType.STANDARD, 0L, "Test!", true);
         assertNotNull(image);
     }
 }

@@ -19,8 +19,8 @@ import brs.Account;
 import brs.Asset;
 import brs.Attachment;
 import brs.Blockchain;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.Constants;
 import brs.fluxcapacitor.FluxValues;
 import brs.services.AccountService;
@@ -42,7 +42,7 @@ public final class TransferAssetMulti extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     long recipient = ParameterParser.getRecipientId(req);
     Account account = parameterService.getSenderAccount(req);
@@ -64,7 +64,7 @@ public final class TransferAssetMulti extends CreateTransaction {
     for(String assetIdString : assetIdsArray) {
       String[] assetIdAndQuantity = assetIdString.split(":", 2);
       long assetId = Convert.parseUnsignedLong(assetIdAndQuantity[0]);
-      Asset asset = Burst.getStores().getAssetStore().getAsset(assetId);
+      Asset asset = Signum.getStores().getAssetStore().getAsset(assetId);
       if(asset == null || assetIds.contains(assetId)) {
         return JSONResponses.incorrect(ASSET_IDS_AND_QUANTITIES_PARAMETER);
       }
@@ -92,7 +92,7 @@ public final class TransferAssetMulti extends CreateTransaction {
       if (amountNQT < 0 || amountNQT >= Constants.MAX_BALANCE_NQT) {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
-      else if (!Burst.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
+      else if (!Signum.getFluxCapacitor().getValue(FluxValues.SMART_TOKEN)) {
         return JSONResponses.incorrect(AMOUNT_NQT_PARAMETER);
       }
     }

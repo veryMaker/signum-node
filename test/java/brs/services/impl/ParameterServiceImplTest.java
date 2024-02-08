@@ -1,7 +1,7 @@
 package brs.services.impl;
 
 import brs.*;
-import brs.BurstException.ValidationException;
+import brs.SignumException.ValidationException;
 import brs.assetexchange.AssetExchange;
 import brs.at.AT;
 import brs.common.QuickMocker;
@@ -58,7 +58,7 @@ public class ParameterServiceImplTest {
   }
 
   @Test
-  public void getAccount() throws BurstException {
+  public void getAccount() throws SignumException {
     final String accountId = "123";
     final Account mockAccount = mock(Account.class);
 
@@ -70,13 +70,13 @@ public class ParameterServiceImplTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void getAccount_MissingAccountWhenNoAccountParameterGiven() throws BurstException {
+  public void getAccount_MissingAccountWhenNoAccountParameterGiven() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
     t.getAccount(req);
   }
 
   @Test(expected = ParameterException.class)
-  public void getAccount_UnknownAccountWhenIdNotFound() throws BurstException {
+  public void getAccount_UnknownAccountWhenIdNotFound() throws SignumException {
     final String accountId = "123";
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(ACCOUNT_PARAMETER, accountId));
 
@@ -86,7 +86,7 @@ public class ParameterServiceImplTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void getAccount_IncorrectAccountWhenRuntimeExceptionOccurs() throws BurstException {
+  public void getAccount_IncorrectAccountWhenRuntimeExceptionOccurs() throws SignumException {
     final String accountId = "123";
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(ACCOUNT_PARAMETER, accountId));
 
@@ -663,7 +663,7 @@ public class ParameterServiceImplTest {
 
   @Test(expected = ParameterException.class)
   public void parseTransaction_transactionJSON_validationExceptionOccurs() throws ParameterException, ValidationException {
-    when(transactionProcessorMock.parseTransaction(any(JsonObject.class))).thenThrow(new BurstException.NotValidException(""));
+    when(transactionProcessorMock.parseTransaction(any(JsonObject.class))).thenThrow(new SignumException.NotValidException(""));
 
     t.parseTransaction(null, "{}");
   }

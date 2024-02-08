@@ -2,7 +2,7 @@ package brs.common;
 
 import brs.crypto.Crypto;
 
-import static brs.Constants.ONE_BURST;
+import static brs.Constants.ONE_SIGNA;
 
 public class TestConstants {
 
@@ -20,7 +20,7 @@ public class TestConstants {
 
   public static final String DEADLINE = "400";
 
-  public static final String FEE = "" + ONE_BURST;
+  public static final String FEE = "" + ONE_SIGNA;
 
-  public static final long TEN_BURST = ONE_BURST * 10;
+  public static final long TEN_SIGNA = ONE_SIGNA * 10;
 }

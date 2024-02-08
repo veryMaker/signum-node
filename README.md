@@ -6,6 +6,10 @@
 The world's first HDD-mined cryptocurrency using an energy efficient
 and fair Proof-of-Commitment (PoC+) consensus algorithm running since August 2014.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## Network Features
 
 - Proof of Commitment - ASIC proof / Energy efficient and sustainable mining
@@ -64,6 +68,8 @@ The important part is that the Java version starts with `11.` (Java 11)
 ## Using an optional RDBMS (MariaDB, PostgreSQL)
 
 Signum Node uses an embedded file based database (H2) as default. But it's possible to use either MariaDB or PostgreSQL as alternative database.
+
+The minimum required version of MariaDB is 10.6.
 
 ----
 

@@ -2,7 +2,7 @@ package brs.db.store;
 
 import brs.DigitalGoodsStore;
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.VersionedValuesTable;
 
@@ -10,19 +10,19 @@ import java.util.Collection;
 
 public interface DigitalGoodsStoreStore {
 
-  BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getFeedbackDbKeyFactory();
+  SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getFeedbackDbKeyFactory();
 
-  BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPurchaseDbKeyFactory();
+  SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPurchaseDbKeyFactory();
 
   VersionedEntityTable<DigitalGoodsStore.Purchase> getPurchaseTable();
 
   VersionedValuesTable<DigitalGoodsStore.Purchase, EncryptedData> getFeedbackTable();
 
-  BurstKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPublicFeedbackDbKeyFactory();
+  SignumKey.LongKeyFactory<DigitalGoodsStore.Purchase> getPublicFeedbackDbKeyFactory();
 
   VersionedValuesTable<DigitalGoodsStore.Purchase, String> getPublicFeedbackTable();
 
-  BurstKey.LongKeyFactory<DigitalGoodsStore.Goods> getGoodsDbKeyFactory();
+  SignumKey.LongKeyFactory<DigitalGoodsStore.Goods> getGoodsDbKeyFactory();
 
   VersionedEntityTable<DigitalGoodsStore.Goods> getGoodsTable();
 

@@ -1,6 +1,6 @@
 package brs.web.api.http.handler;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.crypto.Crypto;
 import brs.services.ParameterService;
@@ -36,7 +36,7 @@ public final class SignTransaction extends ApiServlet.JsonRequestHandler {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     String transactionBytes = Convert.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_BYTES_PARAMETER));
     String transactionJSON = Convert.emptyToNull(req.getParameter(UNSIGNED_TRANSACTION_JSON_PARAMETER));
@@ -66,7 +66,7 @@ public final class SignTransaction extends ApiServlet.JsonRequestHandler {
       response.addProperty(TRANSACTION_BYTES_RESPONSE, Convert.toHexString(transaction.getBytes()));
       response.addProperty(SIGNATURE_HASH_RESPONSE, Convert.toHexString(Crypto.sha256().digest(transaction.getSignature())));
       response.addProperty(VERIFY_RESPONSE, transaction.verifySignature() && transactionService.verifyPublicKey(transaction));
-    } catch (BurstException.ValidationException|RuntimeException e) {
+    } catch (SignumException.ValidationException|RuntimeException e) {
       logger.debug(e.getMessage(), e);
       response.addProperty(ERROR_CODE_RESPONSE, 4);
       response.addProperty(ERROR_DESCRIPTION_RESPONSE, "Incorrect unsigned transaction: " + e.toString());

@@ -6,9 +6,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
 
 /**
- * Java LogManager extension for use with Burst
+ * Java LogManager extension for use with Signum
  */
-class BurstLogManager extends LogManager {
+class SignumLogManager extends LogManager {
 
   /**
    * Logging reconfiguration in progress
@@ -16,14 +16,14 @@ class BurstLogManager extends LogManager {
   private final AtomicBoolean loggingReconfiguration = new AtomicBoolean(false);
 
   /**
-   * Create the Burst log manager
+   * Create the Signum log manager
    *
    * We will let the Java LogManager create its shutdown hook so that the
    * shutdown context will be set up properly.  However, we will intercept
    * the reset() method so we can delay the actual shutdown until we are
-   * done terminating the Burst processes.
+   * done terminating the Signum processes.
    */
-  public BurstLogManager() {
+  public SignumLogManager() {
     super();
   }
 
@@ -46,7 +46,7 @@ class BurstLogManager extends LogManager {
    *
    * This method is called to reset the log handlers.  We will forward the
    * call during logging reconfiguration but will ignore it otherwise.
-   * This allows us to continue to use logging facilities during Burst shutdown.
+   * This allows us to continue to use logging facilities during Signum shutdown.
    */
   @Override
   public void reset() {
@@ -55,10 +55,10 @@ class BurstLogManager extends LogManager {
   }
 
   /**
-   * Burst shutdown is now complete, so call LogManager.reset() to terminate
+   * Signum shutdown is now complete, so call LogManager.reset() to terminate
    * the log handlers.
    */
-  void burstShutdown() {
+  void signumShutdown() {
     super.reset();
   }
 }

@@ -1,7 +1,7 @@
 package brs.web.api.http.handler;
 
 import brs.Account;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Order;
 import brs.Order.Bid;
 import brs.assetexchange.AssetExchange;
@@ -45,7 +45,7 @@ public class GetAccountCurrentBidOrderIdsTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest_byAccount() throws BurstException {
+  public void processRequest_byAccount() throws SignumException {
     final long accountId = 123L;
     final int firstIndex = 0;
     final int lastIndex = 1;
@@ -78,7 +78,7 @@ public class GetAccountCurrentBidOrderIdsTest extends AbstractUnitTest {
   }
 
   @Test
-  public void processRequest_byAccountAsset() throws BurstException {
+  public void processRequest_byAccountAsset() throws SignumException {
     final long accountId = 123L;
     final long assetId = 234L;
     final int firstIndex = 0;

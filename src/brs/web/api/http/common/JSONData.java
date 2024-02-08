@@ -153,7 +153,7 @@ public final class JSONData {
     json.addProperty(TOTAL_FEE_CASH_BACK_NQT_RESPONSE, String.valueOf(block.getTotalFeeCashBackNQT()));
     json.addProperty(TOTAL_FEE_BURNT_NQT_RESPONSE, String.valueOf(block.getTotalFeeBurntNQT()));
     json.addProperty(BLOCK_REWARD_NQT_RESPONSE, Convert.toUnsignedLong(blockReward));
-    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Burst.getPropertyService().getInt(Props.ONE_COIN_NQT)));
+    json.addProperty(BLOCK_REWARD_RESPONSE, Convert.toUnsignedLong(blockReward / Signum.getPropertyService().getInt(Props.ONE_COIN_NQT)));
     json.addProperty(PAYLOAD_LENGTH_RESPONSE, block.getPayloadLength());
     json.addProperty(VERSION_RESPONSE, block.getVersion());
     json.addProperty(BASE_TARGET_RESPONSE, Convert.toUnsignedLong(block.getCapacityBaseTarget()));

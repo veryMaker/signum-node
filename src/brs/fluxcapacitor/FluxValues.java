@@ -31,7 +31,7 @@ public class FluxValues {
 
     public static final FluxValue<Integer> BLOCK_TIME = new FluxValue<>(240);
     public static final FluxValue<Long> FEE_QUANT = new FluxValue<>(
-        Constants.ONE_BURST,
+        Constants.ONE_SIGNA,
         new FluxValue.ValueChange<>(HistoricalMoments.PRE_POC2, Constants.FEE_QUANT_SIP3),
         new FluxValue.ValueChange<>(HistoricalMoments.SMART_FEES, Constants.FEE_QUANT_SIP34)
         );

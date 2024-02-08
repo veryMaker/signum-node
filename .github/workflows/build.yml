@@ -4,6 +4,7 @@
 name: Build Signum Node
 
 on:
+  pull_request:
   push:
     branches:
       - '**'

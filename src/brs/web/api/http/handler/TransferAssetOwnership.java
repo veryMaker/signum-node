@@ -32,7 +32,7 @@ public final class TransferAssetOwnership extends CreateTransaction {
 
   @Override
   protected
-  JsonElement processRequest(HttpServletRequest req) throws BurstException {
+  JsonElement processRequest(HttpServletRequest req) throws SignumException {
 
     Account account = parameterService.getSenderAccount(req);
     long recipientId = ParameterParser.getRecipientId(req);
@@ -52,7 +52,7 @@ public final class TransferAssetOwnership extends CreateTransaction {
     if(asset.getAccountId() != account.getId()) {
       return JSONResponses.incorrect(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, "sender is not the asset current owner");
     }
-    if(!Burst.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2)) {
+    if(!Signum.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2)) {
       return JSONResponses.incorrect(REFERENCED_TRANSACTION_FULL_HASH_PARAMETER, "ownership transfer is not enabled yet");
     }
 

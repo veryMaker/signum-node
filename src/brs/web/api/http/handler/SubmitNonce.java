@@ -39,10 +39,10 @@ public final class SubmitNonce extends ApiServlet.JsonRequestHandler {
 
   public SubmitNonce(PropertyService propertyService, AccountService accountService, Blockchain blockchain, Generator generator) {
     super(new LegacyDocTag[] {LegacyDocTag.MINING}, SECRET_PHRASE_PARAMETER, NONCE_PARAMETER, ACCOUNT_ID_PARAMETER, BLOCK_HEIGHT_PARAMETER, DEADLINE_PARAMETER);
-    SignumCrypto burstCrypto = SignumCrypto.getInstance();
+    SignumCrypto signumCrypto = SignumCrypto.getInstance();
     this.passphrases = propertyService.getStringList(Props.SOLO_MINING_PASSPHRASES)
             .stream()
-            .collect(Collectors.toMap(passphrase -> burstCrypto.getAddressFromPassphrase(passphrase).getSignedLongId(), Function.identity()));
+            .collect(Collectors.toMap(passphrase -> signumCrypto.getAddressFromPassphrase(passphrase).getSignedLongId(), Function.identity()));
     this.allowOtherSoloMiners = propertyService.getBoolean(Props.ALLOW_OTHER_SOLO_MINERS);
     this.checkPointHeight = propertyService.getInt(Props.BRS_CHECKPOINT_HEIGHT);
 

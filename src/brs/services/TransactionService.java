@@ -1,13 +1,13 @@
 package brs.services;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 
 public interface TransactionService {
 
   boolean verifyPublicKey(Transaction transaction);
 
-  void validate(Transaction transaction) throws BurstException.ValidationException;
+  void validate(Transaction transaction) throws SignumException.ValidationException;
   
   void startNewBlock();
 

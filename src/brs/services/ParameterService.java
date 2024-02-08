@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ParameterService {
 
-  Account getAccount(HttpServletRequest req) throws BurstException;
+  Account getAccount(HttpServletRequest req) throws SignumException;
 
-  Account getAccount(HttpServletRequest req, boolean checkPresent) throws BurstException;
+  Account getAccount(HttpServletRequest req, boolean checkPresent) throws SignumException;
 
   List<Account> getAccounts(HttpServletRequest req) throws ParameterException;
 

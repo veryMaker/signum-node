@@ -1,6 +1,6 @@
 package brs.props;
 
-import brs.Burst;
+import brs.Signum;
 import signum.net.NetworkParameters;
 
 import org.slf4j.Logger;
@@ -10,7 +10,7 @@ import java.util.*;
 
 public class PropertyServiceImpl implements PropertyService {
 
-  private final Logger logger = LoggerFactory.getLogger(Burst.class);
+  private final Logger logger = LoggerFactory.getLogger(Signum.class);
   private static final String LOG_UNDEF_NAME_DEFAULT = "{} using default: >{}<";
 
   private final Properties properties;

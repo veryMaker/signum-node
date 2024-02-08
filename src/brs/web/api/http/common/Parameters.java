@@ -109,8 +109,8 @@ public final class Parameters {
   public static final String MESSAGE_IS_TEXT_PARAMETER = "messageIsText";
   public static final String MESSAGE_PARAMETER = "message";
   public static final String UNSIGNED_TRANSACTION_JSON_PARAMETER = "unsignedTransactionJSON";
-  public static final String AMOUNT_BURST_PARAMETER = "amountNXT";
-  public static final String FEE_BURST_PARAMETER = "feeNXT";
+  public static final String AMOUNT_SIGNA_PARAMETER = "amountNXT";
+  public static final String FEE_SIGNA_PARAMETER = "feeNXT";
   public static final String IN_STOCK_ONLY_PARAMETER = "inStockOnly";
   public static final String COMPLETED_PARAMETER = "completed";
   public static final String PEER_PARAMETER = "peer";
