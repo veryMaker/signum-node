@@ -6,9 +6,9 @@ Please use the following workflow to contribute:
 * Create a branch which accurately describes your fix or feature (prefix branches with `fix/`, `feat/`, `docs/`, etc). 
   * Please use signed commits if you can - you are contributing to the backbone of a cryptocurrency.
 * Format your new source according to the eclipse-java-style.xml and checkstyle.xml files before you make a pull request. 
-* Submit a pull request against `develop`
+* Submit a pull request against **`develop`**
 
-*Note:* A minimum of 2 approving reviews are required to merge. Squash merges are preferred unless there are very few commits to merge
+*Note:* A minimum of 1 approving reviews are required to merge. Squash merges are preferred unless there are very few commits to merge
 
 ## GitHub Codespaces and devcontainers
 
