@@ -734,12 +734,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         int pocVersion;
                         int pos = 0;
                         HashMap<Block, Block> blocks = new HashMap<>();
-                        pocVersion = downloadCache.getPoCVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
+                        pocVersion = downloadCache.getPocVersion(downloadCache.getUnverifiedBlockIdFromPos(0));
                         while (!Thread.interrupted() && ThreadPool.running.get()
                                 && (downloadCache.getUnverifiedSize() - 1) > pos
                                 && blocks.size() < OCLPoC.getMaxItems()) {
                             long blockId = downloadCache.getUnverifiedBlockIdFromPos(pos);
-                            if (downloadCache.getPoCVersion(blockId) != pocVersion) {
+                            if (downloadCache.getPocVersion(blockId) != pocVersion) {
                                 break;
                             }
                             Block block = downloadCache.getBlock(blockId);
