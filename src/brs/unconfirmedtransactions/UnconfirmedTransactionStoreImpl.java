@@ -278,7 +278,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
     }
 
     if (slotHeight <= 0) {
-      logger.info("Transaction {}: Not added, not enough fee {} for it size {}", transaction.getId(), transaction.getFeeNQT(), transaction.getSize());
+      logger.info("Transaction {}: Not added, not enough fee {} for it size {}", transaction.getId(), transaction.getFeeNqt(), transaction.getSize());
       return true;
     }
     if (this.internalStore.containsKey(slotHeight) && this.internalStore.get(slotHeight).size() >= slotUnconfirmedLimit) {
@@ -375,7 +375,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
 
   private long amountSlotForTransaction(Transaction transaction) {
-    long slot = transaction.getFeeNQT() / Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
+    long slot = transaction.getFeeNqt() / Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT);
     if(Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY)) {
       // Using the 'slot' now as a priority measure, not exactly as before
       long transactionSize = transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES;
@@ -387,7 +387,7 @@ public class UnconfirmedTransactionStoreImpl implements UnconfirmedTransactionSt
 
   private void removeCheapestFirstToExpireTransaction() {
     final Optional<Transaction> cheapestFirstToExpireTransaction = this.internalStore.get(this.internalStore.firstKey()).stream()
-        .sorted(Comparator.comparingLong(Transaction::getFeeNQTPerByte).thenComparing(Transaction::getExpiration).thenComparing(Transaction::getId))
+        .sorted(Comparator.comparingLong(Transaction::getFeeNqtPerByte).thenComparing(Transaction::getExpiration).thenComparing(Transaction::getId))
         .findFirst();
 
     if (cheapestFirstToExpireTransaction.isPresent()) {

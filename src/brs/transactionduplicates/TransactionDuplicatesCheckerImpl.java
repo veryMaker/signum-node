@@ -33,7 +33,7 @@ public class TransactionDuplicatesCheckerImpl {
 
     final Transaction possiblyExistingTransaction = transactionOverview.get(transactionDuplicateKey.key);
 
-    if (possiblyExistingTransaction != null && possiblyExistingTransaction.getFeeNQT() >= transaction.getFeeNQT()) {
+    if (possiblyExistingTransaction != null && possiblyExistingTransaction.getFeeNqt() >= transaction.getFeeNqt()) {
       logger.debug("Transaction {}: is a duplicate of {} (Type: {})", transaction.getId(), possiblyExistingTransaction.getId(), transaction.getType());
       return new TransactionDuplicationResult(true, transaction);
     } else {

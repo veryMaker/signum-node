@@ -190,7 +190,7 @@ public class UnconfirmedTransactionStoreTest {
     }
 
     assertEquals(8192, t.getAll().size());
-    assertEquals(8192, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT_SIP3 * 100).count());
+    assertEquals(8192, t.getAll().stream().filter(t -> t.getFeeNqt() == FEE_QUANT_SIP3 * 100).count());
     assertNotNull(t.get(1L));
 
     final Transaction oneTransactionTooMany =
@@ -200,8 +200,8 @@ public class UnconfirmedTransactionStoreTest {
     t.put(oneTransactionTooMany, null);
 
     assertEquals(8192, t.getAll().size());
-    assertEquals(8192 - 1, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT_SIP3 * 100).count());
-    assertEquals(1, t.getAll().stream().filter(t -> t.getFeeNQT() == FEE_QUANT_SIP3 * 200).count());
+    assertEquals(8192 - 1, t.getAll().stream().filter(t -> t.getFeeNqt() == FEE_QUANT_SIP3 * 100).count());
+    assertEquals(1, t.getAll().stream().filter(t -> t.getFeeNqt() == FEE_QUANT_SIP3 * 200).count());
   }
 
   @DisplayName("The unconfirmed transaction gets denied in case the account is unknown")
