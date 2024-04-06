@@ -132,10 +132,10 @@ public class Props {
   public static final Prop<Boolean> P2P_SHARE_MY_ADDRESS = new Prop<>("P2P.shareMyAddress", true);
   public static final Prop<Boolean> P2P_ENABLE_TX_REBROADCAST = new Prop<>("P2P.enableTxRebroadcast", true);
   public static final Prop<String> P2P_REBROADCAST_TO  = new Prop<>("P2P.rebroadcastTo",
-      "172.105.99.102; 188.18.53.195; 77.228.8.217; 95.84.195.90; 188.34.159.176; 193.26.159.23; 191.255.240.231; 35.137.168.158; 168.63.93.40; 146.247.237.139; 77.68.73.180; 84.220.221.190; 67.214.183.194; 158.46.18.221; 172.105.109.223; 139.177.197.163; 89.217.255.210; 213.32.102.141; 5.196.65.184; 208.103.163.7; 138.2.69.49; 75.133.57.21; 89.58.10.207; 213.206.184.76");
+      "216.114.232.67:8123; 51.235.143.229:8123; signode.ddns.net:8123; 188.34.159.176:8123;signum.mega-bit.ru:8123; storjserver2.cryptomass.de:8123; 89.58.10.207:8123; 84.54.46.176:8123; signumwallet.ddns.net:8123; taylorforce.synology.me:8123; zwurg.feste-ip.net:51940; zmail.cloudns.ph:8123; wallet.signa-coin.eu:8123; wekuz-signa-node.duckdns.org:8123; austria-sn.albatros.cc:8123; signumwallet.lucentinian.com:8123; 85.238.97.205:8123; 124.246.79.194:8123");
   public static final Prop<String> P2P_BOOTSTRAP_PEERS = new Prop<>("P2P.BootstrapPeers",
-      "212.98.92.236; 108.61.251.202; 190.15.195.118; 24.96.113.8; 88.64.234.237; 137.135.203.145; 70.108.6.237; 144.91.84.164; 213.32.102.141; 5.196.65.184; 89.163.239.219; 165.227.36.71");
-  public static final Prop<Integer> P2P_NUM_BOOTSTRAP_CONNECTIONS = new Prop<>("P2P.NumBootstrapConnections", 4);
+      "australia.signum.network:8123; brazil.signum.network:8123; canada.signum.network:8123; europe.signum.network:8123; europe1.signum.network:8123; europe2.signum.network:8123; europe3.signum.network:8123; latam.signum.network:8123; singapore.signum.network:8123; ru.signum.network:8123; us-central.signum.network:8123; us-east.signum.network:8123");
+  public static final Prop<Integer> P2P_NUM_BOOTSTRAP_CONNECTIONS = new Prop<>("P2P.NumBootstrapConnections", 3);
   public static final Prop<String> P2P_BLACKLISTED_PEERS = new Prop<>("P2P.BlacklistedPeers", "");
   public static final Prop<Integer> P2P_MAX_CONNECTIONS = new Prop<>("P2P.MaxConnections", 20);
   public static final Prop<Integer> P2P_TIMEOUT_CONNECT_MS = new Prop<>("P2P.TimeoutConnect_ms", 4000);
