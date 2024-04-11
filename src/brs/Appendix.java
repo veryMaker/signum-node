@@ -38,11 +38,11 @@ public interface Appendix {
             this.version = version;
         }
 
-        @SuppressWarnings("checkstyle:LineLengthCheck")
         AbstractAppendix(int blockchainHeight) {
-            this.version = (byte) (Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)
-                    ? 1
-                    : 0);
+            this.version = (byte) (Signum.getFluxCapacitor().getValue(
+                    FluxValues.DIGITAL_GOODS_STORE, blockchainHeight)
+                            ? 1
+                            : 0);
         }
 
         protected abstract String getAppendixName();

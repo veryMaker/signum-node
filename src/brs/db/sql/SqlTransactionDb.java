@@ -167,8 +167,8 @@ public class SqlTransactionDb implements TransactionDb {
               transaction.getDeadline(),
               transaction.getSenderPublicKey(),
               (transaction.getRecipientId() == 0 ? null : transaction.getRecipientId()),
-              transaction.getAmountNQT(),
-              transaction.getFeeNQT(),
+              transaction.getAmountNqt(),
+              transaction.getFeeNqt(),
               Convert.parseHexString(transaction.getReferencedTransactionFullHash()),
               transaction.getHeight(),
               transaction.getBlockId(),
@@ -185,8 +185,8 @@ public class SqlTransactionDb implements TransactionDb {
               transaction.getEncryptedMessage() != null,
               transaction.getPublicKeyAnnouncement() != null,
               transaction.getEncryptToSelfMessage() != null,
-              transaction.getECBlockHeight(),
-              (transaction.getECBlockId() != 0 ? transaction.getECBlockId() : null),
+              transaction.getEcBlockHeight(),
+              (transaction.getEcBlockId() != 0 ? transaction.getEcBlockId() : null),
               transaction.getCashBackId()
           );
         }

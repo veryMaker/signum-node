@@ -386,8 +386,8 @@ public final class JSONData {
     if (transaction.getRecipientId() != 0) {
       putAccount(json, RECIPIENT_RESPONSE, transaction.getRecipientId());
     }
-    json.addProperty(AMOUNT_NQT_RESPONSE, String.valueOf(transaction.getAmountNQT()));
-    json.addProperty(FEE_NQT_RESPONSE, String.valueOf(transaction.getFeeNQT()));
+    json.addProperty(AMOUNT_NQT_RESPONSE, String.valueOf(transaction.getAmountNqt()));
+    json.addProperty(FEE_NQT_RESPONSE, String.valueOf(transaction.getFeeNqt()));
     if (transaction.getReferencedTransactionFullHash() != null) {
       json.addProperty(REFERENCED_TRANSACTION_FULL_HASH_RESPONSE, transaction.getReferencedTransactionFullHash());
     }
@@ -421,8 +421,8 @@ public final class JSONData {
     json.addProperty(HEIGHT_RESPONSE, transaction.getHeight());
     json.addProperty(VERSION_RESPONSE, transaction.getVersion());
     if (transaction.getVersion() > 0) {
-      json.addProperty(EC_BLOCK_ID_RESPONSE, Convert.toUnsignedLong(transaction.getECBlockId()));
-      json.addProperty(EC_BLOCK_HEIGHT_RESPONSE, transaction.getECBlockHeight());
+      json.addProperty(EC_BLOCK_ID_RESPONSE, Convert.toUnsignedLong(transaction.getEcBlockId()));
+      json.addProperty(EC_BLOCK_HEIGHT_RESPONSE, transaction.getEcBlockHeight());
     }
     json.addProperty(CASH_BACK_ID_RESPONSE, Convert.toUnsignedLong(transaction.getCashBackId()));
 

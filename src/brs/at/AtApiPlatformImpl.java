@@ -151,8 +151,8 @@ public class AtApiPlatformImpl extends AtApiImpl {
             return 0L;
           }
         }
-        if ((tx.getMessage() == null || Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNQT()) {
-            return tx.getAmountNQT() - state.minActivationAmount();
+        if ((tx.getMessage() == null || Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_2, state.getHeight())) && state.minActivationAmount() <= tx.getAmountNqt()) {
+            return tx.getAmountNqt() - state.minActivationAmount();
         }
 
         return 0;
