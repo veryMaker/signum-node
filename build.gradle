@@ -58,10 +58,11 @@ dependencies {
   // see https://documentation.red-gate.com/fd/release-notes-for-flyway-engine-179732572.html
   implementation 'org.flywaydb:flyway-mysql:8.5.13'
   implementation 'com.h2database:h2:2.2.224'
-  implementation 'org.postgresql:postgresql:42.5.1'
+  implementation 'org.postgresql:postgresql:42.7.3'
   // unix socket support available - see https://github.com/kohlschutter/junixsocket
   implementation 'com.kohlschutter.junixsocket:junixsocket-core:2.8.3'
   implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+  implementation 'org.xerial:sqlite-jdbc:3.45.2.0'
   jooqGenerator 'com.h2database:h2:2.2.224'
 
   implementation 'org.owasp.encoder:encoder:1.2.3'

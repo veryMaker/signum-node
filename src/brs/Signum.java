@@ -76,7 +76,7 @@ import signumj.util.SignumUtils;
  */
 public final class Signum {
 
-    public static final Version VERSION = Version.parse("v3.8.0");
+    public static final Version VERSION = Version.parse("v3.8.1-dev");
     public static final String APPLICATION = "BRS";
 
     public static final String CONF_FOLDER = "./conf";

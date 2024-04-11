@@ -10,10 +10,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.ResultQuery;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
@@ -106,6 +103,8 @@ public final class Db {
           Class.forName("org.postgresql.Driver");
           locationDialect = "classpath:/db/migration_postgres";
           // check https://jdbc.postgresql.org/documentation/use/ for more options
+        case SQLITE:
+          locationDialect = "classpath:/db/migration_sqlite";
         default:
           break;
       }
@@ -249,6 +248,10 @@ public final class Db {
     return localConnection.get() != null;
   }
 
+  public static SQLDialect getDialect() {
+    return getDSLContext().dialect();
+  }
+
   public static Connection beginTransaction() {
     if (localConnection.get() != null) {
       throw new IllegalStateException("Transaction already in progress");
@@ -331,13 +334,16 @@ public final class Db {
     try {
       if (ctx.dialect() == SQLDialect.H2) {
         queryVersion = ctx.resultQuery("SELECT H2VERSION()");
+      }
+      else if (ctx.dialect() == SQLDialect.SQLITE) {
+        queryVersion = ctx.resultQuery("SELECT sqlite_version()");
       } else {
         queryVersion = ctx.resultQuery("SELECT VERSION()");
       }
       Record record = queryVersion.fetchOne();
       if (record != null) {
         version = record.get(0, String.class);
-        if (ctx.dialect() == SQLDialect.POSTGRES) {
+        if (ctx.dialect() == SQLDialect.POSTGRES || ctx.dialect() == SQLDialect.SQLITE) {
           version += " (EXPERIMENTAL)";
         }
       }

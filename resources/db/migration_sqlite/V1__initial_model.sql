@@ -1,6 +1,6 @@
 /*
  On April, 2024
- This model incorporates already migrations up to V10 as in MariaDB and H2
+ - This model incorporates already all migrations until V10 as done for  MariaDB and H2
  */
 
 CREATE TABLE IF NOT EXISTS account (
@@ -19,27 +19,20 @@ CREATE INDEX IF NOT EXISTS idx_16393_account_id_latest_idx ON account (id, lates
 CREATE INDEX IF NOT EXISTS idx_16393_account_height_idx ON account (height);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_16393_account_id_height_idx ON account (id, height DESC);
 
-create table if not exists account_balance
-(
-  db_id               bigserial
-    constraint idx_16411_primary
-      primary key,
-  id                  bigint               not null,
-  balance             bigint               not null,
-  unconfirmed_balance bigint               not null,
-  forged_balance      bigint               not null,
-  height              bigint               not null,
-  latest              boolean default true not null
+CREATE TABLE IF NOT EXISTS account_balance (
+                                             db_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                             id INTEGER NOT NULL,
+                                             balance INTEGER NOT NULL,
+                                             unconfirmed_balance INTEGER NOT NULL,
+                                             forged_balance INTEGER NOT NULL,
+                                             height INTEGER NOT NULL,
+                                             latest INTEGER DEFAULT 1 NOT NULL
 );
 
-create index if not exists idx_16411_account_balance_height_idx
-  on account_balance (height);
+CREATE INDEX IF NOT EXISTS idx_16411_account_balance_height_idx ON account_balance (height);
+CREATE INDEX IF NOT EXISTS idx_16411_account_balance_id_latest_idx ON account_balance (id, latest);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_16411_account_balance_id_height_idx ON account_balance (id, height DESC);
 
-create index if not exists idx_16411_account_balance_id_latest_idx
-  on account_balance (id, latest);
-
-create unique index if not exists idx_16411_account_balance_id_height_idx
-  on account_balance (id, height desc);
 
 CREATE TABLE IF NOT EXISTS account_asset (
                                            db_id INTEGER PRIMARY KEY AUTOINCREMENT,
