@@ -1080,7 +1080,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                             logger.debug(
                                     "Block {} height {} contains transaction that was generated on a fork: {} ecBlockId {} ecBlockHeight {}",
                                     block.getStringId(), previousLastBlock.getHeight() + 1, transaction.getStringId(),
-                                    transaction.getECBlockHeight(), Convert.toUnsignedLong(transaction.getECBlockId()));
+                                    transaction.getEcBlockHeight(), Convert.toUnsignedLong(transaction.getEcBlockId()));
                         }
                         throw new TransactionNotAcceptedException("Transaction belongs to a different fork",
                                 transaction);
@@ -1108,11 +1108,11 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         throw new TransactionNotAcceptedException(e.getMessage(), transaction);
                     }
 
-                    calculatedTotalAmount += transaction.getAmountNQT();
-                    calculatedTotalFee += transaction.getFeeNQT();
+                    calculatedTotalAmount += transaction.getAmountNqt();
+                    calculatedTotalFee += transaction.getFeeNqt();
                     digest.update(transaction.getBytes());
                     indirectIncomingService.processTransaction(transaction);
-                    feeArray[slotIdx] = transaction.getFeeNQT();
+                    feeArray[slotIdx] = transaction.getFeeNqt();
                     slotIdx += 1;
                 }
 
@@ -1375,7 +1375,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         age = 1;
                     }
 
-                    long feePriority = transaction.getFeeNQT()
+                    long feePriority = transaction.getFeeNqt()
                             * (transaction.getSize() / Constants.ORDINARY_TRANSACTION_BYTES);
                     // So the age has less priority (60 minutes to increase the priority to the next
                     // level)
@@ -1407,7 +1407,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     Map<Long, TreeMap<Long, Transaction>> unconfirmedTransactionsOrderedBySlotThenPriority = new HashMap<>();
                     inclusionCandidates.collect(Collectors.toMap(Function.identity(), priorityCalculator::applyAsLong))
                             .forEach((transaction, priority) -> {
-                                long slot = (transaction.getFeeNQT() - (transaction.getFeeNQT() % FEE_QUANT_SIP3))
+                                long slot = (transaction.getFeeNqt() - (transaction.getFeeNqt() % FEE_QUANT_SIP3))
                                         / FEE_QUANT_SIP3;
                                 slot = Math.min(Signum.getFluxCapacitor().getValue(FluxValues.MAX_NUMBER_TRANSACTIONS),
                                         slot);
@@ -1498,15 +1498,15 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         // we already got the list by priority, no need to check the fees again
                         slotFee = feeQuant;
                     }
-                    if (transaction.getFeeNQT() >= slotFee) {
+                    if (transaction.getFeeNqt() >= slotFee) {
                         if (transactionService.applyUnconfirmed(transaction)) {
                             try {
                                 transactionService.validate(transaction);
                                 payloadSize -= transaction.getSize();
-                                totalAmountNqt += transaction.getAmountNQT();
-                                totalFeeNqt += transaction.getFeeNQT();
+                                totalAmountNqt += transaction.getAmountNqt();
+                                totalFeeNqt += transaction.getFeeNqt();
                                 if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES, blockHeight)) {
-                                    totalFeeCashBackNqt += transaction.getFeeNQT()
+                                    totalFeeCashBackNqt += transaction.getFeeNqt()
                                             / propertyService.getInt(Props.CASH_BACK_FACTOR);
                                 }
                                 orderedBlockTransactions.add(transaction);

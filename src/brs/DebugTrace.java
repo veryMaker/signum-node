@@ -204,8 +204,8 @@ public final class DebugTrace {
   }
 
   private Map<String,String> getValues(long accountId, Transaction transaction, boolean isRecipient) {
-    long amount = transaction.getAmountNQT();
-    long fee = transaction.getFeeNQT();
+    long amount = transaction.getAmountNqt();
+    long fee = transaction.getFeeNqt();
     if (isRecipient) {
       fee = 0; // fee doesn't affect recipient account
     } else {
