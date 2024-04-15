@@ -147,7 +147,7 @@ public final class ThreadPool {
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
-      if (! executor.isTerminated()) {
+      if (!executor.isTerminated()) {
         logger.error("some threads didn't terminate, forcing shutdown");
         executor.shutdownNow();
       }

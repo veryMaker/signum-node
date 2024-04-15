@@ -64,10 +64,24 @@ public class SqlEscrowStore implements EscrowStore {
   }
 
   private void saveDecision(DSLContext ctx, Escrow.Decision decision) {
-    ctx.mergeInto(ESCROW_DECISION, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
-            .key(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
-            .values(decision.escrowId, decision.accountId, (int) Escrow.decisionToByte(decision.getDecision()), Signum.getBlockchain().getHeight(), true)
-            .execute();
+
+    ctx.insertInto(ESCROW_DECISION,
+        ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID,
+        ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT,
+        ESCROW_DECISION.LATEST)
+      .values(decision.getEscrowId(), decision.getAccountId(),
+        (int) Escrow.decisionToByte(decision.getDecision()),
+        Signum.getBlockchain().getHeight(), true)
+      .onConflict(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
+      .doUpdate()
+      .set(ESCROW_DECISION.DECISION, (int) Escrow.decisionToByte(decision.getDecision()))
+      .set(ESCROW_DECISION.LATEST, true)
+      .execute();
+//    TODO: clean up old statement once all works as expected
+//    ctx.mergeInto(ESCROW_DECISION, ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.DECISION, ESCROW_DECISION.HEIGHT, ESCROW_DECISION.LATEST)
+//            .key(ESCROW_DECISION.ESCROW_ID, ESCROW_DECISION.ACCOUNT_ID, ESCROW_DECISION.HEIGHT)
+//            .values(decision.escrowId, decision.accountId, (int) Escrow.decisionToByte(decision.getDecision()), Signum.getBlockchain().getHeight(), true)
+//            .execute();
   }
 
   @Override
@@ -108,10 +122,29 @@ public class SqlEscrowStore implements EscrowStore {
   }
 
   private void saveEscrow(DSLContext ctx, Escrow escrow) {
-    ctx.mergeInto(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
-            .key(ESCROW.ID, ESCROW.HEIGHT)
-            .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountNQT, escrow.requiredSigners, escrow.deadline, (int) Escrow.decisionToByte(escrow.deadlineAction), Signum.getBlockchain().getHeight(), true)
-            .execute();
+    ctx.insertInto(ESCROW,
+        ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID,
+        ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE,
+        ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
+      .values(escrow.getId(), escrow.getSenderId(), escrow.getRecipientId(),
+        escrow.getAmountNQT(), escrow.getRequiredSigners(),
+        escrow.getDeadline(), (int) Escrow.decisionToByte(escrow.getDeadlineAction()),
+        Signum.getBlockchain().getHeight(), true)
+      .onConflict(ESCROW.ID, ESCROW.HEIGHT)
+      .doUpdate()
+      .set(ESCROW.SENDER_ID, escrow.getSenderId())
+      .set(ESCROW.RECIPIENT_ID, escrow.getRecipientId())
+      .set(ESCROW.AMOUNT, escrow.getAmountNQT())
+      .set(ESCROW.REQUIRED_SIGNERS, escrow.getRequiredSigners())
+      .set(ESCROW.DEADLINE, escrow.getDeadline())
+      .set(ESCROW.DEADLINE_ACTION, (int) Escrow.decisionToByte(escrow.getDeadlineAction()))
+      .set(ESCROW.LATEST, true)
+      .execute();
+    // TODO: cleanup if the insertInto works
+//    ctx.mergeInto(ESCROW, ESCROW.ID, ESCROW.SENDER_ID, ESCROW.RECIPIENT_ID, ESCROW.AMOUNT, ESCROW.REQUIRED_SIGNERS, ESCROW.DEADLINE, ESCROW.DEADLINE_ACTION, ESCROW.HEIGHT, ESCROW.LATEST)
+//            .key(ESCROW.ID, ESCROW.HEIGHT)
+//            .values(escrow.id, escrow.senderId, escrow.recipientId, escrow.amountNQT, escrow.requiredSigners, escrow.deadline, (int) Escrow.decisionToByte(escrow.deadlineAction), Signum.getBlockchain().getHeight(), true)
+//            .execute();
   }
 
   private class SqlDecision extends Escrow.Decision {

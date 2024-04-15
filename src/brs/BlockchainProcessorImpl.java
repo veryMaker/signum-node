@@ -346,7 +346,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                             }
 
                             JsonArray nextBlocks = getNextBlocks(peer, commonBlockId);
-                            if (nextBlocks == null || nextBlocks.size() == 0) {
+                            if (nextBlocks == null || nextBlocks.isEmpty()) {
                                 logger.debug("Peer did not feed us any blocks");
                                 return;
                             }

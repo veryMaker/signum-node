@@ -19,7 +19,6 @@ public class V7_3__MigrateBalances extends BaseJavaMigration {
       return;
     }
 
-
     // copy all balance entries
     Statement selectTx = context.getConnection().createStatement();
     selectTx.executeUpdate(

@@ -30,23 +30,20 @@ public class Escrow {
 
   public static DecisionType stringToDecision(String decision) {
     switch (decision) {
-      case "undecided":
-        return DecisionType.UNDECIDED;
       case "release":
-        return DecisionType.RELEASE;
+      return DecisionType.RELEASE;
       case "refund":
-        return DecisionType.REFUND;
+      return DecisionType.REFUND;
       case "split":
-        return DecisionType.SPLIT;
+      return DecisionType.SPLIT;
+      case "undecided":
       default:
-        return null;
+        return DecisionType.UNDECIDED;
     }
   }
 
   public static Byte decisionToByte(DecisionType decision) {
     switch (decision) {
-      case UNDECIDED:
-        return 0;
       case RELEASE:
         return 1;
       case REFUND:
@@ -54,14 +51,13 @@ public class Escrow {
       case SPLIT:
         return 3;
       default:
-        return null;
+      case UNDECIDED:
+        return 0;
     }
   }
 
   public static DecisionType byteToDecision(Byte decision) {
     switch (decision) {
-      case 0:
-        return DecisionType.UNDECIDED;
       case 1:
         return DecisionType.RELEASE;
       case 2:
@@ -69,7 +65,8 @@ public class Escrow {
       case 3:
         return DecisionType.SPLIT;
       default:
-        return null;
+      case 0:
+        return DecisionType.UNDECIDED;
     }
   }
 
