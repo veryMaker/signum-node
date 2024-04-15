@@ -17,7 +17,11 @@ public class DatabaseInstanceH2 extends DatabaseInstanceBaseImpl {
 
   @Override
   protected HikariConfig configureImpl(HikariConfig config) {
-//    Class.forName("org.h2.Driver");
+    try {
+      Class.forName("org.h2.Driver");
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
     config.setAutoCommit(true);
     config.addDataSourceProperty("cachePrepStmts", "true");
     config.addDataSourceProperty("prepStmtCacheSize", "250");
