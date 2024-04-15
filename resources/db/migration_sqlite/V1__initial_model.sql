@@ -1,6 +1,7 @@
 /*
  On April, 2024
- - This model incorporates already all migrations until V10 as done for  MariaDB and H2
+ - This model incorporates already all migrations until V10 as done for MariaDB and H2
+  As to JDBC Migrations (brs.db.sql.migration) with Flyway further model migrations have to start with V7_4 at least (better V8)
  */
 
 CREATE TABLE IF NOT EXISTS account

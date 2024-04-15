@@ -30,20 +30,23 @@ public class Escrow {
 
   public static DecisionType stringToDecision(String decision) {
     switch (decision) {
-      case "release":
-      return DecisionType.RELEASE;
-      case "refund":
-      return DecisionType.REFUND;
-      case "split":
-      return DecisionType.SPLIT;
       case "undecided":
-      default:
         return DecisionType.UNDECIDED;
+      case "release":
+        return DecisionType.RELEASE;
+      case "refund":
+        return DecisionType.REFUND;
+      case "split":
+        return DecisionType.SPLIT;
+      default:
+        return null;
     }
   }
 
   public static Byte decisionToByte(DecisionType decision) {
     switch (decision) {
+      case UNDECIDED:
+        return 0;
       case RELEASE:
         return 1;
       case REFUND:
@@ -51,13 +54,14 @@ public class Escrow {
       case SPLIT:
         return 3;
       default:
-      case UNDECIDED:
-        return 0;
+        return null;
     }
   }
 
   public static DecisionType byteToDecision(Byte decision) {
     switch (decision) {
+      case 0:
+        return DecisionType.UNDECIDED;
       case 1:
         return DecisionType.RELEASE;
       case 2:
@@ -65,8 +69,7 @@ public class Escrow {
       case 3:
         return DecisionType.SPLIT;
       default:
-      case 0:
-        return DecisionType.UNDECIDED;
+        return null;
     }
   }
 
@@ -112,12 +115,12 @@ public class Escrow {
   public final DecisionType deadlineAction;
 
   public Escrow(SignumKey dbKey, Account sender,
-      Account recipient,
-      Long id,
-      Long amountNQT,
-      int requiredSigners,
-      int deadline,
-      DecisionType deadlineAction) {
+                Account recipient,
+                Long id,
+                Long amountNQT,
+                int requiredSigners,
+                int deadline,
+                DecisionType deadlineAction) {
     this.dbKey = dbKey;
     this.senderId = sender.getId();
     this.recipientId = recipient.getId();
@@ -129,7 +132,7 @@ public class Escrow {
   }
 
   protected Escrow(Long id, Long senderId, Long recipientId, SignumKey dbKey, Long amountNQT,
-      int requiredSigners, int deadline, DecisionType deadlineAction) {
+                   int requiredSigners, int deadline, DecisionType deadlineAction) {
     this.senderId = senderId;
     this.recipientId = recipientId;
     this.id = id;
