@@ -243,9 +243,8 @@ CREATE TABLE IF NOT EXISTS block
   nonce                 INTEGER           NOT NULL,
   ats                   BLOB,
   total_fee_cash_back   INTEGER DEFAULT 0 NOT NULL,
-  total_fee_burnt       INTEGER DEFAULT 0 NOT NULL,
-  FOREIGN KEY (previous_block_id) REFERENCES block (id) ON DELETE CASCADE,
-  FOREIGN KEY (next_block_id) REFERENCES block (id) ON DELETE SET NULL
+  total_fee_burnt       INTEGER DEFAULT 0 NOT NULL
+  -- THIS TABLE USES TRIGGERS FOR CASCADED ACTIONS
 );
 
 CREATE INDEX IF NOT EXISTS idx_16494_block_generator_id_height_idx ON block (generator_id, height DESC);
@@ -455,8 +454,8 @@ CREATE TABLE IF NOT EXISTS "transaction"
   ec_block_height                 INTEGER,
   ec_block_id                     INTEGER,
   has_encrypttoself_message       INTEGER DEFAULT 0 NOT NULL,
-  cash_back_id                    INTEGER DEFAULT 0 NOT NULL,
-  FOREIGN KEY (block_id) REFERENCES block (id) ON DELETE CASCADE
+  cash_back_id                    INTEGER DEFAULT 0 NOT NULL
+  -- THIS TABLE USES TRIGGERS FOR CASCADED ACTIONS
 );
 
 CREATE INDEX IF NOT EXISTS idx_16601_transaction_recipient_id_idx ON "transaction" (recipient_id);
@@ -480,11 +479,12 @@ CREATE TABLE IF NOT EXISTS indirect_incoming
   height         INTEGER NOT NULL,
   amount         INTEGER DEFAULT 0,
   quantity       INTEGER DEFAULT 0
+  -- THIS TABLE USES TRIGGERS FOR CASCADED ACTIONS
 );
 
 CREATE INDEX IF NOT EXISTS idx_16538_indirect_incoming_id_index ON indirect_incoming (account_id);
 CREATE INDEX IF NOT EXISTS idx_16538_indirect_incoming_height_idx ON indirect_incoming (height);
-CREATE INDEX IF NOT EXISTS idx_16538_indirect_incoming_db_id_uindex ON indirect_incoming (account_id, transaction_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_16538_indirect_incoming_db_id_uindex ON indirect_incoming (account_id, transaction_id);
 CREATE INDEX IF NOT EXISTS idx_16538_indirect_incoming_tx_idx ON indirect_incoming (transaction_id);
 
 CREATE TABLE IF NOT EXISTS unconfirmed_transaction
@@ -501,3 +501,37 @@ CREATE TABLE IF NOT EXISTS unconfirmed_transaction
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_16615_unconfirmed_transaction_id_idx ON unconfirmed_transaction (id);
 CREATE INDEX IF NOT EXISTS idx_16615_unconfirmed_transaction_height_fee_timestamp_idx ON unconfirmed_transaction (transaction_height, fee_per_byte, timestamp DESC);
+
+-- CASCADE DELETIONS/UPDATES - AS OF MULTITHREADED INSERTS WE CANNOT WORK WITH FOREIGN KEY CONSTRAINTS...BUT ROLLBACKS RELY ON CASCADED SETTINGS
+
+CREATE TRIGGER cascade_delete_previous_block
+  AFTER DELETE
+  ON block
+  FOR EACH ROW
+BEGIN
+  DELETE FROM block WHERE previous_block_id = OLD.id;
+END;
+
+CREATE TRIGGER cascade_set_next_block_null
+  AFTER DELETE
+  ON block
+  FOR EACH ROW
+BEGIN
+  UPDATE block SET next_block_id = NULL WHERE next_block_id = OLD.id;
+END;
+
+CREATE TRIGGER cascade_delete_tx
+  AFTER DELETE
+  ON block
+  FOR EACH ROW
+BEGIN
+  DELETE FROM "transaction" where block_id = old.id;
+END;
+
+CREATE TRIGGER cascade_delete_indirect
+  AFTER DELETE
+  ON "transaction"
+  FOR EACH ROW
+BEGIN
+  DELETE FROM "indirect_incoming" where indirect_incoming.transaction_id = old.id;
+END;

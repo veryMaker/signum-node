@@ -1,6 +1,5 @@
 package brs.db.sql.dialects;
 
-import brs.Signum;
 import brs.props.PropertyService;
 import brs.props.Props;
 import com.zaxxer.hikari.HikariConfig;
@@ -15,14 +14,27 @@ public class DatabaseInstanceSqlite extends DatabaseInstanceBaseImpl {
     super(propertyService);
   }
 
+  private String getJournalMode(){
+    String journalMode = propertyService.getString(Props.DB_SQLITE_JOURNAL_MODE).toUpperCase();
+    if(
+      journalMode.equals("WAL") ||
+      journalMode.equals("TRUNCATE") ||
+      journalMode.equals("DELETE") ||
+      journalMode.equals("PERSIST")
+    ){
+      return journalMode;
+    }
+    return "WAL";
+  }
+
   @Override
   protected HikariConfig configureImpl(HikariConfig config) {
-    config.setMaximumPoolSize(10); // 1 is not working
+    config.setMaximumPoolSize(10);
     config.setConnectionTestQuery("SELECT 1;");
-    config.addDataSourceProperty("foreign_keys", "on");
-    config.addDataSourceProperty("journal_mode", "WAL");
-    config.addDataSourceProperty("busy_timeout", "10000");
+    config.addDataSourceProperty("foreign_keys", "off");
+    config.addDataSourceProperty("busy_timeout", "30000");
     config.addDataSourceProperty("wal_autocheckpoint", "500");
+    config.addDataSourceProperty("journal_mode", getJournalMode());
     return config;
   }
 
@@ -41,7 +53,7 @@ public class DatabaseInstanceSqlite extends DatabaseInstanceBaseImpl {
   @Override
   protected void onStartupImpl() {
 
-    if (Signum.getPropertyService().getBoolean(Props.DB_OPTIMIZE)) {
+    if (propertyService.getBoolean(Props.DB_OPTIMIZE)) {
       logger.info("SQLite optimization started...");
       executeSQL("PRAGMA optimize");
       logger.info("SQLite VACUUM started, this can take a while");

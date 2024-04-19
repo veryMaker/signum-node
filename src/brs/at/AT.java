@@ -12,6 +12,7 @@ import brs.db.SignumKey;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
+import brs.util.Convert;
 import brs.util.Listener;
 
 import java.io.ByteArrayInputStream;
@@ -39,8 +40,8 @@ public class AT extends AtMachineState {
 
     private AT(byte[] atId, byte[] creator, String name, String description, byte[] creationBytes, int height) {
         super(atId, creator, creationBytes, height);
-        this.name = name;
-        this.description = description;
+        this.name = name.trim();
+        this.description = description.trim();
         dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
         this.nextHeight = Signum.getBlockchain().getHeight();
     }
@@ -55,8 +56,8 @@ public class AT extends AtMachineState {
                 stateBytes, csize, dsize, cUserStackBytes, cCallStackBytes,
                 creationBlockHeight, sleepBetween,
                 freezeWhenSameBalance, minActivationAmount, apCode, apCodeHashId);
-        this.name = name;
-        this.description = description;
+        this.name = name.trim();
+        this.description = description.trim();
         dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
         this.nextHeight = nextHeight;
     }
