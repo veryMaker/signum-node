@@ -1,3 +1,9 @@
+/*
+ On April, 2024
+ - This model incorporates already all migrations until V10 as done for MariaDB and H2
+  As to JDBC Migrations (brs.db.sql.migration) with Flyway further model migrations have to start with V7_4 at least (better V8)
+ */
+
 create table if not exists account
 (
   db_id           bigserial
@@ -7,9 +13,6 @@ create table if not exists account
   creation_height bigint                    not null,
   public_key      bytea,
   key_height      bigint,
-  balance         bigint                    not null,
-  unconfirmed_balance bigint                not null,
-  forged_balance  bigint not null,
   name            varchar(100) default NULL::character varying,
   description     text,
   height          bigint                    not null,
@@ -24,6 +27,30 @@ create index if not exists idx_16393_account_height_idx
 
 create unique index if not exists idx_16393_account_id_height_idx
   on account (id, height desc);
+
+
+create table if not exists account_balance
+(
+  db_id               bigserial
+    constraint idx_16411_primary
+      primary key,
+  id                  bigint               not null,
+  balance             bigint               not null,
+  unconfirmed_balance bigint               not null,
+  forged_balance      bigint               not null,
+  height              bigint               not null,
+  latest              boolean default true not null
+);
+
+create index if not exists idx_16411_account_balance_height_idx
+  on account_balance (height);
+
+create index if not exists idx_16411_account_balance_id_latest_idx
+  on account_balance (id, latest);
+
+create unique index if not exists idx_16411_account_balance_id_height_idx
+  on account_balance (id, height desc);
+
 
 create table if not exists account_asset
 (

@@ -21,6 +21,7 @@ target
 /conf-tests/
 *.zip
 *.jar
+*.hprof
 
 #ignore everything in here by default, but settings.json is already committed
 #and so will remain tracked
@@ -30,3 +31,4 @@ target
 /build/
 /bin/
 launch.json
+

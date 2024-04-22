@@ -87,6 +87,8 @@ public final class GetState extends ApiServlet.JsonRequestHandler {
       response.addProperty("numberOfAccounts", accountService.getCount());
     }
 
+    // TODO: maybe we should parallelize the calls.
+
     response.addProperty("numberOfBlocks", blockchain.getHeight() + 1);
     response.addProperty("numberOfTransactions", blockchain.getTransactionCount());
     response.addProperty("numberOfATs", atService.getAllATIds(null).size());

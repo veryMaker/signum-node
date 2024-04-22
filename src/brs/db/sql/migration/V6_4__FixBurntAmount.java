@@ -6,18 +6,27 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 
+import brs.db.sql.Db;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 
 import brs.Attachment.PaymentMultiOutCreation;
 import brs.Attachment.PaymentMultiSameOutCreation;
 import brs.TransactionType;
+import org.jooq.SQLDialect;
 
 public class V6_4__FixBurntAmount extends BaseJavaMigration {
-  
+
   public void migrate(Context context) throws Exception {
+    if(Db.getDialect() == SQLDialect.SQLITE ||
+      Db.getDialect() == SQLDialect.POSTGRES
+    ){
+      return;
+    }
+
+
     long totalBurnt = 0L;
-    
+
     // ordinary tx burns
     try (Statement selectTx = context.getConnection().createStatement()) {
       try (ResultSet txResult = selectTx.executeQuery("SELECT amount FROM transaction WHERE type=0 and subtype=0 and (recipient_id=0 or recipient_id IS NULL)")) {
@@ -27,7 +36,7 @@ public class V6_4__FixBurntAmount extends BaseJavaMigration {
         }
       }
     }
-    
+
     // smart contract tx burns
     try (Statement selectTx = context.getConnection().createStatement()) {
       try (ResultSet txResult = selectTx.executeQuery("SELECT amount FROM transaction WHERE type=22 and subtype=1 and (recipient_id=0 or recipient_id IS NULL)")) {
@@ -37,13 +46,13 @@ public class V6_4__FixBurntAmount extends BaseJavaMigration {
         }
       }
     }
-    
+
     // multi-out burns
     try (Statement select = context.getConnection().createStatement()) {
       try (ResultSet rows = select.executeQuery("SELECT transaction_id FROM indirect_incoming WHERE account_id=0")) {
         while (rows.next()) {
           long tx_id = rows.getLong(1);
-          
+
           try (Statement selectTx = context.getConnection().createStatement()) {
             try (ResultSet txResult = selectTx.executeQuery("SELECT attachment_bytes, subtype, version, amount FROM transaction WHERE id=" + tx_id)) {
               while (txResult.next()) {
@@ -51,10 +60,10 @@ public class V6_4__FixBurntAmount extends BaseJavaMigration {
                 byte subtype = txResult.getByte(2);
                 byte version = txResult.getByte(3);
                 long amountNQT = txResult.getLong(4);
-                
+
                 ByteBuffer buffer = ByteBuffer.wrap(attachment_bytes);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
-                
+
                 if(subtype == 1) {
                   // multi-out
                   PaymentMultiOutCreation multiOut = (PaymentMultiOutCreation) TransactionType.Payment.MULTI_OUT.parseAttachment(buffer, version);
@@ -77,7 +86,7 @@ public class V6_4__FixBurntAmount extends BaseJavaMigration {
         }
       }
     }
-    
+
     if(totalBurnt > 0L) {
       // Update to the correct burnt amount
       try (Statement update = context.getConnection().createStatement()) {

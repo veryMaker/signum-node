@@ -109,17 +109,19 @@ public class Props {
 
   // DB options
   public static final Prop<Boolean> DB_SKIP_CHECK  = new Prop<>("DB.SkipCheck", false);
+  // TODO: change this when SQLITE turns out to be stable
   public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:h2:file:./db/signum-v2;DB_CLOSE_ON_EXIT=FALSE");
   public static final Prop<String> DB_USERNAME     = new Prop<>("DB.Username", "");
   public static final Prop<String> DB_PASSWORD     = new Prop<>("DB.Password", "");
   public static final Prop<Integer> DB_CONNECTIONS  = new Prop<>("DB.Connections", 30);
-  public static final Prop<Integer> DB_LOCK_TIMEOUT = new Prop<>("DB.LockTimeout", 60);
 
   public static final Prop<Boolean> DB_TRIM_DERIVED_TABLES = new Prop<>("DB.trimDerivedTables", true);
 
   public static final Prop<Boolean> BRS_TEST_UNCONFIRMED_TRANSACTIONS = new Prop<>("brs.testUnconfirmedTransactions", false);
 
   public static final Prop<Boolean> DB_H2_DEFRAG_ON_SHUTDOWN = new Prop<>("Db.H2.DefragOnShutdown", true);
+  public static final Prop<Boolean> DB_OPTIMIZE = new Prop<>("DB.Optimize", true);
+  public static final Prop<String> DB_SQLITE_JOURNAL_MODE = new Prop<>("DB.SqliteJournalMode", "WAL");
 
   public static final Prop<Integer> BRS_BLOCK_CACHE_MB = new Prop<>("node.blockCacheMB", 40);
 

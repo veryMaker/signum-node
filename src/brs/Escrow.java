@@ -115,12 +115,12 @@ public class Escrow {
   public final DecisionType deadlineAction;
 
   public Escrow(SignumKey dbKey, Account sender,
-      Account recipient,
-      Long id,
-      Long amountNQT,
-      int requiredSigners,
-      int deadline,
-      DecisionType deadlineAction) {
+                Account recipient,
+                Long id,
+                Long amountNQT,
+                int requiredSigners,
+                int deadline,
+                DecisionType deadlineAction) {
     this.dbKey = dbKey;
     this.senderId = sender.getId();
     this.recipientId = recipient.getId();
@@ -132,7 +132,7 @@ public class Escrow {
   }
 
   protected Escrow(Long id, Long senderId, Long recipientId, SignumKey dbKey, Long amountNQT,
-      int requiredSigners, int deadline, DecisionType deadlineAction) {
+                   int requiredSigners, int deadline, DecisionType deadlineAction) {
     this.senderId = senderId;
     this.recipientId = recipientId;
     this.id = id;

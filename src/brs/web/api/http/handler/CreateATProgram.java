@@ -56,6 +56,7 @@ public final class CreateATProgram extends CreateTransaction {
       return INCORRECT_AUTOMATED_TRANSACTION_NAME;
     }
 
+    description = description == null ? null : description.trim();
     if (description != null && description.length() > Constants.MAX_AUTOMATED_TRANSACTION_DESCRIPTION_LENGTH) {
       return INCORRECT_AUTOMATED_TRANSACTION_DESCRIPTION;
     }

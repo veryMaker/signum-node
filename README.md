@@ -75,11 +75,17 @@ The minimum required version of MariaDB is 10.6.
 
 ### Should I use MariaDB, PostgreSQL or H2?
 
-H2 is a very fast file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up. 
+__H2__ is a very fast file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up. 
 This makes H2 an interesting choice especially for less-technical users who just want to start and/or run a local (not publicly accessible) node. Choose this, if you want to run just a local node without public exposure and/or 
 you don't want to connect to the database while running the node. Furthermore, the resulting database file is easily shareable, such others can use a snapshot and sync from there.
+> Update: H2 has proven to be unstable. We do not recommend the usage of H2 anymore
 
-MariaDB and PostgreSQL on the other hand require an additional set-up. It is the better choice for publicly accessible nodes, 
+__Sqlite__ is just like H2 a file based (embedded) database. Signum Node builds up the entire database out of the box and does not require any further set up.
+This makes Sqlite an interesting choice especially for less-technical users who just want to start and/or run a local (not publicly accessible) node. Choose this, if you want to run just a local node without public exposure. 
+Furthermore, the resulting database file is easily shareable, such others can use a snapshot and sync from there.
+Sqlite is still experimental, and considered as a substitute for H2.
+
+__MariaDB__ and __PostgreSQL__ on the other hand require an additional set-up. It is the better choice for publicly accessible nodes, 
 as they are considered more stable, especially under higher load. 
 
 MariaDB and PostgreSQL are not as fast as H2, so expect higher re-synchronisation times.
@@ -87,15 +93,22 @@ The performance hit for MariaDB and PostgreSQL is related to the TCP/IP connecti
 Due to that model concurrent access is possible, i.e. one can run an additional service against the same database, which is not possible with H2, as the file gets locked.
 
 |            | Stability | Speed | Setup | Backup | Concurrency | Purpose                          |
-|------------|-----------|------|-------|--------|----------|----------------------------------|
-| H2         | ⭐         | ⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | ❌         | Local Node                       |  
-| MariaDB    | ⭐⭐        | ⭐    | ⭐     | ⭐       |   ✅       | Public Node, Additional Services |  
-| PostgreSQL | ⭐⭐ (*)    | ⭐    | ⭐     | ⭐       |   ✅       | Public Node, Additional Services |  
+|------------|-----------|------|-------|--------|-------------|----------------------------------|
+| H2         | - (1)     | ⭐⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | ❌           | Local Node                       |  
+| Sqlite     | ⭐⭐ (2)    | ⭐⭐   | ⭐⭐⭐    | ⭐⭐⭐       | ✅ (3)       | Local Node                       |  
+| MariaDB    | ⭐⭐        | ⭐    | ⭐     | ⭐       | ✅           | Public Node, Additional Services |  
+| PostgreSQL | ⭐⭐ (2)    | ⭐    | ⭐     | ⭐       | ✅           | Public Node, Additional Services |  
 
-> (*) PostgreSQL support is still experimental. So, stability needs to be proven over time, but in general Postgres itself is as least stable/reliable as MariaDB.
+> (1) H2 - even with updated Version 2 - has proven to be unstable and causing database issues - mostly File I/O exceptions, and data inconsistencies. 
+
+> (2) PostgreSQL and Sqlite support is still experimental. So, stability needs to be proven over time, but in general Postgres itself is as least stable/reliable as MariaDB.
+
+> (3) Sqlite supports concurrent reading. Writing is still limited to one writer at a time.
 ---- 
 
-See in the following documents how to set up for the RDBMS
+See in the following documents how to set up for different database
+
+- [SQLITE](./DB_SETUP_SQLITE.md)
 - [MariaDB](./DB_SETUP_MARIADB.md)
 - [PostgreSQL](./DB_SETUP_POSTGRESQL.md)
 
