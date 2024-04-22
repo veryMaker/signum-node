@@ -64,7 +64,7 @@ DB.Password=s1gn00m_n0d3
 > Testnet is usually only for slightly advanced users. The testnet allows you "play" around without having to buy/get real SIGNA. 
 > Ask the community to get some "play money" (TSIGNA).   
 
-If you switch often between Main and Testnet networks it might be interesting to set up Postgres for both networks.
+If you switch often between Main and Testnet networks it might be interesting to set up MariaDB for both networks.
 Just create another database and grant the Signum Node access to that database. 
 We assume that the user `signumnode` exists already.
 
