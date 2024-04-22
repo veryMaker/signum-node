@@ -182,6 +182,8 @@ public class SqlBlockchainStore implements BlockchainStore {
       );
 
       if (includeIndirectIncoming) {
+
+        // FIXME: this needs to be reviewed, as it does not deliver 100% correct results.
         int blockTimeStampHeight = getHeightForBlockTimeStamp(blockTimestamp);
         SelectLimitPercentStep<Record1<Long>> indirectIncomings = ctx
           .select(INDIRECT_INCOMING.TRANSACTION_ID)
@@ -269,6 +271,7 @@ public class SqlBlockchainStore implements BlockchainStore {
         // makes only sense if for recipient. Sender is implicitely included.
         if (!bidirectional && hasRecipient) {
 
+          // FIXME: this needs to be reviewed, as it does not deliver 100% correct results.
           int blockTimeStampHeight = getHeightForBlockTimeStamp(blockTimestamp);
           SelectLimitPercentStep<Record1<Long>> indirectIncomingsForRecipient = ctx
             .select(INDIRECT_INCOMING.TRANSACTION_ID)
@@ -287,6 +290,7 @@ public class SqlBlockchainStore implements BlockchainStore {
         }
 
         if (bidirectional) {
+          // FIXME: this needs to be reviewed, as it does not deliver 100% correct results.
           int blockTimeStampHeight = getHeightForBlockTimeStamp(blockTimestamp);
           SelectLimitPercentStep<Record1<Long>> indirectIncomingsForBidirectional = ctx
             .select(INDIRECT_INCOMING.TRANSACTION_ID)
