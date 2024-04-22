@@ -85,11 +85,6 @@ public class SqlAccountStore implements AccountStore {
           .set(REWARD_RECIP_ASSIGN.LATEST, true)
           .execute();
 
-//        TODO: clean up if insertInto works
-//        ctx.mergeInto(REWARD_RECIP_ASSIGN, REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.PREV_RECIP_ID, REWARD_RECIP_ASSIGN.RECIP_ID, REWARD_RECIP_ASSIGN.FROM_HEIGHT, REWARD_RECIP_ASSIGN.HEIGHT, REWARD_RECIP_ASSIGN.LATEST)
-//          .key(REWARD_RECIP_ASSIGN.ACCOUNT_ID, REWARD_RECIP_ASSIGN.HEIGHT)
-//          .values(assignment.accountId, assignment.getPrevRecipientId(), assignment.getRecipientId(), assignment.getFromHeight(), Signum.getBlockchain().getHeight(), true)
-//          .execute();
       }
     };
 
@@ -124,11 +119,7 @@ public class SqlAccountStore implements AccountStore {
           .set(ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, accountAsset.getUnconfirmedQuantityQnt())
           .set(ACCOUNT_ASSET.LATEST, true)
           .execute();
-//        TODO: clean up
-//        ctx.mergeInto(ACCOUNT_ASSET, ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.QUANTITY, ACCOUNT_ASSET.UNCONFIRMED_QUANTITY, ACCOUNT_ASSET.HEIGHT, ACCOUNT_ASSET.LATEST)
-//          .key(ACCOUNT_ASSET.ACCOUNT_ID, ACCOUNT_ASSET.ASSET_ID, ACCOUNT_ASSET.HEIGHT)
-//          .values(accountAsset.accountId, accountAsset.assetId, accountAsset.getQuantityQnt(), accountAsset.getUnconfirmedQuantityQnt(), Signum.getBlockchain().getHeight(), true)
-//          .execute();
+
       }
 
       @Override

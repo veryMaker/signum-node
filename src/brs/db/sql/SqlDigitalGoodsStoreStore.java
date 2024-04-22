@@ -133,12 +133,6 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
           .set(PURCHASE_PUBLIC_FEEDBACK.HEIGHT, Signum.getBlockchain().getHeight())
           .set(PURCHASE_PUBLIC_FEEDBACK.LATEST, true)
           .execute();
-// old code
-// TODO: cleanup - if all works
-//        ctx.mergeInto(PURCHASE_PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.PUBLIC_FEEDBACK, PURCHASE_PUBLIC_FEEDBACK.HEIGHT, PURCHASE_PUBLIC_FEEDBACK.LATEST)
-//                .key(PURCHASE_PUBLIC_FEEDBACK.ID, PURCHASE_PUBLIC_FEEDBACK.HEIGHT)
-//                .values(purchase.getId(), publicFeedback, Signum.getBlockchain().getHeight(), true)
-//                .execute();
       }
     };
 
@@ -238,11 +232,7 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       .set(GOODS.DELISTED, goods.isDelisted())
       .set(GOODS.LATEST, true)
       .execute();
-// TODO: clean up old code
-//    ctx.mergeInto(GOODS, GOODS.ID, GOODS.SELLER_ID, GOODS.NAME, GOODS.DESCRIPTION, GOODS.TAGS, GOODS.TIMESTAMP, GOODS.QUANTITY, GOODS.PRICE, GOODS.DELISTED, GOODS.HEIGHT, GOODS.LATEST)
-//            .key(GOODS.ID, GOODS.HEIGHT)
-//            .values(goods.getId(), goods.getSellerId(), goods.getName(), goods.getDescription(), goods.getTags(), goods.getTimestamp(), goods.getQuantity(), goods.getPriceNQT(), goods.isDelisted(), Signum.getBlockchain().getHeight(), true)
-//            .execute();
+
   }
 
   private void savePurchase(DSLContext ctx, DigitalGoodsStore.Purchase purchase) {
@@ -303,11 +293,6 @@ public class SqlDigitalGoodsStoreStore implements DigitalGoodsStoreStore {
       .set(PURCHASE.REFUND, purchase.getRefundNQT())
       .set(PURCHASE.LATEST, true)
       .execute();
-// TODO: clean up
-    //    ctx.mergeInto(PURCHASE, PURCHASE.ID, PURCHASE.BUYER_ID, PURCHASE.GOODS_ID, PURCHASE.SELLER_ID, PURCHASE.QUANTITY, PURCHASE.PRICE, PURCHASE.DEADLINE, PURCHASE.NOTE, PURCHASE.NONCE, PURCHASE.TIMESTAMP, PURCHASE.PENDING, PURCHASE.GOODS, PURCHASE.GOODS_NONCE, PURCHASE.REFUND_NOTE, PURCHASE.REFUND_NONCE, PURCHASE.HAS_FEEDBACK_NOTES, PURCHASE.HAS_PUBLIC_FEEDBACKS, PURCHASE.DISCOUNT, PURCHASE.REFUND, PURCHASE.HEIGHT, PURCHASE.LATEST)
-//            .key(PURCHASE.ID, PURCHASE.HEIGHT)
-//            .values(purchase.getId(), purchase.getBuyerId(), purchase.getGoodsId(), purchase.getSellerId(), purchase.getQuantity(), purchase.getPriceNQT(), purchase.getDeliveryDeadlineTimestamp(), note, nonce, purchase.getTimestamp(), purchase.isPending(), goods, goodsNonce, refundNote, refundNonce, purchase.getFeedbackNotes() != null && !purchase.getFeedbackNotes().isEmpty(), !purchase.getPublicFeedback().isEmpty(), purchase.getDiscountNQT(), purchase.getRefundNQT(), Signum.getBlockchain().getHeight(), true)
-//            .execute();
   }
 
   @Override

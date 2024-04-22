@@ -159,11 +159,6 @@ public class SqlOrderStore implements OrderStore {
       .set(ASK_ORDER.LATEST, true)
       .execute();
 
-    // TODO: clean up this if the new alternative works
-//    ctx.mergeInto(ASK_ORDER, ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
-//            .key(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
-//            .values(ask.getId(), ask.getAccountId(), ask.getAssetId(), ask.getPriceNQT(), ask.getQuantityQNT(), ask.getHeight(), Signum.getBlockchain().getHeight(), true)
-//            .execute();
   }
 
   @Override
@@ -245,11 +240,6 @@ public class SqlOrderStore implements OrderStore {
       .set(BID_ORDER.CREATION_HEIGHT, bid.getHeight())
       .set(BID_ORDER.LATEST, true)
       .execute();
-//    TODO: remove once all is running as expected
-//    ctx.mergeInto(BID_ORDER, BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
-//            .key(BID_ORDER.ID, BID_ORDER.HEIGHT)
-//            .values(bid.getId(), bid.getAccountId(), bid.getAssetId(), bid.getPriceNQT(), bid.getQuantityQNT(), bid.getHeight(), Signum.getBlockchain().getHeight(), true)
-//            .execute();
   }
 
   class SqlAsk extends Order.Ask {
