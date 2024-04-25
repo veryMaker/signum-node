@@ -1,5 +1,6 @@
 package brs.db.store;
 
+import brs.Transaction;
 import brs.at.AT;
 import brs.at.AT.AtMapEntry;
 import brs.db.SignumKey;
@@ -37,7 +38,7 @@ public interface ATStore {
 
   int findTransactionHeight(Long transactionId, int height, Long atID, long minAmount);
 
-  public AtMapEntry getMapValueEntry(long atId, long key1, long key2);
+  AtMapEntry getMapValueEntry(long atId, long key1, long key2);
 
   long getMapValue(long atId, long key1, long key2);
 

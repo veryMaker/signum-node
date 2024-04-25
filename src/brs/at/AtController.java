@@ -89,8 +89,6 @@ public abstract class AtController {
         listCode(state, true, true);
     }
 
-    // TODO: Check if this method should be conditional and controlled by properties...it's more like a debugging function, and not
-    //       intended to be used in production
     private static void listCode(AtMachineState state, boolean disassembly, boolean determineJumps) {
 
         AtMachineProcessor machineProcessor = new AtMachineProcessor(state, Signum.getPropertyService().getBoolean(Props.ENABLE_AT_DEBUG_LOG));
@@ -281,13 +279,20 @@ public abstract class AtController {
         return new AtBlock(totalFee, totalAmount, bytesForBlock);
     }
 
-    public static AtBlock validateATs(byte[] blockATs, int blockHeight, long generatorId) throws AtException {
+  //##### TODO:
+  //    1. Gather all ats first
+  //    2. check which transactions (startHeight and endHeight) are needed
+  //    3. Store these in a memory (check before how much this could be), ordered...
+  //    4. Instead of SqlATStore in findTransaction, use a CachedATStore
+
+
+    public static AtBlock validateATsOriginal(byte[] blockATs, int blockHeight, long generatorId) throws AtException {
         if (blockATs == null) {
             return new AtBlock(0, 0, null);
         }
 
-        LinkedHashMap<ByteBuffer, byte[]> ats = getATsFromBlock(blockATs);
-
+        LinkedHashMap<Long, byte[]> ats = getATsFromBlock(blockATs);
+        // TODO: here is a point where we could load all the required ATs, as we know their ids already.... or even before.
         List<AT> processedATs = new ArrayList<>();
 
         long totalFee = 0;
@@ -295,12 +300,11 @@ public abstract class AtController {
         byte[] md5;
         long totalAmount = 0;
 
-        for (Map.Entry<ByteBuffer, byte[]> entry : ats.entrySet()) {
-            ByteBuffer atIdBuffer = entry.getKey();
+        for (Map.Entry<Long, byte[]> entry : ats.entrySet()) {
+            long atIdLong = entry.getKey();
             byte[] receivedMd5 = entry.getValue();
-            byte[] atId = atIdBuffer.array();
-            long atIdLong = AtApiHelper.getLong(atId);
-            AT at = AT.getAT(atId);
+            // TODO: see if we can prefetch the AT -> we know this all before... reduce DB access as much as a possible
+            AT at = AT.getAT(atIdLong);
             logger.debug("Running AT {}", Convert.toUnsignedLong(atIdLong));
             try {
                 at.clearLists();
@@ -341,7 +345,7 @@ public abstract class AtController {
                 }
 
                 totalFee += fee;
-                AT.addPendingFee(atId, fee, blockHeight, generatorId);
+                AT.addPendingFee(atIdLong, fee, blockHeight, generatorId);
 
                 processedATs.add(at);
 
@@ -361,11 +365,90 @@ public abstract class AtController {
             at.saveState();
         }
         AT.saveMapUpdates(blockHeight, generatorId);
-
         return new AtBlock(totalFee, totalAmount, new byte[1]);
     }
 
-    private static LinkedHashMap<ByteBuffer, byte[]> getATsFromBlock(byte[] blockATs) throws AtException {
+
+    public static AtBlock validateATs(byte[] blockATs, int blockHeight, long generatorId) throws AtException {
+        if (blockATs == null) {
+            return new AtBlock(0, 0, null);
+        }
+        LinkedHashMap<Long, ATProcessorCache.ATContext> atMap = ATProcessorCache.getInstance().load(blockATs, blockHeight);
+        List<AT> processedATs = new ArrayList<>();
+
+        long totalFee = 0;
+        MessageDigest digest = Crypto.md5();
+        byte[] md5;
+        long totalAmount = 0;
+
+        for (Map.Entry<Long, ATProcessorCache.ATContext> entry : atMap.entrySet()) {
+            long atIdLong = entry.getKey();
+            ATProcessorCache.ATContext atContext = entry.getValue();
+            byte[] receivedMd5 = atContext.md5;
+            AT at = atContext.at;
+            logger.debug("Running AT {}", Convert.toUnsignedLong(atIdLong));
+            try {
+                at.clearLists();
+                at.setHeight(blockHeight);
+                at.setWaitForNumberOfBlocks(at.getSleepBetween());
+
+                long atAccountBalance = getATAccountBalance(atIdLong);
+                if (atAccountBalance < AtConstants.getInstance().stepFee(at.getVersion())
+                        * AtConstants.getInstance().apiStepMultiplier(at.getVersion())) {
+                    throw new AtException("AT has insufficient balance to run");
+                }
+
+                if (at.freezeOnSameBalance() && (atAccountBalance - at.getgBalance() < at.minActivationAmount())) {
+                    throw new AtException("AT should be frozen due to unchanged balance");
+                }
+
+                if (at.nextHeight() > blockHeight) {
+                    throw new AtException("AT not allowed to run again yet");
+                }
+
+                at.setgBalance(atAccountBalance);
+
+                listCode(at, true, true);
+
+                runSteps(at);
+
+                long fee = at.getMachineState().steps * AtConstants.getInstance().stepFee(at.getVersion());
+                if (at.getMachineState().dead) {
+                    fee += at.getgBalance();
+                    at.setgBalance(0L);
+                }
+                at.setpBalance(at.getgBalance());
+
+                if (!Signum.getFluxCapacitor().getValue(FluxValues.AT_FIX_BLOCK_4, blockHeight)) {
+                    totalAmount = makeTransactions(at, blockHeight, generatorId);
+                } else {
+                    totalAmount += makeTransactions(at, blockHeight, generatorId);
+                }
+
+                totalFee += fee;
+                AT.addPendingFee(atIdLong, fee, blockHeight, generatorId);
+
+                processedATs.add(at);
+
+                md5 = digest.digest(at.getBytes());
+                if (!Arrays.equals(md5, receivedMd5)) {
+                    logger.error("MD5 mismatch for AT {}", Convert.toUnsignedLong(atIdLong));
+                    throw new AtException("Calculated md5 and received md5 are not matching");
+                }
+            } catch (Exception e) {
+                debugLogger.debug("ATs error", e);
+                throw new AtException("ATs error. Block rejected", e);
+            }
+            logger.debug("Finished running AT {}", Convert.toUnsignedLong(atIdLong));
+        }
+
+        processedATs.forEach(AT::saveState);
+        AT.saveMapUpdates(blockHeight, generatorId);
+        ATProcessorCache.getInstance().reset();
+        return new AtBlock(totalFee, totalAmount, new byte[1]);
+    }
+
+    private static LinkedHashMap<Long, byte[]> getATsFromBlock(byte[] blockATs) throws AtException {
         if (blockATs.length > 0 && blockATs.length % (getCostOfOneAT()) != 0) {
             throw new AtException("blockATs must be a multiple of cost of one AT ( " + getCostOfOneAT() + " )");
         }
@@ -375,22 +458,34 @@ public abstract class AtController {
 
         byte[] temp = new byte[AtConstants.AT_ID_SIZE];
 
-        LinkedHashMap<ByteBuffer, byte[]> ats = new LinkedHashMap<>();
+        LinkedHashMap<Long, byte[]> ats = new LinkedHashMap<>();
 
-        while (b.position() < b.capacity()) {
-            b.get(temp, 0, temp.length);
-            byte[] md5 = new byte[16];
-            b.get(md5, 0, md5.length);
-            ByteBuffer atId = ByteBuffer.allocate(AtConstants.AT_ID_SIZE);
-            atId.put(temp);
-            atId.clear();
-            if (ats.containsKey(atId)) {
-                throw new AtException("AT included in block multiple times");
-            }
-            ats.put(atId, md5);
+      byte[] atId = new byte[AtConstants.AT_ID_SIZE];
+      byte[] md5 = new byte[16];
+
+      while (b.remaining() >= AtConstants.AT_ID_SIZE + 16) {
+        b.get(atId);
+        b.get(md5);
+        long atIdLong = AtApiHelper.getLong(atId);
+        if (ats.containsKey(atIdLong)) {
+          throw new AtException("AT included in block multiple times");
         }
 
-        if (b.position() != b.capacity()) {
+        ats.put(atIdLong, md5.clone());
+//        while (b.position() < b.capacity()) {
+//            b.get(temp, 0, temp.length);
+//            byte[] md5 = new byte[16];
+//            b.get(md5, 0, md5.length);
+//            ByteBuffer atId = ByteBuffer.allocate(AtConstants.AT_ID_SIZE);
+//            atId.put(temp);
+//            atId.clear();
+//            if (ats.containsKey(atId)) {
+//                throw new AtException("AT included in block multiple times");
+//            }
+//            ats.put(atId, md5);
+        }
+
+        if (b.remaining() != 0) {
             throw new AtException("bytebuffer not matching");
         }
 
