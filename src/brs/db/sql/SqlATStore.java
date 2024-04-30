@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static brs.schema.Tables.*;
 
@@ -211,6 +212,18 @@ public class SqlATStore implements ATStore {
   }
 
   @Override
+  public Collection<brs.at.AT> getATs(Collection<Long> ids) {
+    return Db.useDSLContext(ctx -> {
+      Result<Record> result = ctx.select(AT.fields()).select(AT_STATE.fields())
+        .from(AT.join(AT_STATE).on(AT.ID.eq(AT_STATE.AT_ID)))
+        .where(AT.LATEST.isTrue()).and(AT_STATE.LATEST.isTrue()).and(AT.ID.in(ids))
+        .fetch();
+
+      return result.stream().map(record -> createAT(record.into(AT), record.into(AT_STATE), -1)).collect(Collectors.toList());
+    });
+  }
+
+  @Override
   public AtMapEntry getMapValueEntry(long atId, long key1, long key2) {
     return this.atMapTable.get(this.atMapKeyFactory.newKey(atId, key1, key2));
   }
@@ -333,6 +346,7 @@ public class SqlATStore implements ATStore {
         .getQuery();
       DbUtils.applyLimits(query, numOfTx, numOfTx + 1);
       Result<Record1<Long>> result = query.fetch();
+
       long executionTime = (System.nanoTime() - startTime) / 1000000;
       logger.debug("Find Duration: {} milliseconds", executionTime);
       return result.isEmpty() ? 0L : result.get(0).value1();

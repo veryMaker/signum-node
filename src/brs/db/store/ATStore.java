@@ -1,6 +1,5 @@
 package brs.db.store;
 
-import brs.Transaction;
 import brs.at.AT;
 import brs.at.AT.AtMapEntry;
 import brs.db.SignumKey;
@@ -19,6 +18,8 @@ public interface ATStore {
   AT getAT(Long id);
 
   AT getAT(Long id, int height);
+
+  Collection<AT> getATs(Collection<Long> ids);
 
   List<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to);
 
