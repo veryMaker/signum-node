@@ -90,8 +90,8 @@ public class Props {
   public static final Prop<String> ICON_LOCATION = new Prop<>("node.iconLocation", "/images/signum_overlay_logo.png");
 
   // Checkpoint block for faster sync from empty database
-  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("node.checkPointHeight", 970_000);
-  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("node.checkPointPrevHash", "c0bb65a25e6fb5f6c4672b5ced900bdf9eb8247187467fd504f42e050fe2ad36");
+  public static final Prop<Integer> BRS_CHECKPOINT_HEIGHT = new Prop<>("node.checkPointHeight", 1_272_000);
+  public static final Prop<String> BRS_CHECKPOINT_HASH = new Prop<>("node.checkPointPrevHash", "0x50625a85325c229e6f683866e52bcc39948826cd1d0987a326fd7e3aef27bb53");
   public static final Prop<String> BRS_PK_CHECKS = new Prop<>("node.pkChecks", "dba639ec3450e0b1;169b3b99ce28a350;a83c47e772a35586;6db77a51a7def19d;c4823aa7028f6735;fb0e32a5bc032257;15a35aa0515e3584;27fcf52c3bc40fba;c4823aa7028f6735;981454e22b5ac976;0cb15471ad76fcd1;");
 
   // GPU options
