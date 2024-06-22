@@ -41,8 +41,7 @@ public class DatabaseInstanceSqlite extends DatabaseInstanceBaseImpl {
   }
 
   private int getCacheSize(){
-    int cacheSize = propertyService.getInt(Props.DB_SQLITE_CACHE_SIZE);
-    return cacheSize;
+    return propertyService.getInt(Props.DB_SQLITE_CACHE_SIZE);
   }
 
   @Override
