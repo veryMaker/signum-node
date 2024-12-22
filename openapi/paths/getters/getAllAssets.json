@@ -1,0 +1,55 @@
+{
+  "get": {
+    "summary": "Get All Tokens",
+    "description": "Get all tokens, but at maximum 500 per call.",
+    "tags": [
+      "token"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightStart.json"
+      },
+      {
+        "$ref": "../../parameters/token/heightEnd.json"
+      },
+      {
+        "$ref": "../../parameters/token/skipZeroVolume.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "The Token List",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "assets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../schemas/asset.json"
+                  }
+                },
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

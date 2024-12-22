@@ -1,146 +1,59 @@
 package brs.db.sql;
 
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.cache.DBCacheManagerImpl;
+import brs.db.sql.dialects.DatabaseInstance;
+import brs.db.sql.dialects.DatabaseInstanceFactory;
 import brs.db.store.Dbs;
 import brs.props.PropertyService;
-import brs.props.Props;
 import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
-import org.jooq.tools.jdbc.JDBCUtils;
-import org.mariadb.jdbc.MariaDbDataSource;
-import org.mariadb.jdbc.UrlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
 
 public final class Db {
 
   private static final Logger logger = LoggerFactory.getLogger(Db.class);
-
-  private static HikariDataSource cp;
-  private static SQLDialect dialect;
   private static final ThreadLocal<Connection> localConnection = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionCaches = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Map<BurstKey, Object>>> transactionBatches = new ThreadLocal<>();
-
+  private static final ThreadLocal<Map<String, Map<SignumKey, Object>>> transactionCaches = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Map<SignumKey, Object>>> transactionBatches = new ThreadLocal<>();
   private static DBCacheManagerImpl dbCacheManager;
-
   private static Flyway flyway;
+  private static DatabaseInstance databaseInstance;
 
   public static void init(PropertyService propertyService, DBCacheManagerImpl dbCacheManager) {
-    Db.dbCacheManager = dbCacheManager;
-
-    String dbUrl;
-    String dbUsername;
-    String dbPassword;
-
-    if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      dbUrl = propertyService.getString(Props.DEV_DB_URL);
-      dbUsername = propertyService.getString(Props.DEV_DB_USERNAME);
-      dbPassword = propertyService.getString(Props.DEV_DB_PASSWORD);
-    }
-    else {
-      dbUrl = propertyService.getString(Props.DB_URL);
-      dbUsername = propertyService.getString(Props.DB_USERNAME);
-      dbPassword = propertyService.getString(Props.DB_PASSWORD);
-    }
-    dialect = JDBCUtils.dialect(dbUrl);
-
-    logger.debug("Database jdbc url set to: {}", dbUrl);
     try {
-      HikariConfig config = new HikariConfig();
-      config.setJdbcUrl(dbUrl);
-      if (dbUsername != null)
-        config.setUsername(dbUsername);
-      if (dbPassword != null)
-        config.setPassword(dbPassword);
-
-      config.setMaximumPoolSize(propertyService.getInt(Props.DB_CONNECTIONS));
-
-      FluentConfiguration flywayBuilder = Flyway.configure()
-              .dataSource(dbUrl, dbUsername, dbPassword)
-              .baselineOnMigrate(true);
-
-      switch (dialect) {
-        case MYSQL:
-        case MARIADB:
-          flywayBuilder.locations("classpath:/db/migration_mariadb");
-          config.setAutoCommit(true);
-          config.addDataSourceProperty("cachePrepStmts", "true");
-          config.addDataSourceProperty("prepStmtCacheSize", "512");
-          config.addDataSourceProperty("prepStmtCacheSqlLimit", "4096");
-          config.addDataSourceProperty("characterEncoding", "utf8mb4");
-          config.addDataSourceProperty("cacheServerConfiguration", "true");
-          config.addDataSourceProperty("useLocalSessionState", "true");
-          config.addDataSourceProperty("useLocalTransactionState", "true");
-          config.addDataSourceProperty("useUnicode", "true");
-          config.addDataSourceProperty("useServerPrepStmts", "true");
-          config.addDataSourceProperty("rewriteBatchedStatements", "true");
-          config.addDataSourceProperty("maintainTimeStats", "false");
-          config.addDataSourceProperty("useUnbufferedIO", "false");
-          config.addDataSourceProperty("useReadAheadInput", "false");
-          MariaDbDataSource flywayDataSource = new MariaDbDataSource(dbUrl) {
-            @Override
-            protected synchronized void initialize() throws SQLException {
-              super.initialize();
-              Properties props = new Properties();
-              props.setProperty("user", dbUsername);
-              props.setProperty("password", dbPassword);
-              props.setProperty("useMysqlMetadata", "true");
-              try {
-                Field f = MariaDbDataSource.class.getDeclaredField("urlParser");
-                f.setAccessible(true);
-                f.set(this, UrlParser.parse(dbUrl, props));
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
-            }
-          };
-          flywayBuilder.dataSource(flywayDataSource); // TODO Remove this hack once a stable version of Flyway has this bug fixed
-          config.setConnectionInitSql("SET NAMES utf8mb4;");
-          break;
-        case H2:
-          Class.forName("org.h2.Driver");
-          flywayBuilder.locations("classpath:/db/migration_h2");
-          config.setAutoCommit(true);
-          config.addDataSourceProperty("cachePrepStmts", "true");
-          config.addDataSourceProperty("prepStmtCacheSize", "250");
-          config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-          config.addDataSourceProperty("DATABASE_TO_UPPER", "false");
-          config.addDataSourceProperty("CASE_INSENSITIVE_IDENTIFIERS", "true");
-          break;
-        default:
-          break;
-      }
-
-      cp = new HikariDataSource(config);
+      Db.dbCacheManager = dbCacheManager;
+      Db.databaseInstance = DatabaseInstanceFactory.createInstance(propertyService);
+      logger.info("Using SQL Backend with Dialect {} - Version {}", databaseInstance.getDialect().getName(), getDatabaseVersion());
+      HikariConfig config = databaseInstance.getConfig();
+      flyway = Flyway.configure()
+        .dataSource(config.getJdbcUrl(), config.getUsername(), config.getPassword())
+        .baselineOnMigrate(true)
+        .locations(databaseInstance.getMigrationClassPath(), databaseInstance.getMigrationSqlScriptPath())
+        .load();
 
       logger.info("Running flyway migration");
-      flyway = flywayBuilder.load();
       flyway.migrate();
+      databaseInstance.onStartup();
     } catch (Exception e) {
       throw new RuntimeException(e.toString(), e);
     }
   }
-  
+
   public static void clean() {
     try {
       flyway.clean();
@@ -154,14 +67,13 @@ public final class Db {
   } // never
 
   public static Dbs getDbsByDatabaseType() {
-    logger.info("Using SQL Backend with Dialect {}", dialect.getName());
     return new SqlDbs();
   }
 
 
   public static void analyzeTables() {
-    if (dialect == SQLDialect.H2) {
-      try (Connection con = cp.getConnection();
+    if (databaseInstance.getDialect() == SQLDialect.H2) {
+      try (Connection con = databaseInstance.getDataSource().getConnection();
            Statement stmt = con.createStatement()) {
         stmt.execute("ANALYZE SAMPLE_SIZE 0");
       } catch (SQLException e) {
@@ -171,47 +83,33 @@ public final class Db {
   }
 
   public static void shutdown() {
-    if (dialect == SQLDialect.H2) {
-      try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
-        // COMPACT is not giving good result.
-        if(Burst.getPropertyService().getBoolean(Props.DB_H2_DEFRAG_ON_SHUTDOWN)) {
-          stmt.execute("SHUTDOWN DEFRAG");
-        } else {
-          stmt.execute("SHUTDOWN");
-        }
-      }
-      catch (SQLException e) {
-        logger.info(e.toString(), e);
-      }
-      finally {
-        logger.info("Database shutdown completed.");
-      }
-    }
-    if (cp != null && !cp.isClosed() ) {
-      cp.close();
+    if(databaseInstance != null){
+        databaseInstance.onShutdown();
     }
   }
-  
-  public static void backup(String filename) {
-    if (dialect == SQLDialect.H2) {
-      logger.info("Database backup to {} started, it might take a while.", filename);
-      try ( Connection con = cp.getConnection(); Statement stmt = con.createStatement() ) {
-        stmt.execute("BACKUP TO '" + filename + "'");
-      }
-      catch (SQLException e) {
-        logger.info(e.toString(), e);
-      }
-      finally {
-        logger.info("Database backup completed, file {}.", filename);
-      }
+
+  private static void executeStatement(String statement) {
+    try {
+      Connection con = databaseInstance.getDataSource().getConnection();
+      Statement stmt = con.createStatement();
+      stmt.execute(statement);
+    } catch (SQLException e) {
+      logger.error(e.toString(), e);
     }
-    else {
-      logger.error("Backup not yet implemented for {}", dialect.toString());
+  }
+
+  public static void backup(String filename) {
+    if (databaseInstance.getDialect() == SQLDialect.H2) {
+      logger.info("Database backup to {} started, it might take a while.", filename);
+      executeStatement("BACKUP TO '" + filename + "'");
+      logger.info("Database backup completed, file {}.", filename);
+    } else {
+      logger.error("Backup not yet implemented for {}", databaseInstance.getDialect());
     }
   }
 
   private static Connection getPooledConnection() throws SQLException {
-      return cp.getConnection();
+    return databaseInstance.getDataSource().getConnection();
   }
 
   public static Connection getConnection() throws SQLException {
@@ -235,37 +133,41 @@ public final class Db {
   }
 
   private static DSLContext getDSLContext() {
-    Connection con    = localConnection.get();
+    Connection con = localConnection.get();
     Settings settings = new Settings();
     settings.setRenderSchema(Boolean.FALSE);
 
+    SQLDialect dialect = databaseInstance.getDialect();
     if (con == null) {
-      return DSL.using(cp, dialect, settings);
-    }
-    else {
+      return DSL.using(databaseInstance.getDataSource(), dialect, settings);
+    } else {
       settings.setStatementType(StatementType.STATIC_STATEMENT);
       return DSL.using(con, dialect, settings);
     }
   }
 
-  static <V> Map<BurstKey, V> getCache(String tableName) {
+  static <V> Map<SignumKey, V> getCache(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
     //noinspection unchecked
-    return (Map<BurstKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    return (Map<SignumKey, V>) transactionCaches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
-  static <V> Map<BurstKey, V> getBatch(String tableName) {
+  static <V> Map<SignumKey, V> getBatch(String tableName) {
     if (!isInTransaction()) {
       throw new IllegalStateException("Not in transaction");
     }
     //noinspection unchecked
-    return (Map<BurstKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
+    return (Map<SignumKey, V>) transactionBatches.get().computeIfAbsent(tableName, k -> new HashMap<>());
   }
 
   public static boolean isInTransaction() {
     return localConnection.get() != null;
+  }
+
+  public static SQLDialect getDialect() {
+    return getDSLContext().dialect();
   }
 
   public static Connection beginTransaction() {
@@ -273,16 +175,13 @@ public final class Db {
       throw new IllegalStateException("Transaction already in progress");
     }
     try {
-      Connection con = cp.getConnection();
+      Connection con = databaseInstance.getDataSource().getConnection();
       con.setAutoCommit(false);
-
       localConnection.set(con);
       transactionCaches.set(new HashMap<>());
       transactionBatches.set(new HashMap<>());
-
       return con;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e.toString(), e);
     }
   }
@@ -295,7 +194,7 @@ public final class Db {
     try {
       con.commit();
     } catch (SQLException e) {
-        throw new RuntimeException(e.toString(), e);
+      throw new RuntimeException(e.toString(), e);
     }
   }
 
@@ -306,8 +205,7 @@ public final class Db {
     }
     try {
       con.rollback();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e.toString(), e);
     }
     transactionCaches.get().clear();
@@ -320,11 +218,11 @@ public final class Db {
     if (con == null) {
       throw new IllegalStateException("Not in transaction");
     }
-    localConnection.set(null);
+    localConnection.remove();
     transactionCaches.get().clear();
-    transactionCaches.set(null);
+    transactionCaches.remove();
     transactionBatches.get().clear();
-    transactionBatches.set(null);
+    transactionBatches.remove();
     DbUtils.close(con);
   }
 
@@ -343,5 +241,23 @@ public final class Db {
         logger.debug("Failed to optimize table {}", tableName, e);
       }
     });
+  }
+
+  private static String getDatabaseVersion() {
+    String version = "N/A";
+    try {
+      DSLContext ctx = getDSLContext();
+      ResultQuery queryVersion = ctx.resultQuery(databaseInstance.getDatabaseVersionSQLScript());
+      Record record = queryVersion.fetchOne();
+      if (record != null) {
+        version = record.get(0, String.class);
+        if (databaseInstance.getSupportStatus() != DatabaseInstance.SupportStatus.STABLE) {
+          version += " (" + databaseInstance.getSupportStatus().toString() + ")";
+        }
+      }
+    } catch (Exception e) {
+      logger.warn("Failed to fetch version");
+    }
+    return version;
   }
 }

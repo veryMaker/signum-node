@@ -1,0 +1,5 @@
+{
+  "type": "int32",
+  "description": "Next index for pagination. When having more items, this field indicates which is the next `firstIndex` to be used. If not available, no more items are available also",
+  "example": 10
+}

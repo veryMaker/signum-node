@@ -1,0 +1,88 @@
+{
+  "post": {
+    "summary": "Transfer Multiple Tokens",
+    "description": "Transfer multiple tokens to another account.",
+    "tags": [
+      "token"
+    ],
+    "parameters": [
+      {
+        "name": "assetIdsAndQuantities",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "A list of up to 4 assetId and quantities tuples separated by `;`. The tuples themselves are separated by `:`,i.e. \"assetId1:quantity1;assetId2:quantity2\"",
+        "schema": {
+          "type": "string",
+          "pattern": "^(\\d+;?){1,4}$"
+        },
+        "example": "12402415494995249540:10000;11955007191311588286:100"
+      },
+      {
+        "$ref": "../../parameters/transaction/recipient.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/amountNQT.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/feeNQT.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/secretPhrase.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/publicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/deadline.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/broadcast.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/recipientPublicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/referencedTransactionFullHash.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/message.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncrypt.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageNonce.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelf.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageNonce.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses/transaction.json"
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

@@ -1,16 +1,19 @@
 package brs.db.sql;
 
 import brs.Alias;
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.Signum;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.AliasStore;
 import brs.db.store.DerivedTableManager;
 import brs.util.Convert;
+
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Result;
 import org.jooq.SortField;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +26,7 @@ public class SqlAliasStore implements AliasStore {
 
   private static final DbKey.LongKeyFactory<Alias.Offer> offerDbKeyFactory = new DbKey.LongKeyFactory<Alias.Offer>(ALIAS_OFFER.ID) {
       @Override
-      public BurstKey newKey(Alias.Offer offer) {
+      public SignumKey newKey(Alias.Offer offer) {
         return offer.dbKey;
       }
     };
@@ -62,20 +65,20 @@ public class SqlAliasStore implements AliasStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Alias.Offer> getOfferDbKeyFactory() {
     return offerDbKeyFactory;
   }
 
-  private static final BurstKey.LongKeyFactory<Alias> aliasDbKeyFactory = new DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
+  private static final SignumKey.LongKeyFactory<Alias> aliasDbKeyFactory = new DbKey.LongKeyFactory<Alias>(ALIAS.ID) {
 
       @Override
-      public BurstKey newKey(Alias alias) {
+      public SignumKey newKey(Alias alias) {
         return alias.dbKey;
       }
     };
 
   @Override
-  public BurstKey.LongKeyFactory<Alias> getAliasDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Alias> getAliasDbKeyFactory() {
     return aliasDbKeyFactory;
   }
 
@@ -93,7 +96,7 @@ public class SqlAliasStore implements AliasStore {
   private void saveOffer(Alias.Offer offer) {
     Db.useDSLContext(ctx -> {
       ctx.insertInto(ALIAS_OFFER, ALIAS_OFFER.ID, ALIAS_OFFER.PRICE, ALIAS_OFFER.BUYER_ID, ALIAS_OFFER.HEIGHT)
-              .values(offer.getId(), offer.getPriceNQT(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Burst.getBlockchain().getHeight())
+              .values(offer.getId(), offer.getPriceNqt(), (offer.getBuyerId() == 0 ? null : offer.getBuyerId()), Signum.getBlockchain().getHeight())
               .execute();
     });
   }
@@ -111,6 +114,7 @@ public class SqlAliasStore implements AliasStore {
             record.get(ALIAS.ID),
             record.get(ALIAS.ACCOUNT_ID),
             record.get(ALIAS.ALIAS_NAME),
+            record.get(ALIAS.TLD),
             record.get(ALIAS.ALIAS_URI),
             record.get(ALIAS.TIMESTAMP),
             aliasDbKeyFactory.newKey(record.get(ALIAS.ID))
@@ -123,22 +127,63 @@ public class SqlAliasStore implements AliasStore {
       set(ALIAS.ID, alias.getId()).
       set(ALIAS.ACCOUNT_ID, alias.getAccountId()).
       set(ALIAS.ALIAS_NAME, alias.getAliasName()).
+      set(ALIAS.TLD, alias.getTld()).
       set(ALIAS.ALIAS_NAME_LOWER, alias.getAliasName().toLowerCase(Locale.ENGLISH)).
-      set(ALIAS.ALIAS_URI, alias.getAliasURI()).
+      set(ALIAS.ALIAS_URI, alias.getAliasUri()).
       set(ALIAS.TIMESTAMP, alias.getTimestamp()).
-      set(ALIAS.HEIGHT, Burst.getBlockchain().getHeight()).execute();
+      set(ALIAS.HEIGHT, Signum.getBlockchain().getHeight()).execute();
   }
 
   private final VersionedEntityTable<Alias> aliasTable;
 
   @Override
-  public Collection<Alias> getAliasesByOwner(long accountId, int from, int to) {
-    return aliasTable.getManyBy(brs.schema.Tables.ALIAS.ACCOUNT_ID.eq(accountId), from, to);
+  public Collection<Alias> getAliasesByOwner(long accountId, String name, Long tld, int from, int to) {
+    Condition condition = ALIAS.TLD.isNotNull();
+    if(tld != null) {
+      condition = ALIAS.TLD.eq(tld);
+    }
+    if(accountId != 0L) {
+      condition = condition.and(ALIAS.ACCOUNT_ID.eq(accountId));
+    }
+    if(name != null) {
+      condition = condition.and(ALIAS.ALIAS_NAME_LOWER.like(name.toLowerCase()));
+    }
+    return aliasTable.getManyBy(condition, from, to);
   }
 
   @Override
-  public Alias getAlias(String aliasName) {
-    return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)));
+  public Collection<Alias> getTLDs(int from, int to) {
+    return aliasTable.getManyBy(brs.schema.Tables.ALIAS.TLD.isNull(), from, to);
+  }
+
+  @Override
+  public Collection<Alias.Offer> getAliasOffers(long account, long buyer, int from, int to) {
+    Condition conditions = ALIAS_OFFER.LATEST.eq(true);
+    if(account != 0L) {
+      Result<Record1<Long>> myAliases = Db.useDSLContext(ctx -> {
+      return ctx.select(ALIAS.ID).from(ALIAS).where(ALIAS.ACCOUNT_ID.eq(account)).fetch();
+      });
+      conditions = conditions.and(ALIAS_OFFER.ID.in(myAliases));
+    }
+    if(buyer != 0L) {
+      conditions = conditions.and(ALIAS_OFFER.BUYER_ID.eq(buyer));
+    }
+    return offerTable.getManyBy(conditions, from, to);
+  }
+  
+  @Override
+  public Alias getTLD(String tldName) {
+    return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(tldName.toLowerCase(Locale.ENGLISH)).and(ALIAS.TLD.isNull()));
+  }
+
+  @Override
+  public Alias getTLD(long tldId) {
+    return aliasTable.getBy(brs.schema.Tables.ALIAS.ID.eq(tldId).and(ALIAS.TLD.isNull()));
+  }
+
+  @Override
+  public Alias getAlias(String aliasName, long tld) {
+    return aliasTable.getBy(brs.schema.Tables.ALIAS.ALIAS_NAME_LOWER.eq(aliasName.toLowerCase(Locale.ENGLISH)).and(ALIAS.TLD.eq(tld)));
   }
 
 }

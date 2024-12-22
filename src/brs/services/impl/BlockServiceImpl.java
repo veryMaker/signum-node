@@ -11,6 +11,7 @@ import brs.services.TransactionService;
 import brs.util.Convert;
 import brs.util.DownloadCacheImpl;
 import brs.util.ThreadPool;
+import signum.net.NetworkParameters;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class BlockServiceImpl implements BlockService {
 
@@ -28,17 +30,20 @@ public class BlockServiceImpl implements BlockService {
   private final Blockchain blockchain;
   private final DownloadCacheImpl downloadCache;
   private final Generator generator;
-  
+  private NetworkParameters networkParameters;
+
   private final List<Block> watchedBlocks = new ArrayList<>();
 
   private static final Logger logger = LoggerFactory.getLogger(BlockServiceImpl.class);
 
-  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache, Generator generator) {
+  public BlockServiceImpl(AccountService accountService, TransactionService transactionService, Blockchain blockchain, DownloadCacheImpl downloadCache,
+      Generator generator, NetworkParameters networkParameters) {
     this.accountService = accountService;
     this.transactionService = transactionService;
     this.blockchain = blockchain;
     this.downloadCache = downloadCache;
     this.generator = generator;
+    this.networkParameters = networkParameters;
   }
 
   @Override
@@ -55,7 +60,13 @@ public class BlockServiceImpl implements BlockService {
       System.arraycopy(data, 0, data2, 0, data2.length);
 
       byte[] publicKey = block.getGeneratorPublicKey();
-      if(accountService.getAccount(publicKey) != null) {
+      Account account = accountService.getAccount(publicKey);
+      if(account != null) {
+        if(Signum.getFluxCapacitor().getValue(FluxValues.PK_FREEZE2) && account.getPublicKey() == null
+          && Signum.getBlockchain().getHeight() - account.getCreationHeight() > Signum.getPropertyService().getInt(Props.PK_BLOCKS_PAST)) {
+          logger.error("Setting a new key for an old inactivated account");
+          return false;
+        }
         // only if the account exists
         Account rewardAccount = getRewardAccount(block);
         publicKey = rewardAccount.getPublicKey();
@@ -98,7 +109,7 @@ public class BlockServiceImpl implements BlockService {
       return false;
     }
   }
-  
+
   private Account getRewardAccount(Block block) {
 	Account rewardAccount = accountService.getAccount(block.getGeneratorPublicKey());
 	if(rewardAccount.getPublicKey() == null) {
@@ -114,7 +125,7 @@ public class BlockServiceImpl implements BlockService {
     }
     return rewardAccount;
   }
-  
+
   @Override
   public void watchBlock(Block block) {
 	  watchedBlocks.add(block);
@@ -124,22 +135,20 @@ public class BlockServiceImpl implements BlockService {
   public void preVerify(Block block, Block prevBlock) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     preVerify(block, prevBlock, null);
   }
-  
+
   @Override
   public void preVerify(Block block, Block prevBlock, byte[] scoopData) throws BlockchainProcessor.BlockNotAcceptedException, InterruptedException {
     // Just in case its already verified
     if (block.isVerified()) {
       return;
     }
-    
+
     if(block.getPreviousBlockId() != prevBlock.getId()) {
       logger.info("Error pre-verifying block, invalid previous block");
       return;
     }
-    
-    int checkPointHeight = Burst.getPropertyService().getInt(
-    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-    				Props.DEV_CHECKPOINT_HEIGHT : Props.BRS_CHECKPOINT_HEIGHT);
+
+    int checkPointHeight = Signum.getPropertyService().getInt(Props.BRS_CHECKPOINT_HEIGHT);
     try {
       if(block.getHeight() < checkPointHeight) {
         // do not verify the nonce up to the checkpoint block
@@ -147,11 +156,9 @@ public class BlockServiceImpl implements BlockService {
       }
       else {
     	if(block.getHeight() == checkPointHeight) {
-       	    String checkPointHash = Burst.getPropertyService().getString(
-    	    		Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ?
-    	    				Props.DEV_CHECKPOINT_HASH : Props.BRS_CHECKPOINT_HASH);
+       	    String checkPointHash = Signum.getPropertyService().getString(Props.BRS_CHECKPOINT_HASH);
 
-       	    String receivedHash = Hex.toHexString(block.getPreviousBlockHash()); 
+       	    String receivedHash = Hex.toHexString(block.getPreviousBlockHash());
     		if(!receivedHash.equals(checkPointHash)) {
     			logger.error("Error pre-verifying checkpoint block {}", block.getHeight());
     			return;
@@ -188,36 +195,50 @@ public class BlockServiceImpl implements BlockService {
   public void apply(Block block) {
     Account generatorAccount = accountService.getOrAddAccount(block.getGeneratorId());
     generatorAccount.apply(block.getGeneratorPublicKey(), block.getHeight());
-    if (!Burst.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNQT() + getBlockReward(block));
+
+    long blockReward = getBlockReward(block);
+    long blockRewardTotal = blockReward;
+    Map<Long, Integer> blockDistribution = networkParameters != null ? networkParameters.getBlockRewardDistribution(block.getHeight()) : null;
+    if(blockDistribution != null) {
+      for(Long distAccountID : blockDistribution.keySet()) {
+        Account distAccount = accountService.getOrAddAccount(distAccountID);
+        if(distAccount != null) {
+          long distAmount = (blockRewardTotal * blockDistribution.get(distAccountID))/1000L;
+          blockReward -= distAmount;
+          accountService.addToBalanceAndUnconfirmedBalanceNQT(distAccount, distAmount);
+          accountService.addToForgedBalanceNQT(distAccount, distAmount);
+        }
+      }
+    }
+    if (!Signum.getFluxCapacitor().getValue(FluxValues.REWARD_RECIPIENT_ENABLE)) {
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(generatorAccount, block.getTotalFeeNqt() + blockReward);
+      accountService.addToForgedBalanceNQT(generatorAccount, block.getTotalFeeNqt() + blockReward);
     } else {
       Account rewardAccount = getRewardAccount(block);
-      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
-      accountService.addToForgedBalanceNQT(rewardAccount, block.getTotalFeeNQT() + getBlockReward(block));
+
+      long rewardFeesNQT = block.getTotalFeeNqt();
+      if (Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES)) {
+        rewardFeesNQT -= block.getTotalFeeCashBackNqt();
+        rewardFeesNQT -= block.getTotalFeeBurntNqt();
+
+        Account nullAccount = accountService.getOrAddAccount(0L);
+        accountService.addToBalanceAndUnconfirmedBalanceNQT(nullAccount, block.getTotalFeeBurntNqt());
+      }
+      accountService.addToBalanceAndUnconfirmedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);
+      accountService.addToForgedBalanceNQT(rewardAccount, rewardFeesNQT + blockReward);
     }
 
     for(Transaction transaction : block.getTransactions()) {
       transactionService.apply(transaction);
+      if (networkParameters != null) {
+        networkParameters.transactionApplied(transaction);
+      }
     }
   }
 
   @Override
   public long getBlockReward(Block block) {
-    return getBlockReward(block.getHeight());
-  }
-
-  public static long getBlockReward(int height) {
-    if (height == 0) {
-      return 0;
-    }
-    if (height >= 972_000) {
-      // Minimum incentive, lower than 0.6 % per year
-      return 100 * Constants.ONE_BURST;
-    }
-	int month = height / 10800;
-	return BigInteger.valueOf(10000).multiply(BigInteger.valueOf(95).pow(month))
-	  .divide(BigInteger.valueOf(100).pow(month)).longValue() * Constants.ONE_BURST;
+    return blockchain.getBlockReward(block.getHeight());
   }
 
   @Override
@@ -243,13 +264,15 @@ public class BlockServiceImpl implements BlockService {
 
   @Override
   public void calculateBaseTarget(Block block, Block previousBlock) throws BlockOutOfOrderException {
-    if (block.getId() == Genesis.GENESIS_BLOCK_ID && block.getPreviousBlockId() == 0) {
+    long blockTime = Signum.getFluxCapacitor().getValue(FluxValues.BLOCK_TIME);
+
+    if (block.getPreviousBlockId() == 0 && block.getId() == Convert.parseUnsignedLong(Signum.getPropertyService().getString(Props.GENESIS_BLOCK_ID)) ) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
       block.setCumulativeDifficulty(BigInteger.ZERO);
     } else if (block.getHeight() < 4) {
       block.setBaseTarget(Constants.INITIAL_BASE_TARGET);
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(Convert.two64.divide(BigInteger.valueOf(Constants.INITIAL_BASE_TARGET))));
-    } else if (block.getHeight() < Constants.BURST_DIFF_ADJUST_CHANGE_BLOCK && !Burst.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
+    } else if (block.getHeight() < Constants.SIGNUM_DIFF_ADJUST_CHANGE_BLOCK && !Signum.getFluxCapacitor().getValue(FluxValues.SODIUM)) {
       Block itBlock = previousBlock;
       BigInteger avgBaseTarget = BigInteger.valueOf(itBlock.getBaseTarget());
       do {
@@ -261,7 +284,7 @@ public class BlockServiceImpl implements BlockService {
 
       long curBaseTarget = avgBaseTarget.longValue();
       long newBaseTarget = BigInteger.valueOf(curBaseTarget).multiply(BigInteger.valueOf(difTime))
-          .divide(BigInteger.valueOf(Constants.BURST_BLOCK_TIME * 4)).longValue();
+          .divide(BigInteger.valueOf(blockTime * 4)).longValue();
       if (newBaseTarget < 0 || newBaseTarget > Constants.MAX_BASE_TARGET) {
         newBaseTarget = Constants.MAX_BASE_TARGET;
       }
@@ -286,6 +309,9 @@ public class BlockServiceImpl implements BlockService {
       int blockCounter = 1;
       do {
         int previousHeight = itBlock.getHeight();
+        if(previousHeight < 1) {
+          break;
+        }
         itBlock = downloadCache.getBlock(itBlock.getPreviousBlockId());
         if (itBlock == null) {
           throw new BlockOutOfOrderException("Previous block does no longer exist for block height " + previousHeight);
@@ -296,7 +322,7 @@ public class BlockServiceImpl implements BlockService {
             .divide(BigInteger.valueOf(blockCounter + 1L));
       } while (blockCounter < 24);
       long difTime = (long) block.getTimestamp() - itBlock.getTimestamp();
-      long targetTimespan = 24L * Constants.BURST_BLOCK_TIME;
+      long targetTimespan = blockCounter * blockTime;
 
       if (difTime < targetTimespan / 2) {
         difTime = targetTimespan / 2;
@@ -325,18 +351,20 @@ public class BlockServiceImpl implements BlockService {
       if (newBaseTarget > curBaseTarget * 12 / 10) {
         newBaseTarget = curBaseTarget * 12 / 10;
       }
-      
+
       long peerBaseTarget = block.getBaseTarget();
       block.setBaseTarget(newBaseTarget);
       BigInteger difficulty = Convert.two64.divide(BigInteger.valueOf(newBaseTarget));
-      
-      if(Burst.getFluxCapacitor().getValue(FluxValues.POC_PLUS, block.getHeight())) {
+
+      if(Signum.getFluxCapacitor().getValue(FluxValues.POC_PLUS, block.getHeight())) {
         block.setCommitment(generator.estimateCommitment(block.getGeneratorId(), previousBlock));
 
         // update the average commitment based on a moving average filter
         long curCommitment = previousBlock.getAverageCommitment();
-        
-        long newAvgCommitment = (curCommitment*23L + block.getCommitment())/24L;
+
+        long avgCommitmentWindow = Signum.getFluxCapacitor().getValue(FluxValues.AVERAGE_COMMITMENT_WINDOW, block.getHeight());
+        long newAvgCommitment = (curCommitment*(avgCommitmentWindow - 1L) + block.getCommitment())/avgCommitmentWindow;
+
         // avoid changing more than 20% in a single block
         if (newAvgCommitment < curCommitment * 8 / 10) {
           newAvgCommitment = curCommitment * 8 / 10;
@@ -344,25 +372,35 @@ public class BlockServiceImpl implements BlockService {
         if (newAvgCommitment > curCommitment * 12 / 10) {
           newAvgCommitment = curCommitment * 12 / 10;
         }
-        
-        // assuming a minimum value of 1 BURST
-        newAvgCommitment = Math.max(newAvgCommitment, Constants.ONE_BURST);
+
+        // assuming a minimum value of 1 coin
+        newAvgCommitment = Math.max(newAvgCommitment, Signum.getPropertyService().getInt(Props.ONE_COIN_NQT));
         block.setBaseTarget(newBaseTarget, newAvgCommitment);
-        
+
         if(block.getPeer()!=null && peerBaseTarget != 0L && peerBaseTarget != block.getBaseTarget()) {
+          if(logger.isDebugEnabled()) {
+            logger.debug("Peer base target mismatch, height {}, id {}, generator id {}, cap bt {}, avg com. {}", block.getHeight(),
+                Convert.toUnsignedLong(block.getId()), Convert.toUnsignedLong(block.getGeneratorId()),
+                newBaseTarget, newAvgCommitment);
+          }
           // peer sent the base target and we do not agree with it
           throw new RuntimeException("Peer base target " + peerBaseTarget + ", expected is " + block.getBaseTarget() + ", peer " +
               block.getPeer().getAnnouncedAddress());
         }
-        
-        Block pastBlock = blockchain.getBlockAtHeight(block.getHeight() - Constants.MAX_ROLLBACK);
-        
+
+        int pastBlockHeight = Math.max(0,  block.getHeight() - Constants.MAX_ROLLBACK);
+        Block pastBlock = blockchain.getBlockAtHeight(pastBlockHeight);
+
         long pastAverageCommitment = pastBlock.getAverageCommitment();
+        if(Signum.getFluxCapacitor().getValue(FluxValues.SPEEDWAY, block.getHeight())) {
+          // use the average from past and now to get a smoother result
+          pastAverageCommitment = (pastAverageCommitment + block.getAverageCommitment())/2;
+        }
         double commitmentFactor = generator.getCommitmentFactor(newAvgCommitment, pastAverageCommitment, block.getHeight());
-        
+
         difficulty = BigInteger.valueOf((long)(difficulty.doubleValue()*commitmentFactor));
-      }      
-      
+      }
+
       block.setCumulativeDifficulty(previousBlock.getCumulativeDifficulty().add(difficulty));
     }
   }

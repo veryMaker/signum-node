@@ -1,0 +1,87 @@
+{
+  "get": {
+    "summary": "Get Contract Map Values ",
+    "description": "Gets a list of values from a smart contract from its [data store](https://github.com/signum-network/SIPs/blob/master/SIP/sip-38.md) by its _first_ key.<br/>Non existing keys result always in `0`(Zero)",
+    "tags": [
+      "contract"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/contract/at.json"
+      },
+      {
+        "name": "key1",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "in": "query",
+        "description": "The 1st key of the map"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "in": "query",
+        "description": "The value to be searched for"
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Contract Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "keyValues"
+              ],
+              "example": {
+                "keyValues": [ {
+                  "key2": "123243564364565",
+                  "value": "42"
+                }]
+              },
+              "properties": {
+                "keyValues": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key2", "value"
+                    ],
+                    "properties": {
+                      "key2": {
+                        "type": "integer",
+                        "description": "The second key of the map tuple",
+                        "format": "int64"
+                      },
+                      "value": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "The value"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

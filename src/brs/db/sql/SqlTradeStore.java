@@ -1,13 +1,14 @@
 package brs.db.sql;
 
 import brs.Trade;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.TradeStore;
 import brs.schema.tables.records.TradeRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SelectQuery;
+import org.jooq.impl.DSL;
 
 import java.util.Collection;
 
@@ -17,7 +18,7 @@ public class SqlTradeStore implements TradeStore {
   private final DbKey.LinkKeyFactory<Trade> tradeDbKeyFactory = new DbKey.LinkKeyFactory<Trade>("ask_order_id", "bid_order_id") {
 
       @Override
-      public BurstKey newKey(Trade trade) {
+      public SignumKey newKey(Trade trade) {
         return trade.dbKey;
       }
 
@@ -50,6 +51,63 @@ public class SqlTradeStore implements TradeStore {
   public Collection<Trade> getAssetTrades(long assetId, int from, int to) {
     return tradeTable.getManyBy(TRADE.ASSET_ID.eq(assetId), from, to);
   }
+
+  @Override
+  public long getTradeVolume(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.sum(TRADE.QUANTITY)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.le(heightEnd))
+      .fetchOneInto(long.class);
+    });
+  }
+
+  @Override
+  public long getHighPrice(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.max(TRADE.PRICE)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.le(heightEnd))
+      .fetchOneInto(long.class);
+    });
+  }
+
+  @Override
+  public long getLowPrice(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      return ctx.select(DSL.min(TRADE.PRICE)).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.le(heightEnd))
+      .fetchOneInto(long.class);
+    });
+  }
+
+  @Override
+  public long getOpenPrice(long assetId, int heightStart, int heightEnd) {
+     return Db.useDSLContext(ctx -> {
+       Record record = ctx.select(TRADE.PRICE).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+          .and(TRADE.HEIGHT.ge(heightStart))
+          .and(TRADE.HEIGHT.le(heightEnd))
+          .orderBy(TRADE.TIMESTAMP.asc())
+          .limit(1)
+        .fetchOne();
+       return record != null ? record.into(long.class) : 0L;
+    });
+  }
+
+  @Override
+  public long getClosePrice(long assetId, int heightStart, int heightEnd) {
+    return Db.useDSLContext(ctx -> {
+      Record record = ctx.select(TRADE.PRICE).from(TRADE).where(TRADE.ASSET_ID.eq(assetId))
+        .and(TRADE.HEIGHT.ge(heightStart))
+        .and(TRADE.HEIGHT.le(heightEnd))
+        .orderBy(TRADE.TIMESTAMP.desc())
+        .limit(1)
+        .fetchOne();
+      return record != null ? record.into(long.class) : 0L;
+    });
+  }
+
 
   @Override
   public Collection<Trade> getAccountTrades(long accountId, int from, int to) {
@@ -89,6 +147,20 @@ public class SqlTradeStore implements TradeStore {
               .orderBy(TRADE.HEIGHT.desc())
               .getQuery();
       DbUtils.applyLimits(selectQuery, from, to);
+
+      return tradeTable.getManyBy(ctx, selectQuery, false);
+    });
+  }
+  
+  @Override
+  public Collection<Trade> getOrderTrades(long orderId) {
+    return Db.useDSLContext(ctx -> {
+      SelectQuery<TradeRecord> selectQuery = ctx
+              .selectFrom(TRADE).where(
+                      TRADE.ASK_ORDER_ID.eq(orderId).or(TRADE.BID_ORDER_ID.eq(orderId))
+              )
+              .orderBy(TRADE.HEIGHT.desc())
+              .getQuery();
 
       return tradeTable.getManyBy(ctx, selectQuery, false);
     });

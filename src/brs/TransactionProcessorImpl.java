@@ -1,6 +1,6 @@
 package brs;
 
-import brs.BurstException.ValidationException;
+import brs.SignumException.ValidationException;
 import brs.db.store.Dbs;
 import brs.db.store.Stores;
 import brs.fluxcapacitor.FluxValues;
@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static brs.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
+import static brs.web.api.http.common.ResultFields.UNCONFIRMED_TRANSACTIONS_RESPONSE;
 
 public class TransactionProcessorImpl implements TransactionProcessor {
 
@@ -193,9 +193,9 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public Integer broadcast(Transaction transaction) throws BurstException.ValidationException {
+  public Integer broadcast(Transaction transaction) throws SignumException.ValidationException {
     if (! transaction.verifySignature()) {
-      throw new BurstException.NotValidException("Transaction signature verification failed");
+      throw new SignumException.NotValidException("Transaction signature verification failed");
     }
     List<Transaction> processedTransactions;
     if (dbs.getTransactionDb().hasTransaction(transaction.getId())) {
@@ -220,12 +220,12 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       if (logger.isDebugEnabled()) {
         logger.debug("Could not accept new transaction {}", transaction.getStringId());
       }
-      throw new BurstException.NotValidException("Invalid transaction " + transaction.getStringId());
+      throw new SignumException.NotValidException("Invalid transaction " + transaction.getStringId());
     }
   }
 
   @Override
-  public void processPeerTransactions(JsonObject request, Peer peer) throws BurstException.ValidationException {
+  public void processPeerTransactions(JsonObject request, Peer peer) throws SignumException.ValidationException {
     JsonArray transactionsData = JSON.getAsJsonArray(request.get("transactions"));
     List<Transaction> processedTransactions = processPeerTransactions(transactionsData, peer);
 
@@ -235,15 +235,15 @@ public class TransactionProcessorImpl implements TransactionProcessor {
   }
 
   @Override
-  public Transaction parseTransaction(byte[] bytes) throws BurstException.ValidationException {
+  public Transaction parseTransaction(byte[] bytes) throws SignumException.ValidationException {
     return Transaction.parseTransaction(bytes);
   }
 
   @Override
-  public Transaction parseTransaction(JsonObject transactionData) throws BurstException.NotValidException {
+  public Transaction parseTransaction(JsonObject transactionData) throws SignumException.NotValidException {
     return Transaction.parseTransaction(transactionData, blockchain.getHeight());
   }
-    
+
   @Override
   public void clearUnconfirmedTransactions() {
     synchronized (unconfirmedTransactionsSyncObj) {
@@ -274,7 +274,13 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
   @Override
   public int getTransactionVersion(int previousBlockHeight) {
-    return Burst.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight) ? 1 : 0;
+    if(Signum.getFluxCapacitor().getValue(FluxValues.DIGITAL_GOODS_STORE, previousBlockHeight)){
+      if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_FEES, previousBlockHeight)){
+        return 2;
+      }
+      return 1;
+    }
+    return 0;
   }
 
   // Watch: This is not really clean
@@ -283,19 +289,17 @@ public class TransactionProcessorImpl implements TransactionProcessor {
       try {
         unconfirmedTransactionStore.put(transaction, null);
       }
-      catch ( BurstException.ValidationException e ) {
+      catch ( SignumException.ValidationException e ) {
         logger.debug("Discarding invalid transaction in for later processing: " + JSON.toJsonString(transaction.getJsonObject()), e);
       }
     }
   }
 
-  private List<Transaction> processPeerTransactions(JsonArray transactionsData, Peer peer) throws BurstException.ValidationException {
+  private List<Transaction> processPeerTransactions(JsonArray transactionsData, Peer peer) throws SignumException.ValidationException {
 	  if (blockchain.getLastBlock().getTimestamp() < timeService.getEpochTime() - 60 * 1440 && ! testUnconfirmedTransactions) {
       return new ArrayList<>();
     }
-    if (blockchain.getHeight() <= Constants.NQT_BLOCK) {
-      return new ArrayList<>();
-    }
+
     List<Transaction> transactions = new ArrayList<>();
     for (JsonElement transactionData : transactionsData) {
       try {
@@ -305,8 +309,8 @@ public class TransactionProcessorImpl implements TransactionProcessor {
           continue;
         }
         transactions.add(transaction);
-      } catch (BurstException.NotCurrentlyValidException ignore) {
-      } catch (BurstException.NotValidException e) {
+      } catch (SignumException.NotCurrentlyValidException ignore) {
+      } catch (SignumException.NotValidException e) {
         if (logger.isDebugEnabled()) {
           logger.debug("Invalid transaction from peer: {}", JSON.toJsonString(transactionData));
         }
@@ -316,7 +320,7 @@ public class TransactionProcessorImpl implements TransactionProcessor {
     return processTransactions(transactions, peer);
   }
 
-  private List<Transaction> processTransactions(Collection<Transaction> transactions, Peer peer) throws BurstException.ValidationException {
+  private List<Transaction> processTransactions(Collection<Transaction> transactions, Peer peer) throws SignumException.ValidationException {
     synchronized (unconfirmedTransactionsSyncObj) {
       if (transactions.isEmpty()) {
         return Collections.emptyList();
@@ -335,9 +339,6 @@ public class TransactionProcessorImpl implements TransactionProcessor {
 
           try {
             stores.beginTransaction();
-            if (blockchain.getHeight() < Constants.NQT_BLOCK) {
-              break; // not ready to process transactions
-            }
 
             if (dbs.getTransactionDb().hasTransaction(transaction.getId()) || unconfirmedTransactionStore.exists(transaction.getId())) {
               stores.commitTransaction();

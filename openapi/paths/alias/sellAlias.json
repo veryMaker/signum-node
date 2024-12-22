@@ -1,0 +1,105 @@
+{
+  "post": {
+    "summary": "Sell Alias",
+    "description": "Sets an alias for sale. Once on sale others can [buy the alias](#post-/api-requestType-buyAlias).",
+    "tags": [
+      "alias"
+    ],
+    "parameters": [
+      {
+        "$ref" : "../../parameters/alias/alias.json"
+      },
+      {
+        "name": "aliasName",
+        "in": "query",
+        "allowEmptyValue": true,
+        "description": "Instead of `alias` you can use the alias' name also. But then you need to specify `tld` also, if it is different from default TLD `signum`",
+        "schema": {
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      {
+        "$ref" : "../../parameters/alias/tld.json"
+      },
+      {
+        "name": "recipient",
+        "in": "query",
+        "allowEmptyValue": false,
+        "description": "You can specify a single buyer. This buyer will get a notification, that you are willing to sell this alias exclusively to him/her. Otherwise, your alias can be bought by everyone",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "priceNQT",
+        "in": "query",
+        "allowEmptyValue": false,
+        "required": true,
+        "description": "The amount you want for the alias.",
+        "schema": {
+          "$ref": "../../schemas/amount.json"
+        }
+      },
+      {
+        "$ref": "../../parameters/transaction/feeNQT.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/secretPhrase.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/publicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/deadline.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/broadcast.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/recipientPublicKey.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/referencedTransactionFullHash.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/message.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncrypt.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptedMessageNonce.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelf.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/messageToEncryptToSelfIsText.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageData.json"
+      },
+      {
+        "$ref": "../../parameters/transaction/encryptToSelfMessageNonce.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses/transaction.json"
+      },
+      "500" : {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

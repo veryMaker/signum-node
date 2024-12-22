@@ -1,7 +1,6 @@
 package brs.peer;
 
 import brs.*;
-import brs.Constants;
 import brs.fluxcapacitor.FluxValues;
 import brs.props.PropertyService;
 import brs.props.Props;
@@ -56,7 +55,7 @@ public final class Peers {
       return false;
     } else {
       try {
-        return isHigherOrEqualVersion(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION), Version.parse(header.trim().substring("BRS/".length())));
+        return isHigherOrEqualVersion(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION), Version.parse(header.trim().substring("BRS/".length())));
       } catch (IllegalArgumentException e) {
         return false;
       }
@@ -142,15 +141,9 @@ public final class Peers {
       myAddress = propertyService.getString(Props.P2P_MY_ADDRESS);
     }
 
-    if (myAddress != null && myAddress.endsWith(":" + Constants.PEER_TESTNET_PORT) && !Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      throw new RuntimeException("Port " + Constants.PEER_TESTNET_PORT + " should only be used for testnet!!!");
-    }
     myPeerServerPort = propertyService.getInt(Props.P2P_PORT);
-    if (myPeerServerPort == Constants.PEER_TESTNET_PORT && !Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
-      throw new RuntimeException("Port " + Constants.PEER_TESTNET_PORT + " should only be used for testnet!!!");
-    }
     useUpnp = propertyService.getBoolean(Props.P2P_UPNP);
-    shareMyAddress = propertyService.getBoolean(Props.P2P_SHARE_MY_ADDRESS) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
+    shareMyAddress = propertyService.getBoolean(Props.P2P_SHARE_MY_ADDRESS) && ! Signum.getPropertyService().getBoolean(Props.DEV_OFFLINE);
 
     JsonObject json = new JsonObject();
     if (myAddress != null && ! myAddress.isEmpty()) {
@@ -158,17 +151,12 @@ public final class Peers {
         URI uri = new URI("http://" + myAddress.trim());
         String host = uri.getHost();
         int port = uri.getPort();
-        if (!Burst.getPropertyService().getBoolean(Props.DEV_TESTNET)) {
           if (port >= 0) {
             json.addProperty("announcedAddress", myAddress);
           }
           else {
-            json.addProperty("announcedAddress", host + (myPeerServerPort != Constants.PEER_DEFAULT_PORT ? ":" + myPeerServerPort : ""));
+            json.addProperty("announcedAddress", host + ":" + myPeerServerPort);
           }
-        }
-        else {
-          json.addProperty("announcedAddress", host);
-        }
       }
       catch (URISyntaxException e) {
         logger.info("Your announce address is invalid: {}", myAddress);
@@ -176,10 +164,11 @@ public final class Peers {
       }
     }
 
-    json.addProperty("application",  Burst.APPLICATION);
-    json.addProperty("version",      Burst.VERSION.toString());
+    json.addProperty("application",  Signum.APPLICATION);
+    json.addProperty("version",      Signum.VERSION.toString());
     json.addProperty("platform",     Peers.myPlatform);
     json.addProperty("shareAddress", Peers.shareMyAddress);
+    json.addProperty("networkName", propertyService.getString(Props.NETWORK_NAME));
     if (logger.isDebugEnabled()) {
       logger.debug("My peer info: {}", JSON.toJsonString(json));
     }
@@ -190,19 +179,19 @@ public final class Peers {
 
     if(propertyService.getBoolean(P2P_ENABLE_TX_REBROADCAST)) {
       rebroadcastPeers = Collections
-              .unmodifiableSet(new HashSet<>(propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_REBROADCAST_TO : Props.P2P_REBROADCAST_TO)));
+              .unmodifiableSet(new HashSet<>(propertyService.getStringList(Props.P2P_REBROADCAST_TO)));
     } else {
       rebroadcastPeers = Collections.emptySet();
     }
 
-    List<String> wellKnownPeersList = propertyService.getStringList(Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Props.DEV_P2P_BOOTSTRAP_PEERS : Props.P2P_BOOTSTRAP_PEERS);
+    List<String> wellKnownPeersList = propertyService.getStringList(Props.P2P_BOOTSTRAP_PEERS);
 
     for(String rePeer : rebroadcastPeers) {
       if(!wellKnownPeersList.contains(rePeer)) {
         wellKnownPeersList.add(rePeer);
       }
     }
-    if (wellKnownPeersList.isEmpty() || Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE)) {
+    if (wellKnownPeersList.isEmpty() || Signum.getPropertyService().getBoolean(Props.DEV_OFFLINE)) {
       wellKnownPeers = Collections.emptySet();
     } else {
       wellKnownPeers = Collections.unmodifiableSet(new HashSet<>(wellKnownPeersList));
@@ -227,7 +216,7 @@ public final class Peers {
     blacklistingPeriod = propertyService.getInt(Props.P2P_BLACKLISTING_TIME_MS);
     communicationLoggingMask = propertyService.getInt(Props.BRS_COMMUNICATION_LOGGING_MASK);
     sendToPeersLimit = propertyService.getInt(P2P_SEND_TO_LIMIT);
-    usePeersDb       = propertyService.getBoolean(Props.P2P_USE_PEERS_DB) && ! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE);
+    usePeersDb       = propertyService.getBoolean(Props.P2P_USE_PEERS_DB) && ! Signum.getPropertyService().getBoolean(Props.DEV_OFFLINE);
     savePeers        = usePeersDb && propertyService.getBoolean(Props.P2P_SAVE_PEERS);
     getMorePeers     = propertyService.getBoolean(Props.P2P_GET_MORE_PEERS);
     getMorePeersThreshold = propertyService.getInt(Props.P2P_GET_MORE_PEERS_THRESHOLD);
@@ -254,7 +243,7 @@ public final class Peers {
         }
         if (usePeersDb) {
           logger.debug("Loading known peers from the database...");
-          loadPeers(Burst.getDbs().getPeerDb().loadPeers());
+          loadPeers(Signum.getDbs().getPeerDb().loadPeers());
         }
         lastSavedPeers= peers.size();
       }
@@ -281,7 +270,7 @@ public final class Peers {
 
     Init.init(timeService, accountService, blockchain, transactionProcessor, blockchainProcessor, propertyService, threadPool);
 
-    if (! Burst.getPropertyService().getBoolean(Props.DEV_OFFLINE)) {
+    if (! Signum.getPropertyService().getBoolean(Props.DEV_OFFLINE)) {
       threadPool.scheduleThread("PeerConnecting", Peers.peerConnectingThread, 5);
       threadPool.scheduleThread("PeerUnBlacklisting", Peers.peerUnBlacklistingThread, 1);
       if (Peers.getMorePeers) {
@@ -300,7 +289,7 @@ public final class Peers {
     static void init(TimeService timeService, AccountService accountService, Blockchain blockchain, TransactionProcessor transactionProcessor,
                      BlockchainProcessor blockchainProcessor, PropertyService propertyService, ThreadPool threadPool) {
       if (Peers.shareMyAddress) {
-        port = Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) ? Constants.PEER_TESTNET_PORT : Peers.myPeerServerPort;
+        port = Peers.myPeerServerPort;
         if (useUpnp) {
           GatewayDiscover gatewayDiscover = new GatewayDiscover();
           gatewayDiscover.setTimeout(2000);
@@ -454,7 +443,8 @@ public final class Peers {
              * if we loose Internet connection
              */
 
-            if (!peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+            if (!peer.isHigherOrEqualVersionThan(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+                    || (peer.getNetworkName()!=null && !peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))
                     || (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -476,7 +466,8 @@ public final class Peers {
         for (Peer peer : peers.values()) {
           if (peer.getState() == Peer.State.CONNECTED && now - peer.getLastUpdated() > 3600) {
             peer.connect(timeService.getEpochTime());
-            if (!peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION)) ||
+            if (!peer.isHigherOrEqualVersionThan(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION)) ||
+                    (peer.getNetworkName()!=null && !peer.getNetworkName().equals(Signum.getPropertyService().getString(Props.NETWORK_NAME))) ||
                     (peer.getState() != Peer.State.CONNECTED && !peer.isBlacklisted() && peers.size() > maxNumberOfConnectedPublicPeers)) {
               removePeer(peer);
             }
@@ -493,29 +484,30 @@ public final class Peers {
       }
     }
     private void updateSavedPeers() {
-      Set<String> oldPeers = new HashSet<>(Burst.getDbs().getPeerDb().loadPeers());
+      Set<String> oldPeers = new HashSet<>(Signum.getDbs().getPeerDb().loadPeers());
       Set<String> currentPeers = new HashSet<>();
       for (Peer peer : Peers.peers.values()) {
         if (peer.getAnnouncedAddress() != null
                 && ! peer.isBlacklisted()
                 && ! peer.isWellKnown()
-                && peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))) {
+                && (peer.getNetworkName()==null || peer.getNetworkName().equals(Signum.getPropertyService().getString(Props.NETWORK_NAME)))
+                && peer.isHigherOrEqualVersionThan(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))) {
           currentPeers.add(peer.getAnnouncedAddress());
         }
       }
       Set<String> toDelete = new HashSet<>(oldPeers);
       toDelete.removeAll(currentPeers);
       try {
-        Burst.getStores().beginTransaction();
-        Burst.getDbs().getPeerDb().deletePeers(toDelete);
+        Signum.getStores().beginTransaction();
+        Signum.getDbs().getPeerDb().deletePeers(toDelete);
         currentPeers.removeAll(oldPeers);
-        Burst.getDbs().getPeerDb().addPeers(currentPeers);
-        Burst.getStores().commitTransaction();
+        Signum.getDbs().getPeerDb().addPeers(currentPeers);
+        Signum.getStores().commitTransaction();
       } catch (Exception e) {
-        Burst.getStores().rollbackTransaction();
+        Signum.getStores().rollbackTransaction();
         throw e;
       } finally {
-        Burst.getStores().endTransaction();
+        Signum.getStores().endTransaction();
       }
     }
 
@@ -577,7 +569,8 @@ public final class Peers {
                   && myPeer.getState() == Peer.State.CONNECTED && myPeer.shareAddress()
                   && ! addedAddresses.contains(myPeer.getAnnouncedAddress())
                   && ! myPeer.getAnnouncedAddress().equals(peer.getAnnouncedAddress())
-                  && myPeer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+                  && (peer.getNetworkName()==null || peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))
+                  && myPeer.isHigherOrEqualVersionThan(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
           ) {
             myPeers.add(myPeer.getAnnouncedAddress());
           }
@@ -721,10 +714,6 @@ public final class Peers {
     }
 
     peer = new PeerImpl(peerAddress, announcedPeerAddress);
-    if (Burst.getPropertyService().getBoolean(Props.DEV_TESTNET) && peer.getPort() > 0 && peer.getPort() != Constants.PEER_TESTNET_PORT) {
-      logger.debug("Peer {} on testnet port is not using port {}, ignoring", peerAddress, Constants.PEER_TESTNET_PORT);
-      return null;
-    }
     peers.put(peerAddress, peer);
     if (announcedAddress != null) {
       updateAddress(peer);
@@ -856,7 +845,8 @@ public final class Peers {
   }
 
   private static boolean peerEligibleForSending(Peer peer, boolean sendSameBRSclass) {
-    return peer.isHigherOrEqualVersionThan(Burst.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+    return peer.isHigherOrEqualVersionThan(Signum.getFluxCapacitor().getValue(FluxValues.MIN_PEER_VERSION))
+            && (peer.getNetworkName()==null || peer.getNetworkName().equals(propertyService.getString(Props.NETWORK_NAME)))
             && (! sendSameBRSclass || peer.isAtLeastMyVersion())
             && ! peer.isBlacklisted()
             && peer.getState() == Peer.State.CONNECTED

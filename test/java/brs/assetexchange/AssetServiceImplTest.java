@@ -7,14 +7,15 @@ import brs.Attachment.ColoredCoinsAssetIssuance;
 import brs.Trade;
 import brs.Transaction;
 import brs.common.AbstractUnitTest;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +54,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
   public void getAsset() {
     final long assetId = 123l;
     final Asset mockAsset = mock(Asset.class);
-    final BurstKey assetKeyMock = mock(BurstKey.class);
+    final SignumKey assetKeyMock = mock(SignumKey.class);
 
     when(assetDbKeyFactoryMock.newKey(eq(assetId))).thenReturn(assetKeyMock);
     when(assetTableMock.get(eq(assetKeyMock))).thenReturn(mockAsset);
@@ -63,43 +64,15 @@ public class AssetServiceImplTest extends AbstractUnitTest {
 
   @Test
   public void getAccounts() {
-    final long assetId = 123l;
     final int from = 1;
     final int to = 5;
+    final Asset mockAsset = mock(Asset.class);
 
-    final Collection<AccountAsset> mockAccountAssetIterator = mock(Collection.class);
+    final ArrayList<AccountAsset> mockAccountAssetIterator = new ArrayList<>();
 
-    when(assetAccountServiceMock.getAssetAccounts(eq(assetId), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
+    when(assetAccountServiceMock.getAssetAccounts(eq(mockAsset), eq(false), eq(0L), eq(true), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
 
-    assertEquals(mockAccountAssetIterator, t.getAccounts(assetId, from, to));
-  }
-
-  @Test
-  public void getAccounts_forHeight() {
-    final long assetId = 123l;
-    final int from = 1;
-    final int to = 5;
-    final int height = 3;
-
-    final Collection<AccountAsset> mockAccountAssetIterator = mock(Collection.class);
-
-    when(assetAccountServiceMock.getAssetAccounts(eq(assetId), eq(height), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
-
-    assertEquals(mockAccountAssetIterator, t.getAccounts(assetId, height, from, to));
-  }
-
-  @Test
-  public void getAccounts_forHeight_negativeHeightGivesForZeroHeight() {
-    final long assetId = 123l;
-    final int from = 1;
-    final int to = 5;
-    final int height = -3;
-
-    final Collection<AccountAsset> mockAccountAssetIterator = mock(Collection.class);
-
-    when(assetAccountServiceMock.getAssetAccounts(eq(assetId), eq(from), eq(to))).thenReturn(mockAccountAssetIterator);
-
-    assertEquals(mockAccountAssetIterator, t.getAccounts(assetId, height, from, to));
+    assertEquals(mockAccountAssetIterator, t.getAccounts(mockAsset, false, 0L, true, from, to));
   }
 
   @Test
@@ -161,7 +134,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
 
   @Test
   public void addAsset() {
-    final BurstKey assetKey = mock(BurstKey.class);
+    final SignumKey assetKey = mock(SignumKey.class);
 
     long transactionId = 123L;
 
@@ -173,7 +146,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
     when(transaction.getId()).thenReturn(transactionId);
 
     ColoredCoinsAssetIssuance attachment = mock(ColoredCoinsAssetIssuance.class);
-    t.addAsset(transaction, attachment);
+    t.addAsset(transaction.getId(), transaction.getSenderId(), attachment);
 
     verify(assetTableMock).insert(savedAssetCaptor.capture());
 
@@ -185,7 +158,7 @@ public class AssetServiceImplTest extends AbstractUnitTest {
     assertEquals(transaction.getSenderId(), savedAsset.getAccountId());
     assertEquals(attachment.getName(), savedAsset.getName());
     assertEquals(attachment.getDescription(), savedAsset.getDescription());
-    assertEquals(attachment.getQuantityQNT(), savedAsset.getQuantityQNT());
+    assertEquals(attachment.getQuantityQnt(), savedAsset.getQuantityQnt());
     assertEquals(attachment.getDecimals(), savedAsset.getDecimals());
   }
 }

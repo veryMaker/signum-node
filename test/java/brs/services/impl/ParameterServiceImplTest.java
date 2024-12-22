@@ -1,14 +1,14 @@
 package brs.services.impl;
 
 import brs.*;
-import brs.BurstException.ValidationException;
+import brs.SignumException.ValidationException;
 import brs.assetexchange.AssetExchange;
 import brs.at.AT;
 import brs.common.QuickMocker;
 import brs.common.QuickMocker.MockParam;
 import brs.crypto.Crypto;
 import brs.crypto.EncryptedData;
-import brs.http.ParameterException;
+import brs.web.api.http.common.ParameterException;
 import brs.services.ATService;
 import brs.services.AccountService;
 import brs.services.AliasService;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static brs.common.TestConstants.TEST_SECRET_PHRASE;
-import static brs.http.common.Parameters.*;
+import static brs.web.api.http.common.Parameters.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -58,7 +58,7 @@ public class ParameterServiceImplTest {
   }
 
   @Test
-  public void getAccount() throws BurstException {
+  public void getAccount() throws SignumException {
     final String accountId = "123";
     final Account mockAccount = mock(Account.class);
 
@@ -70,13 +70,13 @@ public class ParameterServiceImplTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void getAccount_MissingAccountWhenNoAccountParameterGiven() throws BurstException {
+  public void getAccount_MissingAccountWhenNoAccountParameterGiven() throws SignumException {
     final HttpServletRequest req = QuickMocker.httpServletRequest();
     t.getAccount(req);
   }
 
   @Test(expected = ParameterException.class)
-  public void getAccount_UnknownAccountWhenIdNotFound() throws BurstException {
+  public void getAccount_UnknownAccountWhenIdNotFound() throws SignumException {
     final String accountId = "123";
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(ACCOUNT_PARAMETER, accountId));
 
@@ -86,7 +86,7 @@ public class ParameterServiceImplTest {
   }
 
   @Test(expected = ParameterException.class)
-  public void getAccount_IncorrectAccountWhenRuntimeExceptionOccurs() throws BurstException {
+  public void getAccount_IncorrectAccountWhenRuntimeExceptionOccurs() throws SignumException {
     final String accountId = "123";
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(ACCOUNT_PARAMETER, accountId));
 
@@ -256,7 +256,7 @@ public class ParameterServiceImplTest {
 
     final HttpServletRequest req = QuickMocker.httpServletRequest(new MockParam(ALIAS_NAME_PARAMETER, "aliasName"));
 
-    when(aliasServiceMock.getAlias(eq("aliasName"))).thenReturn(mockAlias);
+    when(aliasServiceMock.getAlias(eq("aliasName"), eq(0L))).thenReturn(mockAlias);
 
     assertEquals(mockAlias, t.getAlias(req));
   }
@@ -663,7 +663,7 @@ public class ParameterServiceImplTest {
 
   @Test(expected = ParameterException.class)
   public void parseTransaction_transactionJSON_validationExceptionOccurs() throws ParameterException, ValidationException {
-    when(transactionProcessorMock.parseTransaction(any(JsonObject.class))).thenThrow(new BurstException.NotValidException(""));
+    when(transactionProcessorMock.parseTransaction(any(JsonObject.class))).thenThrow(new SignumException.NotValidException(""));
 
     t.parseTransaction(null, "{}");
   }

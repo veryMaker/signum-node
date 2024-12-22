@@ -1,0 +1,232 @@
+{
+  "get": {
+    "summary": "Get All TLDs (Alias)",
+    "description": "Get all the Top Level Domains/Namespaces of the Alias system",
+    "tags": [
+      "alias"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/timestamp.json"
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Top Level Domains",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "tlds"
+              ],
+              "properties": {
+                "tlds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "account",
+                      "accountRS",
+                      "aliasName",
+                      "timestamp",
+                      "alias",
+                      "numberOfAliases"
+                    ],
+                    "properties": {
+                      "account": {
+                        "$ref": "../../schemas/numericId.json"
+                      },
+                      "accountRS": {
+                        "$ref": "../../schemas/rsAddress.json"
+                      },
+                      "aliasName": {
+                        "description": "The name of the TLD (Yes, the field is named aliasName!)",
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9]{1,40}$"
+                      },
+                      "alias": {
+                        "description": "The numeric id of the TLD (Yes, the field is named alias!)",
+                        "type": "string"
+                      },
+                      "numberOfAliases": {
+                        "description": "The number of aliases related to that TLD",
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "$ref": "../../schemas/timestamp.json"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "tlds": [
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "blockchain",
+                  "timestamp": 0,
+                  "alias": "5941719320837453807",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "coin",
+                  "timestamp": 0,
+                  "alias": "12526957665552212403",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "crypto",
+                  "timestamp": 0,
+                  "alias": "4074058944115847130",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "dao",
+                  "timestamp": 0,
+                  "alias": "699790683404338787",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "decentral",
+                  "timestamp": 0,
+                  "alias": "12005900248250106884",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "dex",
+                  "timestamp": 0,
+                  "alias": "17385854207382196125",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "free",
+                  "timestamp": 0,
+                  "alias": "7901595671035483565",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "nft",
+                  "timestamp": 0,
+                  "alias": "15599202549311261624",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "p2p",
+                  "timestamp": 0,
+                  "alias": "2609475261570755481",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "sig",
+                  "timestamp": 0,
+                  "alias": "10963997369201935269",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "signa",
+                  "timestamp": 0,
+                  "alias": "13374426949381780991",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "signum",
+                  "timestamp": 0,
+                  "alias": "0",
+                  "numberOfAliases": 106
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "sns",
+                  "timestamp": 0,
+                  "alias": "12743943395591657648",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "w3",
+                  "timestamp": 0,
+                  "alias": "11075163425996139093",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "wallet",
+                  "timestamp": 0,
+                  "alias": "9708139598126830824",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "web3",
+                  "timestamp": 0,
+                  "alias": "5702099980213511072",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "x",
+                  "timestamp": 0,
+                  "alias": "4949498559009812781",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "y",
+                  "timestamp": 0,
+                  "alias": "9871701508635294881",
+                  "numberOfAliases": 0
+                },
+                {
+                  "account": "0",
+                  "accountRS": "TS-2222-2222-2222-22222",
+                  "aliasName": "z",
+                  "timestamp": 0,
+                  "alias": "3112438024610336345",
+                  "numberOfAliases": 0
+                }
+              ],
+              "requestProcessingTime": 5
+            }
+          }
+        }
+      }
+    }
+  }
+}

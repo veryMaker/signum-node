@@ -10,10 +10,10 @@ import java.util.Properties;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import brs.Burst;
+import brs.Signum;
 
 /**
- * Handle logging for the Burst node server
+ * Handle logging for the Signum node server
  */
 
 public final class LoggerConfigurator {
@@ -37,8 +37,8 @@ public final class LoggerConfigurator {
   public static void init() {
     final String managerPackage = "java.util.logging.manager";
     String oldManager = System.getProperty(managerPackage);
-    System.setProperty(managerPackage, "brs.util.BurstLogManager");
-    if (!(LogManager.getLogManager() instanceof BurstLogManager)) {
+    System.setProperty(managerPackage, "brs.util.SignumLogManager");
+    if (!(LogManager.getLogManager() instanceof SignumLogManager)) {
       System.setProperty(managerPackage,
                          (oldManager != null ? oldManager : "java.util.logging.LogManager"));
     }
@@ -46,13 +46,13 @@ public final class LoggerConfigurator {
       try {
         boolean foundProperties = false;
         Properties loggingProperties = new Properties();
-        try (InputStream is = new FileInputStream(new File(Burst.CONF_FOLDER, "logging-default.properties"))) {
+        try (InputStream is = new FileInputStream(new File(Signum.CONF_FOLDER, "logging-default.properties"))) {
           if (is != null) {
             loggingProperties.load(is);
             foundProperties = true;
           }
         }
-        try (InputStream is = new FileInputStream(new File(Burst.CONF_FOLDER, "logging.properties"))) {
+        try (InputStream is = new FileInputStream(new File(Signum.CONF_FOLDER, "logging.properties"))) {
           if (is != null) {
             loggingProperties.load(is);
             foundProperties = true;
@@ -83,8 +83,8 @@ public final class LoggerConfigurator {
    * LoggerConfigurator shutdown
    */
   public static void shutdown() {
-    if (LogManager.getLogManager() instanceof BurstLogManager) {
-      ((BurstLogManager) LogManager.getLogManager()).burstShutdown();
+    if (LogManager.getLogManager() instanceof SignumLogManager) {
+      ((SignumLogManager) LogManager.getLogManager()).signumShutdown();
     }
   }
 }

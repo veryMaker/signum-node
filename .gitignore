@@ -1,11 +1,12 @@
 /*.iml
 /dist
+/tmp
+/temp
 .idea
-burst.jar
-brs.log
-brs.log.*
+*.log
 /conf/logging.properties
 /conf/brs.properties
+/conf/node.properties
 _config.yml
 /html/ui/doc/*
 /html/ui/phoenix/*
@@ -14,4 +15,19 @@ target
 .project
 .classpath
 /burst_db/*
+/db/*
 /conf-tests/
+*.zip
+*.jar
+*.hprof
+
+#ignore everything in here by default, but settings.json is already committed
+#and so will remain tracked
+**/.vscode
+
+/.gradle/
+/build/
+/bin/
+launch.json
+*.pem
+*.p12

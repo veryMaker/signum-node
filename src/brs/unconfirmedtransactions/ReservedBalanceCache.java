@@ -1,10 +1,10 @@
 package brs.unconfirmedtransactions;
 
 import brs.Account;
-import brs.Burst;
-import brs.BurstException;
+import brs.Signum;
+import brs.SignumException;
 import brs.Constants;
-import brs.BurstException.ValidationException;
+import brs.SignumException.ValidationException;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.Attachment.CommitmentRemove;
@@ -32,16 +32,17 @@ class ReservedBalanceCache {
     this.reservedBalanceCache = new HashMap<>();
   }
 
-  void reserveBalanceAndPut(Transaction transaction) throws BurstException.ValidationException {
+  void reserveBalanceAndPut(Transaction transaction) throws SignumException.ValidationException {
     Account senderAccount = null;
 
     if (transaction.getSenderId() != 0) {
       senderAccount = accountStore.getAccountTable().get(accountStore.getAccountKeyFactory().newKey(transaction.getSenderId()));
     }
 
+    final long thisTransactionAmountNQT = transaction.getType().calculateTotalAmountNQT(transaction);
     final Long amountNQT = Convert.safeAdd(
         reservedBalanceCache.getOrDefault(transaction.getSenderId(), 0L),
-        transaction.getType().calculateTotalAmountNQT(transaction)
+        thisTransactionAmountNQT
     );
 
     if (senderAccount == null) {
@@ -49,29 +50,30 @@ class ReservedBalanceCache {
         LOGGER.info(String.format("Transaction %d: Account %d does not exist and has no balance. Required funds: %d", transaction.getId(), transaction.getSenderId(), amountNQT));
       }
 
-      throw new BurstException.NotCurrentlyValidException("Account unknown");
+      throw new SignumException.NotCurrentlyValidException("Account unknown");
     }
 
-    if ( amountNQT > senderAccount.getUnconfirmedBalanceNQT() ) {
+    if ( amountNQT > senderAccount.getUnconfirmedBalanceNqt() ) {
       if (LOGGER.isInfoEnabled()) {
-        LOGGER.debug(String.format("Transaction %d: Account %d balance too low. You have  %d > %d Balance", transaction.getId(), transaction.getSenderId(), amountNQT, senderAccount.getUnconfirmedBalanceNQT()));
+        LOGGER.info("Transaction {} for {}: account {} balance too low. Total required {} > {} balance",
+                Convert.toUnsignedLong(transaction.getId()), thisTransactionAmountNQT, Convert.toUnsignedLong(transaction.getSenderId()), amountNQT, senderAccount.getUnconfirmedBalanceNqt());
       }
-      throw new BurstException.NotCurrentlyValidException("Insufficient funds");
+      throw new SignumException.NotCurrentlyValidException("Insufficient funds");
     }
 
-    if(transaction.getType() == TransactionType.BurstMining.COMMITMENT_REMOVE) {
+    if(transaction.getType() == TransactionType.SignaMining.COMMITMENT_REMOVE) {
       CommitmentRemove commitmentRemove = (CommitmentRemove) transaction.getAttachment();
-      long totalAmountNQT = commitmentRemove.getAmountNQT();
+      long totalAmountNQT = commitmentRemove.getAmountNqt();
 
-      Blockchain blockchain = Burst.getBlockchain();
-      int nBlocksMined = blockchain.getBlocksCount(senderAccount, blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
-      long amountCommitted = blockchain.getCommittedAmount(senderAccount, blockchain.getHeight(), blockchain.getHeight(), transaction);
+      Blockchain blockchain = Signum.getBlockchain();
+      int nBlocksMined = blockchain.getBlocksCount(senderAccount.getId(), blockchain.getHeight() - Constants.MAX_ROLLBACK, blockchain.getHeight());
+      long amountCommitted = blockchain.getCommittedAmount(senderAccount.getId(), blockchain.getHeight(), blockchain.getHeight(), transaction);
       if (nBlocksMined > 0 || amountCommitted < totalAmountNQT ) {
         if (LOGGER.isInfoEnabled()) {
           LOGGER.debug("Transaction {}: Account {} commitment remove not allowed. Blocks mined {}, amount commitment {}, amount removing {}",
               transaction.getId(), transaction.getSenderId(), nBlocksMined, amountCommitted, totalAmountNQT);
         }
-        throw new BurstException.NotCurrentlyValidException("Commitment remove not allowed");        
+        throw new SignumException.NotCurrentlyValidException("Commitment remove not allowed");        
       }
     }
 

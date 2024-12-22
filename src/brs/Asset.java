@@ -1,59 +1,109 @@
 package brs;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
+import java.util.Collection;
+
+//TODO: Create JavaDocs and remove this
+@SuppressWarnings({ "checkstyle:MissingJavadocTypeCheck", "checkstyle:MissingJavadocMethodCheck" })
 
 public class Asset {
+    private final long assetId;
+    public final SignumKey dbKey;
+    private final long issuerId;
+    private long accountId;
+    private final String name;
+    private final String description;
+    private final long quantityQnt;
+    private final byte decimals;
+    private final boolean mintable;
 
-  private final long assetId;
-  public final BurstKey dbKey;
-  private final long accountId;
-  private final String name;
-  private final String description;
-  private final long quantityQNT;
-  private final byte decimals;
+    protected Asset(long assetId,
+            SignumKey dbKey,
+            long accountId,
+            String name,
+            String description,
+            long quantityQnt,
+            byte decimals,
+            boolean mintable) {
+        this.assetId = assetId;
+        this.dbKey = dbKey;
+        this.accountId = accountId;
+        this.issuerId = accountId;
+        this.name = name;
+        this.description = description;
+        this.quantityQnt = quantityQnt;
+        this.decimals = decimals;
+        this.mintable = mintable;
+    }
 
-  protected Asset(long assetId, BurstKey dbKey, long accountId, String name, String description, long quantityQNT, byte decimals) {
-    this.assetId = assetId;
-    this.dbKey = dbKey;
-    this.accountId = accountId;
-    this.name = name;
-    this.description = description;
-    this.quantityQNT = quantityQNT;
-    this.decimals = decimals;
-  }
+    public Asset(
+            SignumKey dbKey,
+            long assetId,
+            long accountId,
+            Attachment.ColoredCoinsAssetIssuance attachment) {
+        this.dbKey = dbKey;
+        this.assetId = assetId;
+        this.accountId = accountId;
+        this.issuerId = accountId;
+        this.name = attachment.getName();
+        this.description = attachment.getDescription();
+        this.quantityQnt = attachment.getQuantityQnt();
+        this.decimals = attachment.getDecimals();
+        this.mintable = attachment.getMintable();
+    }
 
-  public Asset(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsAssetIssuance attachment) {
-    this.dbKey = dbKey;
-    this.assetId = transaction.getId();
-    this.accountId = transaction.getSenderId();
-    this.name = attachment.getName();
-    this.description = attachment.getDescription();
-    this.quantityQNT = attachment.getQuantityQNT();
-    this.decimals = attachment.getDecimals();
-  }
+    public void updateCurrentOwnerAccount() {
+        Blockchain blockchain = Signum.getBlockchain();
 
-  public long getId() {
-    return assetId;
-  }
+        Transaction issuanceTransaction = blockchain.getTransaction(assetId);
+        if (issuanceTransaction == null) {
+            // no issuance tx for smart contract issued assets
+            return;
+        }
+        Collection<Transaction> txs = blockchain.getTransactionsWithFullHashReference(
+                issuanceTransaction.getFullHash(),
+                1,
+                TransactionType.TYPE_COLORED_COINS.getType(),
+                TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP,
+                TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP,
+                0,
+                1);
 
-  public long getAccountId() {
-    return accountId;
-  }
+        if (txs.size() > 0) {
+            this.accountId = txs.iterator().next().getRecipientId();
+        }
+    }
 
-  public String getName() {
-    return name;
-  }
+    public long getId() {
+        return assetId;
+    }
 
-  public String getDescription() {
-    return description;
-  }
+    public long getAccountId() {
+        return accountId;
+    }
 
-  public long getQuantityQNT() {
-    return quantityQNT;
-  }
+    public long getIssuerId() {
+        return issuerId;
+    }
 
-  public byte getDecimals() {
-    return decimals;
-  }
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public long getQuantityQnt() {
+        return quantityQnt;
+    }
+
+    public byte getDecimals() {
+        return decimals;
+    }
+
+    public boolean getMintable() {
+        return mintable;
+    }
 
 }

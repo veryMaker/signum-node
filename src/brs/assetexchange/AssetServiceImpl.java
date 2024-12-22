@@ -2,10 +2,12 @@ package brs.assetexchange;
 
 import brs.Account.AccountAsset;
 import brs.*;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetStore;
+import brs.util.CollectionWithIndex;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 class AssetServiceImpl {
@@ -17,7 +19,7 @@ class AssetServiceImpl {
 
   private final EntitySqlTable<Asset> assetTable;
 
-  private final BurstKey.LongKeyFactory<Asset> assetDbKeyFactory;
+  private final SignumKey.LongKeyFactory<Asset> assetDbKeyFactory;
 
   public AssetServiceImpl(AssetAccountServiceImpl assetAccountService, TradeServiceImpl tradeService, AssetStore assetStore, AssetTransferServiceImpl assetTransferService) {
     this.assetAccountService = assetAccountService;
@@ -29,18 +31,15 @@ class AssetServiceImpl {
   }
 
   public Asset getAsset(long id) {
-    return assetTable.get(assetDbKeyFactory.newKey(id));
-  }
-
-  public Collection<AccountAsset> getAccounts(long assetId, int from, int to) {
-    return assetAccountService.getAssetAccounts(assetId, from, to);
-  }
-
-  public Collection<AccountAsset> getAccounts(long assetId, int height, int from, int to) {
-    if (height < 0) {
-      return getAccounts(assetId, from, to);
+    Asset asset = assetTable.get(assetDbKeyFactory.newKey(id));
+    if(asset != null){
+      asset.updateCurrentOwnerAccount();
     }
-    return assetAccountService.getAssetAccounts(assetId, height, from, to);
+    return asset;
+  }
+
+  public Collection<AccountAsset> getAccounts(Asset asset, boolean filterIgnored, long minimumQuantity, boolean unconfirmed, int from, int to) {
+    return assetAccountService.getAssetAccounts(asset, filterIgnored, minimumQuantity, unconfirmed, from, to);
   }
 
   public Collection<Trade> getTrades(long assetId, int from, int to) {
@@ -55,17 +54,61 @@ class AssetServiceImpl {
     return assetTable.getAll(from, to);
   }
 
+  public Collection<Asset> getAssetsByName(String name, int from, int to) {
+    return assetStore.getAssetsByName(name, from, to);
+  }
+
   public Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to) {
-    return assetStore.getAssetsIssuedBy(accountId, from, to);
+    Collection<Asset> assets = assetStore.getAssetsIssuedBy(accountId, from, to);
+    for(Asset asset : assets) {
+      asset.updateCurrentOwnerAccount();
+    }
+    return assets;
+  }
+  
+  public CollectionWithIndex<Asset> getAssetsOwnedBy(long accountId, int from, int to) {
+    Collection<Asset> assetsIssued = assetStore.getAssetsIssuedBy(accountId, from, to);
+    ArrayList<Asset> assetsOwned = new ArrayList<>();
+    for(Asset asset : assetsIssued) {
+      asset.updateCurrentOwnerAccount();
+      if(asset.getAccountId() == accountId) {
+        assetsOwned.add(asset);
+      }
+    }
+    
+    int nextIndex = assetsIssued.size() == to-from+1 ? to+1 : -1;
+    
+    if(nextIndex < 0) {
+      // now check for ownership transfers
+      Blockchain blockchain = Signum.getBlockchain();
+      int remainingSize = from - to - assetsIssued.size();
+
+      Collection<Long> txIds = blockchain.getTransactionIds(null, accountId, 0, 
+        TransactionType.TYPE_COLORED_COINS.getType(), TransactionType.SUBTYPE_COLORED_COINS_TRANSFER_OWNERSHIP, 0,
+        0, remainingSize, false);
+      for(Long txId : txIds) {
+        Transaction tx = blockchain.getTransaction(txId);
+        Transaction assetIssuance = blockchain.getTransactionByFullHash(tx.getReferencedTransactionFullHash());
+        Asset asset = getAsset(assetIssuance.getId());
+        asset.updateCurrentOwnerAccount();
+        if(asset.getAccountId() == accountId) {
+          assetsOwned.add(asset);
+        }
+      }
+      
+      nextIndex = (assetsIssued.size() + txIds.size()) == to-from+1 ? to+1 : -1;
+    }
+    
+    return new CollectionWithIndex<>(assetsOwned, nextIndex);
   }
 
   public int getAssetsCount() {
     return assetTable.getCount();
   }
 
-  public void addAsset(Transaction transaction, Attachment.ColoredCoinsAssetIssuance attachment) {
-    final BurstKey dbKey = assetDbKeyFactory.newKey(transaction.getId());
-    assetTable.insert(new Asset(dbKey, transaction, attachment));
+  public void addAsset(long assetId, long senderId, Attachment.ColoredCoinsAssetIssuance attachment) {
+    final SignumKey dbKey = assetDbKeyFactory.newKey(assetId);
+    assetTable.insert(new Asset(dbKey, assetId, senderId, attachment));
   }
 
 }

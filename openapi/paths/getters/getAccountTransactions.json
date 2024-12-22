@@ -1,0 +1,133 @@
+{
+  "get": {
+    "summary": "Get Account Transactions",
+    "description": "Get account transactions",
+    "tags": [
+      "payment",
+      "alias",
+      "contract",
+      "token",
+      "account",
+      "mining"
+    ],
+    "parameters": [
+      {
+        "name": "account",
+        "in": "query",
+        "allowEmptyValue": true,
+        "description": "The account identifier. It is only required when `sender` and `recipient` are not provided.",
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "sender",
+        "description": "The senders identifier for wanted transactions.<br/>When used `sender` the `account` parameter is ignored. Together with this parameter, the `bidirectional` parameter applies.",
+        "in": "query",
+        "allowEmptyValue": true,
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "name": "recipient",
+        "description": "The recipient identifier for wanted transactions.<br/>When used `recipient` the `account` parameter is ignored. Together with this parameter, the `bidirectional` parameter applies.",
+        "in": "query",
+        "allowEmptyValue": true,
+        "schema": {
+          "$ref": "../../schemas/address.json"
+        }
+      },
+      {
+        "$ref": "../../parameters/timestamp.json"
+      },
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      },
+      {
+        "name": "type",
+        "description": "The primary type of wanted transactions. This allows to filter by transaction types.<br/>See [Transaction Types](https://docs.signum.network/signum/transaction-types) and or [Get Blockchain Parameters](#get-/api-requestType-getConstants)",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "subtype",
+        "description": "The secondary type of wanted transactions. This allows to filter by transaction types.<br/>See [Transaction Types](https://docs.signum.network/signum/transaction-types) and or [Get Blockchain Parameters](#get-/api-requestType-getConstants)",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "numberOfConfirmations",
+        "description": "The minimum number of confirmations for wanted transactions.",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "includeIndirect",
+        "description": "When set true, multiple payment transactions are returned also.",
+        "in": "query",
+        "schema": {
+          "type": "boolean",
+          "default": false,
+          "example": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "name": "bidirectional",
+        "description": "When set true, all transactions between `sender` and `recipient` are returned. When set false, only transactions from `sender` and optionally to `recipient` are returned. This applies only if either `sender` and/or `recipient` are provided.",
+        "in": "query",
+        "schema": {
+          "type": "boolean",
+          "default": false,
+          "example": [
+            true,
+            false
+          ]
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Transaction List Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "A list of transactions.<br/>__Note__: For performance/stability reasons a node returns at maximum 500 items. All transaction query methods offer `firstIndex` and `lastIndex` to paginate through the transaction.",
+              "required": [
+                "transactions"
+              ],
+              "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+                "transactions" : {
+                  "type":"array",
+                  "items": {
+                    "$ref": "../../schemas/transaction.json"
+                  },
+                  "maxLength": 500
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

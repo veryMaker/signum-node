@@ -32,9 +32,9 @@ public class ATServiceImplTest {
   public void getAllATIds() {
     final Collection<Long> mockATCollection = mock(Collection.class);
 
-    when(mockATStore.getAllATIds()).thenReturn(mockATCollection);
+    when(mockATStore.getAllATIds(eq(null))).thenReturn(mockATCollection);
 
-    assertEquals(mockATCollection, t.getAllATIds());
+    assertEquals(mockATCollection, t.getAllATIds(null));
   }
 
   @SuppressWarnings("unchecked")
@@ -44,9 +44,9 @@ public class ATServiceImplTest {
 
     final List<Long> mockATsIssuedByAccount = mock(List.class);
 
-    when(mockATStore.getATsIssuedBy(eq(accountId))).thenReturn(mockATsIssuedByAccount);
+    when(mockATStore.getATsIssuedBy(eq(accountId), eq(null), eq(0), eq(499))).thenReturn(mockATsIssuedByAccount);
 
-    assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId));
+    assertEquals(mockATsIssuedByAccount, t.getATsIssuedBy(accountId, null, 0, 499).getCollection());
   }
 
   @Test

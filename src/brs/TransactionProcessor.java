@@ -27,13 +27,13 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
 
   void clearUnconfirmedTransactions();
 
-  Integer broadcast(Transaction transaction) throws BurstException.ValidationException;
+  Integer broadcast(Transaction transaction) throws SignumException.ValidationException;
 
-  void processPeerTransactions(JsonObject request, Peer peer) throws BurstException.ValidationException;
+  void processPeerTransactions(JsonObject request, Peer peer) throws SignumException.ValidationException;
 
-  Transaction parseTransaction(byte[] bytes) throws BurstException.ValidationException;
+  Transaction parseTransaction(byte[] bytes) throws SignumException.ValidationException;
 
-  Transaction parseTransaction(JsonObject json) throws BurstException.ValidationException;
+  Transaction parseTransaction(JsonObject json) throws SignumException.ValidationException;
 
   Transaction.Builder newTransactionBuilder(byte[] senderPublicKey, long amountNQT, long feeNQT, short deadline, Attachment attachment);
 

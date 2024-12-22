@@ -1,0 +1,173 @@
+{
+  "type": "object",
+  "required": [
+    "account",
+    "accountRS",
+    "issuer",
+    "issuerRS",
+    "publicKey",
+    "name",
+    "description",
+    "decimals",
+    "mintable",
+    "quantityQNT",
+    "quantityBurntQNT",
+    "quantityCirculatingQNT",
+    "asset",
+    "numberOfTrades",
+    "numberOfTransfers",
+    "numberOfAccounts",
+    "volumeQNT",
+    "priceHigh",
+    "priceLow",
+    "priceOpen",
+    "priceClose"
+  ],
+  "properties": {
+    "asset": {
+      "$ref": "./assetId.json"
+    },
+    "account": {
+      "$ref": "./numericId.json"
+    },
+    "accountRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "issuer": {
+      "$ref": "./numericId.json"
+    },
+    "issuerRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "publicKey": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "The public key of the issuer. That way we can determine if the token was issued by a human or smart contract, i.e. key consists of zeroes only.",
+      "example": [
+        "6e1a0abea0cbacdc8c77a7de2868360d3e667b276a2f32bb847579d126d63e78",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "name": {
+      "$ref": "./assetName.json"
+    },
+    "description": {
+      "type": "integer",
+      "description": "The description"
+    },
+    "decimals": {
+      "type": "integer",
+      "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "mintable": {
+      "type": "boolean",
+      "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
+      "example": [
+        true,
+        false
+      ]
+    },
+    "quantityQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The total quantity (maximum supply) expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "quantityCirculatingQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The __circulating__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "quantityBurntQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The __burnt__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "numberOfTrades": {
+      "type": "integer",
+      "description": "Total number of trades"
+    },
+    "numberOfTransfers": {
+      "type": "integer",
+      "description": "Total number of transfers"
+    },
+    "numberOfAccounts": {
+      "type": "integer",
+      "description": "Total number of accounts owning this token"
+    },
+    "volumeQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The traded volume quantity for the given period expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceHigh": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The highest price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceLow": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The lowest price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceOpen": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The opening (first) price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceClose": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The closing (last) price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    }
+  },
+  "example": {
+    "account": "16357368130745732388",
+    "accountRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+    "issuer": "16357368130745732388",
+    "issuerRS": "TS-C5B6-NTGQ-KTLB-GDA28",
+    "publicKey": "42a9845e8d684ba0eb3591de28335667a5580ca394543ee097286c8adff6fd58",
+    "name": "TTH",
+    "description": "This is test token is test net",
+    "decimals": 8,
+    "mintable": false,
+    "quantityQNT": "10000000000000",
+    "quantityBurntQNT": "0",
+    "asset": "914948012239561046",
+    "quantityCirculatingQNT": "10000000000000",
+    "numberOfTrades": 10,
+    "numberOfTransfers": 1,
+    "numberOfAccounts": 3,
+    "volumeQNT": "0",
+    "priceHigh": "0",
+    "priceLow": "0",
+    "priceOpen": "0",
+    "priceClose": "0",
+    "requestProcessingTime": 109
+  }
+}

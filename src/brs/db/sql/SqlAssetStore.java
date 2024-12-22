@@ -1,23 +1,27 @@
 package brs.db.sql;
 
 import brs.Asset;
-import brs.Burst;
-import brs.db.BurstKey;
+import brs.Signum;
+import brs.db.SignumKey;
 import brs.db.store.AssetStore;
 import brs.db.store.DerivedTableManager;
+import brs.schema.tables.records.AssetRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.SelectQuery;
+import org.jooq.impl.DSL;
 
 import java.util.Collection;
 
-import static brs.schema.tables.Asset.ASSET;
+import static brs.schema.Tables.ASSET;
 
 public class SqlAssetStore implements AssetStore {
 
-  private final BurstKey.LongKeyFactory<Asset> assetDbKeyFactory = new DbKey.LongKeyFactory<Asset>(ASSET.ID) {
+  private final SignumKey.LongKeyFactory<Asset> assetDbKeyFactory = new DbKey.LongKeyFactory<Asset>(ASSET.ID) {
 
       @Override
-      public BurstKey newKey(Asset asset) {
+      public SignumKey newKey(Asset asset) {
         return asset.dbKey;
       }
 
@@ -45,13 +49,14 @@ public class SqlAssetStore implements AssetStore {
       set(ASSET.ACCOUNT_ID, asset.getAccountId()).
       set(ASSET.NAME, asset.getName()).
       set(ASSET.DESCRIPTION, asset.getDescription()).
-      set(ASSET.QUANTITY, asset.getQuantityQNT()).
+      set(ASSET.QUANTITY, asset.getQuantityQnt()).
       set(ASSET.DECIMALS, asset.getDecimals()).
-      set(ASSET.HEIGHT, Burst.getBlockchain().getHeight()).execute();
+      set(ASSET.MINTABLE, asset.getMintable()).
+      set(ASSET.HEIGHT, Signum.getBlockchain().getHeight()).execute();
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Asset> getAssetDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Asset> getAssetDbKeyFactory() {
     return assetDbKeyFactory;
   }
 
@@ -65,6 +70,28 @@ public class SqlAssetStore implements AssetStore {
     return assetTable.getManyBy(ASSET.ACCOUNT_ID.eq(accountId), from, to);
   }
 
+  @Override
+  public Asset getAsset(long assetId) {
+    return assetTable.getBy(ASSET.ID.eq(assetId));
+  }
+  
+  @Override
+  public Collection<Asset> getAssetsByName(String name, int from, int to){
+    return Db.useDSLContext(ctx -> {
+      SelectQuery<AssetRecord> query = ctx.selectFrom(ASSET).where(DSL.upper(ASSET.NAME).like("%"+name.toUpperCase()+"%")).getQuery();
+      query.addOrderBy(ASSET.HEIGHT.asc(), ASSET.ID);
+      DbUtils.applyLimits(query, from, to);
+          
+      return getAssets(ctx, query.fetch());
+    });
+  }
+  
+  public Collection<Asset> getAssets(DSLContext ctx, Result<AssetRecord> rs) {
+      return rs.map(r -> {
+        return new SqlAsset(r);
+      });
+  }
+
   private class SqlAsset extends Asset {
 
     private SqlAsset(Record record) {
@@ -74,7 +101,8 @@ public class SqlAssetStore implements AssetStore {
             record.get(ASSET.NAME),
             record.get(ASSET.DESCRIPTION),
             record.get(ASSET.QUANTITY),
-            record.get(ASSET.DECIMALS)
+            record.get(ASSET.DECIMALS),
+            record.get(ASSET.MINTABLE)
             );
     }
   }

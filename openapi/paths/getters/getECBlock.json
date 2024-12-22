@@ -1,0 +1,36 @@
+{
+  "get": {
+    "summary": "Get EC Block (Economic Clustering)",
+    "description": "Get the reference for the block of an _economic cluster_ (EC) \uD83E\uDD37",
+    "tags": [
+      "network"
+    ],
+    "parameters": [
+      {
+        "name": "timestamp",
+        "in": "query",
+        "description": "The timestamp from which should be searched. It cannot be much in the past (about 15 seconds according the code)",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+
+    ],
+    "responses": {
+      "200": {
+        "description": "The EC Block Reference",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/ecblock.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

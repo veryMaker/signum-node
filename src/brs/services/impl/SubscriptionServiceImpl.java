@@ -1,9 +1,10 @@
 package brs.services.impl;
 
 import brs.*;
-import brs.BurstException.NotValidException;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.Alias.Offer;
+import brs.SignumException.NotValidException;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.db.store.SubscriptionStore;
@@ -15,8 +16,12 @@ import brs.util.Convert;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SubscriptionServiceImpl implements SubscriptionService {
 
+  private final Logger logger = LoggerFactory.getLogger(SubscriptionServiceImpl.class);
   private final SubscriptionStore subscriptionStore;
   private final VersionedEntityTable<Subscription> subscriptionTable;
   private final LongKeyFactory<Subscription> subscriptionDbKeyFactory;
@@ -57,21 +62,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   @Override
-  public void addSubscription(Account sender, Account recipient, Long id, Long amountNQT, int startTimestamp, int frequency) {
-    final BurstKey dbKey = subscriptionDbKeyFactory.newKey(id);
-    final Subscription subscription = new Subscription(sender.getId(), recipient.getId(), id, amountNQT, frequency, startTimestamp + frequency, dbKey);
+  public void addSubscription(Account sender, long recipientId, Long id, Long amountNQT, int startTimestamp, int frequency) {
+    final SignumKey dbKey = subscriptionDbKeyFactory.newKey(id);
+    final Subscription subscription = new Subscription(sender.getId(), recipientId, id, amountNQT, frequency, startTimestamp + frequency, dbKey);
 
     subscriptionTable.insert(subscription);
   }
 
   @Override
   public boolean isEnabled() {
-    if (blockchain.getLastBlock().getHeight() >= Constants.BURST_SUBSCRIPTION_START_BLOCK) {
+    if (blockchain.getLastBlock().getHeight() >= Constants.SIGNUM_SUBSCRIPTION_START_BLOCK) {
       return true;
     }
 
-    final Alias subscriptionEnabled = aliasService.getAlias("featuresubscription");
-    return subscriptionEnabled != null && subscriptionEnabled.getAliasURI().equals("enabled");
+    final Alias subscriptionEnabled = aliasService.getAlias("featuresubscription", 0L);
+    return subscriptionEnabled != null && subscriptionEnabled.getAliasUri().equals("enabled");
   }
 
   @Override
@@ -79,24 +84,40 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     paymentTransactions.clear();
     for (Subscription subscription : appliedSubscriptions) {
       apply(block, blockchainHeight, subscription);
-      subscriptionTable.insert(subscription);
     }
+    subscriptionStore.saveSubscriptions(appliedSubscriptions);
+
     if (! paymentTransactions.isEmpty()) {
       transactionDb.saveTransactions(paymentTransactions);
     }
     removeSubscriptions.forEach(this::removeSubscription);
+    if(logger.isDebugEnabled()) {
+      if(appliedSubscriptions.size() > 0 || removeSubscriptions.size() > 0) {
+        logger.debug("Subscriptions: applied {}, removed {}", appliedSubscriptions.size(), removeSubscriptions.size());
+      }
+    }
   }
 
   private long getFee(int height) {
-	if (Burst.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
-	  return Constants.FEE_QUANT;
-    return Constants.ONE_BURST;
+	if (Signum.getFluxCapacitor().getValue(FluxValues.SODIUM, height))
+	  return Signum.getFluxCapacitor().getValue(FluxValues.FEE_QUANT, height);
+    return Constants.ONE_SIGNA;
   }
 
   @Override
   public void removeSubscription(Long id) {
     Subscription subscription = subscriptionTable.get(subscriptionDbKeyFactory.newKey(id));
     if (subscription != null) {
+      if(subscription.getRecipientId()!=0L) {
+        Alias alias = aliasService.getAlias(subscription.getRecipientId());
+        if(alias != null && alias.getId() == subscription.getId()) {
+          Offer offer = aliasService.getOffer(alias);
+          if(offer != null) {
+            Signum.getStores().getAliasStore().getOfferTable().delete(offer);
+          }
+          Signum.getStores().getAliasStore().getAliasTable().delete(alias);
+        }
+      }
       subscriptionTable.delete(subscription);
     }
   }
@@ -149,12 +170,28 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
     return totalFees;
   }
+  
+  private Account getSender(Subscription subscription) {
+    return accountService.getAccount(subscription.getSenderId());
+  }
+
+  private Account getRecipient(Subscription subscription) {
+    if(Signum.getFluxCapacitor().getValue(FluxValues.SMART_ALIASES)) {
+      Alias alias = aliasService.getAlias(subscription.getRecipientId());
+      if(alias != null) {
+        Alias tld = aliasService.getTLD(alias.getTld());
+        return accountService.getOrAddAccount(tld.getAccountId());
+      }
+    }
+    return accountService.getOrAddAccount(subscription.getRecipientId());
+  }
 
   private boolean applyUnconfirmed(Subscription subscription, int height) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
+    Account sender = getSender(subscription);
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
-    if (sender == null || sender.getUnconfirmedBalanceNQT() < totalAmountNQT) {
+    Account.Balance senderBalance = sender == null ? null : Account.getAccountBalance(sender.getId());
+    if (sender == null || senderBalance.getUnconfirmedBalanceNqt() < totalAmountNQT) {
       return false;
     }
 
@@ -164,7 +201,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private void undoUnconfirmed(Subscription subscription, int height) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
+    Account sender = getSender(subscription);
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(height));
 
     if (sender != null) {
@@ -173,8 +210,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   }
 
   private void apply(Block block, int blockchainHeight, Subscription subscription) {
-    Account sender = accountService.getAccount(subscription.getSenderId());
-    Account recipient = accountService.getAccount(subscription.getRecipientId());
+    Account sender = getSender(subscription);
+    Account recipient = getRecipient(subscription);
 
     long totalAmountNQT = Convert.safeAdd(subscription.getAmountNQT(), getFee(block.getHeight()));
 
@@ -188,8 +225,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.getTimeNext(), (short) 1440, attachment);
 
     try {
-      builder.senderId(subscription.getSenderId())
-          .recipientId(subscription.getRecipientId())
+      builder.senderId(sender.getId())
+          .recipientId(recipient.getId())
           .blockId(block.getId())
           .height(block.getHeight())
           .blockTimestamp(block.getTimestamp())

@@ -5,18 +5,17 @@ import brs.Asset;
 import brs.AssetTransfer;
 import brs.Attachment.ColoredCoinsAskOrderPlacement;
 import brs.Attachment.ColoredCoinsAssetIssuance;
-import brs.Attachment.ColoredCoinsAssetTransfer;
 import brs.Attachment.ColoredCoinsBidOrderPlacement;
 import brs.Order.Ask;
 import brs.Order.Bid;
+import brs.Order.OrderJournal;
 import brs.Trade;
 import brs.Trade.Event;
 import brs.Transaction;
 import brs.db.store.*;
 import brs.services.AccountService;
+import brs.util.CollectionWithIndex;
 import brs.util.Listener;
-
-import java.util.Collection;
 
 public class AssetExchangeImpl implements AssetExchange {
 
@@ -36,8 +35,13 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public Collection<Asset> getAllAssets(int from, int to) {
-    return assetService.getAllAssets(from, to);
+  public CollectionWithIndex<Asset> getAllAssets(int from, int to) {
+    return new CollectionWithIndex<Asset>(assetService.getAllAssets(from, to), from, to);
+  }
+  
+  @Override
+  public CollectionWithIndex<Asset> getAssetsByName(String name, int from, int to) {
+    return new CollectionWithIndex<Asset>(assetService.getAssetsByName(name, from, to), from, to);
   }
 
   @Override
@@ -56,8 +60,13 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public int getAssetAccountsCount(long assetId) {
-    return assetAccountService.getAssetAccountsCount(assetId);
+  public int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury, boolean unconfirmed) {
+    return assetAccountService.getAssetAccountsCount(asset, minimumQuantity, ignoreTreasury, unconfirmed);
+  }
+
+  @Override
+  public long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury, boolean unconfirmed) {
+    return assetAccountService.getAssetCirculatingSupply(asset, ignoreTreasury, unconfirmed);
   }
 
   @Override
@@ -71,13 +80,13 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public void addAsset(Transaction transaction, ColoredCoinsAssetIssuance attachment) {
-    assetService.addAsset(transaction, attachment);
+  public void addAsset(long assetId, long accountId, ColoredCoinsAssetIssuance attachment) {
+    assetService.addAsset(assetId, accountId, attachment);
   }
 
   @Override
-  public void addAssetTransfer(Transaction transaction, ColoredCoinsAssetTransfer attachment) {
-    assetTransferService.addAssetTransfer(transaction, attachment);
+  public void addAssetTransfer(Transaction transaction, long assetId, long quantityQNT) {
+    assetTransferService.addAssetTransfer(transaction, assetId, quantityQNT);
   }
 
   @Override
@@ -106,23 +115,28 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public Collection<Trade> getAllTrades(int from, int to) {
-    return tradeService.getAllTrades(from, to);
+  public CollectionWithIndex<Trade> getAllTrades(int from, int to) {
+    return new CollectionWithIndex<Trade>(tradeService.getAllTrades(from, to), from, to);
   }
 
   @Override
-  public Collection<Trade> getTrades(long assetId, int from, int to) {
-    return assetService.getTrades(assetId, from, to);
+  public CollectionWithIndex<Trade> getTrades(long assetId, int from, int to) {
+    return new CollectionWithIndex<Trade>(assetService.getTrades(assetId, from, to), from, to);
   }
 
   @Override
-  public Collection<Trade> getAccountTrades(long id, int from, int to) {
-    return tradeService.getAccountTrades(id, from, to);
+  public CollectionWithIndex<Trade> getAccountTrades(long id, int from, int to) {
+    return new CollectionWithIndex<Trade>(tradeService.getAccountTrades(id, from, to), from, to);
   }
 
   @Override
-  public Collection<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to) {
-    return tradeService.getAccountAssetTrades(accountId, assetId, from, to);
+  public CollectionWithIndex<Trade> getAccountAssetTrades(long accountId, long assetId, int from, int to) {
+    return new CollectionWithIndex<Trade>(tradeService.getAccountAssetTrades(accountId, assetId, from, to), from, to);
+  }
+
+  @Override
+  public CollectionWithIndex<OrderJournal> getOrderJournal(long accountId, long assetId, int from, int to) {
+    return orderService.getTradeJournal(accountId, assetId, from, to);
   }
 
   @Override
@@ -131,23 +145,28 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public Collection<AccountAsset> getAccountAssetsOverview(long id, int height, int from, int to) {
-    return assetAccountService.getAssetAccounts(id, height, from, to);
+  public CollectionWithIndex<AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to) {
+    return new CollectionWithIndex<AccountAsset>(assetAccountService.getAssetAccounts(asset, ignoreTreasury, minimumQuantity, unconfirmed, from, to), from, to);
   }
 
   @Override
-  public Collection<Asset> getAssetsIssuedBy(long accountId, int from, int to) {
-    return assetService.getAssetsIssuedBy(accountId, from, to);
+  public CollectionWithIndex<Asset> getAssetsIssuedBy(long accountId, int from, int to) {
+    return new CollectionWithIndex<Asset>(assetService.getAssetsIssuedBy(accountId, from, to), from, to);
   }
 
   @Override
-  public Collection<AssetTransfer> getAssetTransfers(long assetId, int from, int to) {
-    return assetTransferService.getAssetTransfers(assetId, from, to);
+  public CollectionWithIndex<Asset> getAssetsOwnedBy(long accountId, int from, int to) {
+    return assetService.getAssetsOwnedBy(accountId, from, to);
   }
 
   @Override
-  public Collection<AssetTransfer> getAccountAssetTransfers(long accountId, long assetId, int from, int to) {
-    return assetTransferService.getAccountAssetTransfers(accountId, assetId, from, to);
+  public CollectionWithIndex<AssetTransfer> getAssetTransfers(long assetId, int from, int to) {
+    return new CollectionWithIndex<AssetTransfer>(assetTransferService.getAssetTransfers(assetId, from, to), from, to);
+  }
+
+  @Override
+  public CollectionWithIndex<AssetTransfer> getAccountAssetTransfers(long accountId, long assetId, int from, int to) {
+    return new CollectionWithIndex<AssetTransfer>(assetTransferService.getAccountAssetTransfers(accountId, assetId, from, to), from, to);
   }
 
   @Override
@@ -171,42 +190,68 @@ public class AssetExchangeImpl implements AssetExchange {
   }
 
   @Override
-  public Collection<Ask> getAskOrdersByAccount(long accountId, int from, int to) {
+  public CollectionWithIndex<Ask> getAskOrdersByAccount(long accountId, int from, int to) {
     return orderService.getAskOrdersByAccount(accountId, from, to);
   }
 
   @Override
-  public Collection<Ask> getAskOrdersByAccountAsset(long accountId, long assetId, int from, int to) {
+  public CollectionWithIndex<Ask> getAskOrdersByAccountAsset(long accountId, long assetId, int from, int to) {
     return orderService.getAskOrdersByAccountAsset(accountId, assetId, from, to);
   }
 
   @Override
-  public Collection<Bid> getBidOrdersByAccount(long accountId, int from, int to) {
+  public CollectionWithIndex<Bid> getBidOrdersByAccount(long accountId, int from, int to) {
     return orderService.getBidOrdersByAccount(accountId, from, to);
   }
 
   @Override
-  public Collection<Bid> getBidOrdersByAccountAsset(long accountId, long assetId, int from, int to) {
+  public CollectionWithIndex<Bid> getBidOrdersByAccountAsset(long accountId, long assetId, int from, int to) {
     return orderService.getBidOrdersByAccountAsset(accountId, assetId, from, to);
   }
 
   @Override
-  public Collection<Ask> getAllAskOrders(int from, int to) {
+  public CollectionWithIndex<Ask> getAllAskOrders(int from, int to) {
     return orderService.getAllAskOrders(from, to);
   }
 
   @Override
-  public Collection<Bid> getAllBidOrders(int from, int to) {
+  public CollectionWithIndex<Bid> getAllBidOrders(int from, int to) {
     return orderService.getAllBidOrders(from, to);
   }
 
   @Override
-  public Collection<Ask> getSortedAskOrders(long assetId, int from, int to) {
+  public CollectionWithIndex<Ask> getSortedAskOrders(long assetId, int from, int to) {
     return orderService.getSortedAskOrders(assetId, from, to);
   }
 
   @Override
-  public Collection<Bid> getSortedBidOrders(long assetId, int from, int to) {
+  public CollectionWithIndex<Bid> getSortedBidOrders(long assetId, int from, int to) {
     return orderService.getSortedBidOrders(assetId, from, to);
   }
+
+  @Override
+  public long getTradeVolume(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getTradeVolume(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getHighPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getHighPrice(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getLowPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getLowPrice(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getOpenPrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getOpenPrice(assetId, heightStart, heightEnd);
+  }
+
+  @Override
+  public long getClosePrice(long assetId, int heightStart, int heightEnd) {
+    return tradeService.getClosePrice(assetId, heightStart, heightEnd);
+  }
+
 }

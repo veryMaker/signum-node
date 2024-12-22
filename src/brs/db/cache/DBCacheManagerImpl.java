@@ -1,7 +1,7 @@
 package brs.db.cache;
 
 import brs.Account;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.statistics.StatisticsManagerImpl;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -22,16 +22,19 @@ public class DBCacheManagerImpl {
 
   private final boolean statisticsEnabled;
 
-  private final HashMap<String, CacheConfiguration<BurstKey, ?>> caches = new HashMap<>();
+  private final HashMap<String, CacheConfiguration<SignumKey, ?>> caches = new HashMap<>();
 
   public DBCacheManagerImpl(StatisticsManagerImpl statisticsManager) {
     this.statisticsManager = statisticsManager;
     statisticsEnabled = true;
 
-    caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(BurstKey.class, Account.class, ResourcePoolsBuilder.heap(8192)).build());
+    caches.put("account", CacheConfigurationBuilder.newCacheConfigurationBuilder(SignumKey.class, Account.class,
+        ResourcePoolsBuilder.heap(8192*4)).build());
+    caches.put("account_balance", CacheConfigurationBuilder.newCacheConfigurationBuilder(SignumKey.class, Account.Balance.class,
+        ResourcePoolsBuilder.heap(8192*4)).build());
 
-    CacheManagerBuilder cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder();
-    for (Map.Entry<String, CacheConfiguration<BurstKey, ?>> cache : caches.entrySet()) {
+    CacheManagerBuilder<CacheManager> cacheBuilder = CacheManagerBuilder.newCacheManagerBuilder();
+    for (Map.Entry<String, CacheConfiguration<SignumKey, ?>> cache : caches.entrySet()) {
       cacheBuilder = cacheBuilder.withCache(cache.getKey(), cache.getValue());
     }
     cacheManager = cacheBuilder.build(true);
@@ -43,17 +46,17 @@ public class DBCacheManagerImpl {
     }
   }
 
-  private <V> Cache<BurstKey, V> getEHCache(String name, Class<V> valueClass) {
-    return cacheManager.getCache(name, BurstKey.class, valueClass);
+  private <V> Cache<SignumKey, V> getEHCache(String name, Class<V> valueClass) {
+    return cacheManager.getCache(name, SignumKey.class, valueClass);
   }
 
-  public <V> Cache<BurstKey, V> getCache(String name, Class<V> valueClass) {
-    Cache<BurstKey, V> cache = getEHCache(name, valueClass);
+  public <V> Cache<SignumKey, V> getCache(String name, Class<V> valueClass) {
+    Cache<SignumKey, V> cache = getEHCache(name, valueClass);
     return statisticsEnabled ? new StatisticsCache<>(cache, name, statisticsManager) : cache;
   }
 
   public void flushCache() {
-    for (Map.Entry<String, CacheConfiguration<BurstKey, ?>> cacheEntry : caches.entrySet()) {
+    for (Map.Entry<String, CacheConfiguration<SignumKey, ?>> cacheEntry : caches.entrySet()) {
       Cache<?,?> cache = getEHCache(cacheEntry.getKey(), cacheEntry.getValue().getValueType());
       if ( cache != null )
         cache.clear();

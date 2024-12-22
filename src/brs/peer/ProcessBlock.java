@@ -2,7 +2,7 @@ package brs.peer;
 
 import brs.Blockchain;
 import brs.BlockchainProcessor;
-import brs.BurstException;
+import brs.SignumException;
 import brs.util.JSON;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -44,7 +44,7 @@ public final class ProcessBlock implements PeerServlet.PeerRequestHandler {
       blockchainProcessor.processPeerBlock(request, peer);
       return ACCEPTED;
 
-    } catch (BurstException|RuntimeException e) {
+    } catch (SignumException|RuntimeException e) {
       if (peer != null) {
         peer.blacklist(e, "received invalid data via requestType=processBlock");
       }

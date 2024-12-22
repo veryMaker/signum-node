@@ -1,13 +1,15 @@
 package brs.db.sql;
 
 import brs.Appendix;
-import brs.BurstException;
+import brs.SignumException;
 import brs.Transaction;
 import brs.TransactionType;
 import brs.db.TransactionDb;
 import brs.schema.tables.records.TransactionRecord;
 import brs.util.Convert;
+
 import org.jooq.BatchBindStep;
+import org.jooq.SelectConditionStep;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -24,7 +26,7 @@ public class SqlTransactionDb implements TransactionDb {
       try {
         TransactionRecord transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.ID.eq(transactionId)).fetchOne();
         return loadTransaction(transactionRecord);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Transaction already in database, id = " + transactionId + ", does not pass validation!", e);
       }
     });
@@ -36,7 +38,7 @@ public class SqlTransactionDb implements TransactionDb {
       try {
         TransactionRecord transactionRecord = ctx.selectFrom(TRANSACTION).where(TRANSACTION.FULL_HASH.eq(Convert.parseHexString(fullHash))).fetchOne();
         return loadTransaction(transactionRecord);
-      } catch (BurstException.ValidationException e) {
+      } catch (SignumException.ValidationException e) {
         throw new RuntimeException("Transaction already in database, full_hash = " + fullHash + ", does not pass validation!", e);
       }
     });
@@ -57,7 +59,7 @@ public class SqlTransactionDb implements TransactionDb {
   }
 
   @Override
-  public Transaction loadTransaction(TransactionRecord tr) throws BurstException.ValidationException {
+  public Transaction loadTransaction(TransactionRecord tr) throws SignumException.ValidationException {
     if (tr == null) {
       return null;
     }
@@ -99,27 +101,33 @@ public class SqlTransactionDb implements TransactionDb {
       builder.ecBlockHeight(tr.getEcBlockHeight());
       builder.ecBlockId(Optional.ofNullable(tr.getEcBlockId()).orElse(0L));
     }
+    if (tr.getVersion() > 1) {
+      builder.cashBackId(tr.getCashBackId());
+    }
 
     return builder.build();
   }
 
   @Override
-  public List<Transaction> findBlockTransactions(long blockId) {
+  public List<Transaction> findBlockTransactions(long blockId, boolean onlySigned) {
     return Db.useDSLContext(ctx -> {
-      return ctx.selectFrom(TRANSACTION)
-              .where(TRANSACTION.BLOCK_ID.eq(blockId))
-              .and(TRANSACTION.SIGNATURE.isNotNull())
-              .fetch(record -> {
+      SelectConditionStep<TransactionRecord> select = ctx.selectFrom(TRANSACTION)
+          .where(TRANSACTION.BLOCK_ID.eq(blockId));
+      if(onlySigned) {
+        select = select.and(TRANSACTION.SIGNATURE.isNotNull());
+      }
+      return select.fetch(record -> {
                 try {
                   return loadTransaction(record);
-                } catch (BurstException.ValidationException e) {
-                  throw new RuntimeException("Transaction already in database for block_id = " + Convert.toUnsignedLong(blockId) + " does not pass validation!", e);
+                } catch (SignumException.ValidationException e) {
+                  e.printStackTrace();
+                  throw new RuntimeException("Invalid transaction :" + e.getMessage(), e);
                 }
               });
     });
   }
 
-  private byte[] getAttachmentBytes(Transaction transaction) {
+  public static byte[] getAttachmentBytes(Transaction transaction) {
     int bytesLength = 0;
     for (Appendix appendage : transaction.getAppendages()) {
       bytesLength += appendage.getSize();
@@ -149,18 +157,18 @@ public class SqlTransactionDb implements TransactionDb {
                 TRANSACTION.BLOCK_TIMESTAMP, TRANSACTION.FULL_HASH, TRANSACTION.VERSION,
                 TRANSACTION.HAS_MESSAGE, TRANSACTION.HAS_ENCRYPTED_MESSAGE,
                 TRANSACTION.HAS_PUBLIC_KEY_ANNOUNCEMENT, TRANSACTION.HAS_ENCRYPTTOSELF_MESSAGE,
-                TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID)
+                TRANSACTION.EC_BLOCK_HEIGHT, TRANSACTION.EC_BLOCK_ID, TRANSACTION.CASH_BACK_ID)
                 .values((Long) null, null, null, null, null, null, null, null, null, null, null,
                     null, null,
-                    null, null, null, null, null, null, null, null, null, null, null));
+                    null, null, null, null, null, null, null, null, null, null, null, null));
         for (Transaction transaction : transactions) {
           insertBatch.bind(
               transaction.getId(),
               transaction.getDeadline(),
               transaction.getSenderPublicKey(),
               (transaction.getRecipientId() == 0 ? null : transaction.getRecipientId()),
-              transaction.getAmountNQT(),
-              transaction.getFeeNQT(),
+              transaction.getAmountNqt(),
+              transaction.getFeeNqt(),
               Convert.parseHexString(transaction.getReferencedTransactionFullHash()),
               transaction.getHeight(),
               transaction.getBlockId(),
@@ -177,8 +185,9 @@ public class SqlTransactionDb implements TransactionDb {
               transaction.getEncryptedMessage() != null,
               transaction.getPublicKeyAnnouncement() != null,
               transaction.getEncryptToSelfMessage() != null,
-              transaction.getECBlockHeight(),
-              (transaction.getECBlockId() != 0 ? transaction.getECBlockId() : null)
+              transaction.getEcBlockHeight(),
+              (transaction.getEcBlockId() != 0 ? transaction.getEcBlockId() : null),
+              transaction.getCashBackId()
           );
         }
         insertBatch.execute();

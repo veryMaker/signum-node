@@ -1,9 +1,10 @@
 package brs.util;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.Constants;
-import burst.kit.crypto.BurstCrypto;
-import burst.kit.entity.BurstAddress;
+import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumAddress;
+
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -14,7 +15,7 @@ import java.util.Date;
 
 public final class Convert {
 
-  private static final BurstCrypto burstCrypto = BurstCrypto.getInstance();
+  private static final SignumCrypto signumCrypto = SignumCrypto.getInstance();
 
   private static final long[] multipliers = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
@@ -51,20 +52,20 @@ public final class Convert {
   }
 
   public static long parseAccountId(String account) {
-    BurstAddress address = BurstAddress.fromEither(account);
-    return address == null ? 0 : address.getBurstID().getSignedLongId();
+    SignumAddress address = SignumAddress.fromEither(account);
+    return address == null ? 0 : address.getSignedLongId();
   }
   
-  public static BurstAddress parseAddress(String account) {
-    return BurstAddress.fromEither(account);
+  public static SignumAddress parseAddress(String account) {
+    return SignumAddress.fromEither(account);
   }
 
   public static String rsAccount(long accountId) {
-    return BurstAddress.fromId(accountId).getFullAddress();
+    return SignumAddress.fromId(accountId).getFullAddress();
   }
 
   public static long fullHashToId(byte[] hash) {
-    return burstCrypto.hashToId(hash).getSignedLongId();
+    return signumCrypto.hashToId(hash).getSignedLongId();
   }
 
   public static long fullHashToId(String hash) {
@@ -109,10 +110,18 @@ public final class Convert {
   public static String toString(byte[] bytes) {
     return new String(bytes, StandardCharsets.UTF_8);
   }
+  
+  public static boolean checkAllZero(final byte[] bytes) {
+    int sum = 0;
+    for (byte b : bytes) {
+        sum |= b;
+    }
+    return (sum == 0);
+  }
 
-  public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws BurstException.NotValidException {
+  public static String readString(ByteBuffer buffer, int numBytes, int maxLength) throws SignumException.NotValidException {
     if (numBytes > 3 * maxLength) {
-      throw new BurstException.NotValidException("Max parameter length exceeded");
+      throw new SignumException.NotValidException("Max parameter length exceeded");
     }
     byte[] bytes = new byte[numBytes];
     buffer.get(bytes);
@@ -124,7 +133,7 @@ public final class Convert {
   }
 
   public static long parseNXT(String nxt) {
-    return parseStringFraction(nxt, 8, Constants.MAX_BALANCE_BURST);
+    return parseStringFraction(nxt, 8, Constants.MAX_BALANCE_SIGNA);
   }
 
   private static long parseStringFraction(String value, int decimals, long maxValue) {

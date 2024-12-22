@@ -1,8 +1,8 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Order;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.OrderStore;
@@ -25,7 +25,7 @@ public class SqlOrderStore implements OrderStore {
   private final DbKey.LongKeyFactory<Order.Ask> askOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Ask>(ASK_ORDER.ID) {
 
     @Override
-    public BurstKey newKey(Order.Ask ask) {
+    public SignumKey newKey(Order.Ask ask) {
       return ask.dbKey;
     }
 
@@ -34,7 +34,7 @@ public class SqlOrderStore implements OrderStore {
   private final DbKey.LongKeyFactory<Order.Bid> bidOrderDbKeyFactory = new DbKey.LongKeyFactory<Order.Bid>(BID_ORDER.ID) {
 
     @Override
-    public BurstKey newKey(Order.Bid bid) {
+    public SignumKey newKey(Order.Bid bid) {
       return bid.dbKey;
     }
 
@@ -140,10 +140,25 @@ public class SqlOrderStore implements OrderStore {
   }
 
   private void saveAsk(DSLContext ctx, Order.Ask ask) {
-    ctx.mergeInto(ASK_ORDER, ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID, ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT, ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
-            .key(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
-            .values(ask.getId(), ask.getAccountId(), ask.getAssetId(), ask.getPriceNQT(), ask.getQuantityQNT(), ask.getHeight(), Burst.getBlockchain().getHeight(), true)
-            .execute();
+
+    ctx.insertInto(ASK_ORDER,
+        ASK_ORDER.ID, ASK_ORDER.ACCOUNT_ID, ASK_ORDER.ASSET_ID,
+        ASK_ORDER.PRICE, ASK_ORDER.QUANTITY, ASK_ORDER.CREATION_HEIGHT,
+        ASK_ORDER.HEIGHT, ASK_ORDER.LATEST)
+      .values(ask.getId(), ask.getAccountId(), ask.getAssetId(),
+        ask.getPriceNQT(), ask.getQuantityQNT(), ask.getHeight(),
+        Signum.getBlockchain().getHeight(), true)
+      .onConflict(ASK_ORDER.ID, ASK_ORDER.HEIGHT)
+      .doUpdate()
+      .set(ASK_ORDER.ACCOUNT_ID, ask.getAccountId())
+      .set(ASK_ORDER.ASSET_ID, ask.getAssetId())
+      .set(ASK_ORDER.PRICE, ask.getPriceNQT())
+      .set(ASK_ORDER.QUANTITY, ask.getQuantityQNT())
+      .set(ASK_ORDER.CREATION_HEIGHT, ask.getHeight())
+      .set(ASK_ORDER.HEIGHT, Signum.getBlockchain().getHeight())
+      .set(ASK_ORDER.LATEST, true)
+      .execute();
+
   }
 
   @Override
@@ -208,10 +223,23 @@ public class SqlOrderStore implements OrderStore {
   }
 
   private void saveBid(DSLContext ctx, Order.Bid bid) {
-    ctx.mergeInto(BID_ORDER, BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID, BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT, BID_ORDER.HEIGHT, BID_ORDER.LATEST)
-            .key(BID_ORDER.ID, BID_ORDER.HEIGHT)
-            .values(bid.getId(), bid.getAccountId(), bid.getAssetId(), bid.getPriceNQT(), bid.getQuantityQNT(), bid.getHeight(), Burst.getBlockchain().getHeight(), true)
-            .execute();
+
+    ctx.insertInto(BID_ORDER,
+        BID_ORDER.ID, BID_ORDER.ACCOUNT_ID, BID_ORDER.ASSET_ID,
+        BID_ORDER.PRICE, BID_ORDER.QUANTITY, BID_ORDER.CREATION_HEIGHT,
+        BID_ORDER.HEIGHT, BID_ORDER.LATEST)
+      .values(bid.getId(), bid.getAccountId(), bid.getAssetId(),
+        bid.getPriceNQT(), bid.getQuantityQNT(), bid.getHeight(),
+        Signum.getBlockchain().getHeight(), true)
+      .onConflict(BID_ORDER.ID, BID_ORDER.HEIGHT)
+      .doUpdate()
+      .set(BID_ORDER.ACCOUNT_ID, bid.getAccountId())
+      .set(BID_ORDER.ASSET_ID, bid.getAssetId())
+      .set(BID_ORDER.PRICE, bid.getPriceNQT())
+      .set(BID_ORDER.QUANTITY, bid.getQuantityQNT())
+      .set(BID_ORDER.CREATION_HEIGHT, bid.getHeight())
+      .set(BID_ORDER.LATEST, true)
+      .execute();
   }
 
   class SqlAsk extends Order.Ask {

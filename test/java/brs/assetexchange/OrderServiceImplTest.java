@@ -2,8 +2,8 @@ package brs.assetexchange;
 
 import brs.Order.Ask;
 import brs.Order.Bid;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.store.OrderStore;
 import brs.services.AccountService;
@@ -51,7 +51,7 @@ public class OrderServiceImplTest {
 
   @Test
   public void getAskOrder() {
-    final BurstKey mockAskKey = mock(BurstKey.class);
+    final SignumKey mockAskKey = mock(SignumKey.class);
     final Ask mockAsk = mock(Ask.class);
 
     final long askKey = 123l;
@@ -64,7 +64,7 @@ public class OrderServiceImplTest {
 
   @Test
   public void getBidOrder() {
-    final BurstKey mockBidKey = mock(BurstKey.class);
+    final SignumKey mockBidKey = mock(SignumKey.class);
     final Bid mockBid = mock(Bid.class);
 
     final long bidKey = 123l;
@@ -84,7 +84,7 @@ public class OrderServiceImplTest {
 
     when(mockAskOrderTable.getAll(eq(from), eq(to))).thenReturn(mockAskIterator);
 
-    assertEquals(mockAskIterator, t.getAllAskOrders(from, to));
+    assertEquals(mockAskIterator, t.getAllAskOrders(from, to).getCollection());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class OrderServiceImplTest {
 
     when(mockBidOrderTable.getAll(eq(from), eq(to))).thenReturn(mockBidIterator);
 
-    assertEquals(mockBidIterator, t.getAllBidOrders(from, to));
+    assertEquals(mockBidIterator, t.getAllBidOrders(from, to).getCollection());
   }
 
   @Test
@@ -109,7 +109,7 @@ public class OrderServiceImplTest {
 
     when(orderStoreMock.getSortedBids(eq(assetId), eq(from), eq(to))).thenReturn(mockBidIterator);
 
-    assertEquals(mockBidIterator, t.getSortedBidOrders(assetId, from, to));
+    assertEquals(mockBidIterator, t.getSortedBidOrders(assetId, from, to).getCollection());
   }
 
   @Test
@@ -122,7 +122,7 @@ public class OrderServiceImplTest {
 
     when(orderStoreMock.getAskOrdersByAccount(eq(accountId), eq(from), eq(to))).thenReturn(mockAskIterator);
 
-    assertEquals(mockAskIterator, t.getAskOrdersByAccount(accountId, from, to));
+    assertEquals(mockAskIterator, t.getAskOrdersByAccount(accountId, from, to).getCollection());
   }
 
   @Test
@@ -136,7 +136,7 @@ public class OrderServiceImplTest {
 
     when(orderStoreMock.getAskOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).thenReturn(mockAskIterator);
 
-    assertEquals(mockAskIterator, t.getAskOrdersByAccountAsset(accountId, assetId, from, to));
+    assertEquals(mockAskIterator, t.getAskOrdersByAccountAsset(accountId, assetId, from, to).getCollection());
   }
 
   @Test
@@ -149,7 +149,7 @@ public class OrderServiceImplTest {
 
     when(orderStoreMock.getSortedAsks(eq(assetId), eq(from), eq(to))).thenReturn(mockAskIterator);
 
-    assertEquals(mockAskIterator, t.getSortedAskOrders(assetId, from, to));
+    assertEquals(mockAskIterator, t.getSortedAskOrders(assetId, from, to).getCollection());
   }
 
   @Test
@@ -176,7 +176,7 @@ public class OrderServiceImplTest {
 
     when(orderStoreMock.getBidOrdersByAccount(eq(accountId), eq(from), eq(to))).thenReturn(mockBidIterator);
 
-    assertEquals(mockBidIterator, t.getBidOrdersByAccount(accountId, from, to));
+    assertEquals(mockBidIterator, t.getBidOrdersByAccount(accountId, from, to).getCollection());
   }
 
   @Test
@@ -190,6 +190,6 @@ public class OrderServiceImplTest {
 
     when(orderStoreMock.getBidOrdersByAccountAsset(eq(accountId), eq(assetId), eq(from), eq(to))).thenReturn(mockBidIterator);
 
-    assertEquals(mockBidIterator, t.getBidOrdersByAccountAsset(accountId, assetId, from, to));
+    assertEquals(mockBidIterator, t.getBidOrdersByAccountAsset(accountId, assetId, from, to).getCollection());
   }
 }

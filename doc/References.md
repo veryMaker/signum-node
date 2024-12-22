@@ -1,44 +1,29 @@
 For further information, please visit the following pages.
 
-Wiki: https://burstwiki.org (lots of other links)
+Wiki: https://wiki.signum.network/
 
-Info: https://www.burst-coin.org/
+Info: https://signum.network
 
-Explorer: https://explore.burst.cryptoguru.org
+Explorer: https://explorer.signum.network/
 
-Forum1: https://burstforum.net/
+Basic Documentation: https://docs.signum.network/signum
+
+Ecosystem: https://docs.signum.network/ecosystem
 
 
-### Bitcointalk
+### Additional Software 
 
-https://bitcointalk.org/index.php?topic=1541310 *(New unmoderated)*
+BTDEX: https://btdex.trade/
+Phoenix Wallet: https://phoenix-wallet.rocks/
 
-https://bitcointalk.org/index.php?topic=1323657 *(Alternative moderated)*
+### Games on chain
 
-https://bitcointalk.org/index.php?topic=731923 *(Original unmoderated)*
+Cryptoball: https://www.cryptoball.org/
 
-### Related repositories
+Blockplay: https://blockplay.io/
 
-https://github.com/rico666/cg_obup *CryptoGuru Optimized BURSTcoin Unix Plotter (Linux)*
+The Mining Game: https://tmg.notallmine.net/
 
-https://github.com/Blagodarenko  *Blago's XPlotter, Windows Miner, PlotsChecker, etc.*
+TMG Lotto: https://deleterium.info/tmg-lotto/
 
-https://github.com/de-luxe *GPU assisted jMiner, Faucet Software, Observer, AddressGenerator*
-
-https://github.com/Creepsky/creepMiner *C++ Crossplatform Miner*
-
-https://github.com/BurstTools/BurstSoftware *Windows Plot Generator for SEE4/AVX2*
-
-https://github.com/bhamon *gpuPlotGenerator, BurstMine (graphical plotter/miner)*
-
-https://github.com/kartojal *GUI for Dcct Tools, GUI for gpuPlotGenerator (Linux)*
-
-https://github.com/Kurairaito *Burst Plot Generator by Kurairaito*
-
-https://github.com/uraymeiviar *C Miner, Pool, Block Explorer, Plot Composer (Linux)*
-
-https://github.com/mrpsion/burst-mining-system *Web interface for Plotting and Mining*
-
-### Additional Software
-
-https://burstforum.net/category/9/burst-software
+Wheel of Signa: https://wos.notallmine.net/

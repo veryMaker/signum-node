@@ -1,56 +1,110 @@
 package brs;
 
+import brs.util.CollectionWithIndex;
 import java.util.Collection;
+
+//TODO: Create JavaDocs and remove this
+@SuppressWarnings({ "checkstyle:MissingJavadocTypeCheck", "checkstyle:MissingJavadocMethodCheck" })
 
 public interface Blockchain {
 
-  Block getLastBlock();
-    
-  Block getLastBlock(int timestamp);
+    Block getLastBlock();
 
-  void setLastBlock(Block blockImpl);
+    Block getLastBlock(int timestamp);
 
-  int getHeight();
+    void setLastBlock(Block blockImpl);
 
-  Block getBlock(long blockImplId);
+    int getHeight();
 
-  Block getBlockAtHeight(int height);
+    Block getBlock(long blockImplId);
 
-  boolean hasBlock(long blockImplId);
+    Block getBlockAtHeight(int height);
 
-  Collection<Block> getBlocks(int from, int to);
+    boolean hasBlock(long blockImplId);
 
-  Collection<Block> getBlocks(Account account, int timestamp);
+    Collection<Block> getBlocks(int from, int to);
 
-  Collection<Block> getBlocks(Account account, int timestamp, int from, int to);
+    Collection<Block> getBlocks(Account account, int timestamp);
 
-  int getBlocksCount(Account account, int from, int to);
+    CollectionWithIndex<Block> getBlocks(Account account, int timestamp, int from, int to);
 
-  Collection<Long> getBlockIdsAfter(long blockImplId, int limit);
+    int getBlocksCount(long accountId, int from, int to);
 
-  Collection<Block> getBlocksAfter(long blockId, int limit);
+    Collection<Long> getBlockIdsAfter(long blockImplId, int limit);
 
-  long getBlockIdAtHeight(int height);
+    Collection<Block> getBlocksAfter(long blockId, int limit);
 
-  Transaction getTransaction(long transactionId);
+    long getBlockIdAtHeight(int height);
 
-  Transaction getTransactionByFullHash(String fullHash); // TODO add byte[] method
+    Transaction getTransaction(long transactionId);
 
-  boolean hasTransaction(long transactionId);
+    Transaction getTransactionByFullHash(String fullHash); // TODO add byte[] method
 
-  boolean hasTransactionByFullHash(String fullHash); // TODO add byte[] method
+    boolean hasTransaction(long transactionId);
 
-  int getTransactionCount();
+    boolean hasTransactionByFullHash(String fullHash); // TODO add byte[] method
 
-  Collection<Transaction> getAllTransactions();
-  
-  public long getAtBurnTotal();
-  
-  public long getTotalMined();
+    int getTransactionCount();
 
-  Collection<Transaction> getTransactions(Account account, byte type, byte subtype, int blockImplTimestamp, boolean includeIndirectIncoming);
+    Collection<Transaction> getAllTransactions();
 
-  Collection<Transaction> getTransactions(Account account, int numberOfConfirmations, byte type, byte subtype, int blockImplTimestamp, int from, int to, boolean includeIndirectIncoming);
-  
-  long getCommittedAmount(Account account, int height, int endHeight, Transaction skipTransaction);
+    public long getAtBurnTotal();
+
+    public long getTotalMined();
+
+    long getBlockReward(int height);
+
+    CollectionWithIndex<Transaction> getTransactions(
+            Long senderId,
+            Long recipientId,
+            int numberOfConfirmations,
+            byte type,
+            byte subtype,
+            int blockTimestamp,
+            int from,
+            int to,
+            boolean includeIndirectIncoming,
+            boolean bidirectional);
+
+    CollectionWithIndex<Transaction> getTransactions(
+            Account account,
+            int numberOfConfirmations,
+            byte type,
+            byte subtype,
+            int blockTimestamp,
+            int from,
+            int to,
+            boolean includeIndirectIncoming);
+
+    Collection<Transaction> getTransactions(
+            long senderId,
+            byte type,
+            byte subtypeStart,
+            byte subtypeEnd,
+            int from,
+            int to);
+
+    int countTransactions(byte type, byte subtypeStart, byte subtypeEnd);
+
+    Collection<Transaction> getTransactionsWithFullHashReference(
+            String fullHash,
+            int numberOfConfirmations,
+            byte type,
+            byte subtypeStart,
+            byte subtypeEnd,
+            int from,
+            int to);
+
+    Collection<Long> getTransactionIds(
+            Long sender,
+            Long recipient,
+            int numberOfConfirmations,
+            byte type,
+            byte subtype,
+            int blockTimestamp,
+            int from,
+            int to,
+            boolean includeIndirectIncoming);
+
+    long getCommittedAmount(long accountId, int height, int endHeight, Transaction skipTransaction);
 }

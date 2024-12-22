@@ -5,8 +5,8 @@ import brs.DigitalGoodsStore.Event;
 import brs.DigitalGoodsStore.Goods;
 import brs.DigitalGoodsStore.Purchase;
 import brs.crypto.EncryptedData;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
+import brs.db.SignumKey.LongKeyFactory;
 import brs.db.VersionedEntityTable;
 import brs.db.VersionedValuesTable;
 import brs.db.store.DigitalGoodsStoreStore;
@@ -135,13 +135,13 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
   @Override
   public void purchase(Transaction transaction, Attachment.DigitalGoodsPurchase attachment) {
     Goods goods = goodsTable.get(goodsDbKeyFactory.newKey(attachment.getGoodsId()));
-    if (! goods.isDelisted() && attachment.getQuantity() <= goods.getQuantity() && attachment.getPriceNQT() == goods.getPriceNQT()
+    if (! goods.isDelisted() && attachment.getQuantity() <= goods.getQuantity() && attachment.getPriceNqt() == goods.getPriceNQT()
         && attachment.getDeliveryDeadlineTimestamp() > blockchain.getLastBlock().getTimestamp()) {
       changeQuantity(goods.getId(), -attachment.getQuantity(), false);
       addPurchase(transaction, attachment, goods.getSellerId());
     } else {
       Account buyer = accountService.getAccount(transaction.getSenderId());
-      accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(attachment.getQuantity(), attachment.getPriceNQT()));
+      accountService.addToUnconfirmedBalanceNQT(buyer, Convert.safeMultiply(attachment.getQuantity(), attachment.getPriceNqt()));
       // restoring the unconfirmed balance if purchase not successful, however buyer still lost the transaction fees
     }
   }
@@ -155,7 +155,7 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
 
   @Override
   public void listGoods(Transaction transaction, Attachment.DigitalGoodsListing attachment) {
-    BurstKey dbKey = goodsDbKeyFactory.newKey(transaction.getId());
+    SignumKey dbKey = goodsDbKeyFactory.newKey(transaction.getId());
     Goods goods = new Goods(dbKey, transaction, attachment);
     goodsTable.insert(goods);
     goodsListeners.notify(goods, Event.GOODS_LISTED);
@@ -240,13 +240,13 @@ public class DGSGoodsStoreServiceImpl implements DGSGoodsStoreService {
     setPending(purchase, false);
     long totalWithoutDiscount = Convert.safeMultiply(purchase.getQuantity(), purchase.getPriceNQT());
     Account buyer = accountService.getAccount(purchase.getBuyerId());
-    accountService.addToBalanceNQT(buyer, Convert.safeSubtract(attachment.getDiscountNQT(), totalWithoutDiscount));
-    accountService.addToUnconfirmedBalanceNQT(buyer, attachment.getDiscountNQT());
+    accountService.addToBalanceNQT(buyer, Convert.safeSubtract(attachment.getDiscountNqt(), totalWithoutDiscount));
+    accountService.addToUnconfirmedBalanceNQT(buyer, attachment.getDiscountNqt());
     Account seller = accountService.getAccount(transaction.getSenderId());
-    accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, Convert.safeSubtract(totalWithoutDiscount, attachment.getDiscountNQT()));
+    accountService.addToBalanceAndUnconfirmedBalanceNQT(seller, Convert.safeSubtract(totalWithoutDiscount, attachment.getDiscountNqt()));
     purchase.setEncryptedGoods(attachment.getGoods(), attachment.goodsIsText());
     purchaseTable.insert(purchase);
-    purchase.setDiscountNQT(attachment.getDiscountNQT());
+    purchase.setDiscountNQT(attachment.getDiscountNqt());
     purchaseTable.insert(purchase);
     purchaseListeners.notify(purchase, Event.DELIVERY);
   }

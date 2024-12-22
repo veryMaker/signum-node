@@ -1,7 +1,8 @@
 package brs.db.store;
 
 import brs.Account;
-import brs.db.BurstKey;
+import brs.Asset;
+import brs.db.SignumKey;
 import brs.db.VersionedBatchEntityTable;
 import brs.db.VersionedEntityTable;
 
@@ -13,28 +14,35 @@ import java.util.Collection;
 public interface AccountStore {
 
   VersionedBatchEntityTable<Account> getAccountTable();
-  
+
+  VersionedBatchEntityTable<Account.Balance> getAccountBalanceTable();
+
   long getAllAccountsBalance();
 
   VersionedEntityTable<Account.RewardRecipientAssignment> getRewardRecipientAssignmentTable();
 
-  BurstKey.LongKeyFactory<Account.RewardRecipientAssignment> getRewardRecipientAssignmentKeyFactory();
+  SignumKey.LongKeyFactory<Account.RewardRecipientAssignment> getRewardRecipientAssignmentKeyFactory();
 
-  BurstKey.LinkKeyFactory<Account.AccountAsset> getAccountAssetKeyFactory();
+  SignumKey.LinkKeyFactory<Account.AccountAsset> getAccountAssetKeyFactory();
 
   VersionedEntityTable<Account.AccountAsset> getAccountAssetTable();
 
-  int getAssetAccountsCount(long assetId);
+  int getAssetAccountsCount(Asset asset, long minimumQuantity, boolean ignoreTreasury, boolean unconfirmed);
 
-  BurstKey.LongKeyFactory<Account> getAccountKeyFactory();
+  long getAssetCirculatingSupply(Asset asset, boolean ignoreTreasury, boolean unconfirmed);
+
+  SignumKey.LongKeyFactory<Account> getAccountKeyFactory();
+
+  SignumKey.LongKeyFactory<Account.Balance> getAccountBalanceKeyFactory();
 
   Collection<Account.RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId);
 
   Collection<Account.AccountAsset> getAssets(int from, int to, Long id);
 
-  Collection<Account.AccountAsset> getAssetAccounts(long assetId, int from, int to);
+  Account.AccountAsset getAccountAsset(Long accountId, Long assetId);
 
-  Collection<Account.AccountAsset> getAssetAccounts(long assetId, int height, int from, int to);
+  Collection<Account.AccountAsset> getAssetAccounts(Asset asset, boolean ignoreTreasury, long minimumQuantity, boolean unconfirmed, int from, int to);
+
   // returns true iff:
   // this.publicKey is set to null (in which case this.publicKey also gets set to key)
   // or

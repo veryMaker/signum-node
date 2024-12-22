@@ -41,7 +41,7 @@ public class MockGeneratorTest {
         FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);PropertyService propertyService = mock(PropertyService.class);
         doReturn(1000).when(propertyService).getInt(Props.DEV_MOCK_MINING_DEADLINE);
 
-        generator = new GeneratorImpl.MockGenerator(propertyService, blockchain, timeService, fluxCapacitor);
+        generator = new GeneratorImpl.MockGenerator(propertyService, blockchain, null, timeService, fluxCapacitor);
     }
 
     @Test

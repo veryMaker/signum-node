@@ -1,7 +1,7 @@
 package brs.db.sql;
 
 import brs.AssetTransfer;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.store.AssetTransferStore;
 import brs.db.store.DerivedTableManager;
 import brs.schema.tables.records.AssetTransferRecord;
@@ -15,11 +15,11 @@ import static brs.schema.Tables.ASSET_TRANSFER;
 
 public class SqlAssetTransferStore implements AssetTransferStore {
 
-  private static final BurstKey.LongKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LongKeyFactory<AssetTransfer>(ASSET_TRANSFER.ID) {
+  private static final SignumKey.LinkKeyFactory<AssetTransfer> transferDbKeyFactory = new DbKey.LinkKeyFactory<AssetTransfer>("asset_transfer.id", "asset_transfer.asset_id") {
 
       @Override
-      public BurstKey newKey(AssetTransfer assetTransfer) {
-        return assetTransfer.dbKey;
+      public SignumKey newKey(AssetTransfer assetTransfer) {
+        return assetTransfer.getDbKey();
       }
     };
   private final EntitySqlTable<AssetTransfer> assetTransferTable;
@@ -47,7 +47,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
         ASSET_TRANSFER.QUANTITY, ASSET_TRANSFER.TIMESTAMP, ASSET_TRANSFER.HEIGHT
       ).values(
         assetTransfer.getId(), assetTransfer.getAssetId(), assetTransfer.getSenderId(), assetTransfer.getRecipientId(),
-        assetTransfer.getQuantityQNT(), assetTransfer.getTimestamp(), assetTransfer.getHeight()
+        assetTransfer.getQuantityQnt(), assetTransfer.getTimestamp(), assetTransfer.getHeight()
       ).execute();
     });
   }
@@ -59,7 +59,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<AssetTransfer> getTransferDbKeyFactory() {
+  public SignumKey.LinkKeyFactory<AssetTransfer> getTransferDbKeyFactory() {
     return transferDbKeyFactory;
   }
   @Override
@@ -119,7 +119,7 @@ public class SqlAssetTransferStore implements AssetTransferStore {
 
     SqlAssetTransfer(Record record) {
       super(record.get(ASSET_TRANSFER.ID),
-            transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID)),
+            transferDbKeyFactory.newKey(record.get(ASSET_TRANSFER.ID), record.get(ASSET_TRANSFER.ASSET_ID)),
             record.get(ASSET_TRANSFER.ASSET_ID),
             record.get(ASSET_TRANSFER.HEIGHT),
             record.get(ASSET_TRANSFER.SENDER_ID),

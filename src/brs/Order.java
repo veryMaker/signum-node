@@ -1,7 +1,8 @@
 package brs;
 
-import brs.db.BurstKey;
-import brs.grpc.proto.BrsApi;
+import java.util.Collection;
+
+import brs.db.SignumKey;
 import brs.util.Convert;
 
 public abstract class Order {
@@ -18,8 +19,8 @@ public abstract class Order {
     this.id = transaction.getId();
     this.accountId = transaction.getSenderId();
     this.assetId = attachment.getAssetId();
-    this.quantityQNT = attachment.getQuantityQNT();
-    this.priceNQT = attachment.getPriceNQT();
+    this.quantityQNT = attachment.getQuantityQnt();
+    this.priceNQT = attachment.getPriceNqt();
     this.creationHeight = transaction.getHeight();
   }
 
@@ -60,8 +61,6 @@ public abstract class Order {
     this.quantityQNT = quantityQNT;
   }
 
-  public abstract BrsApi.OrderType getProtobufType();
-
   @Override
   public String toString() {
     return getClass().getSimpleName() + " id: " + Convert.toUnsignedLong(id) + " account: " + Convert.toUnsignedLong(accountId)
@@ -70,41 +69,96 @@ public abstract class Order {
 
   public static class Ask extends Order {
 
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
 
-    public Ask(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsAskOrderPlacement attachment) {
+    public Ask(SignumKey dbKey, Transaction transaction, Attachment.ColoredCoinsAskOrderPlacement attachment) {
       super(transaction, attachment);
       this.dbKey = dbKey;
     }
 
-    protected Ask(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
+    protected Ask(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, SignumKey dbKey) {
       super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT);
       this.dbKey = dbKey;
     }
 
-    @Override
-    public BrsApi.OrderType getProtobufType() {
-      return BrsApi.OrderType.ASK;
-    }
   }
 
   public static class Bid extends Order {
 
-    public final BurstKey dbKey;
+    public final SignumKey dbKey;
 
-    public Bid(BurstKey dbKey, Transaction transaction, Attachment.ColoredCoinsBidOrderPlacement attachment) {
+    public Bid(SignumKey dbKey, Transaction transaction, Attachment.ColoredCoinsBidOrderPlacement attachment) {
       super(transaction, attachment);
       this.dbKey = dbKey;
     }
 
-    protected Bid(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, BurstKey dbKey) {
+    protected Bid(long id, long accountId, long assetId, long priceNQT, int creationHeight, long quantityQNT, SignumKey dbKey) {
       super(id, accountId, assetId, priceNQT, creationHeight, quantityQNT);
       this.dbKey = dbKey;
     }
 
-    @Override
-    public BrsApi.OrderType getProtobufType() {
-      return BrsApi.OrderType.BID;
+  }
+  
+  public static final byte ORDER_STATUS_OPEN = 0;
+  public static final byte ORDER_STATUS_FILLED = 1;
+  public static final byte ORDER_STATUS_CANCELLED = 2;
+  
+  public static class OrderJournal extends Order {
+    
+    private Collection<Trade> trades;
+    private byte subtype;
+    private byte status;
+    private long executedAmountQNT;
+    private long executedVolumeNQT;
+    private int timestamp;
+
+    public OrderJournal(Transaction transaction, Attachment.ColoredCoinsOrderPlacement attachment, Collection<Trade> trades) {
+      super(transaction, attachment);
+      
+      this.timestamp = transaction.getTimestamp();
+      this.subtype = transaction.getType().getSubtype();
+      this.status = ORDER_STATUS_OPEN;
+      this.trades = trades;
+      
+      executedAmountQNT = 0L;
+      executedVolumeNQT = 0L;
+      for(Trade trade : trades) {
+        executedAmountQNT += trade.getQuantityQNT();
+        executedVolumeNQT += trade.getPriceNQT() * trade.getQuantityQNT();
+      }
+      if(executedAmountQNT == getQuantityQNT()) {
+        status = ORDER_STATUS_FILLED;
+      }
+      
     }
+    
+    public int getTimestamp() {
+        return timestamp;
+    }
+    
+    public void setStatus(byte status) {
+      this.status = status;
+    }
+    
+    public byte getStatus() {
+      return status;
+    }
+    
+    public byte getSubtype() {
+      return subtype;
+    }
+    
+    public Collection<Trade> getTrades() {
+      return trades;
+    }
+    
+    public long getExecutedAmountQNT() {
+      return executedAmountQNT;
+    }
+    
+    public long getExecutedVolumeNQT() {
+      return executedVolumeNQT;
+    }
+    
   }
 }

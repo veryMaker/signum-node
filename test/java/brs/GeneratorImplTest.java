@@ -25,7 +25,7 @@ public class GeneratorImplTest {
 
     private static final byte[] exampleGenSig = Convert.parseHexString("6ec823b5fd86c4aee9f7c3453cacaf4a43296f48ede77e70060ca8225c2855d0");
     private static final long exampleBaseTarget = 70312;
-    private static final long exampleAverageCommitment = Constants.ONE_BURST * 10;
+    private static final long exampleAverageCommitment = Constants.ONE_SIGNA * 10;
     private static final int exampleHeight = 500000;
 
     @Before
@@ -43,6 +43,10 @@ public class GeneratorImplTest {
         FluxCapacitor fluxCapacitor = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2);
         FluxCapacitor fluxCapacitorLnTime = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.SODIUM);
         FluxCapacitor fluxCapacitorPocPlus = QuickMocker.fluxCapacitorEnabledFunctionalities(FluxValues.POC2, FluxValues.POC_PLUS);
+        
+        doReturn(240).when(fluxCapacitor).getValue(FluxValues.BLOCK_TIME);
+        doReturn(240).when(fluxCapacitorLnTime).getValue(FluxValues.BLOCK_TIME);
+        doReturn(240).when(fluxCapacitorPocPlus).getValue(FluxValues.BLOCK_TIME);
 
         generator = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitor);
         generatorLnTime = new GeneratorImpl(blockchain, null, null, timeService, fluxCapacitorLnTime);

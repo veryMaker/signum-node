@@ -1,0 +1,11 @@
+{
+  "name": "priceNQT",
+  "in": "query",
+  "allowEmptyValue": false,
+  "required": true,
+  "description": "The price in __planck per one token quantity__. To get the right Planck expression use this formula: `(priceNQT * 10^8) * 10^(decimals-8)`",
+  "schema": {
+    "type": "integer",
+    "format": "int64"
+  }
+}

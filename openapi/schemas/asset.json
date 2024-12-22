@@ -1,0 +1,166 @@
+{
+  "type": "object",
+  "required": [
+    "account",
+    "accountRS",
+    "issuer",
+    "issuerRS",
+    "publicKey",
+    "name",
+    "description",
+    "decimals",
+    "mintable",
+    "quantityQNT",
+    "quantityBurntQNT",
+    "quantityCirculatingQNT",
+    "asset",
+    "numberOfTrades",
+    "numberOfTransfers",
+    "numberOfAccounts",
+    "volumeQNT",
+    "priceHigh",
+    "priceLow",
+    "priceOpen",
+    "priceClose"
+  ],
+  "properties": {
+    "asset": {
+      "$ref": "./assetId.json"
+    },
+    "account": {
+      "$ref": "./numericId.json"
+    },
+    "accountRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "issuer": {
+      "$ref": "./numericId.json"
+    },
+    "issuerRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "publicKey": {
+      "type": "string",
+      "description": "The issuers public key. If the key is zeroed, then it is a token controlled by a smart contract",
+      "example": "c213e4144ba84af94aae2458308fae1f0cb083870c8f3012eea58147f3b09d4a"
+    },
+    "name": {
+      "$ref": "./assetName.json"
+    },
+    "description": {
+      "type": "integer",
+      "description": "The description"
+    },
+    "decimals": {
+      "type": "integer",
+      "description": "The number of decimals for this token.<br/>If you issue a token with 2 decimals, then it can be fractioned in per hundreds, i.e. 0.01. To have an integral token you need to consider the decimals. So, one token is a quantity of 100",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "mintable": {
+      "type": "boolean",
+      "description": "Set the token mintable, i.e. allow a dynamic supply (potentially inflationary), or define a fixed supply (deflationary)",
+      "example" : [true, false]
+    },
+    "quantityQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The total quantity (maximum supply) expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "quantityCirculatingQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The __circulating__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "quantityBurntQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The __burnt__ quantity expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "numberOfTrades": {
+      "type": "integer",
+      "description": "Total number of trades"
+    },
+    "numberOfTransfers": {
+      "type": "integer",
+      "description": "Total number of transfers"
+    },
+    "numberOfAccounts": {
+      "type": "integer",
+      "description": "Total number of accounts owning this token"
+    },
+    "volumeQNT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The traded volume quantity for the given period expressed as integral quantity e.g. the quantity=100 of a token with 2 decimals is expressed as 10000",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceHigh": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The highest price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceLow": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The lowest price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceOpen": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The opening (first) price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    },
+    "priceClose": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The closing (last) price in Planck volume given period.",
+      "example": [
+        "25000000"
+      ]
+    }
+  },
+  "example": {
+    "account": "10657861381637251164",
+    "accountRS": "TS-HA4W-GPUX-QPWD-BN4U9",
+    "issuer": "13112229684715917355",
+    "issuerRS": "TS-863D-FNXF-WVPM-DZZXD",
+    "publicKey": "4d6c56919197e341dd6a0253471e16bfbe223ad0076937c466d8aff56b21dd7b",
+    "name": "HeaderOK",
+    "description": "A check if it works with the new headers",
+    "decimals": 5,
+    "mintable": true,
+    "quantityQNT": "10000000",
+    "quantityBurntQNT": "0",
+    "asset": "10306293061970746065",
+    "quantityCirculatingQNT": "10000000",
+    "numberOfTrades": 0,
+    "numberOfTransfers": 0,
+    "numberOfAccounts": 1,
+    "volumeQNT": "0",
+    "priceHigh": "0",
+    "priceLow": "0",
+    "priceOpen": "0",
+    "priceClose": "0",
+    "requestProcessingTime": 103
+  }
+}

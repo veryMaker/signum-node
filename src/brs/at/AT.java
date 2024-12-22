@@ -8,10 +8,11 @@ package brs.at;
 
 
 import brs.*;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.TransactionDb;
 import brs.db.VersionedEntityTable;
 import brs.services.AccountService;
+import brs.util.Convert;
 import brs.util.Listener;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -30,42 +32,41 @@ public class AT extends AtMachineState {
 
     private static final LinkedHashMap<Long, LinkedHashMap<Long, Long>> pendingFeesMap = new LinkedHashMap<>();
     private static final LinkedHashMap<Long, List<AtTransaction>> pendingTransactionsMap = new LinkedHashMap<>();
-    public final BurstKey dbKey;
+    private static final LinkedHashMap<Long, List<AtMapEntry>> pendingEntryUpdatesMap = new LinkedHashMap<>();
+    public final SignumKey dbKey;
     private final String name;
     private final String description;
     private final int nextHeight;
 
     private AT(byte[] atId, byte[] creator, String name, String description, byte[] creationBytes, int height) {
         super(atId, creator, creationBytes, height);
-        this.name = name;
-        this.description = description;
+        this.name = name.trim();
+        this.description = description.trim();
         dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
-        this.nextHeight = Burst.getBlockchain().getHeight();
+        this.nextHeight = Signum.getBlockchain().getHeight();
     }
 
     public AT(byte[] atId, byte[] creator, String name, String description, short version,
               int height,
               byte[] stateBytes, int csize, int dsize, int cUserStackBytes, int cCallStackBytes,
               int creationBlockHeight, int sleepBetween, int nextHeight,
-              boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode) {
+              boolean freezeWhenSameBalance, long minActivationAmount, byte[] apCode, long apCodeHashId) {
         super(atId, creator, version,
                 height,
                 stateBytes, csize, dsize, cUserStackBytes, cCallStackBytes,
                 creationBlockHeight, sleepBetween,
-                freezeWhenSameBalance, minActivationAmount, apCode);
-        this.name = name;
-        this.description = description;
+                freezeWhenSameBalance, minActivationAmount, apCode, apCodeHashId);
+        this.name = name.trim();
+        this.description = description.trim();
         dbKey = atDbKeyFactory().newKey(AtApiHelper.getLong(atId));
         this.nextHeight = nextHeight;
     }
 
-    public static void clearPendingFees(int blockHeight, long generatorId) {
+    public static void clearPending(int blockHeight, long generatorId) {
         // using height+id as hash
         pendingFeesMap.remove(blockHeight + generatorId);
-    }
-
-    public static void clearPendingTransactions(int blockHeight, long generatorId) {
         pendingTransactionsMap.remove(blockHeight + generatorId);
+        pendingEntryUpdatesMap.remove(blockHeight + generatorId);
     }
 
     public static void addPendingFee(long id, long fee, int blockHeight, long generatorId) {
@@ -78,10 +79,6 @@ public class AT extends AtMachineState {
         pendingFees.put(id, fee);
     }
 
-    public static void addPendingFee(byte[] id, long fee, int blockHeight, long generatorId) {
-        addPendingFee(AtApiHelper.getLong(id), fee, blockHeight, generatorId);
-    }
-
     public static void addPendingTransaction(AtTransaction atTransaction, int blockHeight, long generatorId) {
         long hash = blockHeight + generatorId;
         List<AtTransaction> pendingTransactions = pendingTransactionsMap.get(hash);
@@ -90,6 +87,19 @@ public class AT extends AtMachineState {
           pendingTransactionsMap.put(hash, pendingTransactions);
         }
         pendingTransactions.add(atTransaction);
+    }
+
+    public static void addMapUpdates(Collection<AtMapEntry> entries, int blockHeight, long generatorId) {
+      if(entries == null)
+        return;
+
+      long hash = blockHeight + generatorId;
+      List<AtMapEntry> pendingUpdates = pendingEntryUpdatesMap.get(hash);
+      if(pendingUpdates == null) {
+        pendingUpdates = new ArrayList<>();
+        pendingEntryUpdatesMap.put(hash, pendingUpdates);
+      }
+      pendingUpdates.addAll(entries);
     }
 
     public static boolean findPendingTransaction(byte[] recipientId, int blockHeight, long generatorId) {
@@ -105,20 +115,20 @@ public class AT extends AtMachineState {
         return false;
     }
 
-    private static BurstKey.LongKeyFactory<AT> atDbKeyFactory() {
-        return Burst.getStores().getAtStore().getAtDbKeyFactory();
+    private static SignumKey.LongKeyFactory<AT> atDbKeyFactory() {
+        return Signum.getStores().getAtStore().getAtDbKeyFactory();
     }
 
     private static VersionedEntityTable<AT> atTable() {
-        return Burst.getStores().getAtStore().getAtTable();
+        return Signum.getStores().getAtStore().getAtTable();
     }
 
-    private static BurstKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
-        return Burst.getStores().getAtStore().getAtStateDbKeyFactory();
+    private static SignumKey.LongKeyFactory<ATState> atStateDbKeyFactory() {
+        return Signum.getStores().getAtStore().getAtStateDbKeyFactory();
     }
 
     private static VersionedEntityTable<ATState> atStateTable() {
-        return Burst.getStores().getAtStore().getAtStateTable();
+        return Signum.getStores().getAtStore().getAtStateTable();
     }
 
     public static AT getAT(byte[] id) {
@@ -126,10 +136,10 @@ public class AT extends AtMachineState {
     }
 
     public static AT getAT(Long id) {
-        return Burst.getStores().getAtStore().getAT(id, -1);
+        return Signum.getStores().getAtStore().getAT(id, -1);
     }
 
-    public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes, int height) {
+    public static void addAT(Long atId, Long senderAccountId, String name, String description, byte[] creationBytes, int height, long atCodeHashId) {
         ByteBuffer bf = ByteBuffer.allocate(8 + 8);
         bf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -146,6 +156,9 @@ public class AT extends AtMachineState {
 
         AT at = new AT(id, creator, name, description, creationBytes, height);
 
+        if(at.getApCodeHashId() == 0L)
+          at.setApCodeHashId(atCodeHashId);
+
         AtController.resetMachine(at);
 
         atTable().insert(at);
@@ -157,7 +170,7 @@ public class AT extends AtMachineState {
     }
 
     public static List<Long> getOrderedATs() {
-        return Burst.getStores().getAtStore().getOrderedATs();
+        return Signum.getStores().getAtStore().getOrderedATs();
     }
 
     public static byte[] compressState(byte[] stateBytes) {
@@ -197,23 +210,31 @@ public class AT extends AtMachineState {
     }
 
     public void saveState() {
-        ATState state = atStateTable().get(atStateDbKeyFactory().newKey(AtApiHelper.getLong(this.getId())));
-        int prevHeight = Burst.getBlockchain().getHeight();
+        int prevHeight = Signum.getBlockchain().getHeight();
         int newNextHeight = prevHeight + getWaitForNumberOfBlocks();
-        if (state != null) {
-            state.setState(getState());
-            state.setPrevHeight(prevHeight);
-            state.setNextHeight(newNextHeight);
-            state.setSleepBetween(getSleepBetween());
-            state.setPrevBalance(getpBalance());
-            state.setFreezeWhenSameBalance(freezeOnSameBalance());
-            state.setMinActivationAmount(minActivationAmount());
-        } else {
-            state = new ATState(AtApiHelper.getLong(this.getId()),
-                    getState(), newNextHeight, getSleepBetween(),
-                    getpBalance(), freezeOnSameBalance(), minActivationAmount());
-        }
+        ATState state = new ATState(AtApiHelper.getLong(this.getId()),
+            getState(), newNextHeight, getSleepBetween(),
+            getpBalance(), freezeOnSameBalance(), minActivationAmount());
+        state.setPrevHeight(prevHeight);
+
         atStateTable().insert(state);
+    }
+
+    public static void saveMapUpdates(int blockHeight, long generatorId) {
+      long hash = blockHeight+generatorId;
+      List<AtMapEntry> updates = pendingEntryUpdatesMap.get(hash);
+      if(updates != null) {
+        VersionedEntityTable<AtMapEntry> table = Signum.getStores().getAtStore().getAtMapTable();
+        for(AtMapEntry e : updates) {
+          AtMapEntry cacheEntry = Signum.getStores().getAtStore().getMapValueEntry(e.getAtId(), e.getKey1(), e.getKey2());
+          if(cacheEntry != null) {
+            cacheEntry.setValue(e.getValue());
+            e = cacheEntry;
+          }
+          table.insert(e);
+        }
+        updates.clear();
+      }
     }
 
     public String getName() {
@@ -230,12 +251,10 @@ public class AT extends AtMachineState {
 
     public static class HandleATBlockTransactionsListener implements Listener<Block> {
         private final AccountService accountService;
-        private final Blockchain blockchain;
         private final TransactionDb transactionDb;
 
-        public HandleATBlockTransactionsListener(AccountService accountService, Blockchain blockchain, TransactionDb transactionDb) {
+        public HandleATBlockTransactionsListener(AccountService accountService, TransactionDb transactionDb) {
             this.accountService = accountService;
-            this.blockchain = blockchain;
             this.transactionDb = transactionDb;
         }
 
@@ -255,31 +274,14 @@ public class AT extends AtMachineState {
             List<AtTransaction> pendingTransactions = pendingTransactionsMap.get(hash);
             if(pendingTransactions != null) {
               for (AtTransaction atTransaction : pendingTransactions) {
-                accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getAccount(AtApiHelper.getLong(atTransaction.getSenderId())), -atTransaction.getAmount());
-                accountService.addToBalanceAndUnconfirmedBalanceNQT(accountService.getOrAddAccount(AtApiHelper.getLong(atTransaction.getRecipientId())), atTransaction.getAmount());
-
-                Transaction.Builder builder = new Transaction.Builder((byte) 1, Genesis.getCreatorPublicKey(),
-                        atTransaction.getAmount(), 0L, block.getTimestamp(), (short) 1440, Attachment.AT_PAYMENT);
-
-                builder.senderId(AtApiHelper.getLong(atTransaction.getSenderId()))
-                        .recipientId(AtApiHelper.getLong(atTransaction.getRecipientId()))
-                        .blockId(block.getId())
-                        .height(block.getHeight())
-                        .blockTimestamp(block.getTimestamp())
-                        .ecBlockHeight(0)
-                        .ecBlockId(0L);
-
-                byte[] message = atTransaction.getMessage();
-                if (message != null) {
-                    builder.message(new Appendix.Message(message, blockchain.getHeight()));
-                }
-
                 try {
-                    Transaction transaction = builder.build();
-                    if (!transactionDb.hasTransaction(transaction.getId())) {
-                        transactions.add(transaction);
+                    Transaction transaction = atTransaction.build(block);
+
+                    if (!transactionDb.hasTransaction(transaction.getIdCheckSignature(false))) {
+                      atTransaction.apply(accountService, transaction);
+                      transactions.add(transaction);
                     }
-                } catch (BurstException.NotValidException e) {
+                } catch (SignumException.NotValidException e) {
                     throw new RuntimeException("Failed to construct AT payment transaction", e);
                 }
               }
@@ -295,7 +297,7 @@ public class AT extends AtMachineState {
 
     public static class ATState {
 
-        public final BurstKey dbKey;
+        public final SignumKey dbKey;
         private final long atId;
         private byte[] state;
         private int prevHeight;
@@ -377,5 +379,36 @@ public class AT extends AtMachineState {
         void setMinActivationAmount(long newMinActivationAmount) {
             this.minActivationAmount = newMinActivationAmount;
         }
+    }
+
+    public static class AtMapEntry {
+      private long atId;
+      private long key1;
+      private long key2;
+      private long value;
+
+      public AtMapEntry(long atId, long key1, long key2, long value) {
+        this.atId = atId;
+        this.key1 = key1;
+        this.key2 = key2;
+        this.value = value;
+      }
+
+      public long getValue() {
+        return value;
+      }
+      public void setValue(long value) {
+        this.value = value;
+      }
+      public long getAtId() {
+        return atId;
+      }
+      public long getKey1() {
+        return key1;
+      }
+      public long getKey2() {
+        return key2;
+      }
+
     }
 }

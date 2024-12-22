@@ -1,15 +1,15 @@
 package brs;
 
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Subscription {
 
-  public final Long senderId;
+  public Long senderId;
   public final Long recipientId;
   public final Long id;
-  public final BurstKey dbKey;
+  public final SignumKey dbKey;
   public final Long amountNQT;
   public final int frequency;
   private final AtomicInteger timeNext;
@@ -20,7 +20,7 @@ public class Subscription {
                          Long amountNQT,
                          int frequency,
                          int timeNext,
-                         BurstKey dbKey
+                         SignumKey dbKey
                          ) {
     this.senderId = senderId;
     this.recipientId = recipientId;
@@ -33,6 +33,10 @@ public class Subscription {
 
   public Long getSenderId() {
     return senderId;
+  }
+  
+  public void setSenderId(Long senderId) {
+    this.senderId = senderId;
   }
 
   public Long getAmountNQT() {

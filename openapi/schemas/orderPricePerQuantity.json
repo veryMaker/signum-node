@@ -1,0 +1,5 @@
+{
+  "type": "integer",
+  "format": "int64",
+  "description": "The price in __planck per one token quantity__. To get the right Planck expression use either `price` field or this formula: `(priceNQT * 10^8) * 10^(decimals-8)`"
+}

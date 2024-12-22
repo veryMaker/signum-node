@@ -5,6 +5,7 @@ import brs.Account.AccountAsset;
 import brs.Account.Event;
 import brs.Account.RewardRecipientAssignment;
 import brs.AssetTransfer;
+import brs.util.CollectionWithIndex;
 import brs.util.Listener;
 
 import java.util.Collection;
@@ -17,21 +18,23 @@ public interface AccountService {
 
   Account getAccount(long id);
 
+  Account.Balance getAccountBalance(long id);
+
   Account getAccount(long id, int height);
   
   Account getNullAccount();
 
   Account getAccount(byte[] publicKey);
 
-  Collection<AssetTransfer> getAssetTransfers(long accountId, int from, int to);
+  CollectionWithIndex<AssetTransfer> getAssetTransfers(long accountId, int from, int to);
 
-  Collection<AccountAsset> getAssets(long accountId, int from, int to);
+  CollectionWithIndex<AccountAsset> getAssets(long accountId, int from, int to);
 
   Collection<RewardRecipientAssignment> getAccountsWithRewardRecipient(Long recipientId);
 
   Collection<Account> getAccountsWithName(String name);
 
-  Collection<Account> getAllAccounts(int from, int to);
+  CollectionWithIndex<Account> getAllAccounts(int from, int to);
   
   long getAllAccountsBalance();
 
@@ -40,6 +43,8 @@ public interface AccountService {
   void flushAccountTable();
 
   int getCount();
+  
+  int getBatchedAccountsCount();
 
   void addToForgedBalanceNQT(Account account, long amountNQT);
 

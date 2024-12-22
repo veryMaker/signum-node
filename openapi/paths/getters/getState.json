@@ -1,0 +1,259 @@
+{
+  "get": {
+    "summary": "Get Blockchain Info (Extended)",
+    "description": "Get a bunch of information about the current chains status. This method returns more information than [Get Blockchain Info](#get-/api-requestType-getBlockchainStatus)",
+    "tags": ["network", "admin"],
+    "parameters": [
+      {
+        "name": "includeCounts",
+        "in": "query",
+        "required": false,
+        "description": "⚠\uFE0F If `true` additional stats are returned, but this increases workload of the node. Default is `false` -Note, that an `apiKey` needs to be provided in case of `true`, otherwise method is not allowed",
+        "schema": {
+          "type": "boolean",
+          "example": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "$ref": "../../parameters/apiKey.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Time response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "application",
+                "version",
+                "time",
+                "lastBlock",
+                "cumulativeDifficulty",
+                "totalMinedNQT",
+                "totalBurntNQT",
+                "circulatingSupplyNQT",
+                "numberOfBlocks",
+                "numberOfTransactions",
+                "numberOfATs",
+                "numberOfAssets",
+                "numberOfOrders",
+                "numberOfAskOrders",
+                "numberOfBidOrders",
+                "numberOfTrades",
+                "numberOfTransfers",
+                "numberOfAliases",
+                "numberOfPeers",
+                "numberOfUnlockedAccounts",
+                "lastBlockchainFeeder",
+                "lastBlockchainFeederHeight",
+                "isScanning",
+                "availableProcessors",
+                "maxMemory",
+                "totalMemory",
+                "freeMemory",
+                "indirectIncomingServiceEnabled",
+                "requestProcessingTime"
+              ],
+              "properties": {
+                "application": {
+                  "description": "The configured name of the node, usually 'BRS'. But can be different for other chains/networks",
+                  "type": "string"
+                },
+                "version": {
+                  "description": "The [_semantic_](https://semver.org/) version of this node.",
+                  "type": "string"
+                },
+                "time": {
+                  "description": "The current time as a timestamp in seconds since block 0.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "lastBlock": {
+                  "description": "The last forged block id",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "cumulativeDifficulty": {
+                  "description": "The networks current network difficulty",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "totalMinedNQT": {
+                  "description": "The total of mined coins in Planck",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "totalBurntNQT": {
+                  "description": "The total of burnt coins in Planck",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "circulatingSupplyNQT": {
+                  "description": "The total circulating coins in Planck, i.e. burnt coins excluded",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "totalEffectiveBalance": {
+                  "description": "The total supply of the network in Signa (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "totalEffectiveBalanceNQT": {
+                  "description": "The total supply of the network in Planck (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "totalCommittedNQT": {
+                  "description": "The total amount of commitment of the network in Planck (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfAccounts": {
+                  "description": "The number of accounts (only available if `includeCounts` is true)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfBlocks": {
+                  "description": "The number of blocks including the current non-forged block",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfTransactions": {
+                  "description": "The number of transactions",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfATs": {
+                  "description": "The number of smart contracts",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfAssets": {
+                  "description": "The number of issued tokens",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfOrders": {
+                  "description": "The number of token orders (bids and asks)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfAskOrders": {
+                  "description": "The number of ask token orders",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfBidOrders": {
+                  "description": "The number of bid token orders",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfTrades": {
+                  "description": "The number of token trades",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfTransfers": {
+                  "description": "The number of token transfers",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfAliases": {
+                  "description": "The number of aliases",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfPeers": {
+                  "description": "The number of peers/nodes",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "numberOfUnlockedAccounts": {
+                  "description": "The number of peers/nodes",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "lastBlockchainFeeder": {
+                  "description": "The public available name of the last node that communicated with this node",
+                  "type": "string"
+                },
+                "lastBlockchainFeederHeight": {
+                  "description": "The last block height this nodes got from the feeder",
+                  "type": "string"
+                },
+                "isScanning": {
+                  "description": "Indicates if this node is scanning/syncing",
+                  "type": "boolean"
+                },
+                "indirectIncomingServiceEnabled": {
+                  "description": "Indicates if this node has `indirectIncoming` functionality (token distribution) enabled",
+                  "type": "boolean"
+                },
+                "availableProcessors": {
+                  "description": "Number of processors of this node",
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "maxMemory": {
+                  "description": "Amount of maximum available memory of the node (in bytes)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "totalMemory": {
+                  "description": "Amount used memory of the node (in bytes)",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "freeMemory": {
+                  "description": "Amount of free memory of the node (in bytes)",
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "example": {
+                "application": "BRS",
+                "version": "v3.7.0",
+                "time": 274806175,
+                "lastBlock": "549654937453913943",
+                "cumulativeDifficulty": "70624197932486880",
+                "totalMinedNQT": 199245981900000000,
+                "totalBurntNQT": 77607213673905,
+                "circulatingSupplyNQT": 199168374686326080,
+                "totalEffectiveBalance": 1992459819,
+                "totalEffectiveBalanceNQT": 199245981900000000,
+                "totalCommittedNQT": 14722626561649584,
+                "numberOfAccounts": 605334,
+                "numberOfBlocks": 538692,
+                "numberOfTransactions": 2666794,
+                "numberOfATs": 3720,
+                "numberOfAssets": 251,
+                "numberOfOrders": 133,
+                "numberOfAskOrders": 93,
+                "numberOfBidOrders": 40,
+                "numberOfTrades": 479,
+                "numberOfTransfers": 22516,
+                "numberOfAliases": 131,
+                "numberOfPeers": 19,
+                "numberOfUnlockedAccounts": 0,
+                "lastBlockchainFeeder": "t-p2p.notallmine.net:8080",
+                "lastBlockchainFeederHeight": 539454,
+                "isScanning": false,
+                "availableProcessors": 8,
+                "maxMemory": 8378122240,
+                "totalMemory": 2237661184,
+                "freeMemory": 1033661464,
+                "indirectIncomingServiceEnabled": true,
+                "requestProcessingTime": 783
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

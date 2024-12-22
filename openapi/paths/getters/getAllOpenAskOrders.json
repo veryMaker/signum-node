@@ -1,0 +1,46 @@
+{
+  "get": {
+    "summary": "Get Open Ask Orders",
+    "description": "Gets all open ask orders",
+    "tags": [
+      "token"
+    ],
+    "parameters": [
+      {
+        "$ref": "../../parameters/firstIndex.json"
+      },
+      {
+        "$ref": "../../parameters/lastIndex.json"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "List of __Ask Orders__",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "askOrders"
+              ],
+              "properties": {
+                "nextIndex": {
+                  "$ref": "../../schemas/nextIndex.json"
+                },
+                "askOrders": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../schemas/order.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../responses/error.json"
+      }
+    }
+  }
+}

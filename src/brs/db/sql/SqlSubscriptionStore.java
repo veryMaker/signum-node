@@ -1,15 +1,14 @@
 package brs.db.sql;
 
-import brs.Burst;
+import brs.Signum;
 import brs.Subscription;
-import brs.db.BurstKey;
+import brs.db.SignumKey;
 import brs.db.VersionedEntityTable;
 import brs.db.store.DerivedTableManager;
 import brs.db.store.SubscriptionStore;
-import org.jooq.Condition;
-import org.jooq.DSLContext;
+
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.SortField;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,9 +18,9 @@ import static brs.schema.Tables.SUBSCRIPTION;
 
 public class SqlSubscriptionStore implements SubscriptionStore {
 
-  private final BurstKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
+  private final SignumKey.LongKeyFactory<Subscription> subscriptionDbKeyFactory = new DbKey.LongKeyFactory<Subscription>(SUBSCRIPTION.ID) {
       @Override
-      public BurstKey newKey(Subscription subscription) {
+      public SignumKey newKey(Subscription subscription) {
         return subscription.dbKey;
       }
     };
@@ -37,7 +36,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
 
       @Override
       protected void save(DSLContext ctx, Subscription subscription) {
-        saveSubscription(ctx, subscription);
+        insertSubscription(ctx, subscription).execute();
       }
 
       @Override
@@ -59,7 +58,7 @@ public class SqlSubscriptionStore implements SubscriptionStore {
   }
 
   @Override
-  public BurstKey.LongKeyFactory<Subscription> getSubscriptionDbKeyFactory() {
+  public SignumKey.LongKeyFactory<Subscription> getSubscriptionDbKeyFactory() {
     return subscriptionDbKeyFactory;
   }
 
@@ -88,11 +87,9 @@ public class SqlSubscriptionStore implements SubscriptionStore {
     return subscriptionTable.getManyBy(getUpdateOnBlockClause(timestamp), 0, -1);
   }
 
-  private void saveSubscription(DSLContext ctx, Subscription subscription) {
-    ctx.mergeInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .key(SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
-            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Burst.getBlockchain().getHeight(), true)
-            .execute();
+  private Query insertSubscription(DSLContext ctx, Subscription subscription) {
+    return ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID, SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
+            .values(subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency, subscription.getTimeNext(), Signum.getBlockchain().getHeight(), true);
   }
 
   private class SqlSubscription extends Subscription {
@@ -106,6 +103,35 @@ public class SqlSubscriptionStore implements SubscriptionStore {
             record.get(SUBSCRIPTION.TIME_NEXT),
             subscriptionDbKeyFactory.newKey(record.get(SUBSCRIPTION.ID))
             );
+    }
+  }
+
+  @Override
+  public void saveSubscriptions(Collection<Subscription> subscriptions) {
+    if (!subscriptions.isEmpty()) {
+      Db.useDSLContext(ctx -> {
+
+        // remove the latest flag for past entries
+        ctx.batched(c -> {
+          for (Subscription s : subscriptions) {
+              c.dsl().update(SUBSCRIPTION)
+                     .set(SUBSCRIPTION.LATEST, false)
+                     .where(SUBSCRIPTION.ID.eq(s.id).and(SUBSCRIPTION.LATEST.isTrue()))
+                     .execute();
+          } });
+
+        BatchBindStep insertBatch = ctx.batch(
+            ctx.insertInto(SUBSCRIPTION, SUBSCRIPTION.ID, SUBSCRIPTION.SENDER_ID, SUBSCRIPTION.RECIPIENT_ID,
+            SUBSCRIPTION.AMOUNT, SUBSCRIPTION.FREQUENCY, SUBSCRIPTION.TIME_NEXT, SUBSCRIPTION.HEIGHT, SUBSCRIPTION.LATEST)
+                .values((Long) null, null, null, null, null, null, null, null));
+        for (Subscription subscription : subscriptions) {
+          insertBatch.bind(
+            subscription.id, subscription.senderId, subscription.recipientId, subscription.amountNQT, subscription.frequency,
+            subscription.getTimeNext(), Signum.getBlockchain().getHeight(), true
+          );
+        }
+        insertBatch.execute();
+      });
     }
   }
 }

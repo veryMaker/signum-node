@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "description": "The order object",
+  "required": [
+    "order",
+    "asset",
+    "account",
+    "accountRS",
+    "quantityQNT",
+    "priceNQT",
+    "price",
+    "height",
+    "type"
+  ],
+  "properties": {
+    "order": {
+      "$ref": "./orderId.json"
+    },
+    "asset": {
+      "$ref": "./assetId.json"
+    },
+    "account": {
+      "$ref": "./numericId.json"
+    },
+    "accountRS": {
+      "$ref": "./rsAddress.json"
+    },
+    "quantityQNT": {
+      "$ref": "./quantity.json"
+    },
+    "priceNQT": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The price in __planck per one token quantity__. To get the right Planck expression use either `price` field or this formula: `(priceNQT * 10^8) * 10^(decimals-8)`"
+    },
+    "price": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The price __per integral token__, i.e. if a token has 2 (two) decimals, then this amount is per 100 QNT (Quantity). The amount is always returned in Planck, that is Signa multiplied by 10E8"
+    },
+    "height": {
+      "type": "integer",
+      "description": "The block height"
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of the order",
+      "enum": ["ask", "bid"]
+    }
+  },
+  "example": {
+    "order": "12287063733956918204",
+    "asset": "2742339563614125644",
+    "account": "5812913123670292755",
+    "accountRS": "S-7YAM-Q2DB-UXXS-7XWC3",
+    "quantityQNT": "1301635506",
+    "priceNQT": "600",
+    "height": 1042886,
+    "type": "ask"
+  }
+}

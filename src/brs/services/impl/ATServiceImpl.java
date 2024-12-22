@@ -3,9 +3,9 @@ package brs.services.impl;
 import brs.at.AT;
 import brs.db.store.ATStore;
 import brs.services.ATService;
+import brs.util.CollectionWithIndex;
 
 import java.util.Collection;
-import java.util.List;
 
 public class ATServiceImpl implements ATService {
 
@@ -16,13 +16,13 @@ public class ATServiceImpl implements ATService {
   }
 
   @Override
-  public Collection<Long> getAllATIds() {
-    return atStore.getAllATIds();
+  public Collection<Long> getAllATIds(Long codeHashId) {
+    return atStore.getAllATIds(codeHashId);
   }
 
   @Override
-  public List<Long> getATsIssuedBy(Long accountId) {
-    return atStore.getATsIssuedBy(accountId);
+  public CollectionWithIndex<Long> getATsIssuedBy(Long accountId, Long codeHashId, int from, int to) {
+    return new CollectionWithIndex<Long>(atStore.getATsIssuedBy(accountId, codeHashId, from, to), from, to);
   }
 
   @Override

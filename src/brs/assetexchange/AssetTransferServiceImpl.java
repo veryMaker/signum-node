@@ -2,10 +2,8 @@ package brs.assetexchange;
 
 import brs.AssetTransfer;
 import brs.AssetTransfer.Event;
-import brs.Attachment;
 import brs.Transaction;
-import brs.db.BurstKey;
-import brs.db.BurstKey.LongKeyFactory;
+import brs.db.SignumKey;
 import brs.db.sql.EntitySqlTable;
 import brs.db.store.AssetTransferStore;
 import brs.util.Listener;
@@ -19,7 +17,7 @@ class AssetTransferServiceImpl {
 
   private final AssetTransferStore assetTransferStore;
   private final EntitySqlTable<AssetTransfer> assetTransferTable;
-  private final LongKeyFactory<AssetTransfer> transferDbKeyFactory;
+  private final SignumKey.LinkKeyFactory<AssetTransfer> transferDbKeyFactory;
 
 
   public AssetTransferServiceImpl(AssetTransferStore assetTransferStore) {
@@ -52,9 +50,9 @@ class AssetTransferServiceImpl {
     return assetTransferTable.getCount();
   }
 
-  public AssetTransfer addAssetTransfer(Transaction transaction, Attachment.ColoredCoinsAssetTransfer attachment) {
-    BurstKey dbKey = transferDbKeyFactory.newKey(transaction.getId());
-    AssetTransfer assetTransfer = new AssetTransfer(dbKey, transaction, attachment);
+  public AssetTransfer addAssetTransfer(Transaction transaction, long assetId, long quantityQNT) {
+    SignumKey dbKey = transferDbKeyFactory.newKey(transaction.getId(), assetId);
+    AssetTransfer assetTransfer = new AssetTransfer(dbKey, transaction, assetId, quantityQNT);
     assetTransferTable.insert(assetTransfer);
     listeners.notify(assetTransfer, Event.ASSET_TRANSFER);
     return assetTransfer;

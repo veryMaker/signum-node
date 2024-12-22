@@ -8,17 +8,18 @@
 
 package brs.at;
 
-import burst.kit.crypto.BurstCrypto;
-import org.bouncycastle.util.Arrays;
-
 import java.math.BigInteger;
 import java.nio.BufferOverflowException;
+
+import org.bouncycastle.util.Arrays;
+
+import signumj.crypto.SignumCrypto;
 
 public class AtApiHelper {
     private AtApiHelper() {
     }
 
-    private static final BurstCrypto burstCrypto = BurstCrypto.getInstance();
+    private static final SignumCrypto signumCrypto = SignumCrypto.getInstance();
 
     public static int longToHeight(long x) {
         return (int) (x >> 32);
@@ -28,11 +29,11 @@ public class AtApiHelper {
         if (bytes.length > 8) {
             throw new BufferOverflowException();
         }
-        return burstCrypto.bytesToLongLE(bytes);
+        return signumCrypto.bytesToLongLE(bytes);
     }
 
     public static byte[] getByteArray(long l) {
-        return burstCrypto.longToBytesLE(l);
+        return signumCrypto.longToBytesLE(l);
     }
 
     public static int longToNumOfTx(long x) {

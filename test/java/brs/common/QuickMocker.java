@@ -5,17 +5,15 @@ import brs.fluxcapacitor.FluxCapacitor;
 import brs.fluxcapacitor.FluxCapacitorImpl;
 import brs.fluxcapacitor.FluxEnable;
 import brs.props.PropertyService;
-import brs.props.Props;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.mockito.ArgumentMatchers;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static brs.http.common.Parameters.*;
+import static brs.web.api.http.common.Parameters.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +35,6 @@ public class QuickMocker {
     Blockchain blockchain = mock(Blockchain.class);
     PropertyService propertyService = mock(PropertyService.class);
     when(blockchain.getHeight()).thenReturn(Integer.MAX_VALUE);
-    when(propertyService.getBoolean(ArgumentMatchers.eq(Props.DEV_TESTNET))).thenReturn(false);
     return new FluxCapacitorImpl(blockchain, propertyService);
   }
 

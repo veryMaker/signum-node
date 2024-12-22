@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "required": [
+    "ecBlockId",
+    "ecBlockHeight",
+    "timestamp",
+  ],
+  "properties": {
+    "ecBlockId": {
+      "$ref": "./blockId.json"
+    },
+    "ecBlockHeight": {
+      "type": "integer",
+      "description": "The block height"
+    },
+    "timestamp": {
+      "$ref": "./timestamp.json"
+    }
+  },
+  "example": {
+    "ecBlockId": "11005421887713390160",
+    "ecBlockHeight": 466561,
+    "timestamp": 258400021,
+    "requestProcessingTime": 1
+  }
+}

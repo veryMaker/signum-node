@@ -1,6 +1,6 @@
 package brs.peer;
 
-import brs.BurstException;
+import brs.SignumException;
 import brs.TransactionProcessor;
 import brs.util.JSON;
 import com.google.gson.JsonElement;
@@ -21,7 +21,7 @@ final class ProcessTransactions implements PeerServlet.PeerRequestHandler {
     try {
       transactionProcessor.processPeerTransactions(request, peer);
       return JSON.emptyJSON;
-    } catch (RuntimeException | BurstException.ValidationException e) {
+    } catch (RuntimeException | SignumException.ValidationException e) {
       peer.blacklist(e, "received invalid data via requestType=processTransactions");
       JsonObject response = new JsonObject();
       response.addProperty("error", e.toString());
