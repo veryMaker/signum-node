@@ -109,8 +109,7 @@ public class Props {
 
   // DB options
   public static final Prop<Boolean> DB_SKIP_CHECK  = new Prop<>("DB.SkipCheck", false);
-  // TODO: change this when SQLITE turns out to be stable
-  public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:h2:file:./db/signum-v2;DB_CLOSE_ON_EXIT=FALSE");
+  public static final Prop<String> DB_URL          = new Prop<>("DB.Url", "jdbc:sqlite:file:./db/signum.sqlite.db");
   public static final Prop<String> DB_USERNAME     = new Prop<>("DB.Username", "");
   public static final Prop<String> DB_PASSWORD     = new Prop<>("DB.Password", "");
   public static final Prop<Integer> DB_CONNECTIONS  = new Prop<>("DB.Connections", 30);
@@ -179,7 +178,7 @@ public class Props {
   public static final Prop<String> API_SSL_KEY_STORE_PATH     = new Prop<>("API.SSL_keyStorePath", "keystore");
   public static final Prop<String> API_SSL_KEY_STORE_PASSWORD = new Prop<>("API.SSL_keyStorePassword", "password");
   public static final Prop<String> API_SSL_LETSENCRYPT_PATH = new Prop<>("API.SSL_letsencryptPath", "");
-  public static final Prop<Integer> API_SERVER_IDLE_TIMEOUT = new Prop<>("API.ServerIdleTimeout", 30000);
+  public static final Prop<Integer> API_SERVER_IDLE_TIMEOUT = new Prop<>("API.ServerIdleTimeout", 60_000);
   public static final Prop<Boolean> API_SERVER_ENFORCE_POST = new Prop<>("API.ServerEnforcePOST", true);
   public static final Prop<String> API_ALLOWED_ORIGINS = new Prop<>("API.AllowedOrigins", "*");
 
